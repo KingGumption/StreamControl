@@ -18,9 +18,10 @@ if ($environmentText -notmatch '(?m)^APP_MODE=connector\s*$') { throw 'The .env 
 
 $runnerPath = Join-Path $PSScriptRoot 'run-connector.ps1'
 $powershellPath = (Get-Command powershell.exe).Source
+$currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 $arguments = "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$runnerPath`""
 $action = New-ScheduledTaskAction -Execute $powershellPath -Argument $arguments -WorkingDirectory $projectPath
-$trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+$trigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RestartCount 99 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit (New-TimeSpan -Days 3650)
 Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Description 'Secure StreamEngagement bridge to OBS, Streamer.bot, and TikFinity.' -Force | Out-Null
 Start-ScheduledTask -TaskName $taskName
