@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>King of the Hill Admin</title>
+    <style>
+      :root {
+        --bg: #101418;
+        --panel: #181d25;
+        --panel-alt: #1e2430;
+        --accent: #4ecdc4;
+        --text: #edf4f7;
+        --muted: #a2b5c3;
+        --danger: #ff6b6b;
+        --border: #27313d;
+        --success: #67d889;
+        --gold: #f4c95d;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+      .shell { max-width: 1200px; margin: 0 auto; padding: 20px; }
+      header {
+        display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { margin-bottom: 0; font-size: 1.8rem; }
+      .admin-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+      .admin-nav a {
+        color: var(--muted); text-decoration: none; border: 1px solid var(--border); border-radius: 7px;
+        padding: 9px 13px; background: var(--panel-alt); font-weight: bold;
+      }
+      .admin-nav a:hover, .admin-nav a.active { color: var(--text); border-color: var(--accent); }
+      .admin-nav a.active { background: rgba(78,205,196,.13); }
+      .panel {
+        margin-bottom: 20px; padding: 20px; border: 1px solid var(--border); border-radius: 10px;
+        background: var(--panel); box-shadow: 0 0 0 1px rgba(0,0,0,.2);
+      }
+      .control-grid { display: grid; grid-template-columns: minmax(300px,.8fr) minmax(0,1.4fr); gap: 20px; align-items: center; }
+      .muted { color: var(--muted); line-height: 1.45; }
+      .status-line { display: flex; align-items: center; gap: 12px; margin: 18px 0; }
+      .status {
+        display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid var(--border);
+        border-radius: 999px; background: var(--panel-alt); font-weight: bold;
+      }
+      .status::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+      .status.running::before { background: var(--success); box-shadow: 0 0 0 3px rgba(103,216,137,.14); }
+      .phase-detail { color: var(--gold); font-weight: bold; }
+      .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+      button { border-radius: 6px; padding: 10px 16px; font-weight: bold; cursor: pointer; }
+      button.primary { color: #0a1217; border: none; background: var(--accent); }
+      button.secondary { color: var(--text); border: 1px solid var(--border); background: var(--panel-alt); }
+      button.danger { color: var(--danger); border: 1px solid var(--danger); background: transparent; }
+      button:disabled { opacity: .45; cursor: not-allowed; }
+      .overlay-url { display: flex; gap: 8px; margin-top: 14px; }
+      input[type="text"] {
+        width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid var(--border); border-radius: 6px;
+        color: var(--text); background: #0f141a;
+      }
+      input[type="number"] {
+        width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;
+        color: var(--text); background: #0f141a; font-size: 1rem;
+      }
+      label { display: block; margin-bottom: 7px; font-weight: bold; }
+      .timing-grid { display: grid; grid-template-columns: repeat(4, minmax(140px,1fr)); gap: 14px; }
+      .timing-field { padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel-alt); }
+      .timing-field small { display: block; margin-top: 7px; color: var(--muted); }
+      .message { min-height: 20px; margin-top: 9px; color: var(--muted); }
+      .preview {
+        display: block; width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--border); border-radius: 10px;
+        background-color: #263038;
+        background-image: linear-gradient(45deg,#303b44 25%,transparent 25%),linear-gradient(-45deg,#303b44 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#303b44 75%),linear-gradient(-45deg,transparent 75%,#303b44 75%);
+        background-size: 24px 24px; background-position: 0 0,0 12px,12px -12px,-12px 0;
+      }
+      .how-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+      .how-card { padding: 15px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel-alt); }
+      .how-number {
+        display: grid; place-items: center; width: 30px; height: 30px; margin-bottom: 10px; border-radius: 9px;
+        color: #0a1217; background: var(--accent); font-weight: bold;
+      }
+      .how-card h3 { margin-bottom: 7px; font-size: 1rem; }
+      .how-card p { margin-bottom: 0; font-size: .9rem; }
+      details { margin-top: 14px; }
+      summary { cursor: pointer; color: var(--accent); font-weight: bold; }
+      .credits { columns: 2; column-gap: 28px; padding-left: 20px; }
+      .credits li { break-inside: avoid; margin: 8px 0; color: var(--muted); font-size: .84rem; line-height: 1.35; }
+      .credits a { color: var(--text); }
+      @media (max-width: 850px) {
+        header { align-items: flex-start; flex-direction: column; }
+        .control-grid, .how-grid, .timing-grid { grid-template-columns: 1fr; }
+        .credits { columns: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <h1>KingGumption King of the Hill</h1>
+        <nav class="admin-nav" aria-label="Admin pages">
+          <a href="/admin">Song Requests</a>
+          <a class="active" href="/admin/king-of-the-hill" aria-current="page">King of the Hill</a>
+          <a href="/admin/analytics">Analytics</a>
+          <a href="/admin/polaroid">Polaroid Redeem</a>
+        </nav>
+      </header>
+
+      <section class="panel">
+        <div class="control-grid">
+          <div>
+            <h2>Game Controls</h2>
+            <p class="muted">Start with a two-topic chat vote, then run your chosen number of King of the Hill matchups. Every viewer can vote once per stage by typing <strong>1</strong> or <strong>2</strong>.</p>
+            <div class="status-line">
+              <span class="status" id="gameStatus">Stopped</span>
+              <span class="phase-detail" id="phaseDetail"></span>
+            </div>
+            <div class="toolbar">
+              <button class="primary" id="startGame">Start game</button>
+              <button class="secondary" id="nextGame" disabled>End vote now</button>
+              <button class="danger" id="stopGame" disabled>Stop</button>
+            </div>
+            <div class="overlay-url">
+              <input id="overlayUrl" type="text" readonly aria-label="King of the Hill OBS overlay URL" />
+              <button class="secondary" id="copyUrl">Copy</button>
+            </div>
+            <div class="toolbar">
+              <button class="secondary" id="openOverlay">Open overlay full size</button>
+            </div>
+            <div class="message" id="message" role="status" aria-live="polite"></div>
+          </div>
+          <iframe class="preview" title="King of the Hill overlay preview" src="/king-of-the-hill"></iframe>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Game Setup</h2>
+        <p class="muted">Choose the number of battles and set each duration in seconds. Timing changes apply at the next stage; round-count changes apply with the next selected topic.</p>
+        <div class="timing-grid">
+          <div class="timing-field">
+            <label for="roundCount">Number of rounds</label>
+            <input id="roundCount" type="number" min="1" max="9" step="1" inputmode="numeric" />
+            <small>1–9 rounds</small>
+          </div>
+          <div class="timing-field">
+            <label for="topicSeconds">Topic vote</label>
+            <input id="topicSeconds" type="number" min="5" max="300" step="1" inputmode="numeric" />
+            <small>5–300 seconds</small>
+          </div>
+          <div class="timing-field">
+            <label for="roundSeconds">Each battle round</label>
+            <input id="roundSeconds" type="number" min="5" max="300" step="1" inputmode="numeric" />
+            <small>5–300 seconds</small>
+          </div>
+          <div class="timing-field">
+            <label for="championSeconds">Champion screen</label>
+            <input id="championSeconds" type="number" min="3" max="60" step="1" inputmode="numeric" />
+            <small>3–60 seconds</small>
+          </div>
+        </div>
+        <div class="toolbar">
+          <button class="primary" id="saveTimings">Save game setup</button>
+        </div>
+        <div class="message" id="timingMessage" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="panel">
+        <h2>How a game runs</h2>
+        <div class="how-grid">
+          <article class="how-card"><span class="how-number">1</span><h3>Choose a topic</h3><p class="muted">Chat gets 30 seconds to choose between two randomly selected topics.</p></article>
+          <article class="how-card"><span class="how-number">2</span><h3>Defend the hill</h3><p class="muted">The winner stays and faces a fresh challenger for your configured number of rounds.</p></article>
+          <article class="how-card"><span class="how-number">3</span><h3>Crown the winner</h3><p class="muted">The champion appears for eight seconds before the next topic vote starts.</p></article>
+        </div>
+        <details>
+          <summary id="creditSummary">Image sources</summary>
+          <p class="muted">Answer artwork is cached locally for reliable playback. Branded cards use official promotional sources where available; generic categories use curated reference photography. Follow each link for its source and rights information.</p>
+          <ul class="credits" id="imageCredits"></ul>
+        </details>
+      </section>
+    </div>
+
+    <script>
+      const overlayUrl = `${window.location.origin}/king-of-the-hill`;
+      const state = { game: { running: false, phase: 'idle' } };
+      let timingsLoaded = false;
+      document.getElementById('overlayUrl').value = overlayUrl;
+
+      function render(game) {
+        state.game = game || { running: false, phase: 'idle' };
+        const status = document.getElementById('gameStatus');
+        const detail = document.getElementById('phaseDetail');
+        const labels = { topic: 'Topic vote', battle: 'Battle live', champion: 'Champion', idle: 'Stopped' };
+        status.textContent = labels[state.game.phase] || 'Stopped';
+        status.classList.toggle('running', Boolean(state.game.running));
+        detail.textContent = state.game.phase === 'battle'
+          ? `Round ${state.game.round} of ${state.game.totalRounds} · ${state.game.totalVotes} votes`
+          : ['topic', 'champion'].includes(state.game.phase) ? `${state.game.totalVotes || 0} votes` : '';
+        document.getElementById('startGame').disabled = Boolean(state.game.running);
+        document.getElementById('nextGame').disabled = !state.game.running;
+        document.getElementById('stopGame').disabled = !state.game.running;
+        if (!timingsLoaded && state.game.timings) {
+          setTimingInputs(state.game.timings);
+          document.getElementById('roundCount').value = state.game.roundCount;
+          timingsLoaded = true;
+        }
+      }
+
+      function setTimingInputs(timings) {
+        document.getElementById('topicSeconds').value = timings.topicSeconds;
+        document.getElementById('roundSeconds').value = timings.roundSeconds;
+        document.getElementById('championSeconds').value = timings.championSeconds;
+      }
+
+      async function loadState() {
+        try {
+          const response = await fetch('/admin/king-of-the-hill/state', { cache: 'no-store' });
+          if (response.ok) render((await response.json()).game);
+        } catch { /* keep the last known state during a brief disconnect */ }
+      }
+
+      async function loadCredits() {
+        try {
+          const response = await fetch('/assets/hill-art-official/manifest.json', { cache: 'no-store' });
+          if (!response.ok) return;
+          const manifest = await response.json();
+          const assets = Object.values(manifest.assets || {});
+          document.getElementById('creditSummary').textContent = `Image sources (${assets.length})`;
+          const items = assets.sort((a, b) => `${a.topic} ${a.title}`.localeCompare(`${b.topic} ${b.title}`)).map((asset) => {
+            const item = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = asset.sourceUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = `${asset.topic}: ${asset.title}`;
+            item.append(link, document.createTextNode(` — ${asset.sourceOwner || asset.sourceTitle || 'source'} · ${asset.sourceType === 'official-promotional' ? 'official promotional artwork' : 'curated reference'}`));
+            return item;
+          });
+          document.getElementById('imageCredits').replaceChildren(...items);
+        } catch { /* source details remain available in the local manifest */ }
+      }
+
+      async function action(name) {
+        const message = document.getElementById('message');
+        try {
+          const response = await fetch(`/admin/king-of-the-hill/${name}`, { method: 'POST' });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'Game action failed');
+          render(result.game);
+          message.textContent = name === 'start'
+            ? 'Topic voting is live. Chat can vote with 1 or 2.'
+            : name === 'stop' ? 'Game stopped and overlay hidden.' : 'Moved to the next stage.';
+        } catch (error) {
+          message.textContent = error.message || 'Could not update the game.';
+        }
+      }
+
+      document.getElementById('startGame').addEventListener('click', () => action('start'));
+      document.getElementById('nextGame').addEventListener('click', () => action('next'));
+      document.getElementById('stopGame').addEventListener('click', () => action('stop'));
+      document.getElementById('openOverlay').addEventListener('click', () => window.open('/king-of-the-hill', '_blank', 'noopener'));
+      document.getElementById('copyUrl').addEventListener('click', async () => {
+        const message = document.getElementById('message');
+        try {
+          await navigator.clipboard.writeText(overlayUrl);
+          message.textContent = 'King of the Hill overlay URL copied.';
+        } catch {
+          document.getElementById('overlayUrl').select();
+          message.textContent = 'Press Ctrl+C to copy the selected URL.';
+        }
+      });
+      document.getElementById('saveTimings').addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        const message = document.getElementById('timingMessage');
+        const timings = {
+          roundCount: Number(document.getElementById('roundCount').value),
+          topicSeconds: Number(document.getElementById('topicSeconds').value),
+          roundSeconds: Number(document.getElementById('roundSeconds').value),
+          championSeconds: Number(document.getElementById('championSeconds').value),
+        };
+        button.disabled = true;
+        message.textContent = 'Saving…';
+        try {
+          const response = await fetch('/admin/king-of-the-hill/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(timings),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save timings');
+          setTimingInputs(result.timings);
+          document.getElementById('roundCount').value = result.roundCount;
+          render(result.game);
+          message.textContent = state.game.running
+            ? 'Game setup saved. Timings apply next stage; rounds apply with the next topic.'
+            : 'Game setup saved.';
+        } catch (error) {
+          message.textContent = error.message || 'Could not save timings.';
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      loadState();
+      loadCredits();
+      setInterval(loadState, 2000);
+    </script>
+  </body>
+</html>

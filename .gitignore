@@ -1,0 +1,11 @@
+node_modules/
+data/*.db
+data/*.db-*
+data/permissions.json
+*.log
+.env
+data/spotify-tokens.json
+data/spotify-oauth-tokens.json
+data/polaroid-config.json
+data/polaroid-captures/
+backups/

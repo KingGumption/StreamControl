@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Song Added Overlay</title>
+    <style>
+      :root {
+        --glass: rgba(18, 21, 46, .88);
+        --glass-deep: rgba(9, 13, 31, .95);
+        --cyan: #61f4ff;
+        --violet: #a778ff;
+        --pink: #ff7896;
+        --text: #f7f8ff;
+        --muted: #c4c8df;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; overflow: hidden; }
+      body {
+        margin: 0;
+        background: transparent;
+        font-family: "Trebuchet MS", Arial, sans-serif;
+      }
+
+      .toast {
+        position: absolute;
+        right: clamp(24px, 4vw, 76px);
+        bottom: clamp(28px, 7vh, 110px);
+        width: min(720px, calc(100vw - 48px));
+        min-height: 338px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        filter: drop-shadow(0 18px 25px rgba(5, 5, 20, .38));
+        opacity: 0;
+        transform: translateX(calc(100% + 100px)) rotate(1.5deg);
+        transition:
+          transform 760ms cubic-bezier(.18, 1.25, .4, 1),
+          opacity 250ms ease;
+        pointer-events: none;
+      }
+
+      .toast.visible {
+        opacity: 1;
+        transform: translateX(0) rotate(0);
+      }
+
+      .toast.leaving {
+        opacity: 0;
+        transform: translateX(calc(100% + 100px)) rotate(-1deg);
+        transition-timing-function: cubic-bezier(.65, 0, .85, .25);
+      }
+
+      .copy-card {
+        position: relative;
+        z-index: 1;
+        width: min(490px, 66vw);
+        min-height: 190px;
+        margin: 0 220px 40px 0;
+        padding: 23px 66px 22px 27px;
+        overflow: hidden;
+        color: var(--text);
+        background:
+          linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.025) 34%, transparent 56%),
+          radial-gradient(circle at 96% 12%, rgba(167,120,255,.24), transparent 34%),
+          linear-gradient(120deg, var(--glass), var(--glass-deep));
+        border: 1px solid rgba(255, 255, 255, .34);
+        border-radius: 24px;
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.24),
+          inset 0 0 26px rgba(137, 103, 255, .08),
+          0 0 0 2px rgba(97, 244, 255, .5),
+          0 0 18px rgba(97, 244, 255, .24),
+          0 0 38px rgba(145, 85, 255, .26),
+          0 16px 34px rgba(3, 5, 20, .34);
+        backdrop-filter: blur(22px) saturate(145%);
+        -webkit-backdrop-filter: blur(22px) saturate(145%);
+      }
+
+      .copy-card::before {
+        content: "";
+        position: absolute;
+        inset: 7px;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 17px;
+        pointer-events: none;
+      }
+
+      .copy-card::after {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        inset: -70% -35%;
+        background: linear-gradient(105deg, transparent 41%, rgba(97,244,255,.03) 45%, rgba(255,255,255,.14) 50%, rgba(167,120,255,.04) 55%, transparent 59%);
+        transform: translateX(-55%);
+        animation: glass-sweep 5.5s 1.4s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      .copy-card > * { position: relative; z-index: 1; }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 5px;
+        color: #9df9ff;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .15em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        content: "♪";
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        color: #231b3d;
+        background: linear-gradient(145deg, #ff9cad, var(--pink));
+        border-radius: 50%;
+        letter-spacing: 0;
+        box-shadow: 0 0 14px rgba(255,120,150,.55);
+      }
+
+      .equalizer {
+        display: inline-flex;
+        height: 14px;
+        align-items: flex-end;
+        gap: 3px;
+        margin-left: 2px;
+      }
+
+      .equalizer i {
+        width: 3px;
+        height: 45%;
+        background: linear-gradient(to top, var(--violet), var(--cyan));
+        border-radius: 3px;
+        box-shadow: 0 0 6px rgba(97,244,255,.55);
+        animation: equalizer 900ms ease-in-out infinite alternate;
+      }
+
+      .equalizer i:nth-child(2) { height: 95%; animation-delay: -300ms; }
+      .equalizer i:nth-child(3) { height: 65%; animation-delay: -600ms; }
+
+      .song {
+        display: -webkit-box;
+        overflow: hidden;
+        margin: 0;
+        color: #fff;
+        font-size: clamp(34px, 3vw, 46px);
+        font-weight: 900;
+        line-height: .98;
+        letter-spacing: -.035em;
+        text-wrap: balance;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        text-shadow: 0 0 20px rgba(97,244,255,.13), 0 2px 4px rgba(0,0,0,.3);
+      }
+
+      .artist {
+        overflow: hidden;
+        margin: 6px 0 3px;
+        color: #f0f1fa;
+        font-size: clamp(22px, 1.9vw, 28px);
+        font-weight: 800;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .requester {
+        display: inline-flex;
+        max-width: 100%;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        overflow: hidden;
+        color: #e7e9f5;
+        background: linear-gradient(135deg, rgba(255,255,255,.11), rgba(255,255,255,.045));
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 999px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 5px 16px rgba(3,5,20,.18);
+        font-size: 17px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .requester-label { color: #d8daea; font-size: .82em; letter-spacing: .02em; text-transform: uppercase; }
+      .requester strong { color: #ff9caf; font-size: 1.08em; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 12px rgba(255,120,150,.38); }
+
+      .request-intro {
+        color: #f0f1fa;
+        font-size: 17px;
+        letter-spacing: 0;
+        line-height: 1.1;
+        text-transform: none;
+        white-space: nowrap;
+      }
+
+      .request-intro::before { display: none; }
+
+      .avatar-shell {
+        position: relative;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        color: #fff;
+        background: linear-gradient(145deg, var(--violet), var(--pink));
+        border: 2px solid rgba(255,255,255,.82);
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px rgba(97,244,255,.6), 0 0 14px rgba(167,120,255,.5);
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .requester-avatar { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .requester-avatar[hidden] { display: none; }
+
+      .request-intro strong {
+        max-width: 58%;
+        overflow: hidden;
+        color: #ff9caf;
+        font-size: 22px;
+        font-weight: 900;
+        text-overflow: ellipsis;
+        text-shadow: 0 0 12px rgba(255,120,150,.4);
+      }
+
+      .playlist-line {
+        color: #a8f8ff;
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: .08em;
+        line-height: 1;
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(97,244,255,.3);
+      }
+
+      .art-scene {
+        position: absolute;
+        z-index: 2;
+        right: -8px;
+        bottom: 0;
+        width: 330px;
+        aspect-ratio: 1238 / 1271;
+        transform-origin: 54% 90%;
+      }
+
+      .art-scene::before {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        inset: 24% 12% 5%;
+        background: radial-gradient(circle, rgba(97,244,255,.28), rgba(167,120,255,.2) 42%, transparent 72%);
+        filter: blur(18px);
+        animation: aura 2.8s ease-in-out infinite alternate;
+      }
+
+      .toast.visible .art-scene { animation: pig-bob 900ms 600ms cubic-bezier(.2, .8, .2, 1) both; }
+
+      .album-shell {
+        position: absolute;
+        z-index: 0;
+        left: 25.7%;
+        top: 40.9%;
+        width: 47.8%;
+        height: 43.8%;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        border-radius: 8%;
+        color: rgba(255,255,255,.86);
+        background: linear-gradient(145deg, #55e9f3, #a778ff 52%, #ff7896);
+        background-position: center;
+        background-size: cover;
+        box-shadow: 0 0 18px rgba(97,244,255,.5), 0 0 28px rgba(167,120,255,.35);
+        font-size: 52px;
+      }
+
+      .album-art { position: relative; width: 100%; height: 100%; object-fit: contain; }
+      .album-art[hidden] { display: none; }
+      .pig { position: absolute; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+
+      @keyframes pig-bob {
+        0% { transform: translateY(28px) rotate(4deg) scale(.92); }
+        52% { transform: translateY(-8px) rotate(-2deg) scale(1.03); }
+        100% { transform: translateY(0) rotate(0) scale(1); }
+      }
+
+      @keyframes glass-sweep {
+        0%, 62% { transform: translateX(-55%); }
+        82%, 100% { transform: translateX(55%); }
+      }
+
+      @keyframes equalizer {
+        from { transform: scaleY(.45); opacity: .7; }
+        to { transform: scaleY(1); opacity: 1; }
+      }
+
+      @keyframes aura {
+        from { opacity: .65; transform: scale(.94); }
+        to { opacity: 1; transform: scale(1.04); }
+      }
+
+      @media (max-width: 720px) {
+        .toast { min-height: 260px; }
+        .copy-card { width: min(380px, 69vw); margin-right: 165px; min-height: 160px; padding: 19px 48px 18px 21px; }
+        .art-scene { width: 250px; right: -28px; }
+        .eyebrow { font-size: 12px; }
+        .request-intro strong { font-size: 17px; }
+        .requester { font-size: 13px; }
+      }
+
+      /* Use a 1080 × 1920 Browser Source for this portrait layout in TikTok scenes. */
+      @media (max-aspect-ratio: 3 / 4) and (min-width: 721px) {
+        .toast {
+          width: min(720px, calc(100vw - 48px));
+          min-height: 338px;
+        }
+
+        .copy-card {
+          width: min(490px, 66vw);
+          min-height: 190px;
+          margin: 0 220px 40px 0;
+          padding: 23px 66px 22px 27px;
+        }
+
+        .art-scene { right: -8px; width: 330px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .toast { transition-duration: 180ms; }
+        .toast.visible .art-scene { animation: none; }
+        .copy-card::after, .equalizer i, .art-scene::before { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="toast" id="toast" aria-live="polite">
+      <section class="copy-card">
+        <div class="eyebrow request-intro">
+          <span class="avatar-shell"><span id="avatarFallback">V</span><img class="requester-avatar" id="requesterAvatar" alt="" hidden /></span>
+          <strong id="requester">viewer</strong><span>added</span>
+        </div>
+        <h1 class="song" id="song">Song title</h1>
+        <p class="artist" id="artist">Artist</p>
+        <div class="playlist-line">to the playlist!</div>
+      </section>
+      <div class="art-scene" aria-hidden="true">
+        <div class="album-shell"><span id="placeholder">♫</span><img class="album-art" id="albumArt" alt="" hidden /></div>
+        <img class="pig" src="/assets/pig-frame-crowned-v2.png" alt="" />
+      </div>
+    </main>
+
+    <script>
+      const toast = document.getElementById('toast');
+      const song = document.getElementById('song');
+      const artist = document.getElementById('artist');
+      const requester = document.getElementById('requester');
+      const requesterAvatar = document.getElementById('requesterAvatar');
+      const avatarFallback = document.getElementById('avatarFallback');
+      const albumArt = document.getElementById('albumArt');
+      const albumShell = document.querySelector('.album-shell');
+      const placeholder = document.getElementById('placeholder');
+      const queue = [];
+      let active = false;
+      let timer = null;
+
+      const params = new URLSearchParams(location.search);
+      const duration = Math.max(3000, Math.min(20000, Number(params.get('duration')) || 8000));
+
+      function enqueue(payload) {
+        if (!payload || !payload.track) return;
+        queue.push(payload);
+        if (!active) showNext();
+      }
+
+      function showNext() {
+        const payload = queue.shift();
+        if (!payload) { active = false; return; }
+        active = true;
+        song.textContent = payload.track.name || 'Unknown song';
+        artist.textContent = (payload.track.artists || []).join(', ') || 'Unknown artist';
+        const username = String(payload.username || 'someone').replace(/^@+/, '');
+        requester.textContent = username;
+        avatarFallback.textContent = username.charAt(0).toUpperCase() || '?';
+        requesterAvatar.hidden = true;
+        avatarFallback.hidden = false;
+        requesterAvatar.onload = () => { requesterAvatar.hidden = false; avatarFallback.hidden = true; };
+        requesterAvatar.onerror = () => { requesterAvatar.hidden = true; avatarFallback.hidden = false; };
+        requesterAvatar.src = payload.profileImageUrl
+          || (payload.platform === 'twitch' ? `/overlay/avatar/twitch/${encodeURIComponent(username)}` : '');
+
+        albumArt.hidden = true;
+        placeholder.hidden = false;
+        albumShell.style.backgroundImage = '';
+        albumArt.onload = () => {
+          albumArt.hidden = false;
+          placeholder.hidden = true;
+          albumShell.style.backgroundImage = `linear-gradient(rgba(12,16,38,.42), rgba(12,16,38,.42)), url("${albumArt.src.replace(/["\\]/g, '')}")`;
+        };
+        albumArt.onerror = () => {
+          albumArt.hidden = true;
+          placeholder.hidden = false;
+          albumShell.style.backgroundImage = '';
+        };
+        albumArt.src = payload.track.albumArtUrl || '';
+
+        toast.classList.remove('visible', 'leaving');
+        void toast.offsetWidth;
+        toast.classList.add('visible');
+        clearTimeout(timer);
+        timer = setTimeout(hide, duration);
+      }
+
+      function hide() {
+        toast.classList.add('leaving');
+        toast.classList.remove('visible');
+        timer = setTimeout(showNext, 850);
+      }
+
+      const events = new EventSource('/overlay/events');
+      events.addEventListener('song-added', (event) => {
+        try { enqueue(JSON.parse(event.data)); } catch { /* Ignore malformed events. */ }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: streamengagement
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: streamengagement-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: APP_MODE
+        value: cloud
+      - key: BIND_HOST
+        value: 0.0.0.0
+      - key: DATA_DIR
+        value: /var/data
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: BRIDGE_TOKEN
+        generateValue: true
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+      - key: SPOTIFY_PLAYLIST_ID
+        sync: false
+      - key: STREAMERBOT_WS_PASSWORD
+        sync: false
+      - key: STREAMERBOT_TIKTOK_REPLY_ACTION_ID
+        sync: false
+      - key: POLAROID_CAMERA_SOURCE
+        value: Camera
+      - key: POLAROID_DISCORD_WEBHOOK
+        sync: false
+      - key: SPOTIFY_CLEAN_ONLY
+        value: true
+      - key: SPOTIFY_QUEUE_ENABLED
+        value: true

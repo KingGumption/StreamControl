@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StreamEngagement</title>
+    <style>
+      :root {
+        --bg: #101418;
+        --panel: #181d25;
+        --panel-alt: #1e2430;
+        --accent: #4ecdc4;
+        --text: #edf4f7;
+        --muted: #a2b5c3;
+        --danger: #ff6b6b;
+        --border: #27313d;
+        --success: #67d889;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .shell { max-width: 1200px; margin: 0 auto; padding: 20px; }
+      header {
+        display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;
+      }
+      h1 { margin: 0; font-size: 1.8rem; }
+      .admin-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+      .admin-nav a {
+        color: var(--muted); text-decoration: none; border: 1px solid var(--border); border-radius: 7px;
+        padding: 9px 13px; background: var(--panel-alt); font-weight: bold;
+      }
+      .admin-nav a:hover, .admin-nav a.active { color: var(--text); border-color: var(--accent); }
+      .admin-nav a.active { background: rgba(78,205,196,.13); }
+      .grid {
+        display: grid; grid-template-columns: 1.8fr 1fr; gap: 20px;
+      }
+      .panel {
+        background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+      }
+      .panel h2 { margin-top: 0; }
+      .command-card {
+        border: 1px solid var(--border); background: var(--panel-alt); border-radius: 8px; padding: 14px; margin-bottom: 16px;
+      }
+      .command-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+      .platform-grid {
+        display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 12px;
+        margin-top: 10px;
+      }
+      .platform-box {
+        background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+      }
+      .platform-box h3 { margin: 0 0 10px; font-size: 1rem; }
+      .check-row {
+        display: flex; align-items: center; gap: 8px; margin: 6px 0;
+        color: var(--text);
+      }
+      input[type="checkbox"] { accent-color: var(--accent); }
+      label { cursor: pointer; }
+      select, input[type="text"] { width: 100%; padding: 9px 10px; border-radius: 6px; border: 1px solid var(--border); background: #0f141a; color: var(--text); }
+      .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+      button.primary {
+        background: var(--accent); color: #0a1217; border: none; border-radius: 6px; padding: 10px 16px; font-weight: bold; cursor: pointer;
+      }
+      button.secondary {
+        background: var(--panel-alt); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 10px 16px; cursor: pointer;
+      }
+      .save-toast {
+        display: none; background: rgba(103,216,137,0.15); border: 1px solid var(--success); color: var(--success); padding: 10px 12px; border-radius: 6px; margin-top: 12px;
+      }
+      table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+      th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+      th { color: var(--muted); }
+      .remove-btn {
+        background: transparent; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; padding: 6px 10px; cursor: pointer;
+      }
+      .muted { color: var(--muted); }
+      .footer-space { height: 20px; }
+      .connection-panel { margin-bottom: 20px; }
+      .connection-heading {
+        display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+      }
+      .connection-heading-actions { display: flex; align-items: center; gap: 10px; }
+      .collapse-button {
+        background: var(--panel-alt); color: var(--text); border: 1px solid var(--border);
+        border-radius: 6px; padding: 7px 10px; cursor: pointer;
+      }
+      .connection-heading h2 { margin: 0 0 14px; }
+      .connection-grid {
+        display: grid; grid-template-columns: repeat(3, minmax(200px, 1fr)); gap: 12px;
+      }
+      .connection-card {
+        background: var(--panel-alt); border: 1px solid var(--border); border-radius: 8px; padding: 14px;
+      }
+      .connection-name { display: flex; align-items: center; gap: 9px; font-weight: bold; }
+      .status-dot {
+        width: 11px; height: 11px; border-radius: 50%; background: var(--muted);
+        box-shadow: 0 0 0 3px rgba(162,181,195,0.12); flex: 0 0 auto;
+      }
+      .connection-card.connected .status-dot {
+        background: var(--success); box-shadow: 0 0 0 3px rgba(103,216,137,0.14);
+      }
+      .connection-card.disconnected .status-dot {
+        background: var(--danger); box-shadow: 0 0 0 3px rgba(255,107,107,0.14);
+      }
+      .connection-card.connecting .status-dot {
+        background: #f4c95d; box-shadow: 0 0 0 3px rgba(244,201,93,0.14);
+      }
+      .connection-state { margin: 10px 0 5px; font-size: 0.92rem; font-weight: bold; }
+      .connection-card.connected .connection-state { color: var(--success); }
+      .connection-card.disconnected .connection-state { color: var(--danger); }
+      .connection-card.connecting .connection-state { color: #f4c95d; }
+      .connection-detail { min-height: 34px; color: var(--muted); font-size: 0.86rem; }
+      .connection-meta { margin-top: 9px; color: var(--muted); font-size: 0.75rem; line-height: 1.45; }
+      .connection-actions { display: flex; gap: 8px; margin-top: 12px; }
+      .connection-actions button { padding: 7px 10px; }
+      .connection-panel.collapsed .connection-card > :not(.connection-name) { display: none; }
+      .connection-panel.collapsed .connection-card { padding: 12px 14px; }
+      .requests-panel { margin-bottom: 20px; }
+      .overlay-panel { margin-top: 20px; margin-bottom: 20px; }
+      .settings-panel { margin-bottom: 20px; }
+      .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+      .setting-row + .setting-row { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+      .setting-copy h2 { margin: 0 0 6px; }
+      .setting-copy p { margin: 0; }
+      .switch { position: relative; display: inline-block; width: 58px; height: 32px; flex: 0 0 auto; }
+      .switch input { width: 1px; height: 1px; opacity: 0; }
+      .switch-track {
+        position: absolute; inset: 0; cursor: pointer; background: #374451; border: 1px solid #526171;
+        border-radius: 999px; transition: background 180ms ease, border-color 180ms ease;
+      }
+      .switch-track::before {
+        content: ""; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px;
+        background: #dce8ed; border-radius: 50%; transition: transform 180ms ease;
+      }
+      .switch input:checked + .switch-track { background: var(--accent); border-color: var(--accent); }
+      .switch input:checked + .switch-track::before { transform: translateX(26px); background: #0a1217; }
+      .switch input:focus-visible + .switch-track { outline: 3px solid rgba(78, 205, 196, .35); outline-offset: 3px; }
+      .overlay-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr); gap: 18px; align-items: center; }
+      .overlay-url { display: flex; gap: 8px; margin: 12px 0; }
+      .overlay-url input { min-width: 0; }
+      .overlay-preview {
+        width: 100%; aspect-ratio: 16 / 9; border: 1px solid var(--border); border-radius: 9px;
+        background-color: #263038;
+        background-image: linear-gradient(45deg, #303b44 25%, transparent 25%), linear-gradient(-45deg, #303b44 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #303b44 75%), linear-gradient(-45deg, transparent 75%, #303b44 75%);
+        background-size: 24px 24px; background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+      }
+      .requests-scroll { max-height: 360px; overflow: auto; margin-top: 12px; }
+      .requests-scroll table { margin-top: 0; }
+      .requests-scroll thead th {
+        position: sticky; top: 0; z-index: 1; background: var(--panel);
+      }
+      .request-message { min-height: 20px; margin-top: 10px; color: var(--muted); }
+      .request-status { font-weight: bold; text-transform: capitalize; }
+      .request-status.accepted, .request-status.dry-run { color: var(--success); }
+      .request-status.partial { color: #f4c95d; }
+      .request-status.error, .request-status.denied { color: var(--danger); }
+      button:disabled { opacity: 0.45; cursor: not-allowed; }
+      @media (max-width: 900px) {
+        header { align-items: flex-start; flex-direction: column; }
+        .grid { grid-template-columns: 1fr; }
+        .platform-grid { grid-template-columns: 1fr; }
+        .connection-grid { grid-template-columns: 1fr; }
+        .overlay-layout { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <h1>StreamEngagement</h1>
+        <nav class="admin-nav" aria-label="Admin pages">
+          <a class="active" href="/admin" aria-current="page">Song Requests</a>
+          <a href="/admin/king-of-the-hill">King of the Hill</a>
+          <a href="/admin/analytics">Analytics</a>
+          <a href="/admin/polaroid">Polaroid Redeem</a>
+        </nav>
+      </header>
+
+      <section class="panel connection-panel collapsed" id="dashboardSection">
+        <div class="connection-heading">
+          <h2>Live Connections</h2>
+          <div class="connection-heading-actions">
+            <span class="muted">Updates automatically</span>
+            <button type="button" class="collapse-button" id="connectionToggle" aria-expanded="false">Show details</button>
+          </div>
+        </div>
+        <div class="connection-grid" id="connectionGrid" aria-live="polite">
+          <article class="connection-card" id="spotifyStatusCard" data-service="spotify">
+            <div class="connection-name"><span class="status-dot"></span>Spotify</div>
+            <div class="connection-state" data-field="state">Checking…</div>
+            <div class="connection-detail" data-field="detail">Loading connection state</div>
+            <div class="connection-meta" data-field="meta"></div>
+            <div class="connection-actions">
+              <button type="button" class="primary" id="spotifyConnect">Connect Spotify</button>
+              <button type="button" class="secondary" id="spotifyDisconnect" hidden>Disconnect</button>
+            </div>
+          </article>
+          <article class="connection-card" data-service="tikfinity">
+            <div class="connection-name"><span class="status-dot"></span>TikFinity</div>
+            <div class="connection-state" data-field="state">Checking…</div>
+            <div class="connection-detail" data-field="detail">Loading connection state</div>
+            <div class="connection-meta" data-field="meta"></div>
+          </article>
+          <article class="connection-card" data-service="streamerbot">
+            <div class="connection-name"><span class="status-dot"></span>Streamer.bot</div>
+            <div class="connection-state" data-field="state">Checking…</div>
+            <div class="connection-detail" data-field="detail">Loading connection state</div>
+            <div class="connection-meta" data-field="meta"></div>
+          </article>
+          <article class="connection-card" data-service="connector">
+            <div class="connection-name"><span class="status-dot"></span>PC Connector</div>
+            <div class="connection-state" data-field="state">Checking...</div>
+            <div class="connection-detail" data-field="detail">Not required in local mode</div>
+            <div class="connection-meta" data-field="meta"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel settings-panel" id="songSettingsSection">
+        <div class="setting-row">
+          <div class="setting-copy">
+            <h2>Song Requests</h2>
+            <p class="muted">When closed, <strong>!song</strong> cannot search, queue, or add anything to Spotify.</p>
+          </div>
+          <label class="switch" title="Open or close song requests">
+            <input type="checkbox" id="songRequestsEnabled" aria-label="Open song requests" />
+            <span class="switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+        <div class="setting-row">
+          <div class="setting-copy">
+            <h2>Allow Explicit Tracks</h2>
+            <p class="muted">When off, song requests only accept results Spotify marks as non-explicit.</p>
+          </div>
+          <label class="switch" title="Allow explicit Spotify tracks">
+            <input type="checkbox" id="allowExplicitTracks" aria-label="Allow explicit Spotify tracks" />
+            <span class="switch-track" aria-hidden="true"></span>
+          </label>
+        </div>
+        <div class="request-message" id="songRequestsMessage" role="status" aria-live="polite"></div>
+        <div class="request-message" id="explicitTracksMessage" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="panel requests-panel" id="requestsSection">
+        <div class="connection-heading">
+          <h2>Recent Song Requests</h2>
+          <span class="muted">Newest first</span>
+        </div>
+        <div class="requests-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Platform</th>
+                <th>User</th>
+                <th>Request</th>
+                <th>Result</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="requestTable">
+              <tr><td colspan="6" class="muted">No song requests yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="request-message" id="requestMessage" role="status" aria-live="polite"></div>
+      </section>
+
+      <div class="grid">
+        <section class="panel" id="permissionsSection">
+          <h2>Permissions</h2>
+          <div id="commandList"></div>
+          <div class="toolbar">
+            <button class="primary" id="savePermissions">Save</button>
+            <button class="secondary" id="applyPreset">Apply preset</button>
+            <select id="presetSelect" aria-label="Permission preset">
+              <option value="owner_only">Owner only</option>
+              <option value="mods_plus_owner">Mods + Owner</option>
+              <option value="trusted">Trusted</option>
+              <option value="subscribers">Subscribers</option>
+              <option value="everyone">Everyone</option>
+            </select>
+          </div>
+          <div id="saveToast" class="save-toast">✓ Permissions updated</div>
+          <p class="muted">Role availability varies by platform/event. VIP, member, follower, and fan-club checks are only honored when the platform provides that data reliably.</p>
+        </section>
+
+        <aside class="panel" id="overridesSection">
+          <h2>User Overrides</h2>
+          <div class="form-group">
+            <label for="overridePlatform">Platform</label>
+            <select id="overridePlatform">
+              <option value="twitch">Twitch</option>
+              <option value="youtube">YouTube</option>
+              <option value="tiktok">TikTok</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="overrideUsername">Username</label>
+            <input id="overrideUsername" type="text" placeholder="ExamplePerson" />
+          </div>
+          <div class="form-group">
+            <label for="overrideCommand">Command</label>
+            <select id="overrideCommand"></select>
+          </div>
+          <div class="form-group">
+            <label for="overrideAccess">Access</label>
+            <select id="overrideAccess">
+              <option value="allow">Allow</option>
+              <option value="deny">Deny</option>
+            </select>
+          </div>
+          <div class="toolbar">
+            <button id="addOverride" class="primary">Add Override</button>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Username</th>
+                <th>Command</th>
+                <th>Access</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="overrideTable"></tbody>
+          </table>
+        </aside>
+      </div>
+
+      <section class="panel overlay-panel" id="overlaySection">
+        <div class="overlay-layout">
+          <div>
+            <h2>Song Added Overlay</h2>
+            <p class="muted">Add this URL to OBS as a 1920 × 1080 Browser Source. It slides in whenever a request is added to Spotify.</p>
+            <div class="overlay-url">
+              <input id="overlayUrl" type="text" readonly aria-label="OBS overlay URL" />
+              <button type="button" class="secondary" id="copyOverlayUrl">Copy</button>
+            </div>
+            <div class="toolbar">
+              <button type="button" class="primary" id="previewOverlay">Send preview</button>
+              <button type="button" class="secondary" id="openOverlay">Open full size</button>
+            </div>
+            <div class="request-message" id="overlayMessage" role="status" aria-live="polite"></div>
+          </div>
+          <iframe class="overlay-preview" id="overlayPreview" title="Song added overlay preview" src="/overlay?duration=5000"></iframe>
+        </div>
+      </section>
+
+      <div class="footer-space"></div>
+    </div>
+
+    <script>
+      const state = {
+        config: { commands: {} },
+        presets: {},
+        overrides: [],
+        roles: {},
+        settings: { allowExplicitTracks: false, songRequestsEnabled: true }
+      };
+
+      function formatTime(value) {
+        if (!value) return 'Never';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString();
+      }
+
+      function renderConnections(connections) {
+        document.querySelectorAll('.connection-card[data-service]').forEach((card) => {
+          const status = connections[card.dataset.service] || {
+            state: 'disconnected',
+            detail: 'Status unavailable'
+          };
+          const connectionState = ['connected', 'connecting', 'disconnected'].includes(status.state)
+            ? status.state
+            : 'disconnected';
+          card.classList.remove('connected', 'connecting', 'disconnected');
+          card.classList.add(connectionState);
+          card.querySelector('[data-field="state"]').textContent =
+            connectionState.charAt(0).toUpperCase() + connectionState.slice(1);
+          card.querySelector('[data-field="detail"]').textContent = status.detail || 'No details available';
+
+          const meta = [];
+          meta.push(`Last connected: ${formatTime(status.lastConnectedAt)}`);
+          if (card.dataset.service !== 'spotify') {
+            meta.push(`Last event: ${formatTime(status.lastEventAt)}`);
+          } else {
+            meta.push(`Request playlist: ${status.playlistConfigured ? 'Configured' : 'Missing'}`);
+            if (status.queueEnabled) meta.push(`Live queue: ${status.queueAuthorized ? 'Authorised' : 'Reconnect required'}`);
+            const connectButton = document.getElementById('spotifyConnect');
+            const disconnectButton = document.getElementById('spotifyDisconnect');
+            connectButton.hidden = connectionState !== 'disconnected' || !status.configured || status.authorizationStored;
+            disconnectButton.hidden = !status.authorizationStored;
+          }
+          if (status.reconnectAttempt) meta.push(`Reconnect attempt: ${status.reconnectAttempt}`);
+          card.querySelector('[data-field="meta"]').textContent = meta.join(' · ');
+        });
+      }
+
+      async function loadConnections() {
+        try {
+          const response = await fetch('/admin/connections', { cache: 'no-store' });
+          if (!response.ok) throw new Error(`Status request failed (${response.status})`);
+          const json = await response.json();
+          renderConnections(json.connections || {});
+        } catch (error) {
+          renderConnections({
+            spotify: { state: 'disconnected', detail: 'Status service unavailable' },
+            tikfinity: { state: 'disconnected', detail: 'Status service unavailable' },
+            streamerbot: { state: 'disconnected', detail: 'Status service unavailable' },
+            connector: { state: 'disconnected', detail: 'Status service unavailable' }
+          });
+        }
+      }
+
+      async function loadRequests() {
+        try {
+          const response = await fetch('/admin/requests', { cache: 'no-store' });
+          if (!response.ok) return;
+          const json = await response.json();
+          const table = document.getElementById('requestTable');
+          table.innerHTML = '';
+          const requests = json.requests || [];
+          if (!requests.length) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 6;
+            cell.className = 'muted';
+            cell.textContent = 'No song requests yet.';
+            row.appendChild(cell);
+            table.appendChild(row);
+            return;
+          }
+          requests.forEach((request) => {
+            const row = document.createElement('tr');
+            const values = [
+              formatTime(request.timestamp),
+              request.platform,
+              request.username,
+              request.track_name
+                ? `${request.track_name} — ${request.artists || 'Unknown artist'}`
+                : request.query,
+              request.status
+            ];
+            values.forEach((value, index) => {
+              const cell = document.createElement('td');
+              cell.textContent = value || '';
+              if (index === 4) cell.className = `request-status ${request.status || ''}`;
+              row.appendChild(cell);
+            });
+            const actionCell = document.createElement('td');
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'remove-btn request-remove-btn';
+            removeButton.dataset.requestId = request.id;
+            removeButton.dataset.wasAdded = ['accepted', 'partial'].includes(request.status) && request.spotify_uri ? 'true' : 'false';
+            removeButton.textContent = 'Remove';
+            removeButton.title = removeButton.dataset.wasAdded === 'true'
+              ? 'Remove from the request playlist and local history'
+              : 'Remove from local history';
+            actionCell.appendChild(removeButton);
+            row.appendChild(actionCell);
+            table.appendChild(row);
+          });
+        } catch {
+          // Keep the previous table contents during transient admin API errors.
+        }
+      }
+
+      async function loadConfig() {
+        const response = await fetch('/admin/config');
+        const json = await response.json();
+        state.config = json.config || { commands: {} };
+        state.presets = json.presets || {};
+        state.roles = json.roles || {};
+        state.settings = json.settings || { allowExplicitTracks: false };
+        state.overrides = (state.config.overrides || []).slice();
+        render();
+      }
+
+      function render() {
+        document.getElementById('allowExplicitTracks').checked = Boolean(state.settings.allowExplicitTracks);
+        document.getElementById('songRequestsEnabled').checked = Boolean(state.settings.songRequestsEnabled);
+        const commands = Object.keys(state.config.commands || {}).sort();
+        const commandList = document.getElementById('commandList');
+        commandList.innerHTML = '';
+        commands.forEach((command) => {
+          const card = document.createElement('div');
+          card.className = 'command-card';
+          const title = document.createElement('div');
+          title.className = 'command-header';
+          title.innerHTML = `<strong>!${command}</strong>`;
+          card.appendChild(title);
+
+          const platformGrid = document.createElement('div');
+          platformGrid.className = 'platform-grid';
+
+          ['twitch', 'youtube', 'tiktok'].forEach((platform) => {
+            const box = document.createElement('div');
+            box.className = 'platform-box';
+            box.innerHTML = `<h3>${platform === 'youtube' ? 'YouTube' : platform.charAt(0).toUpperCase() + platform.slice(1)}</h3>`;
+            const allowed = state.config.commands[command]?.[platform] || [];
+            const roles = state.roles[platform] || [];
+            roles.forEach((role) => {
+              const row = document.createElement('div');
+              row.className = 'check-row';
+              const input = document.createElement('input');
+              input.type = 'checkbox';
+              input.checked = allowed.includes(role);
+              input.dataset.command = command;
+              input.dataset.platform = platform;
+              input.dataset.role = role;
+              row.appendChild(input);
+              const label = document.createElement('label');
+              label.textContent = role.charAt(0).toUpperCase() + role.slice(1).replace(/-/g, ' ');
+              label.htmlFor = `${command}-${platform}-${role}`;
+              row.appendChild(label);
+              box.appendChild(row);
+            });
+            platformGrid.appendChild(box);
+          });
+          card.appendChild(platformGrid);
+          commandList.appendChild(card);
+        });
+
+        const overrideCommand = document.getElementById('overrideCommand');
+        overrideCommand.innerHTML = commands.map((command) => `<option value="${command}">!${command}</option>`).join('');
+
+        const overrideTable = document.getElementById('overrideTable');
+        overrideTable.innerHTML = '';
+        state.overrides.forEach((entry) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${entry.platform}</td>
+            <td>${entry.username}</td>
+            <td>!${entry.command}</td>
+            <td>${entry.access}</td>
+            <td><button class="remove-btn" data-platform="${entry.platform}" data-username="${entry.username}" data-command="${entry.command}">Remove</button></td>
+          `;
+          overrideTable.appendChild(row);
+        });
+      }
+
+      document.getElementById('savePermissions').addEventListener('click', async () => {
+        const payload = { commands: {} };
+        document.querySelectorAll('input[type="checkbox"][data-command][data-platform][data-role]').forEach((input) => {
+          const command = input.dataset.command;
+          const platform = input.dataset.platform;
+          const role = input.dataset.role;
+          if (!payload.commands[command]) payload.commands[command] = {};
+          if (!payload.commands[command][platform]) payload.commands[command][platform] = [];
+          if (input.checked) payload.commands[command][platform].push(role);
+        });
+
+        const response = await fetch('/admin/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ config: { commands: payload.commands, presets: state.presets } })
+        });
+
+        const result = await response.json();
+        const toast = document.getElementById('saveToast');
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        if (result.ok) {
+          await loadConfig();
+        }
+      });
+
+      document.getElementById('applyPreset').addEventListener('click', () => {
+        const presetName = document.getElementById('presetSelect').value;
+        const presetMap = state.presets[presetName] || {};
+        const commands = Object.keys(state.config.commands || {});
+        commands.forEach((command) => {
+          ['twitch', 'youtube', 'tiktok'].forEach((platform) => {
+            const roles = state.roles[platform] || [];
+            const allowed = presetMap[platform] || [];
+            roles.forEach((role) => {
+              const input = document.querySelector(`input[data-command="${command}"][data-platform="${platform}"][data-role="${role}"]`);
+              if (input) input.checked = allowed.includes(role);
+            });
+          });
+        });
+      });
+
+      document.getElementById('addOverride').addEventListener('click', async () => {
+        const platform = document.getElementById('overridePlatform').value;
+        const username = document.getElementById('overrideUsername').value.trim();
+        const command = document.getElementById('overrideCommand').value;
+        const access = document.getElementById('overrideAccess').value;
+        if (!username) return;
+
+        await fetch('/admin/override', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ platform, username, command, access })
+        });
+
+        document.getElementById('overrideUsername').value = '';
+        await loadConfig();
+      });
+
+      document.getElementById('overrideTable').addEventListener('click', async (event) => {
+        const button = event.target.closest('button.remove-btn');
+        if (!button) return;
+        await fetch('/admin/override/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            platform: button.dataset.platform,
+            username: button.dataset.username,
+            command: button.dataset.command
+          })
+        });
+        await loadConfig();
+      });
+
+      document.getElementById('connectionToggle').addEventListener('click', (event) => {
+        const panel = document.getElementById('dashboardSection');
+        const collapsed = panel.classList.toggle('collapsed');
+        event.currentTarget.setAttribute('aria-expanded', String(!collapsed));
+        event.currentTarget.textContent = collapsed ? 'Show details' : 'Hide details';
+      });
+
+      document.getElementById('requestTable').addEventListener('click', async (event) => {
+        const button = event.target.closest('button.request-remove-btn');
+        if (!button) return;
+
+        const wasAdded = button.dataset.wasAdded === 'true';
+        const prompt = wasAdded
+          ? 'Remove this request from the playlist and local history? Spotify does not allow apps to remove an arbitrary item from the live playback queue.'
+          : 'Remove this entry from local request history?';
+        if (!window.confirm(prompt)) return;
+
+        const message = document.getElementById('requestMessage');
+        button.disabled = true;
+        message.textContent = 'Removing request…';
+        try {
+          const response = await fetch(`/admin/requests/${encodeURIComponent(button.dataset.requestId)}`, {
+            method: 'DELETE'
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'Could not remove request');
+          message.textContent = result.warning || 'Request removed from local history.';
+          await loadRequests();
+        } catch (error) {
+          message.textContent = error.message || 'Could not remove request.';
+          button.disabled = false;
+        }
+      });
+
+      document.getElementById('spotifyConnect').addEventListener('click', () => {
+        window.location.assign('/admin/spotify/connect');
+      });
+
+      document.getElementById('spotifyDisconnect').addEventListener('click', async () => {
+        const response = await fetch('/admin/spotify/disconnect', { method: 'POST' });
+        if (response.ok) await loadConnections();
+      });
+
+      document.getElementById('allowExplicitTracks').addEventListener('change', async (event) => {
+        const input = event.currentTarget;
+        const message = document.getElementById('explicitTracksMessage');
+        input.disabled = true;
+        message.textContent = 'Saving…';
+        try {
+          const response = await fetch('/admin/settings/explicit-tracks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ allowExplicitTracks: input.checked })
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save setting');
+          state.settings = result.settings;
+          input.checked = Boolean(state.settings.allowExplicitTracks);
+          message.textContent = input.checked
+            ? 'Explicit tracks are allowed.'
+            : 'Only non-explicit tracks are allowed.';
+        } catch (error) {
+          input.checked = !input.checked;
+          message.textContent = error.message || 'Could not save setting.';
+        } finally {
+          input.disabled = false;
+        }
+      });
+
+      document.getElementById('songRequestsEnabled').addEventListener('change', async (event) => {
+        const input = event.currentTarget;
+        const message = document.getElementById('songRequestsMessage');
+        input.disabled = true;
+        message.textContent = 'Saving…';
+        try {
+          const response = await fetch('/admin/settings/song-requests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ songRequestsEnabled: input.checked })
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save setting');
+          state.settings = result.settings;
+          input.checked = Boolean(state.settings.songRequestsEnabled);
+          message.textContent = input.checked
+            ? 'Song requests are open.'
+            : 'Song requests are closed. !song cannot modify Spotify.';
+        } catch (error) {
+          input.checked = !input.checked;
+          message.textContent = error.message || 'Could not save setting.';
+        } finally {
+          input.disabled = false;
+        }
+      });
+
+      const overlayUrl = `${window.location.origin}/overlay`;
+      document.getElementById('overlayUrl').value = overlayUrl;
+
+      async function copyOverlayAddress(value, inputId, successMessage, messageId = 'overlayMessage') {
+        const message = document.getElementById(messageId);
+        try {
+          await navigator.clipboard.writeText(value);
+          message.textContent = successMessage;
+        } catch {
+          document.getElementById(inputId).select();
+          message.textContent = 'Press Ctrl+C to copy the selected URL.';
+        }
+      }
+
+      document.getElementById('copyOverlayUrl').addEventListener('click', () => {
+        copyOverlayAddress(overlayUrl, 'overlayUrl', 'Landscape overlay URL copied.');
+      });
+
+      document.getElementById('previewOverlay').addEventListener('click', async () => {
+        const message = document.getElementById('overlayMessage');
+        try {
+          const response = await fetch('/admin/overlay/preview', { method: 'POST' });
+          if (!response.ok) throw new Error('Preview request failed');
+          message.textContent = 'Preview sent to every open overlay.';
+        } catch {
+          message.textContent = 'Could not send the overlay preview.';
+        }
+      });
+
+      document.getElementById('openOverlay').addEventListener('click', () => {
+        window.open('/overlay', '_blank', 'noopener');
+      });
+
+      loadConfig();
+      loadConnections();
+      loadRequests();
+      setInterval(loadConnections, 2500);
+      setInterval(loadRequests, 5000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StreamEngagement | Polaroid Redeem</title>
+  <style>
+    :root {
+      --bg: #101418;
+      --panel: #181d25;
+      --panel-alt: #1e2430;
+      --accent: #4ecdc4;
+      --text: #edf4f7;
+      --muted: #a2b5c3;
+      --danger: #ff6b6b;
+      --border: #27313d;
+      --success: #67d889;
+      --warning: #f4c95d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .shell { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin: 0; font-size: 1.8rem; }
+    .admin-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    .admin-nav a {
+      color: var(--muted); text-decoration: none; border: 1px solid var(--border); border-radius: 7px;
+      padding: 9px 13px; background: var(--panel-alt); font-weight: bold;
+    }
+    .admin-nav a:hover, .admin-nav a.active { color: var(--text); border-color: var(--accent); }
+    .admin-nav a.active { background: rgba(78,205,196,.13); }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      padding: 18px; box-shadow: 0 0 0 1px rgba(0,0,0,0.2); margin-bottom: 20px;
+    }
+    .lede, .result { color: var(--muted); }
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .status-card {
+      padding: 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--panel-alt);
+    }
+    .status-card span {
+      display: block; color: var(--muted); font-size: 0.72rem; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 8px;
+    }
+    .status-card strong {
+      display: block; overflow-wrap: anywhere; font-size: 1rem;
+    }
+    .ok { color: var(--success); }
+    .bad { color: var(--danger); }
+    .warn { color: var(--warning); }
+    form { display: flex; gap: 10px; }
+    input {
+      flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px;
+      background: #0f141a; color: var(--text); font: inherit;
+    }
+    button {
+      background: var(--accent); color: #0a1217; border: none; border-radius: 6px;
+      padding: 10px 16px; font-weight: bold; cursor: pointer;
+    }
+    button:disabled { opacity: 0.55; cursor: wait; }
+    .latest {
+      display: block; max-width: min(320px, 100%); margin-top: 18px; border-radius: 4px;
+      box-shadow: 0 20px 30px rgba(0,0,0,.32);
+    }
+    code { color: #cfe4ff; overflow-wrap: anywhere; }
+    @media (max-width: 640px) {
+      header { flex-direction: column; align-items: flex-start; }
+      form { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <h1>StreamEngagement</h1>
+      <nav class="admin-nav" aria-label="Admin pages">
+        <a href="/admin">Song Requests</a>
+        <a href="/admin/king-of-the-hill">King of the Hill</a>
+        <a href="/admin/analytics">Analytics</a>
+        <a class="active" href="/admin/polaroid" aria-current="page">Polaroid Redeem</a>
+      </nav>
+    </header>
+
+    <section class="panel">
+      <h2>Polaroid Redeem</h2>
+      <p class="lede">Connection health and a complete camera-capture test, now inside the shared admin.</p>
+      <div id="status" class="status-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Take a test Polaroid</h2>
+      <p>This runs the complete live flow, including the OBS overlay and Discord delivery.</p>
+      <form id="test-form">
+        <input id="name" value="Test Viewer" maxlength="50" aria-label="Redeemer name" required>
+        <button id="submit" type="submit">Take photo</button>
+      </form>
+      <p id="result" class="result" aria-live="polite"></p>
+      <img id="latest" class="latest" alt="Latest Polaroid" hidden>
+    </section>
+
+    <section class="panel">
+      <h2>OBS Browser Source</h2>
+      <p>Add <code id="overlay-url"></code> at <strong>1920 × 1080</strong> and enable “Control audio via OBS”.</p>
+    </section>
+  </div>
+
+  <script src="/polaroid/assets/control.js"></script>
+</body>
+</html>

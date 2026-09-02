@@ -1,0 +1,76 @@
+const { EventEmitter } = require('node:events');
+const test = require('node:test');
+const assert = require('node:assert/strict');
+
+const { PolaroidRuntime } = require('../src/polaroid/runtime');
+
+class FakeObs extends EventEmitter {
+  constructor(connectResults = []) {
+    super();
+    this.connectResults = [...connectResults];
+    this.connectCalls = 0;
+  }
+
+  async connect() {
+    this.connectCalls += 1;
+    const result = this.connectResults.shift();
+    if (result instanceof Error) throw result;
+    return result;
+  }
+
+  async disconnect() {}
+}
+
+function makeConfig() {
+  return {
+    obs: { url: 'ws://127.0.0.1:4455', password: '', cameraSource: 'Camera' },
+    streamerBot: { enabled: false, rewardTitle: 'Take a Polaroid' },
+    discord: { enabled: false, webhookUrl: '' },
+    twitchChat: { enabled: false, actionName: '' },
+  };
+}
+
+async function waitFor(check, timeoutMs = 250) {
+  const deadline = Date.now() + timeoutMs;
+  while (!check()) {
+    if (Date.now() >= deadline) throw new Error('Timed out waiting for condition');
+    await new Promise((resolve) => setTimeout(resolve, 2));
+  }
+}
+
+test('Polaroid retries OBS after an initial connection failure', async (t) => {
+  const obs = new FakeObs([new Error('offline'), undefined]);
+  const runtime = new PolaroidRuntime({ config: makeConfig(), obs, reconnectDelayMs: 5 });
+  t.after(() => runtime.stop());
+
+  runtime.start();
+  await waitFor(() => runtime.state.obsConnected);
+
+  assert.equal(obs.connectCalls, 2);
+  assert.equal(runtime.state.lastError, '');
+});
+
+test('Polaroid reconnects when an established OBS connection closes', async (t) => {
+  const obs = new FakeObs([undefined, undefined]);
+  const runtime = new PolaroidRuntime({ config: makeConfig(), obs, reconnectDelayMs: 5 });
+  t.after(() => runtime.stop());
+
+  runtime.start();
+  await waitFor(() => runtime.state.obsConnected);
+  obs.emit('ConnectionClosed');
+  await waitFor(() => obs.connectCalls === 2);
+
+  assert.equal(runtime.state.obsConnected, true);
+});
+
+test('Polaroid cancels pending OBS retries while stopping', async () => {
+  const obs = new FakeObs([new Error('offline')]);
+  const runtime = new PolaroidRuntime({ config: makeConfig(), obs, reconnectDelayMs: 20 });
+
+  runtime.start();
+  await waitFor(() => obs.connectCalls === 1);
+  await runtime.stop();
+  await new Promise((resolve) => setTimeout(resolve, 30));
+
+  assert.equal(obs.connectCalls, 1);
+});
