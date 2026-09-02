@@ -40,6 +40,6 @@ services:
       - key: POLAROID_DISCORD_WEBHOOK
         sync: false
       - key: SPOTIFY_CLEAN_ONLY
-        value: true
+        value: "true"
       - key: SPOTIFY_QUEUE_ENABLED
-        value: true
+        value: "true"
