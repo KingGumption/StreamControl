@@ -30,7 +30,7 @@ Phone/browser -> hosted StreamEngagement + persistent data
 
 1. Put this project in a private Git repository that Render can access.
 2. In Render, create a Blueprint from [`render.yaml`](render.yaml). The Blueprint provisions a Node web service and a 1 GB persistent disk mounted at `/var/data`. A persistent disk requires a paid Render service and limits the service to one instance, which is appropriate for the SQLite database.
-3. Supply `PUBLIC_BASE_URL` as the final HTTPS Render/custom-domain origin, with no path, for example `https://stream.example.com`.
+3. Render's assigned HTTPS URL is detected automatically. Set `PUBLIC_BASE_URL` only if you later use a custom domain, with no path, for example `https://stream.example.com`.
 4. Supply a long unique `ADMIN_PASSWORD` and the Spotify credentials. Render generates `SESSION_SECRET` and `BRIDGE_TOKEN`; reveal and securely copy the bridge token for the connector setup.
 5. If Streamer.bot WebSocket authentication is enabled, set `STREAMERBOT_WS_PASSWORD` on Render. Set `STREAMERBOT_TIKTOK_REPLY_ACTION_ID` there if TikTok replies use that action.
 6. Add `${PUBLIC_BASE_URL}/callback` to the Spotify developer application's redirect URI list. `SPOTIFY_REDIRECT_URI` defaults to that value automatically.

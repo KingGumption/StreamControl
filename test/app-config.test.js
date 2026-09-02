@@ -24,6 +24,17 @@ test('loads documented defaults from a central configuration module', () => {
 });
 
 test('validates cloud and connector deployment secrets and transport security', () => {
+  const renderCloud = loadAppConfig({
+    APP_MODE: 'cloud',
+    RENDER_EXTERNAL_URL: 'https://streamengagement.onrender.com',
+    ADMIN_PASSWORD: 'a-strong-admin-password',
+    SESSION_SECRET: 's'.repeat(40),
+    BRIDGE_TOKEN: 'b'.repeat(40),
+  });
+  assert.equal(renderCloud.publicBaseUrl, 'https://streamengagement.onrender.com');
+  assert.equal(renderCloud.spotify.redirectUri, 'https://streamengagement.onrender.com/callback');
+  assert.equal(requireDeploymentConfig(renderCloud), renderCloud);
+
   const cloud = loadAppConfig({
     APP_MODE: 'cloud',
     PUBLIC_BASE_URL: 'https://streams.example.com/',

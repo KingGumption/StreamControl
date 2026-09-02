@@ -64,7 +64,10 @@ function normalizedBaseUrl(value) {
 function loadAppConfig(environment = process.env) {
   const mode = appModeValue(environment);
   const port = numberValue(environment, 'PORT', 8787, { integer: true, min: 1, max: 65535 });
-  const defaultBaseUrl = `http://127.0.0.1:${port}`;
+  const renderExternalUrl = stringValue(environment, 'RENDER_EXTERNAL_URL');
+  const defaultBaseUrl = mode === 'cloud' && renderExternalUrl
+    ? renderExternalUrl
+    : `http://127.0.0.1:${port}`;
   const publicBaseUrl = normalizedBaseUrl(urlValue(environment, 'PUBLIC_BASE_URL', defaultBaseUrl, ['http:', 'https:']));
   const dataDirValue = stringValue(environment, 'DATA_DIR', path.join(PROJECT_ROOT, 'data'));
   return Object.freeze({
