@@ -9,7 +9,7 @@ const legacyConfigPath = path.join(legacyProjectDir, 'config.json');
 
 const defaults = {
   obs: {
-    url: 'ws://127.0.0.1:4455', password: '', cameraSource: 'Camera',
+    url: 'ws://127.0.0.1:4455', password: '', cameraSource: 'camera',
     captureWidth: 1920, captureHeight: 1080, reconnectDelayMs: 5000,
   },
   streamerBot: {

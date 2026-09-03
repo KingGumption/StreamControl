@@ -34,7 +34,7 @@ services:
       - key: STREAMERBOT_TIKTOK_REPLY_ACTION_ID
         sync: false
       - key: POLAROID_CAMERA_SOURCE
-        value: Camera
+        value: camera
       - key: POLAROID_DISCORD_WEBHOOK
         sync: false
       - key: POLAROID_TWITCH_CHAT_ENABLED
