@@ -4,6 +4,7 @@ const submit = document.querySelector('#submit');
 const result = document.querySelector('#result');
 const latest = document.querySelector('#latest');
 const overlayUrl = document.querySelector('#overlay-url');
+const deliverDiscord = document.querySelector('#deliver-discord');
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -53,17 +54,21 @@ async function updateStatus() {
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   submit.disabled = true;
+  const deliverToDiscord = deliverDiscord.checked;
   result.textContent = 'Capturing the OBS camera source…';
   try {
     const response = await fetch('/admin/polaroid/redeem', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ redeemerName: document.querySelector('#name').value }),
+      body: JSON.stringify({
+        redeemerName: document.querySelector('#name').value,
+        deliverToDiscord,
+      }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
     delete result.dataset.serviceError;
-    result.textContent = `Done — Polaroid taken by ${data.redeemerName}.`;
+    result.textContent = `Done — Polaroid taken by ${data.redeemerName}.${deliverToDiscord ? '' : ' Discord and Twitch delivery skipped.'}`;
     latest.src = `${data.imageUrl}?v=${Date.now()}`;
     latest.hidden = false;
   } catch (error) {

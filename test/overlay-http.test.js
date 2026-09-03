@@ -134,7 +134,13 @@ test('serves the transparent overlay, mascot asset, and preview trigger', async 
 
   const polaroidAdmin = await fetch(`${base}/admin/polaroid`);
   assert.equal(polaroidAdmin.status, 200);
-  assert.match(await polaroidAdmin.text(), /Polaroid Redeem/);
+  const polaroidAdminHtml = await polaroidAdmin.text();
+  assert.match(polaroidAdminHtml, /Polaroid Redeem/);
+  assert.match(polaroidAdminHtml, /id="deliver-discord" type="checkbox" checked/);
+
+  const polaroidControl = await fetch(`${base}/polaroid/assets/control.js`);
+  assert.equal(polaroidControl.status, 200);
+  assert.match(await polaroidControl.text(), /deliverToDiscord/);
 
   const polaroidStatus = await fetch(`${base}/admin/polaroid/status`);
   assert.equal(polaroidStatus.status, 200);

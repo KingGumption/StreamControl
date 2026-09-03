@@ -18,12 +18,14 @@ class PolaroidRuntime {
   constructor({
     config = loadPolaroidConfig(),
     obs = new OBSWebSocket(),
+    discordSender = sendToDiscord,
     reconnectDelayMs = config.obs.reconnectDelayMs ?? 5000,
     recordEvent = null,
     telemetry = null,
   } = {}) {
     this.config = config;
     this.obs = obs;
+    this.discordSender = discordSender;
     this.streamerBot = null;
     this.started = false;
     this.stopping = false;
@@ -177,14 +179,26 @@ class PolaroidRuntime {
     }
   }
 
-  enqueueRedemption(redeemerName, source = 'API', eventId = '', profileImageUrl = '', userId = '', roles = []) {
+  enqueueRedemption(
+    redeemerName,
+    source = 'API',
+    eventId = '',
+    profileImageUrl = '',
+    userId = '',
+    roles = [],
+    { deliverToDiscord = true } = {},
+  ) {
     const safeName = safeRedeemerName(redeemerName);
     if (!safeName) throw new Error('A redeemer name is required.');
     if (eventId && this.isDuplicateEvent(eventId)) return null;
 
     const id = eventId || crypto.randomUUID();
     const promise = new Promise((resolve, reject) => {
-      this.queue.push({ id, redeemerName: safeName, profileImageUrl, source, userId, roles, resolve, reject });
+      this.queue.push({
+        id, redeemerName: safeName, profileImageUrl, source, userId, roles,
+        deliverToDiscord: deliverToDiscord !== false,
+        resolve, reject,
+      });
     });
     this.state.queueLength = this.queue.length;
     this.track('redemption_queued', { redeemerName: safeName, source, id, userId, roles });
@@ -243,8 +257,21 @@ class PolaroidRuntime {
     this.events.emit('polaroid', photo);
     this.log('Sent capture to overlay:', filename);
 
+    await this.deliverCapture(job, rendered, filename);
+
+    await this.pruneCaptures();
+    this.publishStatus();
+    return photo;
+  }
+
+  async deliverCapture(job, rendered, filename) {
+    if (job.deliverToDiscord === false) {
+      this.log('Discord and Twitch delivery skipped for test capture.');
+      return { skipped: true };
+    }
+
     try {
-      const result = await sendToDiscord(
+      const result = await this.discordSender(
         this.config.discord.webhookUrl,
         rendered,
         filename,
@@ -257,11 +284,9 @@ class PolaroidRuntime {
       this.track('delivery_failed', job, { error: error.message });
       this.recordError(error);
       this.log('Discord/Twitch delivery failed:', error.message);
+      return { skipped: false, error: error.message };
     }
-
-    await this.pruneCaptures();
-    this.publishStatus();
-    return photo;
+    return { skipped: false };
   }
 
   async downloadProfileImage(value) {

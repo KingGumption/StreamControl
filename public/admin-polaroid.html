@@ -58,11 +58,14 @@
     .ok { color: var(--success); }
     .bad { color: var(--danger); }
     .warn { color: var(--warning); }
-    form { display: flex; gap: 10px; }
+    form { display: grid; gap: 12px; }
+    .test-fields { display: flex; gap: 10px; }
     input {
       flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px;
       background: #0f141a; color: var(--text); font: inherit;
     }
+    .delivery-option { display: flex; align-items: center; gap: 9px; color: var(--muted); cursor: pointer; }
+    .delivery-option input { flex: 0 0 auto; width: 18px; height: 18px; padding: 0; accent-color: var(--accent); }
     button {
       background: var(--accent); color: #0a1217; border: none; border-radius: 6px;
       padding: 10px 16px; font-weight: bold; cursor: pointer;
@@ -75,7 +78,7 @@
     code { color: #cfe4ff; overflow-wrap: anywhere; }
     @media (max-width: 640px) {
       header { flex-direction: column; align-items: flex-start; }
-      form { flex-direction: column; }
+      .test-fields { flex-direction: column; }
     }
   </style>
 </head>
@@ -99,10 +102,16 @@
 
     <section class="panel">
       <h2>Take a test Polaroid</h2>
-      <p>This runs the complete live flow, including the OBS overlay and Discord delivery.</p>
+      <p>This always tests the camera capture and OBS overlay. Delivery to Discord and Twitch chat is optional.</p>
       <form id="test-form">
-        <input id="name" value="Test Viewer" maxlength="50" aria-label="Redeemer name" required>
-        <button id="submit" type="submit">Take photo</button>
+        <div class="test-fields">
+          <input id="name" value="Test Viewer" maxlength="50" aria-label="Redeemer name" required>
+          <button id="submit" type="submit">Take photo</button>
+        </div>
+        <label class="delivery-option">
+          <input id="deliver-discord" type="checkbox" checked>
+          <span>Post this test to Discord and Twitch chat</span>
+        </label>
       </form>
       <p id="result" class="result" aria-live="polite"></p>
       <img id="latest" class="latest" alt="Latest Polaroid" hidden>

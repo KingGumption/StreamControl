@@ -78,6 +78,8 @@ The connector automatically reconnects to the cloud and each local WebSocket. Wh
 
 Polaroid Redeem is integrated into this service. Its admin page is at `http://127.0.0.1:8787/admin/polaroid`, and its transparent OBS browser source is `http://127.0.0.1:8787/polaroid` at 1920 × 1080. The former port `8791` service is no longer required.
 
+The admin test form includes a delivery checkbox. Uncheck it to test the camera capture and OBS overlay without posting the test image to Discord or sending its link to Twitch chat. Live channel-point redemptions continue to use the configured delivery flow.
+
 The existing Polaroid settings have been migrated to the ignored `data/polaroid-config.json`, archived captures are in `data/polaroid-captures`, and the custom wow audio is under `public/polaroid/audio`. Use `polaroid-config.example.json` as the safe template for future installations. Never commit `data/polaroid-config.json`, because it can contain the OBS password and Discord webhook.
 
 The Polaroid feature shares this application's authenticated Streamer.bot connection. Configure its URL and optional password with `STREAMERBOT_WS_URL` and `STREAMERBOT_WS_PASSWORD` in `.env`. The reward name, camera source, rendering, overlay, Discord, avatar helper, and Twitch-link settings remain in `data/polaroid-config.json`. Environment variables `POLAROID_OBS_PASSWORD`, `POLAROID_CAMERA_SOURCE`, and `POLAROID_DISCORD_WEBHOOK` can override the corresponding sensitive settings. Cloud deployments can reliably enable the Streamer.bot helpers independently of the ignored data file with `POLAROID_TWITCH_CHAT_ENABLED`, `POLAROID_TWITCH_CHAT_ACTION_NAME`, `POLAROID_AVATAR_RESOLVER_ENABLED`, and `POLAROID_AVATAR_RESOLVER_ACTION_NAME`.

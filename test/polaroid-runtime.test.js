@@ -74,3 +74,51 @@ test('Polaroid cancels pending OBS retries while stopping', async () => {
 
   assert.equal(obs.connectCalls, 1);
 });
+
+test('Polaroid test captures can skip Discord and Twitch delivery', async () => {
+  let discordCalls = 0;
+  let twitchCalls = 0;
+  const runtime = new PolaroidRuntime({
+    config: makeConfig(),
+    obs: new FakeObs(),
+    discordSender: async () => {
+      discordCalls += 1;
+      return { skipped: false, attachmentUrl: 'https://cdn.example/photo.jpg' };
+    },
+  });
+  runtime.postPolaroidToTwitchChat = async () => { twitchCalls += 1; };
+
+  const result = await runtime.deliverCapture(
+    { redeemerName: 'Test Viewer', deliverToDiscord: false },
+    Buffer.from('jpeg'),
+    'test.jpg',
+  );
+
+  assert.equal(result.skipped, true);
+  assert.equal(discordCalls, 0);
+  assert.equal(twitchCalls, 0);
+});
+
+test('normal Polaroid captures continue to deliver to Discord and Twitch', async () => {
+  let discordCalls = 0;
+  let twitchUrl = '';
+  const runtime = new PolaroidRuntime({
+    config: makeConfig(),
+    obs: new FakeObs(),
+    discordSender: async () => {
+      discordCalls += 1;
+      return { skipped: false, attachmentUrl: 'https://cdn.example/photo.jpg' };
+    },
+  });
+  runtime.postPolaroidToTwitchChat = async (_redeemerName, imageUrl) => { twitchUrl = imageUrl; };
+
+  const result = await runtime.deliverCapture(
+    { redeemerName: 'Live Viewer', deliverToDiscord: true },
+    Buffer.from('jpeg'),
+    'live.jpg',
+  );
+
+  assert.equal(result.skipped, false);
+  assert.equal(discordCalls, 1);
+  assert.equal(twitchUrl, 'https://cdn.example/photo.jpg');
+});

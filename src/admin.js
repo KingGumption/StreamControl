@@ -101,13 +101,17 @@ router.get('/polaroid/latest', (req, res) => {
 
 router.post('/polaroid/redeem', async (req, res) => {
   try {
+    const deliverToDiscord = req.body.deliverToDiscord !== false;
     const photo = await polaroidRuntime.enqueueRedemption(
       req.body.redeemerName || req.body.userName || req.body.username,
       'Admin',
       '',
       req.body.profileImageUrl || req.body.avatarUrl || '',
+      '',
+      [],
+      { deliverToDiscord },
     );
-    res.status(201).json({ ok: true, ...photo });
+    res.status(201).json({ ok: true, ...photo, deliverToDiscord });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
