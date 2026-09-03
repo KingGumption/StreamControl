@@ -37,6 +37,14 @@ services:
         value: Camera
       - key: POLAROID_DISCORD_WEBHOOK
         sync: false
+      - key: POLAROID_TWITCH_CHAT_ENABLED
+        value: "true"
+      - key: POLAROID_TWITCH_CHAT_ACTION_NAME
+        value: Post Polaroid Link
+      - key: POLAROID_AVATAR_RESOLVER_ENABLED
+        value: "true"
+      - key: POLAROID_AVATAR_RESOLVER_ACTION_NAME
+        value: Resolve Polaroid Avatar
       - key: SPOTIFY_CLEAN_ONLY
         value: "true"
       - key: SPOTIFY_QUEUE_ENABLED

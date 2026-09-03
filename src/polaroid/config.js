@@ -53,7 +53,36 @@ function merge(base, override) {
   return result;
 }
 
-function loadPolaroidConfig() {
+function booleanEnvironmentValue(environment, key) {
+  if (!Object.prototype.hasOwnProperty.call(environment, key)) return undefined;
+  const value = String(environment[key] ?? '').trim().toLowerCase();
+  if (!value) return undefined;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  throw new Error(`Invalid environment variable ${key}: expected true or false`);
+}
+
+function applyEnvironmentOverrides(config, environment = process.env) {
+  if (environment.POLAROID_DISCORD_WEBHOOK) config.discord.webhookUrl = String(environment.POLAROID_DISCORD_WEBHOOK).trim();
+  if (environment.POLAROID_OBS_PASSWORD) config.obs.password = String(environment.POLAROID_OBS_PASSWORD);
+  if (environment.POLAROID_CAMERA_SOURCE) config.obs.cameraSource = String(environment.POLAROID_CAMERA_SOURCE).trim();
+
+  const twitchChatEnabled = booleanEnvironmentValue(environment, 'POLAROID_TWITCH_CHAT_ENABLED');
+  if (twitchChatEnabled !== undefined) config.twitchChat.enabled = twitchChatEnabled;
+  if (environment.POLAROID_TWITCH_CHAT_ACTION_NAME) {
+    config.twitchChat.actionName = String(environment.POLAROID_TWITCH_CHAT_ACTION_NAME).trim();
+  }
+
+  const avatarResolverEnabled = booleanEnvironmentValue(environment, 'POLAROID_AVATAR_RESOLVER_ENABLED');
+  if (avatarResolverEnabled !== undefined) config.streamerBot.avatarResolverEnabled = avatarResolverEnabled;
+  if (environment.POLAROID_AVATAR_RESOLVER_ACTION_NAME) {
+    config.streamerBot.avatarResolverActionName = String(environment.POLAROID_AVATAR_RESOLVER_ACTION_NAME).trim();
+  }
+
+  return config;
+}
+
+function loadPolaroidConfig(environment = process.env) {
   let userConfig = {};
   if (fs.existsSync(configPath)) {
     userConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -62,13 +91,11 @@ function loadPolaroidConfig() {
   }
 
   const config = merge(defaults, userConfig);
-  if (process.env.POLAROID_DISCORD_WEBHOOK) config.discord.webhookUrl = process.env.POLAROID_DISCORD_WEBHOOK;
-  if (process.env.POLAROID_OBS_PASSWORD) config.obs.password = process.env.POLAROID_OBS_PASSWORD;
-  if (process.env.POLAROID_CAMERA_SOURCE) config.obs.cameraSource = process.env.POLAROID_CAMERA_SOURCE;
-  return config;
+  return applyEnvironmentOverrides(config, environment);
 }
 
 module.exports = {
+  applyEnvironmentOverrides,
   configPath,
   legacyConfigPath,
   legacyProjectDir,
