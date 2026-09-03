@@ -186,22 +186,23 @@ class PolaroidRuntime {
     profileImageUrl = '',
     userId = '',
     roles = [],
-    { deliverToDiscord = true } = {},
+    { deliverToDiscord = true, isTest = false } = {},
   ) {
     const safeName = safeRedeemerName(redeemerName);
     if (!safeName) throw new Error('A redeemer name is required.');
     if (eventId && this.isDuplicateEvent(eventId)) return null;
 
     const id = eventId || crypto.randomUUID();
+    const job = {
+      id, redeemerName: safeName, profileImageUrl, source, userId, roles,
+      deliverToDiscord: deliverToDiscord !== false,
+      isTest: isTest === true,
+    };
     const promise = new Promise((resolve, reject) => {
-      this.queue.push({
-        id, redeemerName: safeName, profileImageUrl, source, userId, roles,
-        deliverToDiscord: deliverToDiscord !== false,
-        resolve, reject,
-      });
+      this.queue.push(Object.assign(job, { resolve, reject }));
     });
     this.state.queueLength = this.queue.length;
-    this.track('redemption_queued', { redeemerName: safeName, source, id, userId, roles });
+    this.track('redemption_queued', job);
     this.log(`Queued ${source} redemption for`, safeName);
     this.publishStatus();
     void this.runQueue();
@@ -237,7 +238,7 @@ class PolaroidRuntime {
     const profileImage = await this.downloadProfileImage(job.profileImageUrl);
     const rendered = await renderPolaroid(screenshot, job.redeemerName, this.config.polaroid, profileImage);
     const timestamp = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
-    const filename = `${timestamp}_${safeFilePart(job.redeemerName)}.jpg`;
+    const filename = `${job.isTest ? 'test_' : ''}${timestamp}_${safeFilePart(job.redeemerName)}.jpg`;
     await fs.mkdir(this.capturesDir, { recursive: true });
     await fs.writeFile(path.join(this.capturesDir, filename), rendered);
 
@@ -480,7 +481,7 @@ class PolaroidRuntime {
   }
 
   track(eventType, job, metadata = {}) {
-    if (!this.recordEvent) return;
+    if (!this.recordEvent || job?.isTest) return;
     try {
       this.recordEvent({
         tool: 'polaroid',

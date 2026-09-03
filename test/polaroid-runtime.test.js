@@ -122,3 +122,18 @@ test('normal Polaroid captures continue to deliver to Discord and Twitch', async
   assert.equal(discordCalls, 1);
   assert.equal(twitchUrl, 'https://cdn.example/photo.jpg');
 });
+
+test('Polaroid test jobs do not record analytics events', () => {
+  const recorded = [];
+  const runtime = new PolaroidRuntime({
+    config: makeConfig(),
+    obs: new FakeObs(),
+    recordEvent: (item) => recorded.push(item),
+  });
+
+  runtime.track('capture_completed', { id: 'test-1', source: 'Admin', redeemerName: 'Test Viewer', isTest: true });
+  runtime.track('capture_completed', { id: 'live-1', source: 'Twitch', redeemerName: 'Live Viewer', isTest: false });
+
+  assert.equal(recorded.length, 1);
+  assert.equal(recorded[0].correlationId, 'live-1');
+});

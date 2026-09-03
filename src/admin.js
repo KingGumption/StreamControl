@@ -109,7 +109,7 @@ router.post('/polaroid/redeem', async (req, res) => {
       req.body.profileImageUrl || req.body.avatarUrl || '',
       '',
       [],
-      { deliverToDiscord },
+      { deliverToDiscord, isTest: true },
     );
     res.status(201).json({ ok: true, ...photo, deliverToDiscord });
   } catch (error) {

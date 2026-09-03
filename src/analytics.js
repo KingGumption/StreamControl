@@ -41,8 +41,14 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
   const previousSinceMs = days ? sinceMs - days * 86400000 : -Infinity;
 
   const normalizedRequests = requests.map(normalizeRequest).filter((item) => item.timeMs <= nowMs);
-  const normalizedEvents = events.map(normalizeEvent).filter((item) => item.timeMs <= nowMs);
-  const normalizedCaptures = mergeCapturesWithEvents(captures, normalizedEvents).filter((item) => item.timeMs <= nowMs);
+  const allNormalizedEvents = events.map(normalizeEvent).filter((item) => item.timeMs <= nowMs);
+  const testCaptureFilenames = new Set(allNormalizedEvents
+    .filter((event) => isPolaroidTestEvent(event) && event.eventType === 'capture_completed')
+    .map((event) => event.metadata.filename)
+    .filter(Boolean));
+  const normalizedEvents = allNormalizedEvents.filter((event) => !isPolaroidTestEvent(event));
+  const normalizedCaptures = mergeCapturesWithEvents(captures, normalizedEvents, testCaptureFilenames)
+    .filter((item) => item.timeMs <= nowMs);
   const normalizedSessions = streamSessions.map(normalizeStreamSession).filter((item) => item.startMs <= nowMs);
   const normalizedSnapshots = viewerSnapshots.map(normalizeViewerSnapshot).filter((item) => item.timeMs <= nowMs);
   const platformMatches = (item) => safePlatform === 'all' || item.platform === safePlatform;
@@ -351,22 +357,24 @@ function normalizeCapture(row) {
   };
 }
 
-function mergeCapturesWithEvents(captures, events) {
+function mergeCapturesWithEvents(captures, events, excludedFilenames = new Set()) {
   const completionEvents = events.filter((event) => event.tool === 'polaroid' && event.eventType === 'capture_completed');
   const completionsByFilename = new Map(completionEvents
     .filter((event) => event.metadata.filename)
     .map((event) => [event.metadata.filename, event]));
-  const files = captures.map(normalizeCapture).map((capture) => {
-    const event = completionsByFilename.get(capture.filename);
-    return event ? {
-      ...capture,
-      platform: event.platform,
-      userId: event.userId || capture.userId,
-      username: event.username || capture.username,
-      roles: event.roles.length ? event.roles : capture.roles,
-      sessionId: event.sessionId || capture.sessionId,
-    } : capture;
-  });
+  const files = captures.map(normalizeCapture)
+    .filter((capture) => !excludedFilenames.has(capture.filename) && !isTestCaptureFilename(capture.filename))
+    .map((capture) => {
+      const event = completionsByFilename.get(capture.filename);
+      return event ? {
+        ...capture,
+        platform: event.platform,
+        userId: event.userId || capture.userId,
+        username: event.username || capture.username,
+        roles: event.roles.length ? event.roles : capture.roles,
+        sessionId: event.sessionId || capture.sessionId,
+      } : capture;
+    });
   const filenames = new Set(files.map((capture) => capture.filename).filter(Boolean));
   const prunedCaptures = completionEvents
     .filter((event) => !event.metadata.filename || !filenames.has(event.metadata.filename))
@@ -395,6 +403,7 @@ function listPolaroidCaptures() {
 }
 
 function parseCaptureFilename(filename) {
+  if (isTestCaptureFilename(filename)) return null;
   const match = filename.match(/^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z_(.+)\.jpe?g$/i);
   if (!match) return null;
   return {
@@ -403,6 +412,14 @@ function parseCaptureFilename(filename) {
     platform: 'other',
     filename,
   };
+}
+
+function isPolaroidTestEvent(event) {
+  return event.tool === 'polaroid' && (event.platform === 'admin' || event.metadata.isTest === true);
+}
+
+function isTestCaptureFilename(filename) {
+  return /^test_/i.test(String(filename || ''));
 }
 
 function songRequestActivity(item) {

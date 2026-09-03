@@ -78,7 +78,7 @@ The connector automatically reconnects to the cloud and each local WebSocket. Wh
 
 Polaroid Redeem is integrated into this service. Its admin page is at `http://127.0.0.1:8787/admin/polaroid`, and its transparent OBS browser source is `http://127.0.0.1:8787/polaroid` at 1920 × 1080. The former port `8791` service is no longer required.
 
-The admin test form includes a delivery checkbox. Uncheck it to test the camera capture and OBS overlay without posting the test image to Discord or sending its link to Twitch chat. Live channel-point redemptions continue to use the configured delivery flow.
+The admin test form includes a delivery checkbox. Uncheck it to test the camera capture and OBS overlay without posting the test image to Discord or sending its link to Twitch chat. Admin test captures are excluded from analytics, while live channel-point redemptions continue to use the configured delivery and analytics flow.
 
 The existing Polaroid settings have been migrated to the ignored `data/polaroid-config.json`, archived captures are in `data/polaroid-captures`, and the custom wow audio is under `public/polaroid/audio`. Use `polaroid-config.example.json` as the safe template for future installations. Never commit `data/polaroid-config.json`, because it can contain the OBS password and Discord webhook.
 

@@ -59,6 +59,40 @@ test('parses archived Polaroid filenames into analytics records', () => {
     platform: 'other',
     filename: '2026-08-31T23-09-53-561Z_KenoughTho.jpg',
   });
+  assert.equal(parseCaptureFilename('test_2026-08-31T23-09-53-561Z_Test-Viewer.jpg'), null);
+});
+
+test('excludes current and previously recorded admin test Polaroids', () => {
+  const oldTestFilename = '2026-09-01T18-20-00-000Z_Test-Viewer.jpg';
+  const events = [
+    { ...event('polaroid', 'redemption_queued', '18:19', 'Test Viewer', ''), platform: 'admin' },
+    {
+      ...event('polaroid', 'capture_completed', '18:20', 'Test Viewer', '', { filename: oldTestFilename }),
+      platform: 'admin',
+    },
+    {
+      ...event('polaroid', 'capture_failed', '18:21', 'Test Viewer', '', { isTest: true }),
+      platform: 'api',
+    },
+  ];
+  const captures = [
+    { timestamp: '2026-09-01T18:20:00.000Z', filename: oldTestFilename, username: 'Test Viewer' },
+    { timestamp: '2026-09-01T18:22:00.000Z', filename: 'test_2026-09-01T18-22-00-000Z_Test-Viewer.jpg', username: 'Test Viewer' },
+    { timestamp: '2026-09-01T18:23:00.000Z', filename: 'live.jpg', platform: 'twitch', username: 'Live Viewer' },
+  ];
+
+  const report = buildAnalyticsReport({
+    events,
+    captures,
+    range: '7d',
+    now: new Date('2026-09-02T00:00:00.000Z'),
+  });
+
+  assert.equal(report.tools.polaroid.captures, 1);
+  assert.equal(report.tools.polaroid.failures, 0);
+  assert.equal(report.overview.interactions, 1);
+  assert.equal(report.tools.polaroid.recent[0].username, 'Live Viewer');
+  assert.equal(report.activity.some((item) => item.platform === 'admin'), false);
 });
 
 test('builds measured stream impact, outcomes, roles, and OBS fallback viewer curves', () => {
