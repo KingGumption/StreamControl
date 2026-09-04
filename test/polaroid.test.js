@@ -6,7 +6,7 @@ const { renderPolaroid } = require('../src/polaroid/renderer');
 const { sendToDiscord } = require('../src/polaroid/discord');
 
 const settings = {
-  rewardTitle: 'Take a Polaroid',
+  rewardTitle: 'Polaroid',
   rewardId: '',
   customEventName: 'PolaroidRedeem',
 };
@@ -17,7 +17,7 @@ test('parses matching Polaroid rewards and ignores unrelated rewards', () => {
     data: {
       id: 'event-123',
       user: { id: 'viewer-1', displayName: 'Lovely Viewer', badges: [{ name: 'subscriber' }] },
-      reward: { id: 'reward-1', title: 'Take a Polaroid' },
+      reward: { id: 'reward-1', title: 'Polaroid' },
     },
   }, settings);
   assert.deepEqual(matching, {

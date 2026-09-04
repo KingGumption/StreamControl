@@ -13,8 +13,8 @@ const defaults = {
     captureWidth: 1920, captureHeight: 1080, reconnectDelayMs: 5000,
   },
   streamerBot: {
-    enabled: true, rewardTitle: 'Take a Polaroid', rewardId: '',
-    customEventName: 'PolaroidRedeem', avatarResolverEnabled: false,
+    enabled: true, rewardTitle: 'Polaroid', rewardId: '',
+    customEventName: 'PolaroidRedeem', avatarResolverEnabled: true,
     avatarResolverActionName: 'Resolve Polaroid Avatar',
     avatarResolverEventName: 'PolaroidAvatarResolved', avatarResolverTimeoutMs: 4000,
   },
@@ -25,7 +25,7 @@ const defaults = {
   },
   overlay: { showMs: 11000, gapMs: 750, soundVolume: 0.8 },
   twitchChat: {
-    enabled: false,
+    enabled: true,
     actionName: 'Post Polaroid Link',
     message: "📸 @{redeemer}'s Polaroid: {imageUrl}",
   },
@@ -66,6 +66,12 @@ function applyEnvironmentOverrides(config, environment = process.env) {
   if (environment.POLAROID_DISCORD_WEBHOOK) config.discord.webhookUrl = String(environment.POLAROID_DISCORD_WEBHOOK).trim();
   if (environment.POLAROID_OBS_PASSWORD) config.obs.password = String(environment.POLAROID_OBS_PASSWORD);
   if (environment.POLAROID_CAMERA_SOURCE) config.obs.cameraSource = String(environment.POLAROID_CAMERA_SOURCE).trim();
+  if (environment.POLAROID_REWARD_TITLE) {
+    config.streamerBot.rewardTitle = String(environment.POLAROID_REWARD_TITLE).trim();
+  }
+  if (environment.POLAROID_REWARD_ID) {
+    config.streamerBot.rewardId = String(environment.POLAROID_REWARD_ID).trim();
+  }
 
   const twitchChatEnabled = booleanEnvironmentValue(environment, 'POLAROID_TWITCH_CHAT_ENABLED');
   if (twitchChatEnabled !== undefined) config.twitchChat.enabled = twitchChatEnabled;

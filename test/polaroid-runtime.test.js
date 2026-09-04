@@ -24,7 +24,7 @@ class FakeObs extends EventEmitter {
 function makeConfig() {
   return {
     obs: { url: 'ws://127.0.0.1:4455', password: '', cameraSource: 'Camera' },
-    streamerBot: { enabled: false, rewardTitle: 'Take a Polaroid' },
+    streamerBot: { enabled: false, rewardTitle: 'Polaroid' },
     discord: { enabled: false, webhookUrl: '' },
     twitchChat: { enabled: false, actionName: '' },
   };

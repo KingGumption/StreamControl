@@ -35,6 +35,8 @@ services:
         sync: false
       - key: POLAROID_CAMERA_SOURCE
         value: camera
+      - key: POLAROID_REWARD_TITLE
+        value: Polaroid
       - key: POLAROID_DISCORD_WEBHOOK
         sync: false
       - key: POLAROID_TWITCH_CHAT_ENABLED

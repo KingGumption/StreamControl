@@ -9,10 +9,10 @@
   },
   "streamerBot": {
     "enabled": true,
-    "rewardTitle": "Take a Polaroid",
+    "rewardTitle": "Polaroid",
     "rewardId": "",
     "customEventName": "PolaroidRedeem",
-    "avatarResolverEnabled": false,
+    "avatarResolverEnabled": true,
     "avatarResolverActionName": "Resolve Polaroid Avatar",
     "avatarResolverEventName": "PolaroidAvatarResolved",
     "avatarResolverTimeoutMs": 4000
@@ -33,7 +33,7 @@
     "soundVolume": 0.8
   },
   "twitchChat": {
-    "enabled": false,
+    "enabled": true,
     "actionName": "Post Polaroid Link",
     "message": "📸 @{redeemer}'s Polaroid: {imageUrl}"
   },

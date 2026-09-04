@@ -6,7 +6,10 @@ const { applyEnvironmentOverrides } = require('../src/polaroid/config');
 function makeConfig() {
   return {
     obs: { password: '', cameraSource: 'Camera' },
-    streamerBot: { avatarResolverEnabled: false, avatarResolverActionName: '' },
+    streamerBot: {
+      rewardTitle: 'Old reward name', rewardId: '',
+      avatarResolverEnabled: false, avatarResolverActionName: '',
+    },
     twitchChat: { enabled: false, actionName: '' },
     discord: { webhookUrl: '' },
   };
@@ -14,12 +17,16 @@ function makeConfig() {
 
 test('Polaroid integration environment settings override persisted values', () => {
   const config = applyEnvironmentOverrides(makeConfig(), {
+    POLAROID_REWARD_TITLE: 'Polaroid',
+    POLAROID_REWARD_ID: 'reward-123',
     POLAROID_TWITCH_CHAT_ENABLED: 'true',
     POLAROID_TWITCH_CHAT_ACTION_NAME: 'Post Polaroid Link',
     POLAROID_AVATAR_RESOLVER_ENABLED: 'TRUE',
     POLAROID_AVATAR_RESOLVER_ACTION_NAME: 'Resolve Polaroid Avatar',
   });
 
+  assert.equal(config.streamerBot.rewardTitle, 'Polaroid');
+  assert.equal(config.streamerBot.rewardId, 'reward-123');
   assert.equal(config.twitchChat.enabled, true);
   assert.equal(config.twitchChat.actionName, 'Post Polaroid Link');
   assert.equal(config.streamerBot.avatarResolverEnabled, true);
@@ -46,10 +53,14 @@ test('blank Polaroid integration environment switches leave persisted values unc
   config.streamerBot.avatarResolverEnabled = true;
 
   applyEnvironmentOverrides(config, {
+    POLAROID_REWARD_TITLE: '',
+    POLAROID_REWARD_ID: ' ',
     POLAROID_TWITCH_CHAT_ENABLED: '',
     POLAROID_AVATAR_RESOLVER_ENABLED: ' ',
   });
 
+  assert.equal(config.streamerBot.rewardTitle, 'Old reward name');
+  assert.equal(config.streamerBot.rewardId, '');
   assert.equal(config.twitchChat.enabled, true);
   assert.equal(config.streamerBot.avatarResolverEnabled, true);
 });
