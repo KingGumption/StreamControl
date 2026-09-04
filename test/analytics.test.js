@@ -130,6 +130,10 @@ test('builds measured stream impact, outcomes, roles, and OBS fallback viewer cu
 
 test('analytics page contains all tool drill-downs and valid inline JavaScript', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'admin-analytics.html'), 'utf8');
+  assert.match(html, /--bg:#101418/);
+  assert.match(html, /--accent:#4ecdc4/);
+  assert.match(html, /\.shell\{max-width:1200px/);
+  assert.match(html, /<header class="topbar"><h1>StreamEngagement<\/h1>/);
   assert.match(html, /Stream roundups/);
   assert.match(html, /Song Request Analytics/);
   assert.match(html, /King of the Hill Analytics/);
