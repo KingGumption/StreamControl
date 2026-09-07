@@ -159,7 +159,7 @@ function render(g) {
     if (g.roundResult) {
       const result = g.roundResult;
       $('result').textContent = result.winnerRunEnded ? "The last survivor's run has ended. The crown is theirs." : `${result.eliminated.length} eliminated this round. ${result.missed} did not answer.`;
-      if (result.eliminated.length) {
+      if (result.eliminated.length && $('overlay')) {
         const details = node('details', 'elimination-summary');
         details.id = 'eliminationSummary';
         details.append(node('summary', '', `Eliminated players (${result.eliminated.length})`));

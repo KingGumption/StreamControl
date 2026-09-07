@@ -29,6 +29,15 @@ function result(overrides = {}) {
     roundResult:{answerCounts:[1,8,0,0],missed:1,eliminated:Array.from({length:9},(_,i)=>({username:`Player ${i}`,platform:'twitch',answer:i===8?null:1}))},
     winners:[{username:'<img src=x onerror=alert(1)>',platform:'youtube'}],...overrides };
 }
+
+test('elimination recap is only shown in host controls, never the overlay or preview',()=>{
+ for(const preview of [false,true]){
+  const b=browser(preview);b.render(result());assert.equal(b.elements.has('eliminationSummary'),false);
+  b.tick();assert.equal(b.elements.get('quizStage').hidden,false);
+ }
+ const host=browser();host.elements.set('overlay',{});host.render(result());
+ assert.equal(host.elements.has('eliminationSummary'),true);
+});
 test('shows every elimination in batches, avoids replay on polling, then shows winner', () => {
   const b=browser(),g=result(); b.render(g);
   assert.equal(b.elements.get('quizStage').hidden,true);
