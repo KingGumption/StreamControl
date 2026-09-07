@@ -20,13 +20,14 @@ class QuizGame {
       for (let i = options.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [options[i], options[j]] = [options[j], options[i]]; }
       return { ...q, options: options.map(o => o.text), answer: options.findIndex(o => o.correct) };
     });
-    this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
+    this.nextQuestionAt = null; this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
   }
   next() {
     if (this.phase === 'question') { this.resolve(); return this.getState(); }
     if (!['lobby', 'reveal'].includes(this.phase)) throw new Error('Open a lobby first.');
     if (!this.players.size) throw new Error('At least one player must join first.');
     if (this.phase === 'lobby') this.track('game_started', null, { players: this.players.size, questionCount: this.count });
+    this.cancel(this.timer); this.nextQuestionAt = null;
     if (this.round >= this.count) this.deck.push(this.suddenDeathQuestion());
     this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; });
     this.deadline = this.now() + this.answerSeconds * 1000;
@@ -58,6 +59,12 @@ class QuizGame {
     this.roundResult = { answerCounts, missed, eliminated, winnerRunEnded };
     this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, missed, eliminated: eliminated.length });
     this.phase = this.survivors().length === 0 || winnerRunEnded ? 'completed' : 'reveal';
+    if (this.phase === 'reveal') {
+      const revealMs = 3500 + Math.ceil(eliminated.length / 4) * 3200 + 1500;
+      this.nextQuestionAt = this.now() + revealMs;
+      this.timer = this.schedule(() => { if (this.phase === 'reveal') this.next(); }, revealMs);
+      this.timer?.unref?.();
+    }
     if (this.phase === 'completed') {
       this.outcome = this.survivors().length ? 'victory' : 'defeat';
       this.survivors().forEach(p => {
@@ -67,7 +74,7 @@ class QuizGame {
       this.track('game_completed', null, { winners: this.survivors().length, players: this.players.size, outcome: this.outcome });
     }
   }
-  stop() { this.cancel(this.timer); if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; return this.getState(); }
+  stop() { this.cancel(this.timer); this.nextQuestionAt = null; if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; return this.getState(); }
   survivors() { return [...this.players.values()].filter(p => p.alive); }
   handleChatEvent(event) {
     const match = String(event.text || '').trim().match(/^(?:!(join)|([1-4])|!quiz\s+(join|[a-d1-4]))$/i);
@@ -103,7 +110,7 @@ class QuizGame {
   }
   getState() {
     const q = this.round ? this.deck?.[this.round - 1] : null;
-    return { suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: this.questions.length, deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
+    return { nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: this.questions.length, deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
       question: q && this.phase !== 'idle' ? { text: q.text, options: q.options, difficulty: q.difficulty, ...(['reveal','completed'].includes(this.phase) ? { answer: q.answer } : {}) } : null,
       winners: this.phase === 'completed' ? this.survivors().map(({ username, platform, profileImageUrl, correctAnswers, totalWins }) => ({ username, platform, profileImageUrl, correctAnswers, totalWins })) : [] };
   }

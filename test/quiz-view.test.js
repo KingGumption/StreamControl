@@ -14,7 +14,7 @@ function browser() {
     after() {}
     remove() { elements.delete(this.id); }
   }
-  for (const id of ['questionPanel','quizStage','status','counts','question','options','result','error','open','next','questionCount']) { const el = new Element(); el.id = id; }
+  for (const id of ['overlayRoot','questionPanel','quizStage','status','counts','question','options','result','error','open','next','questionCount']) { const el = new Element(); el.id = id; }
   const context = vm.createContext({ document: { getElementById: id => elements.get(id), createElement: () => new Element() },
     setInterval() {}, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); },
     fetch: () => new Promise(() => {}), Date, URL,
@@ -49,9 +49,9 @@ test('defeat follows elimination and stopping cancels animation', () => {
   b.render({...g,gameId:'two'});assert.equal(b.timers.size,1);
   b.render({...g,phase:'idle',roundResult:null,question:null});assert.equal(b.timers.size,0);assert.equal(b.elements.get('quizStage').hidden,true);
 });
-test('next question clears reveal counts and enables controls after nonfinal elimination', () => {
+test('next question clears reveal counts while advancement stays automatic', () => {
   const b=browser(),g=result({phase:'reveal',survivors:2,winners:[]});b.render(g);b.tick();b.tick();b.tick();b.tick();
-  assert.equal(b.elements.get('next').disabled,false);
+  assert.equal(b.elements.get('next').disabled,true);
   b.render({...g,phase:'question',round:2,roundResult:null,question:{text:'New question',options:['A','B','C','D']}});
   assert.equal(b.elements.get('options').children[0].children.length,1);assert.equal(b.elements.get('quizStage').hidden,true);
 });
@@ -64,4 +64,11 @@ test('answer reveal precedes compact winner screen even without eliminations; po
  const card=b.elements.get('quizStage').children.at(-1).children[0];assert.equal(card.children[1].textContent,'KingGumption');
  assert.equal(card.children[0].children[1].src,g.winners[0].profileImageUrl);
  assert.equal(card.children.at(-1).children[0].textContent,'7 correct answers');assert.equal(card.children.at(-1).children[1].textContent,'3 total wins');
+});
+
+
+test('overlay is blank before the lobby opens and after stopping',()=>{
+ const b=browser();b.render(result({phase:'idle',question:null,roundResult:null}));assert.equal(b.elements.get('overlayRoot').hidden,true);
+ b.render(result({phase:'lobby',round:0,question:null,roundResult:null}));assert.equal(b.elements.get('overlayRoot').hidden,false);
+ b.render(result({phase:'idle',question:null,roundResult:null}));assert.equal(b.elements.get('overlayRoot').hidden,true);
 });

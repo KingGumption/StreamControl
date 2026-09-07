@@ -30,8 +30,8 @@ function roundLabel(g) {
 function updateControls(g) {
   if (!$('open')) return;
   $('open').disabled = ['lobby','question','reveal'].includes(g.phase);
-  $('next').disabled = animationRunning || !['lobby','question','reveal'].includes(g.phase);
-  $('next').textContent = g.phase === 'question' ? 'Close answers & reveal' : g.phase === 'lobby' ? 'Lock entries & start' : 'Next question';
+  $('next').disabled = animationRunning || !['lobby','question'].includes(g.phase);
+  $('next').textContent = g.phase === 'question' ? 'Close answers & reveal' : g.phase === 'lobby' ? 'Lock entries & start' : 'Next question starts automatically';
   $('questionCount').max = g.maxQuestions;
 }
 function showOutcome(g) {
@@ -88,6 +88,7 @@ function showEliminations(g) {
 }
 function render(g) {
   game = g;
+  if ($('overlayRoot')) $('overlayRoot').hidden = g.phase === 'idle';
   $('status').textContent = g.phase === 'lobby' ? 'Lobby open - type !join in chat' : g.phase === 'question' ? `${roundLabel(g)} - Entries locked` : g.phase === 'reveal' ? 'Answer revealed - Entries locked' : g.phase === 'completed' ? (g.winners.length ? 'Quiz complete - victory' : 'Quiz complete - defeat') : 'Waiting for a quiz';
   $('counts').textContent = `${g.players} joined - ${g.survivors} remaining`;
   const key = `${g.gameId}:${g.phase}:${g.round}`;
@@ -139,5 +140,6 @@ async function refresh() {
 setInterval(refresh, 1000);
 setInterval(() => {
   if (game?.phase === 'question') $('status').textContent = `${roundLabel(game)} - ${Math.max(0, Math.ceil((game.deadline - Date.now()) / 1000))}s - Entries locked`;
+  if (game?.phase === 'reveal' && game.nextQuestionAt) $('status').textContent = `Next question in ${Math.max(0,Math.ceil((game.nextQuestionAt-Date.now())/1000))}s`;
 }, 250);
 refresh();

@@ -28,3 +28,5 @@
 .winner-name .player-portrait{width:72px;height:72px;border-color:#f4c95d}.eliminated-player .player-portrait{width:40px;height:40px;border-color:#c86c7e}
 
 .winner-stats{display:flex;justify-content:center;gap:18px;margin-top:12px;color:#f4c95d;font-size:.95rem;font-weight:bold}
+
+body.quiz-overlay{background:transparent}.quiz-overlay .shell{padding:12px}

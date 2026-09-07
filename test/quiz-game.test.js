@@ -139,3 +139,17 @@ test('winner score counts correct answers once and lifetime wins survive new gam
  assert.equal(saved.filter(e=>e.eventType==='player_won').length,2);
  assert.equal(saved.filter(e=>e.eventType==='player_won')[1].metadata.correctAnswers,2);
 });
+
+test('server advances automatically after all reveal batches and cancels advancement on stop',()=>{
+ let now=1000,serial=0;const timers=new Map();
+ const game=new QuizGame({now:()=>now,schedule:(fn,ms)=>{timers.set(++serial,{fn,ms});return serial;},cancel:id=>timers.delete(id)});
+ const tick=()=>{const [id,timer]=timers.entries().next().value;timers.delete(id);now+=timer.ms;timer.fn();};
+ const answer=(id)=>game.handleChatEvent({platform:'twitch',text:String(game.deck[game.round-1].answer+1),user:{id,username:id}});
+ game.open({questionCount:1});
+ for(let i=0;i<11;i++)game.handleChatEvent({platform:'twitch',text:'!join',user:{id:String(i),username:String(i)}});
+ game.next();answer('0');answer('1');tick();
+ assert.equal(game.phase,'reveal');assert.equal(game.nextQuestionAt-now,3500+3*3200+1500);
+ tick();assert.equal(game.phase,'question');assert.equal(game.round,2);assert.equal(game.getState().suddenDeath,true);
+ answer('0');answer('1');tick();assert.equal(game.phase,'reveal');
+ game.stop();assert.equal(timers.size,0);assert.equal(game.getState().nextQuestionAt,null);
+});
