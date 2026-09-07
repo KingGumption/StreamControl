@@ -50,6 +50,8 @@ body.quiz-overlay{background:transparent}.quiz-overlay .shell{padding:12px}
 #questionPanel.has-media #options{grid-template-columns:1fr}
 #questionPanel .option{border:1px solid #354352;gap:8px;padding:12px;min-width:0;transition:background .25s,border-color .25s}
 .answer-label{display:flex;flex:1 1 auto;align-items:center;gap:10px;min-width:0}.answer-text{min-width:0;overflow-wrap:break-word;line-height:1.35}
+#questionPanel .option:has(.answer-count){flex-direction:column;align-items:stretch;justify-content:center}
+#questionPanel .option .answer-count{align-self:flex-end}
 .answer-number{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:7px;background:#182430;color:#4ecdc4;font-variant-numeric:tabular-nums}
 #questionPanel .option.correct{border-color:#4ecdc4;background:#205f4f;animation:correct-glow .8s ease-out}
 .correct .answer-number{background:#4ecdc4;color:#101418}.incorrect .answer-text{color:#a7b4c1}
