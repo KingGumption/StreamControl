@@ -10,6 +10,7 @@ const {
 } = require('./chat-events');
 const { commandService } = require('./command-service');
 const { hillGame } = require('./hill-game');
+const { quizGame } = require('./quiz-game');
 const { addEngagementEvent } = require('./db');
 const {
   STREAMERBOT_TELEMETRY_SUBSCRIPTIONS,
@@ -314,6 +315,7 @@ class IntegrationRuntime {
       roles: event.user?.roles,
     });
 
+    if (quizGame.handleChatEvent(event)) return;
     if (this.game?.handleChatEvent(event)) return;
     const result = await this.commands.handleChatEvent(event);
     if (result.handled) {

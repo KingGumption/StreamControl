@@ -23,6 +23,7 @@ const { spotifyApi } = require('./spotify-api');
 const { overlayEvents } = require('./overlay-events');
 const { resolveTwitchAvatar } = require('./avatar-resolver');
 const { hillGame } = require('./hill-game');
+const { quizGame } = require('./quiz-game');
 const { polaroidRuntime } = require('./polaroid/runtime');
 const { loadAnalyticsReport } = require('./analytics');
 const { appConfig } = require('./app-config');
@@ -269,6 +270,18 @@ router.post('/settings/song-requests', (req, res) => {
   });
   res.json({ ok: true, settings });
 });
+
+router.get('/games', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'admin-games.html')));
+router.get('/quiz', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'admin-quiz.html')));
+router.get('/quiz/state', (req, res) => res.json({ ok: true, game: quizGame.getState() }));
+for (const action of ['open', 'next', 'stop']) {
+  router.post(`/quiz/${action}`, (req, res) => {
+    try { res.json({ ok: true, game: quizGame[action](req.body) }); }
+    catch (error) { res.status(400).json({ ok: false, error: error.message }); }
+  });
+}
+app.get('/quiz', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'quiz.html')));
+app.get('/quiz/state', (req, res) => res.json({ ok: true, game: quizGame.getState() }));
 
 router.get('/king-of-the-hill/state', (req, res) => {
   res.json({ ok: true, game: hillGame.getState() });

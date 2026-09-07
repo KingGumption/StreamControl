@@ -108,6 +108,7 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
     tools: {
       songRequests: current.songRequests,
       kingOfTheHill: current.hill,
+      eliminationQuiz: current.quiz,
       polaroid: current.polaroid,
     },
     audience: current.audience,
@@ -146,14 +147,18 @@ function summarizePeriod(requests, events, captures) {
     ...missingSongAttempts.map(songCommandActivity),
     ...commandEvents.filter((event) => event.metadata.command !== 'song').map(songCommandActivity),
   ];
+  const quizEvents = events.filter(e => e.tool === 'elimination_quiz');
+  const quizInteractions = quizEvents.filter(e => ['player_joined', 'answer_submitted'].includes(e.eventType));
+  const quizCount = type => quizEvents.filter(e => e.eventType === type).length;
   const hillEvents = events.filter((event) => event.tool === 'king_of_the_hill');
   const hillVotes = hillEvents.filter((event) => event.eventType === 'vote');
   const polaroidEvents = events.filter((event) => event.tool === 'polaroid');
   const streamEvents = events.filter((event) => event.tool === 'stream');
   const captureActivity = captures.map(polaroidCaptureActivity);
-  const toolActivity = [...songActivity, ...hillVotes.map(hillVoteActivity), ...captureActivity];
+  const toolActivity = [...quizInteractions.map(genericEventActivity), ...songActivity, ...hillVotes.map(hillVoteActivity), ...captureActivity];
   const activity = [
     ...toolActivity,
+    ...quizEvents.filter(e => !['player_joined', 'answer_submitted'].includes(e.eventType)).map(genericEventActivity),
     ...hillEvents.filter((event) => event.eventType !== 'vote').map(genericEventActivity),
     ...polaroidEvents.filter((event) => event.eventType !== 'capture_completed').map(genericEventActivity),
     ...streamEvents.map(genericEventActivity),
@@ -198,6 +203,7 @@ function summarizePeriod(requests, events, captures) {
   addParticipants(participants, songActivity, 'song_requests');
   addParticipants(participants, hillVotes, 'king_of_the_hill');
   addParticipants(participants, captures, 'polaroid');
+  addParticipants(participants, quizInteractions, 'elimination_quiz');
   addParticipantRoles(participants, [...commandEvents, ...chatEvents]);
   const chatters = new Set(chatEvents.map(personKey).filter(Boolean));
   const engaged = new Set(participants.keys());
@@ -219,7 +225,7 @@ function summarizePeriod(requests, events, captures) {
 
   return {
     interactions: toolActivity.length,
-    toolsActive: [totalSongAttempts, hillVotes.length, captures.length].filter((value) => value > 0).length,
+    toolsActive: [totalSongAttempts, hillVotes.length, captures.length, quizInteractions.length].filter((value) => value > 0).length,
     activity,
     songRequests: {
       total: totalSongAttempts,
@@ -247,6 +253,14 @@ function summarizePeriod(requests, events, captures) {
         artists: item.artists,
         response: item.response,
       })),
+    },
+    quiz: {
+      gamesStarted: quizCount('game_started'), gamesCompleted: quizCount('game_completed'),
+      joins: quizCount('player_joined'), answers: quizCount('answer_submitted'),
+      uniquePlayers: distinctPeople(quizInteractions).size, eliminations: quizCount('player_eliminated'),
+      winners: quizCount('player_won'), rounds: quizCount('round_completed'),
+      correctAnswers: quizEvents.filter(e => e.eventType === 'answer_result' && e.metadata.correct).length,
+      platforms: breakdown(quizInteractions, 'platform'),
     },
     hill: {
       gamesStarted: gameStarts.length,
@@ -296,6 +310,7 @@ function summarizePeriod(requests, events, captures) {
       toolReach: [
         { key: 'song_requests', label: 'Song Requests', count: distinctPeople(songActivity).size },
         { key: 'king_of_the_hill', label: 'King of the Hill', count: hillPeople.size },
+        { key: 'elimination_quiz', label: 'Elimination Quiz', count: distinctPeople(quizInteractions).size },
         { key: 'polaroid', label: 'Polaroid', count: polaroidPeople.size },
       ],
       overlap,
@@ -499,7 +514,7 @@ function inferSessions(activity) {
       startedAt: new Date(session.startMs).toISOString(),
       endedAt: new Date(session.lastMs).toISOString(),
       durationMinutes: Math.max(1, Math.round((session.lastMs - session.startMs) / 60000)),
-      interactions: session.activity.filter((item) => ['song_request', 'vote', 'capture_completed'].includes(item.eventType)).length,
+      interactions: session.activity.filter((item) => ['song_request', 'vote', 'capture_completed', 'player_joined', 'answer_submitted'].includes(item.eventType)).length,
       uniqueParticipants: people.size,
       songRequests: toolCounts.song_requests || 0,
       hillVotes: session.activity.filter((item) => item.eventType === 'vote').length,
@@ -585,7 +600,7 @@ function buildActualSessions(sessions, snapshots, activity, nowMs) {
       startedAt: new Date(group.startMs).toISOString(),
       endedAt: new Date(group.endMs).toISOString(),
       durationMinutes: Math.max(1, Math.round((group.endMs - group.startMs) / 60000)),
-      interactions: relevantActivity.filter((item) => ['song_request', 'vote', 'capture_completed'].includes(item.eventType)).length,
+      interactions: relevantActivity.filter((item) => ['song_request', 'vote', 'capture_completed', 'player_joined', 'answer_submitted'].includes(item.eventType)).length,
       uniqueParticipants: people.size,
       songRequests: relevantActivity.filter((item) => item.eventType === 'song_request').length,
       hillVotes: relevantActivity.filter((item) => item.eventType === 'vote').length,
@@ -654,10 +669,11 @@ function buildTimeline(activity, events, range) {
   });
   activity.forEach((item) => {
     const date = item.timestamp.slice(0, 10);
-    if (!buckets.has(date)) buckets.set(date, { date, songRequests: 0, hillVotes: 0, polaroids: 0, participants: new Set() });
+    if (!buckets.has(date)) buckets.set(date, { date, songRequests: 0, hillVotes: 0, polaroids: 0, quiz: 0, participants: new Set() });
     const bucket = buckets.get(date);
     if (item.eventType === 'song_request') bucket.songRequests += 1;
     if (item.eventType === 'vote') bucket.hillVotes += 1;
+    if (item.tool === 'elimination_quiz' && ['player_joined','answer_submitted'].includes(item.eventType)) bucket.quiz += 1;
     if (item.eventType === 'capture_completed') bucket.polaroids += 1;
     const key = personKey(item);
     if (key) bucket.participants.add(key);
@@ -668,7 +684,8 @@ function buildTimeline(activity, events, range) {
     songRequests: bucket.songRequests,
     hillVotes: bucket.hillVotes,
     polaroids: bucket.polaroids,
-    total: bucket.songRequests + bucket.hillVotes + bucket.polaroids,
+    quiz: bucket.quiz,
+    total: bucket.songRequests + bucket.hillVotes + bucket.polaroids + bucket.quiz,
     uniqueParticipants: bucket.participants.size,
     observedChatters: chatByDay.get(bucket.date)?.size || 0,
   }));
@@ -725,7 +742,7 @@ function buildRoleEngagement(chatEvents, participants) {
 }
 
 function buildOverlap(participants) {
-  const keys = ['song_requests', 'king_of_the_hill', 'polaroid'];
+  const keys = ['song_requests', 'king_of_the_hill', 'polaroid', 'elimination_quiz'];
   const result = [];
   for (let left = 0; left < keys.length; left += 1) {
     for (let right = left + 1; right < keys.length; right += 1) {

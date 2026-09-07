@@ -1,0 +1,17 @@
+[
+ {"text":"How many sides does a triangle have?","options":["3","4","5","6"],"answer":0,"difficulty":1},
+ {"text":"Which planet is known as the Red Planet?","options":["Mars","Venus","Jupiter","Mercury"],"answer":0,"difficulty":2},
+ {"text":"What is the chemical formula for water?","options":["H2O","CO2","O2","NaCl"],"answer":0,"difficulty":3},
+ {"text":"Who wrote Romeo and Juliet?","options":["William Shakespeare","Charles Dickens","Jane Austen","Mark Twain"],"answer":0,"difficulty":4},
+ {"text":"Which is the largest ocean on Earth?","options":["Pacific","Atlantic","Indian","Arctic"],"answer":0,"difficulty":5},
+ {"text":"What is 12 squared?","options":["144","124","132","164"],"answer":0,"difficulty":6},
+ {"text":"What is the capital of Canada?","options":["Ottawa","Toronto","Vancouver","Montreal"],"answer":0,"difficulty":7},
+ {"text":"Which element has the symbol Fe?","options":["Iron","Fluorine","Francium","Lead"],"answer":0,"difficulty":8},
+ {"text":"In which year did the Berlin Wall fall?","options":["1989","1987","1991","1993"],"answer":0,"difficulty":9},
+ {"text":"Which organelle is the main site of aerobic ATP production in human cells?","options":["Mitochondrion","Ribosome","Nucleus","Golgi apparatus"],"answer":0,"difficulty":10},
+ {"text":"Which number is prime?","options":["97","91","87","93"],"answer":0,"difficulty":11},
+ {"text":"What is the SI unit of electrical capacitance?","options":["Farad","Henry","Tesla","Weber"],"answer":0,"difficulty":12},
+ {"text":"Which treaty ended the Thirty Years' War in 1648?","options":["Peace of Westphalia","Treaty of Utrecht","Treaty of Versailles","Treaty of Tordesillas"],"answer":0,"difficulty":13},
+ {"text":"What is the derivative of ln(x), for x greater than zero?","options":["1/x","x","ln(x)/x","e^x"],"answer":0,"difficulty":14},
+ {"text":"Which mathematician proved the first incompleteness theorem?","options":["Kurt Gödel","David Hilbert","Georg Cantor","Bernhard Riemann"],"answer":0,"difficulty":15}
+]

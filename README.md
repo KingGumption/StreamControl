@@ -206,3 +206,14 @@ No Streamer.bot commands need to be created for Twitch or YouTube. The applicati
 5. Put that action's GUID in local `.env` as `STREAMERBOT_TIKTOK_REPLY_ACTION_ID`, then restart Node.js.
 
 The TikTok reply action is optional: requests are still processed and recorded when it is absent, but the viewer will not receive a TikTok chat confirmation.
+
+
+### Games and elimination quiz
+
+Open `/admin/games` for the game catalogue. King of the Hill retains its existing controls at `/admin/king-of-the-hill` and overlay at `/king-of-the-hill`. Quiz controls are at `/admin/quiz`; add `/quiz` as an OBS browser source.
+
+Choose 1?15 questions (default 10) and 5?120 seconds per answer (default 20), then open the lobby. Viewers from connected Twitch, YouTube and TikTok chats enter with `!quiz join`. **Lock entries & start** fixes the roster for the entire game. Players answer with `!quiz A` through `!quiz D` (or `!quiz 1` through `!quiz 4`). Only their first answer counts. Wrong answers and missed deadlines eliminate them, and eliminated players cannot rejoin. The host advances after each answer reveal; answer deadlines run automatically on the server. Everyone surviving the final question wins; if everyone is eliminated the game ends without a winner.
+
+The starter bank is `src/quiz-questions.json`, ordered from easiest to hardest. Add questions with `text`, four `options`, a zero-based `answer`, and increasing `difficulty`; restart the service to load changes. Selected questions span the bank's difficulty range, and option order is shuffled each game. The bank stays server-side and correct answers are only exposed after the deadline or host reveal. The catalogue in `public/admin-games.html` can be extended with additional game cards.
+
+Quiz activity is recorded in the existing engagement database and appears in Analytics ? Quiz, overview totals, timeline, audience overlap and the activity ledger. Viewer events retain their platform and stable account ID; game lifecycle totals use the Admin platform. Accounts on different platforms are separate players. The active game is held in memory: restarting cancels it and requires a fresh lobby; recorded analytics remain saved. Settings apply to the lobby being opened.
