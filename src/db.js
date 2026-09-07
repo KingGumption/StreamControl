@@ -455,6 +455,15 @@ function listEngagementEvents(limit = 50000) {
   `).all(safeLimit).map(parseEngagementEventRow);
 }
 
+function getQuizWinCount(platform, userId) {
+  return db.prepare(`
+    SELECT COUNT(DISTINCT COALESCE(correlation_id, CAST(id AS TEXT))) AS wins
+    FROM engagement_events
+    WHERE tool = 'elimination_quiz' AND event_type = 'player_won'
+      AND platform = ? AND platform_user_id = ?
+  `).get(String(platform), String(userId)).wins;
+}
+
 function listEngagementEventsForRange({ since, before } = {}) {
   const conditions = [];
   const params = {};
@@ -674,6 +683,7 @@ const schema = {
   addEngagementEvent,
   listEngagementEvents,
   listEngagementEventsForRange,
+  getQuizWinCount,
   openStreamSession,
   closeStreamSession,
   addViewerSnapshot,

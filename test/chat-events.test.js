@@ -73,3 +73,9 @@ test('normalizes TikFinity chat arrays without guessing follower role', () => {
   assert.equal(events[0].user.roles.includes('follower'), false);
   assert.equal(events[0].user.profileImageUrl, 'https://p16-sign.tiktokcdn-us.com/avatar.jpeg');
 });
+
+
+test('Twitch display casing is preserved separately from the login',()=>{
+ const event=normalizeStreamerBotEvent({event:{source:'Twitch',type:'ChatMessage'},data:{text:'!join',user:{id:'1',login:'kinggumption',name:'KingGumption'}}});
+ assert.equal(event.user.username,'kinggumption');assert.equal(event.user.displayName,'KingGumption');
+});

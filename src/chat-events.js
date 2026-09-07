@@ -53,7 +53,7 @@ function normalizeTwitch(data) {
   if (badgeNames.has('subscriber') || user.subscribed === true || user.isSubscriber === true) roles.push('subscriber');
   // Twitch ChatMessage does not reliably include follower status, so it is not inferred.
 
-  return chatEvent('twitch', id, username, roles, text, data.messageId, profileImageUrl);
+  return chatEvent('twitch', id, username, roles, text, data.messageId, profileImageUrl, stringFirst(user.displayName, user.name, data.displayName, data.userName, username));
 }
 
 function normalizeYouTube(data) {
@@ -123,7 +123,7 @@ function normalizeTikfinityEnvelope(envelope) {
   return chatEvent('tiktok', id, username, roles, text, data.msgId || data.messageId || data.id, profileImageUrl);
 }
 
-function chatEvent(platform, id, username, roles, text, messageId, profileImageUrl) {
+function chatEvent(platform, id, username, roles, text, messageId, profileImageUrl, displayName = username) {
   return {
     platform,
     messageId: messageId ? String(messageId) : '',
@@ -131,6 +131,7 @@ function chatEvent(platform, id, username, roles, text, messageId, profileImageU
     user: {
       id: id || '',
       username: String(username).trim(),
+      displayName: String(displayName).trim(),
       profileImageUrl: String(profileImageUrl || '').trim(),
       roles: [...new Set(roles)],
     },

@@ -1,9 +1,10 @@
 const crypto = require('node:crypto');
-const { addEngagementEvent } = require('./db');
+const { addEngagementEvent, getQuizWinCount } = require('./db');
+const { resolveTwitchAvatar } = require('./avatar-resolver');
 const QUESTIONS = require('./quiz-questions.json');
 class QuizGame {
-  constructor({ recordEvent = () => {}, now = Date.now, schedule = setTimeout, cancel = clearTimeout, questions = QUESTIONS } = {}) {
-    Object.assign(this, { recordEvent, now, schedule, cancel, questions });
+  constructor({ recordEvent = () => {}, now = Date.now, schedule = setTimeout, cancel = clearTimeout, questions = QUESTIONS, resolveAvatar = null, getWins = () => 0 } = {}) {
+    Object.assign(this, { recordEvent, now, schedule, cancel, questions, resolveAvatar, getWins });
     this.phase = 'idle'; this.players = new Map(); this.round = 0; this.count = 10;
   }
   track(eventType, player, metadata = {}) {
@@ -26,6 +27,7 @@ class QuizGame {
     if (!['lobby', 'reveal'].includes(this.phase)) throw new Error('Open a lobby first.');
     if (!this.players.size) throw new Error('At least one player must join first.');
     if (this.phase === 'lobby') this.track('game_started', null, { players: this.players.size, questionCount: this.count });
+    if (this.round >= this.count) this.deck.push(this.suddenDeathQuestion());
     this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; });
     this.deadline = this.now() + this.answerSeconds * 1000;
     this.timer = this.schedule(() => this.resolve(), this.answerSeconds * 1000); this.timer?.unref?.();
@@ -36,24 +38,32 @@ class QuizGame {
     this.cancel(this.timer); this.deadline = null;
     const q = this.deck[this.round - 1];
     const answerCounts = [0, 0, 0, 0], eliminated = [];
-    let missed = 0;
+    let missed = 0, winnerRunEnded = false;
+    const lastPlayer = this.survivors().length === 1;
     for (const p of this.players.values()) if (p.alive) {
       if (p.answer === null) missed++;
       else answerCounts[p.answer]++;
       const correct = p.answer === q.answer;
+      if (correct) p.correctAnswers++;
       this.track('answer_result', p, { correct, missed: p.answer === null });
-      if (!correct) {
+      if (!correct && lastPlayer) {
+        winnerRunEnded = true;
+        this.track('winner_run_completed', p, { missed: p.answer === null });
+      } else if (!correct) {
         p.alive = false;
-        eliminated.push({ username: p.username, platform: p.platform, answer: p.answer });
+        eliminated.push({ username: p.username, platform: p.platform, profileImageUrl: p.profileImageUrl, correctAnswers: p.correctAnswers, answer: p.answer });
         this.track('player_eliminated', p);
       }
     }
-    this.roundResult = { answerCounts, missed, eliminated };
+    this.roundResult = { answerCounts, missed, eliminated, winnerRunEnded };
     this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, missed, eliminated: eliminated.length });
-    this.phase = this.round >= this.count || this.survivors().length <= 1 ? 'completed' : 'reveal';
+    this.phase = this.survivors().length === 0 || winnerRunEnded ? 'completed' : 'reveal';
     if (this.phase === 'completed') {
       this.outcome = this.survivors().length ? 'victory' : 'defeat';
-      this.survivors().forEach(p => this.track('player_won', p));
+      this.survivors().forEach(p => {
+        p.totalWins++;
+        this.track('player_won', p, { correctAnswers: p.correctAnswers, totalWins: p.totalWins });
+      });
       this.track('game_completed', null, { winners: this.survivors().length, players: this.players.size, outcome: this.outcome });
     }
   }
@@ -67,8 +77,11 @@ class QuizGame {
     const key = `${platform}:${id}`, value = (match[1] || match[2] || match[3]).toLowerCase();
     if (value === 'join') {
       if (this.phase === 'lobby' && !this.players.has(key)) {
-        const p = { platform, id, username: event.user.username || id, alive: true, answer: null };
+        const p = { platform, id, username: event.user.displayName || event.user.username || id, profileImageUrl: safeProfileImage(event.user.profileImageUrl), correctAnswers: 0, totalWins: this.getWins(platform, id), alive: true, answer: null };
         this.players.set(key, p); this.track('player_joined', p);
+        if (!p.profileImageUrl && platform === 'twitch' && this.resolveAvatar) {
+          Promise.resolve().then(() => this.resolveAvatar(event.user.username || p.username)).then(url => { p.profileImageUrl = safeProfileImage(url); }).catch(() => {});
+        }
       }
       return true;
     }
@@ -78,11 +91,24 @@ class QuizGame {
     p.answer = /[1-4]/.test(value) ? Number(value) - 1 : value.charCodeAt(0) - 97;
     this.track('answer_submitted', p); return true;
   }
+  suddenDeathQuestion() {
+    const a = 101 + (this.round - this.count), b = crypto.randomInt(13, 70), c = crypto.randomInt(11, 90);
+    const modulus = [7, 11, 13, 17, 19][crypto.randomInt(5)];
+    const answer = (a * b + c) % modulus;
+    const choices = new Set([answer]);
+    while (choices.size < 4) choices.add(crypto.randomInt(modulus));
+    const options = [...choices];
+    for (let i = options.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [options[i], options[j]] = [options[j], options[i]]; }
+    return { text: `What is the remainder when (${a} x ${b} + ${c}) is divided by ${modulus}?`, options: options.map(String), answer: options.indexOf(answer), difficulty: 16 };
+  }
   getState() {
     const q = this.round ? this.deck?.[this.round - 1] : null;
-    return { gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: this.questions.length, deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
+    return { suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: this.questions.length, deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
       question: q && this.phase !== 'idle' ? { text: q.text, options: q.options, difficulty: q.difficulty, ...(['reveal','completed'].includes(this.phase) ? { answer: q.answer } : {}) } : null,
-      winners: this.phase === 'completed' ? this.survivors().map(({ username, platform }) => ({ username, platform })) : [] };
+      winners: this.phase === 'completed' ? this.survivors().map(({ username, platform, profileImageUrl, correctAnswers, totalWins }) => ({ username, platform, profileImageUrl, correctAnswers, totalWins })) : [] };
   }
 }
-module.exports = { QuizGame, quizGame: new QuizGame({ recordEvent: addEngagementEvent }) };
+function safeProfileImage(value) {
+  try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch { return ''; }
+}
+module.exports = { QuizGame, quizGame: new QuizGame({ recordEvent: addEngagementEvent, resolveAvatar: resolveTwitchAvatar, getWins: getQuizWinCount }) };
