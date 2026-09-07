@@ -2,7 +2,7 @@ const crypto = require('node:crypto');
 const { addEngagementEvent, getQuizWinCount } = require('./db');
 const { resolveTwitchAvatar } = require('./avatar-resolver');
 const QUESTIONS = require('./quiz-questions.json');
-const CATEGORY_LABELS = { logos: 'Franchise logos', characters: 'Game characters', posters: 'Movie posters', actors: 'Guess the actor', descriptions: 'Game descriptions', locations: 'Game locations', horror: 'Horror characters', general: 'General knowledge' };
+const CATEGORY_LABELS = { logos: 'Franchise logos', characters: 'Game characters', posters: 'Movie posters', actors: 'Guess the actor', descriptions: 'Game descriptions', locations: 'Game locations', horror: 'Horror trivia', items: 'Weapons and items', villains: 'Game villains', movies: 'Guess the movie', 'film-roles': 'Actors and roles', tv: 'TV and animation', 'game-lore': 'Gaming trivia', general: 'General knowledge' };
 function shuffle(items) { const result = [...items]; for (let i = result.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [result[i], result[j]] = [result[j], result[i]]; } return result; }
 function shuffleOptions(q) { const options = shuffle(q.options.map((text,i) => ({text,correct:i===q.answer}))); return {...q,options:options.map(o=>o.text),answer:options.findIndex(o=>o.correct)}; }
 class QuizGame {

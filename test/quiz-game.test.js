@@ -156,7 +156,7 @@ test('server advances automatically after all reveal batches and cancels advance
 
 test('category selection restricts normal and sudden-death rounds and rejects insufficient banks',()=>{
  const {game,chat}=setup();
- assert.equal(game.getCatalog().length,7);
+ assert.equal(game.getCatalog().length,13);
  assert.throws(()=>game.open({categories:[]}));assert.throws(()=>game.open({categories:['unknown']}));
  assert.throws(()=>game.open({categories:['logos'],questionCount:10}));
  game.open({categories:['posters'],questionCount:1});chat('a','!join');

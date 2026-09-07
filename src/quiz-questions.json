@@ -972,5 +972,5710 @@
     ],
     "answer": 0,
     "difficulty": 11
+  },
+  {
+    "id": "088a13adcf703064",
+    "category": "descriptions",
+    "text": "Guess the game: Colourful falling blocks must be arranged into complete horizontal lines.",
+    "options": [
+      "Tetris",
+      "Puyo Puyo",
+      "Columns",
+      "Lumines"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "fa72bf1e649977f3",
+    "category": "descriptions",
+    "text": "Guess the game: A yellow maze-dweller eats pellets while avoiding four ghosts.",
+    "options": [
+      "Q*bert",
+      "Frogger",
+      "Pac-Man",
+      "Dig Dug"
+    ],
+    "answer": 2,
+    "difficulty": 1
+  },
+  {
+    "id": "ed9408291297b3a5",
+    "category": "descriptions",
+    "text": "Guess the game: Crewmates complete spaceship tasks while impostors sabotage and kill them.",
+    "options": [
+      "Human: Fall Flat",
+      "Among Us",
+      "Fall Guys",
+      "Gang Beasts"
+    ],
+    "answer": 1,
+    "difficulty": 1
+  },
+  {
+    "id": "b69d1412661bf1ee",
+    "category": "descriptions",
+    "text": "Guess the game: Rocket-powered cars compete to knock a giant ball into a goal.",
+    "options": [
+      "Burnout Paradise",
+      "FlatOut",
+      "Rocket League",
+      "Trackmania"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "0c59a5d5dfaf3950",
+    "category": "descriptions",
+    "text": "Guess the game: Jellybean-like contestants race through obstacle courses to grab a crown.",
+    "options": [
+      "Fall Guys",
+      "Among Us",
+      "Party Animals",
+      "Overcooked"
+    ],
+    "answer": 0,
+    "difficulty": 2
+  },
+  {
+    "id": "ba5f16cb8e374186",
+    "category": "descriptions",
+    "text": "Guess the game: Lara Croft searches for the Scion in her original 1996 adventure.",
+    "options": [
+      "Prince of Persia",
+      "Beyond Good & Evil",
+      "Tomb Raider",
+      "Uncharted: Drake's Fortune"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "437d80e221fc828f",
+    "category": "descriptions",
+    "text": "Guess the game: Phoenix Wright defends clients by finding contradictions in witness testimony.",
+    "options": [
+      "Professor Layton and the Curious Village",
+      "Ghost Trick: Phantom Detective",
+      "Danganronpa: Trigger Happy Havoc",
+      "Phoenix Wright: Ace Attorney"
+    ],
+    "answer": 3,
+    "difficulty": 2
+  },
+  {
+    "id": "67d7eeb271495e08",
+    "category": "descriptions",
+    "text": "Guess the game: Chefs scramble to prepare meals in kitchens full of moving platforms and hazards.",
+    "options": [
+      "PlateUp!",
+      "Cooking Mama",
+      "Good Pizza, Great Pizza",
+      "Overcooked"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "92926ab340e37b8e",
+    "category": "descriptions",
+    "text": "Guess the game: You develop a deserted island with Tom Nook and animal neighbours.",
+    "options": [
+      "Disney Dreamlight Valley",
+      "My Time at Portia",
+      "Animal Crossing: New Horizons",
+      "Stardew Valley"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "612278a90ba0b173",
+    "category": "descriptions",
+    "text": "Guess the game: Plants defend a suburban home from waves of zombies.",
+    "options": [
+      "Dungeon Defenders",
+      "Plants vs. Zombies",
+      "Bloons TD 6",
+      "Kingdom Rush"
+    ],
+    "answer": 1,
+    "difficulty": 3
+  },
+  {
+    "id": "3c8d3f9400d7b24e",
+    "category": "descriptions",
+    "text": "Guess the game: A goose steals objects and causes trouble in a quiet village.",
+    "options": [
+      "Untitled Goose Game",
+      "Goat Simulator",
+      "Donut County",
+      "I Am Bread"
+    ],
+    "answer": 0,
+    "difficulty": 3
+  },
+  {
+    "id": "3e47a4b1cb57af3c",
+    "category": "descriptions",
+    "text": "Guess the game: Arthur Morgan rides with the Van der Linde gang as the Wild West fades.",
+    "options": [
+      "Call of Juarez",
+      "Desperados III",
+      "Red Dead Redemption 2",
+      "Gun"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "975a6ceb235909dd",
+    "category": "descriptions",
+    "text": "Guess the game: Geralt searches for Ciri while the Wild Hunt pursues her.",
+    "options": [
+      "Dragon Age: Inquisition",
+      "The Elder Scrolls V: Skyrim",
+      "Dragon's Dogma",
+      "The Witcher 3: Wild Hunt"
+    ],
+    "answer": 3,
+    "difficulty": 4
+  },
+  {
+    "id": "d37dc494e38427ed",
+    "category": "descriptions",
+    "text": "Guess the game: A Dragonborn battles Alduin in a snowy northern province.",
+    "options": [
+      "The Elder Scrolls IV: Oblivion",
+      "Dragon Age: Origins",
+      "Kingdoms of Amalur: Reckoning",
+      "The Elder Scrolls V: Skyrim"
+    ],
+    "answer": 3,
+    "difficulty": 4
+  },
+  {
+    "id": "8198b3fd283f3780",
+    "category": "descriptions",
+    "text": "Guess the game: Aloy hunts animal-like machines and investigates her origins in a ruined future.",
+    "options": [
+      "ReCore",
+      "Horizon Zero Dawn",
+      "Enslaved: Odyssey to the West",
+      "NieR: Automata"
+    ],
+    "answer": 1,
+    "difficulty": 4
+  },
+  {
+    "id": "82b459a76574da6f",
+    "category": "descriptions",
+    "text": "Guess the game: Joel escorts Ellie across a United States devastated by a fungal infection.",
+    "options": [
+      "Dying Light",
+      "State of Decay",
+      "The Last of Us",
+      "Days Gone"
+    ],
+    "answer": 2,
+    "difficulty": 5
+  },
+  {
+    "id": "482de69f85ddb3c1",
+    "category": "descriptions",
+    "text": "Guess the game: Peter Parker and Miles Morales face Venom together in Insomniac's 2023 adventure.",
+    "options": [
+      "Marvel's Spider-Man 2",
+      "Marvel's Avengers",
+      "Gotham Knights",
+      "Sunset Overdrive"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "126484370dbfda45",
+    "category": "descriptions",
+    "text": "Guess the game: Two escaped prisoners, Leo and Vincent, must cooperate in a split-screen story.",
+    "options": [
+      "Brothers: A Tale of Two Sons",
+      "The Escapists 2",
+      "A Way Out",
+      "It Takes Two"
+    ],
+    "answer": 2,
+    "difficulty": 5
+  },
+  {
+    "id": "869590a4fb195880",
+    "category": "descriptions",
+    "text": "Guess the game: Cody and May become dolls and work through magical cooperative challenges.",
+    "options": [
+      "A Way Out",
+      "Sackboy: A Big Adventure",
+      "It Takes Two",
+      "Unravel Two"
+    ],
+    "answer": 2,
+    "difficulty": 5
+  },
+  {
+    "id": "dd35661c838d6455",
+    "category": "descriptions",
+    "text": "Guess the game: A small knight explores the ruined insect kingdom of Hallownest.",
+    "options": [
+      "Dead Cells",
+      "Hollow Knight",
+      "Ori and the Blind Forest",
+      "Blasphemous"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "ec139a018445515a",
+    "category": "descriptions",
+    "text": "Guess the game: Cup-headed brothers fight cartoon bosses to repay a debt to the Devil.",
+    "options": [
+      "Cuphead",
+      "Bendy and the Ink Machine",
+      "Pizza Tower",
+      "Skullgirls"
+    ],
+    "answer": 0,
+    "difficulty": 6
+  },
+  {
+    "id": "aaa080689b9d8a5c",
+    "category": "descriptions",
+    "text": "Guess the game: Zagreus repeatedly fights his way out of the Greek underworld.",
+    "options": [
+      "Bastion",
+      "Pyre",
+      "Hades",
+      "Dead Cells"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "96997a4fed031fa9",
+    "category": "descriptions",
+    "text": "Guess the game: Madeline climbs a mountain while confronting a darker reflection of herself.",
+    "options": [
+      "Gris",
+      "Limbo",
+      "Celeste",
+      "Super Meat Boy"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "08f4300b7504f9d0",
+    "category": "descriptions",
+    "text": "Guess the game: A boy explores a monochrome world full of deadly traps while looking for his sister.",
+    "options": [
+      "Limbo",
+      "Inside",
+      "Little Nightmares II",
+      "Bramble: The Mountain King"
+    ],
+    "answer": 0,
+    "difficulty": 6
+  },
+  {
+    "id": "b5331e0605791f80",
+    "category": "descriptions",
+    "text": "Guess the game: A cat explores a sealed cybercity inhabited by robots, with drone companion B-12.",
+    "options": [
+      "Rain World",
+      "Stray",
+      "Little Kitty, Big City",
+      "Spirit of the North"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "e2651b095b1aa56c",
+    "category": "descriptions",
+    "text": "Guess the game: You steer a spaceship through a solar system trapped in a 22-minute time loop.",
+    "options": [
+      "No Man's Sky",
+      "Astroneer",
+      "Outer Wilds",
+      "The Outer Worlds"
+    ],
+    "answer": 2,
+    "difficulty": 7
+  },
+  {
+    "id": "b942f57b1a7174fc",
+    "category": "descriptions",
+    "text": "Guess the game: A delivery porter named Sam reconnects isolated settlements across America.",
+    "options": [
+      "SnowRunner",
+      "Death Stranding",
+      "Metal Gear Solid V: The Phantom Pain",
+      "Days Gone"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "1aafbeaa27b5bbff",
+    "category": "descriptions",
+    "text": "Guess the game: Jesse Faden enters the Oldest House and becomes director of a paranormal bureau.",
+    "options": [
+      "Alan Wake",
+      "Beyond: Two Souls",
+      "Control",
+      "Quantum Break"
+    ],
+    "answer": 2,
+    "difficulty": 7
+  },
+  {
+    "id": "df8313108d70b8ab",
+    "category": "descriptions",
+    "text": "Guess the game: A one-armed shinobi protects the Divine Heir in a fantasy version of Japan.",
+    "options": [
+      "Nioh",
+      "Ghost of Tsushima",
+      "Rise of the Ronin",
+      "Sekiro: Shadows Die Twice"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "a4c8fb8944cd5aae",
+    "category": "descriptions",
+    "text": "Guess the game: Jin Sakai defends his island against a Mongol invasion.",
+    "options": [
+      "Ghost of Tsushima",
+      "Sekiro: Shadows Die Twice",
+      "Like a Dragon: Ishin!",
+      "Trek to Yomi"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "260dc9acfca42027",
+    "category": "descriptions",
+    "text": "Guess the game: A group infected with mind flayer tadpoles seeks a cure on the Sword Coast.",
+    "options": [
+      "Pillars of Eternity",
+      "Pathfinder: Kingmaker",
+      "Baldur's Gate 3",
+      "Divinity: Original Sin 2"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "4f677aabcbe6ee24",
+    "category": "descriptions",
+    "text": "Guess the game: Joker and the Phantom Thieves steal corrupted desires from supernatural palaces.",
+    "options": [
+      "Persona 4",
+      "Shin Megami Tensei V",
+      "Tokyo Mirage Sessions #FE",
+      "Persona 5"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "e56ea27eb48a4111",
+    "category": "descriptions",
+    "text": "Guess the game: Neku awakens in Shibuya and must survive the Reapers' Game.",
+    "options": [
+      "NEO Scavenger",
+      "The World Ends with You",
+      "Persona 3",
+      "Kingdom Hearts II"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "6b1c681230650dd3",
+    "category": "descriptions",
+    "text": "Guess the game: Amaterasu restores a cursed land using a celestial paintbrush.",
+    "options": [
+      "Kena: Bridge of Spirits",
+      "Spiritfarer",
+      "Child of Light",
+      "Okami"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "934e72fe6c04aaac",
+    "category": "descriptions",
+    "text": "Guess the game: Raz enters people's minds while training at a psychic summer camp.",
+    "options": [
+      "Brutal Legend",
+      "Costume Quest",
+      "MediEvil",
+      "Psychonauts"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "320838d08df5386d",
+    "category": "descriptions",
+    "text": "Guess the game: You inspect passports at the border of the fictional nation of Arstotzka.",
+    "options": [
+      "Not Tonight",
+      "Beholder",
+      "Papers, Please",
+      "Return of the Obra Dinn"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "7fff367e6b5e792e",
+    "category": "descriptions",
+    "text": "Guess the game: Stanley follows or defies a narrator after discovering his office colleagues are gone.",
+    "options": [
+      "The Beginner's Guide",
+      "Superliminal",
+      "The Talos Principle",
+      "The Stanley Parable"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "e98bd21c97a7eed0",
+    "category": "descriptions",
+    "text": "Guess the game: Time moves only when you move during stylised gunfights.",
+    "options": [
+      "Severed Steel",
+      "SUPERHOT",
+      "Max Payne",
+      "FEAR"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "a156f6b197208b3c",
+    "category": "descriptions",
+    "text": "Guess the game: A shark grows from a pup into a deadly predator seeking revenge on Scaly Pete.",
+    "options": [
+      "Hungry Shark World",
+      "Maneater",
+      "ABZU",
+      "Depth"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "f5e4ccfd0fa320fe",
+    "category": "descriptions",
+    "text": "Guess the game: A spirit guide named Stella ferries deceased souls aboard a boat.",
+    "options": [
+      "Wytchwood",
+      "Spiritfarer",
+      "Spirittea",
+      "Cozy Grove"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "d00f2b2dec95f343",
+    "category": "descriptions",
+    "text": "Guess the game: A detective manipulates objects as a ghost to prevent deaths and discover his identity.",
+    "options": [
+      "Ghost Trick: Phantom Detective",
+      "Murdered: Soul Suspect",
+      "The Vanishing of Ethan Carter",
+      "Gemini Rue"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "f291f3f2b9d1c9c6",
+    "category": "descriptions",
+    "text": "Guess the game: A fishing trip turns sinister as you dredge relics and encounter aberrant sea life.",
+    "options": [
+      "Sunless Sea",
+      "Call of the Sea",
+      "Dredge",
+      "Dave the Diver"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "e8682583be0f9a7f",
+    "category": "descriptions",
+    "text": "Guess the game: A resurrected lamb builds a cult while fighting through four bishops' domains.",
+    "options": [
+      "Cult of the Lamb",
+      "Don't Starve",
+      "The Binding of Isaac",
+      "Darkest Dungeon"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "9b1a18c67508339e",
+    "category": "descriptions",
+    "text": "Guess the game: A nameless courier delivers a platinum chip through the Mojave Wasteland.",
+    "options": [
+      "Fallout 3",
+      "Wasteland 3",
+      "Rage",
+      "Fallout: New Vegas"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "0b105f8199fe7943",
+    "category": "descriptions",
+    "text": "Guess the game: Corvo seeks revenge after an empress is murdered and he is framed.",
+    "options": [
+      "Thief: Deadly Shadows",
+      "Styx: Master of Shadows",
+      "Deus Ex: Human Revolution",
+      "Dishonored"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "c76fb313e28d81aa",
+    "category": "descriptions",
+    "text": "Guess the game: You build a factory on an alien planet and defend its growing pollution footprint from biters.",
+    "options": [
+      "Satisfactory",
+      "Dyson Sphere Program",
+      "Mindustry",
+      "Factorio"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "ee7dc9a7ca032aef",
+    "category": "descriptions",
+    "text": "Guess the game: A corporation sends you to build automated factories on the planet MASSAGE-2(A-B)b.",
+    "options": [
+      "Astroneer",
+      "Techtonica",
+      "Satisfactory",
+      "Factorio"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "33d9617e8cfb0f8b",
+    "category": "descriptions",
+    "text": "Guess the game: Dwarven space miners complete dangerous cave missions for a mining company.",
+    "options": [
+      "Helldivers 2",
+      "Warhammer 40,000: Darktide",
+      "Risk of Rain 2",
+      "Deep Rock Galactic"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "695c6a1a5988c773",
+    "category": "descriptions",
+    "text": "Guess the game: A sword-wielding pilgrim called the Penitent One explores Cvstodia.",
+    "options": [
+      "Ender Lilies: Quietus of the Knights",
+      "Blasphemous",
+      "Hollow Knight",
+      "Salt and Sanctuary"
+    ],
+    "answer": 1,
+    "difficulty": 11,
+    "sourceUrl": "https://store.steampowered.com/app/774361/Blasphemous/"
+  },
+  {
+    "id": "294236a6ddcc268e",
+    "category": "descriptions",
+    "text": "Guess the game: An amorphous prisoner possesses corpses while exploring an island afflicted by the Malaise.",
+    "options": [
+      "Skul: The Hero Slayer",
+      "Dead Cells",
+      "Rogue Legacy",
+      "Hades"
+    ],
+    "answer": 1,
+    "difficulty": 11,
+    "sourceUrl": "https://store.steampowered.com/app/588650/Dead_Cells/"
+  },
+  {
+    "id": "374c67c0c62e31c6",
+    "category": "descriptions",
+    "text": "Guess the game: A crow working for the Reaping Commission hunts giant souls with a sword.",
+    "options": [
+      "Tunic",
+      "Titan Souls",
+      "Hob",
+      "Death's Door"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "695c3a11b317911b",
+    "category": "descriptions",
+    "text": "Guess the game: A fox explores ruins while assembling pages of a mysterious instruction manual.",
+    "options": [
+      "Hyper Light Drifter",
+      "Tunic",
+      "Fez",
+      "Death's Door"
+    ],
+    "answer": 1,
+    "difficulty": 12
+  },
+  {
+    "id": "a993badeb1048a0d",
+    "category": "descriptions",
+    "text": "Guess the game: A small cube-headed hero rotates a seemingly two-dimensional world to find cube fragments.",
+    "options": [
+      "Monument Valley",
+      "Fez",
+      "Braid",
+      "Cocoon"
+    ],
+    "answer": 1,
+    "difficulty": 12
+  },
+  {
+    "id": "bbc0877e238a8b43",
+    "category": "descriptions",
+    "text": "Guess the game: An insect-like traveller carries entire worlds inside coloured orbs.",
+    "options": [
+      "Inside",
+      "Limbo",
+      "Planet of Lana",
+      "Cocoon"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "38dd966e9cb6699e",
+    "category": "descriptions",
+    "text": "Guess the game: Mono, a boy wearing a paper bag, travels with Six towards a mysterious Signal Tower.",
+    "options": [
+      "Little Nightmares II",
+      "Inside",
+      "Little Nightmares",
+      "Bramble: The Mountain King"
+    ],
+    "answer": 0,
+    "difficulty": 12,
+    "sourceUrl": "https://en.bandainamcoent.eu/little-nightmares/little-nightmares-ii"
+  },
+  {
+    "id": "9b65716305980f8f",
+    "category": "descriptions",
+    "text": "Guess the game: A drifter explores a ruined world while suffering from a mysterious illness.",
+    "options": [
+      "Transistor",
+      "Bastion",
+      "Unsighted",
+      "Hyper Light Drifter"
+    ],
+    "answer": 3,
+    "difficulty": 13
+  },
+  {
+    "id": "7716a25f865e5cf7",
+    "category": "descriptions",
+    "text": "Guess the game: A woman named Red wields a talking sword after losing her voice in Cloudbank.",
+    "options": [
+      "Bastion",
+      "Pyre",
+      "Hades",
+      "Transistor"
+    ],
+    "answer": 3,
+    "difficulty": 13
+  },
+  {
+    "id": "b99c0193f9164e77",
+    "category": "descriptions",
+    "text": "Guess the game: Exiles compete in mystical rites that may earn them freedom from the Downside.",
+    "options": [
+      "Banner Saga",
+      "Pyre",
+      "Hades",
+      "Transistor"
+    ],
+    "answer": 1,
+    "difficulty": 13,
+    "sourceUrl": "https://www.supergiantgames.com/games/pyre/"
+  },
+  {
+    "id": "940ce1c1c24e66e5",
+    "category": "descriptions",
+    "text": "Guess the game: A time traveller explores a Roman city where one person's sin can doom everyone under the Golden Rule.",
+    "options": [
+      "The Forgotten City",
+      "Pentiment",
+      "Heaven's Vault",
+      "Chants of Sennaar"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "ce7bed4778dab7d4",
+    "category": "descriptions",
+    "text": "Guess the game: A traveller deciphers the languages of different peoples living in a huge tower.",
+    "options": [
+      "Return of the Obra Dinn",
+      "The Case of the Golden Idol",
+      "Chants of Sennaar",
+      "Heaven's Vault"
+    ],
+    "answer": 2,
+    "difficulty": 15,
+    "sourceUrl": "https://store.steampowered.com/app/1931770/Chants_of_Sennaar/"
+  },
+  {
+    "id": "97a1bf156d89b0fc",
+    "category": "characters",
+    "text": "What is the name of Mario's brother?",
+    "options": [
+      "Wario",
+      "Toad",
+      "Yoshi",
+      "Luigi"
+    ],
+    "answer": 3,
+    "difficulty": 1
+  },
+  {
+    "id": "7e9f59ea4849373d",
+    "category": "characters",
+    "text": "Which princess usually rules the Mushroom Kingdom?",
+    "options": [
+      "Daisy",
+      "Rosalina",
+      "Peach",
+      "Zelda"
+    ],
+    "answer": 2,
+    "difficulty": 1
+  },
+  {
+    "id": "f862323c6b4b86dc",
+    "category": "characters",
+    "text": "Which two-tailed fox is Sonic's friend?",
+    "options": [
+      "Tails",
+      "Knuckles",
+      "Shadow",
+      "Silver"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "e20d9704d3c573db",
+    "category": "characters",
+    "text": "Which character is a pink round hero who copies abilities by inhaling enemies?",
+    "options": [
+      "Boo",
+      "Chao",
+      "Kirby",
+      "Jigglypuff"
+    ],
+    "answer": 2,
+    "difficulty": 1
+  },
+  {
+    "id": "bb4d073fc2b2d307",
+    "category": "characters",
+    "text": "Which Nintendo bounty hunter wears the Power Suit?",
+    "options": [
+      "Captain Falcon",
+      "Fox McCloud",
+      "Pit",
+      "Samus Aran"
+    ],
+    "answer": 3,
+    "difficulty": 2
+  },
+  {
+    "id": "d135f2a3a1b219d6",
+    "category": "characters",
+    "text": "What is the name of Sonic's red echidna friend?",
+    "options": [
+      "Vector",
+      "Knuckles",
+      "Tails",
+      "Shadow"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "e6020b2dd4402470",
+    "category": "characters",
+    "text": "Which purple dragon is the hero of a platform series that began on PlayStation?",
+    "options": [
+      "Charizard",
+      "Ridley",
+      "Spyro",
+      "Yoshi"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "cb86063d7081ee5f",
+    "category": "characters",
+    "text": "Which bear travels with a bird named Kazooie?",
+    "options": [
+      "Conker",
+      "Mumbo Jumbo",
+      "Bottles",
+      "Banjo"
+    ],
+    "answer": 3,
+    "difficulty": 2
+  },
+  {
+    "id": "02b6a67898178562",
+    "category": "characters",
+    "text": "Which character leads Star Fox and pilots an Arwing?",
+    "options": [
+      "Peppy Hare",
+      "Slippy Toad",
+      "Fox McCloud",
+      "Falco Lombardi"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "90667075d8f9dfc3",
+    "category": "characters",
+    "text": "Who is the masked hero of the F-Zero series known for a powerful punch?",
+    "options": [
+      "Captain Falcon",
+      "Samurai Goroh",
+      "Captain Olimar",
+      "Dr. Stewart"
+    ],
+    "answer": 0,
+    "difficulty": 3
+  },
+  {
+    "id": "ba026c7682c2a34b",
+    "category": "characters",
+    "text": "Which character stars in the Kid Icarus series?",
+    "options": [
+      "Marth",
+      "Roy",
+      "Pit",
+      "Link"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "5335e3db8ddb0e34",
+    "category": "characters",
+    "text": "Who is Donkey Kong's small companion with a red cap?",
+    "options": [
+      "Dixie Kong",
+      "Cranky Kong",
+      "Funky Kong",
+      "Diddy Kong"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "404f0229895bcf9d",
+    "category": "characters",
+    "text": "In The Legend of Zelda, what is the name of Link's horse?",
+    "options": [
+      "Epona",
+      "Agro",
+      "Roach",
+      "Torrent"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "ae28f26ae0e4c0b4",
+    "category": "characters",
+    "text": "Who is Kratos's son in God of War (2018)?",
+    "options": [
+      "Magni",
+      "Modi",
+      "Atreus",
+      "Baldur"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "4dd02c2ee6b75388",
+    "category": "characters",
+    "text": "Who is Nathan Drake's long-time mentor in Uncharted?",
+    "options": [
+      "Rafe Adler",
+      "Victor Sullivan",
+      "Sam Drake",
+      "Harry Flynn"
+    ],
+    "answer": 1,
+    "difficulty": 4
+  },
+  {
+    "id": "b657e1fa0459d769",
+    "category": "characters",
+    "text": "Which robot is Ratchet's companion?",
+    "options": [
+      "Sparx",
+      "Cortana",
+      "Clank",
+      "Daxter"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "0c8892de7a4889de",
+    "category": "characters",
+    "text": "What is the name of Jak's ottsel companion?",
+    "options": [
+      "Daxter",
+      "Clank",
+      "Bentley",
+      "Murray"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "1f5bc8a325b0223c",
+    "category": "characters",
+    "text": "Which turtle is the planner and hacker in Sly Cooper's gang?",
+    "options": [
+      "Murray",
+      "Dimitri",
+      "Carmelita",
+      "Bentley"
+    ],
+    "answer": 3,
+    "difficulty": 5
+  },
+  {
+    "id": "6c74cd92623e4ad3",
+    "category": "characters",
+    "text": "Who is the protagonist of the original Half-Life?",
+    "options": [
+      "Gordon Freeman",
+      "Barney Calhoun",
+      "Adrian Shephard",
+      "Eli Vance"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "d1dfec13313ea533",
+    "category": "characters",
+    "text": "Who is the silent test subject you play in Portal?",
+    "options": [
+      "Judith Mossman",
+      "Chell",
+      "Alyx Vance",
+      "Caroline"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "17b1c964b4949e38",
+    "category": "characters",
+    "text": "What is Master Chief's AI companion called in the original Halo trilogy?",
+    "options": [
+      "Serina",
+      "Isabel",
+      "ECHO",
+      "Cortana"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "b7408475c4b06c7b",
+    "category": "characters",
+    "text": "Who leads Delta Squad in the original Gears of War?",
+    "options": [
+      "Damon Baird",
+      "Augustus Cole",
+      "Dominic Santiago",
+      "Marcus Fenix"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "eefda298e6fbc22d",
+    "category": "characters",
+    "text": "Who is the main playable assassin in Assassin's Creed II?",
+    "options": [
+      "Edward Kenway",
+      "Connor Kenway",
+      "Ezio Auditore",
+      "Altair Ibn-La'Ahad"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "69632ca6878d42fa",
+    "category": "characters",
+    "text": "Who is the pirate protagonist of Assassin's Creed IV: Black Flag?",
+    "options": [
+      "Arno Dorian",
+      "Edward Kenway",
+      "Haytham Kenway",
+      "Shay Cormac"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "efd569a21d9c0e3b",
+    "category": "characters",
+    "text": "Which Resident Evil character searches for her brother in Resident Evil 2?",
+    "options": [
+      "Jill Valentine",
+      "Rebecca Chambers",
+      "Ada Wong",
+      "Claire Redfield"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "a12d75f6abc43e3a",
+    "category": "characters",
+    "text": "Who is the rookie police officer playable in Resident Evil 2?",
+    "options": [
+      "Billy Coen",
+      "Leon S. Kennedy",
+      "Chris Redfield",
+      "Carlos Oliveira"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "b88854e743e5314d",
+    "category": "characters",
+    "text": "Who is the main playable protagonist of Resident Evil 7: Biohazard?",
+    "options": [
+      "Ethan Winters",
+      "Leon S. Kennedy",
+      "Chris Redfield",
+      "Jake Muller"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "4e1d088af11dbea6",
+    "category": "characters",
+    "text": "Which Resident Evil character partners with Chris Redfield in Resident Evil 5?",
+    "options": [
+      "Claire Redfield",
+      "Rebecca Chambers",
+      "Sheva Alomar",
+      "Jill Valentine"
+    ],
+    "answer": 2,
+    "difficulty": 7
+  },
+  {
+    "id": "3919f166732558c5",
+    "category": "characters",
+    "text": "Who is the protagonist of Final Fantasy VII?",
+    "options": [
+      "Tidus",
+      "Cloud Strife",
+      "Squall Leonhart",
+      "Zidane Tribal"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "c7d2a98ab5571536",
+    "category": "characters",
+    "text": "Who is the gunblade-wielding protagonist of Final Fantasy VIII?",
+    "options": [
+      "Cloud Strife",
+      "Vaan",
+      "Noctis Lucis Caelum",
+      "Squall Leonhart"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "a163a8dd7b5fd79f",
+    "category": "characters",
+    "text": "Which summoner travels with Tidus in Final Fantasy X?",
+    "options": [
+      "Terra",
+      "Yuna",
+      "Rinoa",
+      "Garnet"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "6a2cfb3dba73693e",
+    "category": "characters",
+    "text": "Who is the prince of Lucis in Final Fantasy XV?",
+    "options": [
+      "Vaan",
+      "Cecil",
+      "Noctis",
+      "Clive"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "2e9decdeb4baabc5",
+    "category": "characters",
+    "text": "What is the name of the protagonist in Final Fantasy XVI?",
+    "options": [
+      "Dion Lesage",
+      "Cidolfus Telamon",
+      "Clive Rosfield",
+      "Joshua Rosfield"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "4e4f9240ac2c1953",
+    "category": "characters",
+    "text": "Who is the main hero of Kingdom Hearts, wielding a Keyblade?",
+    "options": [
+      "Roxas",
+      "Ventus",
+      "Sora",
+      "Riku"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "158895bc88f14a51",
+    "category": "characters",
+    "text": "Which Mass Effect companion is a turian former C-Sec officer?",
+    "options": [
+      "Thane Krios",
+      "Garrus Vakarian",
+      "Urdnot Wrex",
+      "Mordin Solus"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "fb56e838b82c8553",
+    "category": "characters",
+    "text": "Which Mass Effect companion is a quarian engineer?",
+    "options": [
+      "Liara T'Soni",
+      "Jack",
+      "Miranda Lawson",
+      "Tali'Zorah"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "48975ccac9496520",
+    "category": "characters",
+    "text": "Which companion in Dragon Age: Origins is a witch raised in the Korcari Wilds?",
+    "options": [
+      "Morrigan",
+      "Leliana",
+      "Wynne",
+      "Isabela"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "916fa8e50293982a",
+    "category": "characters",
+    "text": "Who is the dwarf storyteller and crossbow user in Dragon Age II?",
+    "options": [
+      "Solas",
+      "Varric Tethras",
+      "Oghren",
+      "Dorian Pavus"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "62a40400b2c99fa0",
+    "category": "characters",
+    "text": "Which Baldur's Gate 3 companion is a vampire spawn?",
+    "options": [
+      "Wyll",
+      "Halsin",
+      "Astarion",
+      "Gale"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "47a10db6208b6fbc",
+    "category": "characters",
+    "text": "Which Baldur's Gate 3 companion carries an infernal engine in her chest?",
+    "options": [
+      "Shadowheart",
+      "Lae'zel",
+      "Minthara",
+      "Karlach"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "7c467f29d7d0f5ad",
+    "category": "characters",
+    "text": "Who is the detective partner assigned to Harry in Disco Elysium?",
+    "options": [
+      "Kim Kitsuragi",
+      "Jean Vicquemare",
+      "Titus Hardie",
+      "Garte"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  },
+  {
+    "id": "8d3774ba35cb92b5",
+    "category": "characters",
+    "text": "Which of these characters is one of the three Furies in Hades?",
+    "options": [
+      "Persephone",
+      "Megaera",
+      "Nyx",
+      "Dusa"
+    ],
+    "answer": 1,
+    "difficulty": 11
+  },
+  {
+    "id": "835b00cc35466f2d",
+    "category": "characters",
+    "text": "Who is the protagonist of Hades II?",
+    "options": [
+      "Zagreus",
+      "Nemesis",
+      "Hecate",
+      "Melinoe"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "2a0fc6dc6f197b29",
+    "category": "characters",
+    "text": "Which Undertale character is a skeleton who loves puzzles and wants to join the Royal Guard?",
+    "options": [
+      "Toriel",
+      "Asgore",
+      "Papyrus",
+      "Sans"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "d8a5188ad99b57b7",
+    "category": "characters",
+    "text": "Who leads the Royal Guard in Undertale?",
+    "options": [
+      "Undyne",
+      "Alphys",
+      "Mettaton",
+      "Napstablook"
+    ],
+    "answer": 0,
+    "difficulty": 12
+  },
+  {
+    "id": "5f51bd8e4a492de5",
+    "category": "characters",
+    "text": "Who is the white-haired android partnered with 9S in NieR: Automata?",
+    "options": [
+      "A2",
+      "Kaine",
+      "Zero",
+      "2B"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "f76bfa472ff20087",
+    "category": "characters",
+    "text": "Who is the protagonist of Control?",
+    "options": [
+      "Beth Wilder",
+      "Alice Wake",
+      "Saga Anderson",
+      "Jesse Faden"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "4be560c00fa71820",
+    "category": "characters",
+    "text": "Who shares the playable lead role with Alan in Alan Wake 2?",
+    "options": [
+      "Sarah Breaker",
+      "Alice Wake",
+      "Rose Marigold",
+      "Saga Anderson"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "cb742aa9d1163dfa",
+    "category": "characters",
+    "text": "Who is the protagonist of the original Deus Ex?",
+    "options": [
+      "Adam Jensen",
+      "Alex Denton",
+      "Paul Denton",
+      "JC Denton"
+    ],
+    "answer": 3,
+    "difficulty": 13
+  },
+  {
+    "id": "391e337b1860db34",
+    "category": "characters",
+    "text": "Who is the protagonist of Deus Ex: Human Revolution?",
+    "options": [
+      "Walton Simons",
+      "Adam Jensen",
+      "JC Denton",
+      "Alex Denton"
+    ],
+    "answer": 1,
+    "difficulty": 13
+  },
+  {
+    "id": "2cdcb510c845936f",
+    "category": "characters",
+    "text": "Who is the playable Dishonored 2 protagonist who can use Far Reach?",
+    "options": [
+      "Emily Kaldwin",
+      "Corvo Attano",
+      "Daud",
+      "Billie Lurk"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "94826b3348611686",
+    "category": "characters",
+    "text": "Who is the playable lead in Dishonored: Death of the Outsider?",
+    "options": [
+      "Billie Lurk",
+      "Emily Kaldwin",
+      "Delilah Copperspoon",
+      "Vera Moray"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "a40ccd969163c913",
+    "category": "characters",
+    "text": "Who is the protagonist of Silent Hill 3?",
+    "options": [
+      "Heather Mason",
+      "Angela Orosco",
+      "Maria",
+      "Lisa Garland"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "0b339ef81c467c8d",
+    "category": "characters",
+    "text": "Who is the journalist you play in the original Outlast?",
+    "options": [
+      "Blake Langermann",
+      "Waylon Park",
+      "Eddie Gluskin",
+      "Miles Upshur"
+    ],
+    "answer": 3,
+    "difficulty": 14
+  },
+  {
+    "id": "973ce406eb33376d",
+    "category": "characters",
+    "text": "Who is the whistleblower protagonist of Outlast: Whistleblower?",
+    "options": [
+      "Miles Upshur",
+      "Blake Langermann",
+      "Chris Walker",
+      "Waylon Park"
+    ],
+    "answer": 3,
+    "difficulty": 14
+  },
+  {
+    "id": "f70ffff798d3d077",
+    "category": "characters",
+    "text": "Who is the protagonist of Amnesia: The Dark Descent?",
+    "options": [
+      "Oswald Mandus",
+      "Tasi Trianon",
+      "Henri Clement",
+      "Daniel"
+    ],
+    "answer": 3,
+    "difficulty": 14
+  },
+  {
+    "id": "06e226d2260b7517",
+    "category": "characters",
+    "text": "Which archaeologist is the protagonist of Heaven's Vault?",
+    "options": [
+      "Kate Walker",
+      "Zoe Castillo",
+      "Aliya Elasra",
+      "April Ryan"
+    ],
+    "answer": 2,
+    "difficulty": 15,
+    "sourceUrl": "https://www.inklestudios.com/heavensvault/"
+  },
+  {
+    "id": "8f745db79089bbc6",
+    "category": "characters",
+    "text": "Who is the protagonist of Syberia, a lawyer searching for Hans Voralberg?",
+    "options": [
+      "April Ryan",
+      "Zoe Castillo",
+      "Nico Collard",
+      "Kate Walker"
+    ],
+    "answer": 3,
+    "difficulty": 15
+  },
+  {
+    "id": "6b02dc50e9fd7890",
+    "category": "characters",
+    "text": "Who is the artist protagonist of The Longest Journey?",
+    "options": [
+      "Zoe Castillo",
+      "Kate Walker",
+      "Victoria McPherson",
+      "April Ryan"
+    ],
+    "answer": 3,
+    "difficulty": 15
+  },
+  {
+    "id": "c2823f8bb3c34ef7",
+    "category": "characters",
+    "text": "Who is the protagonist of Beyond Good & Evil, working as a photojournalist?",
+    "options": [
+      "Nilin",
+      "Alyx",
+      "Jade",
+      "Faith"
+    ],
+    "answer": 2,
+    "difficulty": 15
+  },
+  {
+    "id": "d55b3ef646a2007a",
+    "category": "items",
+    "text": "Which Mario power-up usually makes Mario grow larger?",
+    "options": [
+      "Super Leaf",
+      "Super Mushroom",
+      "Fire Flower",
+      "Super Star"
+    ],
+    "answer": 1,
+    "difficulty": 1
+  },
+  {
+    "id": "0b7c2a14a8f72f3b",
+    "category": "items",
+    "text": "Which Mario power-up lets Mario throw fireballs?",
+    "options": [
+      "Super Mushroom",
+      "Super Star",
+      "Mega Mushroom",
+      "Fire Flower"
+    ],
+    "answer": 3,
+    "difficulty": 1
+  },
+  {
+    "id": "a973ed8afd45baa2",
+    "category": "items",
+    "text": "What do trainers usually throw to catch wild Pokemon?",
+    "options": [
+      "Dragon Balls",
+      "Poke Balls",
+      "Chaos Emeralds",
+      "Power Stars"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "49530ab757f91783",
+    "category": "items",
+    "text": "What type of object does Sonic collect as his main protection from damage?",
+    "options": [
+      "Stars",
+      "Rings",
+      "Coins",
+      "Gems"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "eb40ed0082e46ba9",
+    "category": "items",
+    "text": "Which legendary sword is closely associated with Link?",
+    "options": [
+      "Buster Sword",
+      "Soul Edge",
+      "Excalibur II",
+      "Master Sword"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "fe0c72c8ee1beeb3",
+    "category": "items",
+    "text": "What is the usual currency in The Legend of Zelda games?",
+    "options": [
+      "Bells",
+      "Caps",
+      "Rupees",
+      "Gil"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "390c2766c7881afc",
+    "category": "items",
+    "text": "What is the currency used by Tom Nook in Animal Crossing?",
+    "options": [
+      "Zenny",
+      "Bells",
+      "Gil",
+      "Rupees"
+    ],
+    "answer": 1,
+    "difficulty": 4
+  },
+  {
+    "id": "7b45d57a9e421dd6",
+    "category": "items",
+    "text": "What is the name of Cloud's iconic oversized sword in Final Fantasy VII?",
+    "options": [
+      "Gunblade",
+      "Masamune",
+      "Brotherhood",
+      "Buster Sword"
+    ],
+    "answer": 3,
+    "difficulty": 4
+  },
+  {
+    "id": "e63db9861c346f4b",
+    "category": "items",
+    "text": "Which weapon does Kratos throw and recall in God of War (2018)?",
+    "options": [
+      "Blade of Olympus",
+      "Mjolnir",
+      "Leviathan Axe",
+      "Draupnir Spear"
+    ],
+    "answer": 2,
+    "difficulty": 5
+  },
+  {
+    "id": "8fe679aa497c4051",
+    "category": "items",
+    "text": "What is the name of Thor's hammer, also sought in several games and films?",
+    "options": [
+      "Gungnir",
+      "Gram",
+      "Excalibur",
+      "Mjolnir"
+    ],
+    "answer": 3,
+    "difficulty": 5
+  },
+  {
+    "id": "17a88d3ddb8c2b31",
+    "category": "items",
+    "text": "What device does a Fallout protagonist commonly wear on their wrist?",
+    "options": [
+      "Omni-tool",
+      "Codec",
+      "Focus",
+      "Pip-Boy"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "a917f5547f734b18",
+    "category": "items",
+    "text": "Which item lets Aloy scan machines and see traces of the past?",
+    "options": [
+      "Omni-tool",
+      "Focus",
+      "Pip-Boy",
+      "Animus"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "e351b3601ef1bb93",
+    "category": "items",
+    "text": "Which weapon is used to create linked openings on surfaces in Portal?",
+    "options": [
+      "Gravity gun",
+      "Physics gun",
+      "Gluon gun",
+      "Portal gun"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "c885322f07cd1fab",
+    "category": "items",
+    "text": "What is the common nickname for Half-Life 2's Zero Point Energy Field Manipulator?",
+    "options": [
+      "Gravity gun",
+      "Portal gun",
+      "Gauss cannon",
+      "Tau cannon"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "648470ff96e1d4cb",
+    "category": "items",
+    "text": "Which weapon in Gears of War has a chainsaw bayonet?",
+    "options": [
+      "Lancer",
+      "Hammerburst",
+      "Gnasher",
+      "Longshot"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "0d0c25151e70e0dc",
+    "category": "items",
+    "text": "Which Halo weapon is a glowing melee blade used by the Covenant?",
+    "options": [
+      "Spiker",
+      "Energy sword",
+      "Gravity hammer",
+      "Needler"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "aef62ecdc660d9d0",
+    "category": "items",
+    "text": "What is the main currency used in many Final Fantasy games?",
+    "options": [
+      "Bells",
+      "Rupees",
+      "Gil",
+      "Zenny"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "93c5625c0bfab4a2",
+    "category": "items",
+    "text": "Which Final Fantasy item commonly revives a knocked-out party member?",
+    "options": [
+      "Ether",
+      "Antidote",
+      "Echo Screen",
+      "Phoenix Down"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "0c2b0cd225bd6018",
+    "category": "items",
+    "text": "Which device allows memories of ancestors to be explored in Assassin's Creed?",
+    "options": [
+      "Animus",
+      "Focus",
+      "Pip-Boy",
+      "Codec"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "72ba97c95094a8c3",
+    "category": "items",
+    "text": "Which Witcher potion improves sight in dark places?",
+    "options": [
+      "Thunderbolt",
+      "White Raffard's Decoction",
+      "Cat",
+      "Swallow"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "47fd37251543946b",
+    "category": "items",
+    "text": "What is the name of Isaac Clarke's iconic mining tool in Dead Space?",
+    "options": [
+      "Ripper",
+      "Contact Beam",
+      "Line Gun",
+      "Plasma Cutter"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "2f44ac6f6b4f90c1",
+    "category": "items",
+    "text": "Which tool in Phasmophobia measures electromagnetic activity?",
+    "options": [
+      "Spirit Box",
+      "Thermometer",
+      "Parabolic Microphone",
+      "EMF Reader"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "d14ebdb0d8ff5b0d",
+    "category": "items",
+    "text": "Which Dishonored object reveals secrets and helps locate runes?",
+    "options": [
+      "The Mask",
+      "The Heart",
+      "The Eye",
+      "The Lens"
+    ],
+    "answer": 1,
+    "difficulty": 12
+  },
+  {
+    "id": "5fd2f4e6f304ce58",
+    "category": "items",
+    "text": "What is the name of Jesse's transforming firearm in Control?",
+    "options": [
+      "Director's Rifle",
+      "Oldest Gun",
+      "Astral Cannon",
+      "Service Weapon"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "7c94b5bc3d59cff3",
+    "category": "items",
+    "text": "What is the name of the Penitent One's sword in the original Blasphemous?",
+    "options": [
+      "Mea Culpa",
+      "Veredicto",
+      "Ruego Al Alba",
+      "Sarmiento"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "91111c3870d6f22f",
+    "category": "items",
+    "text": "Which Bloodborne weapon transforms between a sword and a bow?",
+    "options": [
+      "Reiterpallasch",
+      "Simon's Bowblade",
+      "Chikage",
+      "Rakuyo"
+    ],
+    "answer": 1,
+    "difficulty": 13
+  },
+  {
+    "id": "3ae07b956d572267",
+    "category": "items",
+    "text": "What is Varric's named crossbow in Dragon Age?",
+    "options": [
+      "Meredith",
+      "Bethany",
+      "Bianca",
+      "Isabela"
+    ],
+    "answer": 2,
+    "difficulty": 14
+  },
+  {
+    "id": "0cd683c78c7d2296",
+    "category": "items",
+    "text": "Which Dishonored 2 device lets the player switch between two time periods in A Crack in the Slab?",
+    "options": [
+      "Timepiece",
+      "Heart",
+      "Blink rune",
+      "Audiograph"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "055f48d1476b17fa",
+    "category": "items",
+    "text": "Which item lets the protagonist revisit the moment of a corpse's death in Return of the Obra Dinn?",
+    "options": [
+      "Ars Moriendi",
+      "Memento Mortem",
+      "Vox Populi",
+      "Tempus Fugit"
+    ],
+    "answer": 1,
+    "difficulty": 15,
+    "sourceUrl": "https://obradinn.fandom.com/wiki/Pocket_watch"
+  },
+  {
+    "id": "f7420f1a206336d0",
+    "category": "items",
+    "text": "What substance forms Dak'kon's shifting blade in Planescape: Torment?",
+    "options": [
+      "Mithral",
+      "Adamantine",
+      "Cold iron",
+      "Karach"
+    ],
+    "answer": 3,
+    "difficulty": 15,
+    "sourceUrl": "https://gamefaqs.gamespot.com/ps4/258151-planescape-torment-enhanced-edition/faqs/78258/characters"
+  },
+  {
+    "id": "64f60893582b3416",
+    "category": "villains",
+    "text": "Who is Mario's recurring enemy, the King of the Koopas?",
+    "options": [
+      "Bowser",
+      "Wario",
+      "Donkey Kong",
+      "King Dedede"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "38641f0d86120a7d",
+    "category": "villains",
+    "text": "Which scientist repeatedly builds robots to defeat Sonic?",
+    "options": [
+      "Dr. Eggman",
+      "Dr. Wily",
+      "Dr. Neo Cortex",
+      "Dr. Nefarious"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "a95fd22fff018c2f",
+    "category": "villains",
+    "text": "Who is Crash Bandicoot's scientist nemesis?",
+    "options": [
+      "Dr. Nefarious",
+      "Dr. Neo Cortex",
+      "Dr. Eggman",
+      "Dr. Wily"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "c7d7ac6a035cd513",
+    "category": "villains",
+    "text": "Which villain frequently seeks the Triforce in The Legend of Zelda?",
+    "options": [
+      "Bowser",
+      "Ridley",
+      "King K. Rool",
+      "Ganondorf"
+    ],
+    "answer": 3,
+    "difficulty": 2
+  },
+  {
+    "id": "c3d770c79b8a984e",
+    "category": "villains",
+    "text": "Which green crocodile king is a recurring Donkey Kong villain?",
+    "options": [
+      "King Dedede",
+      "Bowser",
+      "Kamek",
+      "King K. Rool"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "72b0238c689f0fa6",
+    "category": "villains",
+    "text": "Which round, hammer-wielding king is often Kirby's rival?",
+    "options": [
+      "Wart",
+      "King Bob-omb",
+      "King Dedede",
+      "King K. Rool"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "4473c20bdfc3351c",
+    "category": "villains",
+    "text": "Who is the main antagonist in Final Fantasy VII, wielding Masamune?",
+    "options": [
+      "Sephiroth",
+      "Kefka",
+      "Seymour",
+      "Ultimecia"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "e4e74fcc74e97157",
+    "category": "villains",
+    "text": "Which AI oversees the Aperture Science tests in Portal?",
+    "options": [
+      "GLaDOS",
+      "SHODAN",
+      "Cortana",
+      "EDI"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "d52758549b2e3bac",
+    "category": "villains",
+    "text": "Which rogue AI is the central antagonist of System Shock?",
+    "options": [
+      "HAL 9000",
+      "SHODAN",
+      "GLaDOS",
+      "AM"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "9ba59de012848c88",
+    "category": "villains",
+    "text": "Which dictator is a central villain in Street Fighter II?",
+    "options": [
+      "Sagat",
+      "Balrog",
+      "Vega",
+      "M. Bison"
+    ],
+    "answer": 3,
+    "difficulty": 5
+  },
+  {
+    "id": "ca3a0a62ae7f8080",
+    "category": "villains",
+    "text": "Who hosts the tournament and steals souls in the original Mortal Kombat?",
+    "options": [
+      "Quan Chi",
+      "Shinnok",
+      "Shang Tsung",
+      "Shao Kahn"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "d059731b896a5560",
+    "category": "villains",
+    "text": "Which tyrannical emperor rules Outworld in Mortal Kombat II?",
+    "options": [
+      "Shao Kahn",
+      "Shang Tsung",
+      "Raiden",
+      "Kotal Kahn"
+    ],
+    "answer": 0,
+    "difficulty": 6
+  },
+  {
+    "id": "cb9e4fbb8bf5261d",
+    "category": "villains",
+    "text": "Which Resident Evil villain commonly wears sunglasses and has superhuman speed?",
+    "options": [
+      "William Birkin",
+      "Ramon Salazar",
+      "Jack Baker",
+      "Albert Wesker"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "548adebc51f3787f",
+    "category": "villains",
+    "text": "Which Resident Evil 3 pursuer is known for hunting S.T.A.R.S. members?",
+    "options": [
+      "Nemesis",
+      "Mr. X",
+      "Licker",
+      "Regenerator"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "67e0fc4c5e43c0d4",
+    "category": "villains",
+    "text": "Which Far Cry 3 antagonist delivers a monologue about the definition of insanity?",
+    "options": [
+      "Pagan Min",
+      "Joseph Seed",
+      "Anton Castillo",
+      "Vaas Montenegro"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "208b81875069d4f1",
+    "category": "villains",
+    "text": "Who is the ruler of Kyrat in Far Cry 4?",
+    "options": [
+      "Pagan Min",
+      "Vaas Montenegro",
+      "Joseph Seed",
+      "Hoyt Volker"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "6b275d6ec4e09f0a",
+    "category": "villains",
+    "text": "Which villain leads the Hyperion corporation in Borderlands 2?",
+    "options": [
+      "Roland",
+      "Troy Calypso",
+      "General Knoxx",
+      "Handsome Jack"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "6701aa8740f6989f",
+    "category": "villains",
+    "text": "Who is the main antagonist of BioShock, using the alias Atlas?",
+    "options": [
+      "Andrew Ryan",
+      "Sander Cohen",
+      "Augustus Sinclair",
+      "Frank Fontaine"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "8259fdfcd73daa5f",
+    "category": "villains",
+    "text": "Which clown-like villain destroys the world in Final Fantasy VI?",
+    "options": [
+      "Kuja",
+      "Ardyn",
+      "Kefka",
+      "Sephiroth"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "19ee1bd40bd8b301",
+    "category": "villains",
+    "text": "Which antagonist is a time-manipulating sorceress in Final Fantasy VIII?",
+    "options": [
+      "Rinoa",
+      "Ultimecia",
+      "Edea",
+      "Adel"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "a058133fb5fde3ec",
+    "category": "villains",
+    "text": "Who is the main antagonist of Metal Gear Solid, sharing Snake's genetic origins?",
+    "options": [
+      "Liquid Snake",
+      "Solidus Snake",
+      "Revolver Ocelot",
+      "Vulcan Raven"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  },
+  {
+    "id": "8b3cd7e2bec3eaa4",
+    "category": "villains",
+    "text": "Which Metal Gear Solid 3 sniper can die of old age if enough time passes?",
+    "options": [
+      "The Fear",
+      "The Fury",
+      "The Pain",
+      "The End"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "9296ac8d2db4bae4",
+    "category": "villains",
+    "text": "Which Bloodborne boss waits in the Grand Cathedral?",
+    "options": [
+      "Blood-starved Beast",
+      "Darkbeast Paarl",
+      "Vicar Amelia",
+      "Cleric Beast"
+    ],
+    "answer": 2,
+    "difficulty": 12
+  },
+  {
+    "id": "194270e04b5d0ff9",
+    "category": "villains",
+    "text": "Which Dark Souls duo guards the cathedral in Anor Londo?",
+    "options": [
+      "Nito and Seath",
+      "Ornstein and Smough",
+      "Artorias and Sif",
+      "Gwyn and Gwyndolin"
+    ],
+    "answer": 1,
+    "difficulty": 12
+  },
+  {
+    "id": "176e42bdf846a530",
+    "category": "villains",
+    "text": "Which Elden Ring boss is known as the Blade of Miquella?",
+    "options": [
+      "Rennala",
+      "Ranni",
+      "Melina",
+      "Malenia"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "bb6e0a5527c554b8",
+    "category": "villains",
+    "text": "Which Elden Ring boss rides a small horse named Leonard?",
+    "options": [
+      "Morgott",
+      "Godrick",
+      "Rykard",
+      "Starscourge Radahn"
+    ],
+    "answer": 3,
+    "difficulty": 13
+  },
+  {
+    "id": "e849216ac5e628b7",
+    "category": "villains",
+    "text": "Which Psychonauts camp coach plots to steal campers' brains for psychic tanks?",
+    "options": [
+      "Coach Oleander",
+      "Ford Cruller",
+      "Sasha Nein",
+      "Milla Vodello"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "0814a97a2c9e70ea",
+    "category": "villains",
+    "text": "Who is the central antagonist of Baldur's Gate II: Shadows of Amn?",
+    "options": [
+      "Jon Irenicus",
+      "Sarevok",
+      "Ketheric Thorm",
+      "Gortash"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "a70938b825af3187",
+    "category": "villains",
+    "text": "Which antagonist confronts the Nameless One at the end of Planescape: Torment?",
+    "options": [
+      "The Lady of Pain",
+      "Trias",
+      "Ravel Puzzlewell",
+      "The Transcendent One"
+    ],
+    "answer": 3,
+    "difficulty": 15
+  },
+  {
+    "id": "71e87df0ad87c366",
+    "category": "villains",
+    "text": "Who is the main antagonist of Jade Empire, formerly known as Sun Li?",
+    "options": [
+      "Sun Hai",
+      "Master Li",
+      "Death's Hand",
+      "Gao the Greater"
+    ],
+    "answer": 1,
+    "difficulty": 15,
+    "sourceUrl": "https://jadeempire.fandom.com/wiki/Sun_Li_the_Glorious_Strategist"
+  },
+  {
+    "id": "5430e1d79bc4fbba",
+    "category": "locations",
+    "text": "In which city does Batman usually fight crime?",
+    "options": [
+      "Gotham City",
+      "Metropolis",
+      "Central City",
+      "Star City"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "c746b4ae2389b4be",
+    "category": "locations",
+    "text": "Which city is the main setting of Marvel's Spider-Man (2018)?",
+    "options": [
+      "Chicago",
+      "Seattle",
+      "Boston",
+      "New York City"
+    ],
+    "answer": 3,
+    "difficulty": 1
+  },
+  {
+    "id": "d80bda09b8338f01",
+    "category": "locations",
+    "text": "Which region is the setting of the original Pokemon Red and Blue?",
+    "options": [
+      "Kanto",
+      "Johto",
+      "Hoenn",
+      "Sinnoh"
+    ],
+    "answer": 0,
+    "difficulty": 2
+  },
+  {
+    "id": "6b82bf9753fd06ba",
+    "category": "locations",
+    "text": "Which region is the setting of Pokemon Gold and Silver?",
+    "options": [
+      "Kanto",
+      "Unova",
+      "Kalos",
+      "Johto"
+    ],
+    "answer": 3,
+    "difficulty": 2
+  },
+  {
+    "id": "3c9b55e1c2d21b45",
+    "category": "locations",
+    "text": "Which region is the setting of Pokemon Ruby and Sapphire?",
+    "options": [
+      "Hoenn",
+      "Sinnoh",
+      "Alola",
+      "Paldea"
+    ],
+    "answer": 0,
+    "difficulty": 3
+  },
+  {
+    "id": "8abf2deb6ac1d83b",
+    "category": "locations",
+    "text": "Which school is the main setting of Hogwarts Legacy?",
+    "options": [
+      "Durmstrang",
+      "Ilvermorny",
+      "Hogwarts",
+      "Beauxbatons"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "ba4e9d9de0fa6358",
+    "category": "locations",
+    "text": "Which Grand Theft Auto city is inspired by Miami in the 1980s?",
+    "options": [
+      "Liberty City",
+      "San Fierro",
+      "Vice City",
+      "Los Santos"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "a09562ea2d8bb9b6",
+    "category": "locations",
+    "text": "Which state is the main setting of Far Cry 5?",
+    "options": [
+      "Montana",
+      "Texas",
+      "Alaska",
+      "Florida"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "c8eeb9ab941ca766",
+    "category": "locations",
+    "text": "Which floating city is the setting of BioShock Infinite?",
+    "options": [
+      "Columbia",
+      "Rapture",
+      "Dunwall",
+      "Midgar"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "2869c91769b7c406",
+    "category": "locations",
+    "text": "Which megacity is the main setting of Cyberpunk 2077?",
+    "options": [
+      "Night City",
+      "Liberty City",
+      "City 17",
+      "Cloudbank"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "291e1c873d135d5a",
+    "category": "locations",
+    "text": "Which ruined insect kingdom is explored in Hollow Knight?",
+    "options": [
+      "Boletaria",
+      "Hallownest",
+      "Hyrule",
+      "Drangleic"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "1353a673535108ad",
+    "category": "locations",
+    "text": "Which continent is the main setting of The Witcher 3 usually called?",
+    "options": [
+      "Tamriel",
+      "Thedas",
+      "Eorzea",
+      "The Continent"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "0ebb768a45226aba",
+    "category": "locations",
+    "text": "Which land is the main setting of Dark Souls?",
+    "options": [
+      "Lothric",
+      "Boletaria",
+      "Lordran",
+      "Drangleic"
+    ],
+    "answer": 2,
+    "difficulty": 7
+  },
+  {
+    "id": "b1400f941dd5239a",
+    "category": "locations",
+    "text": "Which kingdom is the main setting of Dark Souls II?",
+    "options": [
+      "Boletaria",
+      "Drangleic",
+      "Lordran",
+      "Lothric"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "56cfa9437df7e70e",
+    "category": "locations",
+    "text": "Which fictional country is the setting of Papers, Please?",
+    "options": [
+      "Kolechia",
+      "Petria",
+      "Arstotzka",
+      "Kyrat"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "150a2e72bea11778",
+    "category": "locations",
+    "text": "Which country is the setting of Far Cry 6?",
+    "options": [
+      "Panau",
+      "Yara",
+      "Kyrat",
+      "Rook"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "83e47eecdbebd659",
+    "category": "locations",
+    "text": "Which town is home to your farm in Stardew Valley?",
+    "options": [
+      "Mineral Town",
+      "Portia",
+      "Sandrock",
+      "Pelican Town"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "da81bb27adafa7b8",
+    "category": "locations",
+    "text": "Which city is the main setting of Final Fantasy VII's opening hours?",
+    "options": [
+      "Lindblum",
+      "Zanarkand",
+      "Midgar",
+      "Balamb"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "9dde887e44596a4e",
+    "category": "locations",
+    "text": "Which world is the setting of Final Fantasy X?",
+    "options": [
+      "Eos",
+      "Spira",
+      "Gaia",
+      "Ivalice"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "a9eeeab32d7a53c6",
+    "category": "locations",
+    "text": "Which realm is the main setting of Final Fantasy XVI?",
+    "options": [
+      "Eos",
+      "Valisthea",
+      "Eorzea",
+      "Spira"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "13c6d7556a092185",
+    "category": "locations",
+    "text": "Which district inspired by Kabukicho is a recurring setting in the Yakuza series?",
+    "options": [
+      "Sotenbori",
+      "Isezaki Ijincho",
+      "Onomichi",
+      "Kamurocho"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "6ef77f351abf0c32",
+    "category": "locations",
+    "text": "Which Colorado town is the setting of Life is Strange: True Colors?",
+    "options": [
+      "Bright Falls",
+      "Twin Peaks",
+      "Haven Springs",
+      "Arcadia Bay"
+    ],
+    "answer": 2,
+    "difficulty": 11,
+    "sourceUrl": "https://www.playstation.com/en-us/games/life-is-strange-true-colors/"
+  },
+  {
+    "id": "5cf698072f0f6cd9",
+    "category": "locations",
+    "text": "Which city is the setting of the original Deus Ex's opening Liberty Island mission?",
+    "options": [
+      "New York City",
+      "Hong Kong",
+      "Paris",
+      "Seattle"
+    ],
+    "answer": 0,
+    "difficulty": 12
+  },
+  {
+    "id": "26a9e4c4d933e2fc",
+    "category": "locations",
+    "text": "Which city is the main setting of Vampire: The Masquerade - Bloodlines?",
+    "options": [
+      "Seattle",
+      "Chicago",
+      "Los Angeles",
+      "New Orleans"
+    ],
+    "answer": 2,
+    "difficulty": 12
+  },
+  {
+    "id": "e3509b97c5eb752c",
+    "category": "locations",
+    "text": "Which underwater complex is the setting of SOMA?",
+    "options": [
+      "Talos I",
+      "Sevastopol",
+      "Tau Volantis",
+      "PATHOS-II"
+    ],
+    "answer": 3,
+    "difficulty": 13
+  },
+  {
+    "id": "e586ac7734c67567",
+    "category": "locations",
+    "text": "Which fictional city is the setting of Thief: The Dark Project usually called?",
+    "options": [
+      "Doskvol",
+      "The City",
+      "Dunwall",
+      "Revachol"
+    ],
+    "answer": 1,
+    "difficulty": 13
+  },
+  {
+    "id": "5f4cf68d625122c4",
+    "category": "locations",
+    "text": "Which isolated island is the main setting of Metal Gear Solid?",
+    "options": [
+      "Big Shell",
+      "Zanzibar Land",
+      "Outer Heaven",
+      "Shadow Moses"
+    ],
+    "answer": 3,
+    "difficulty": 14
+  },
+  {
+    "id": "682c55ee81929ce4",
+    "category": "locations",
+    "text": "Which city is the central hub of Planescape: Torment?",
+    "options": [
+      "Sigil",
+      "Neverwinter",
+      "Athkatla",
+      "Baldur's Gate"
+    ],
+    "answer": 0,
+    "difficulty": 15
+  },
+  {
+    "id": "90614818609e1010",
+    "category": "movies",
+    "text": "Guess the movie: A theme park's cloned dinosaurs escape their enclosures.",
+    "options": [
+      "Jurassic Park",
+      "King Kong",
+      "Godzilla",
+      "The Lost World (1925)"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "1ef66c2d61ef1a4b",
+    "category": "movies",
+    "text": "Guess the movie: A young lion prince flees after his father dies and later challenges his uncle.",
+    "options": [
+      "The Jungle Book",
+      "Tarzan",
+      "The Lion King",
+      "Madagascar"
+    ],
+    "answer": 2,
+    "difficulty": 1
+  },
+  {
+    "id": "049e47a542ad351d",
+    "category": "movies",
+    "text": "Guess the movie: A clownfish crosses the ocean to rescue his son from a dentist's aquarium.",
+    "options": [
+      "Finding Nemo",
+      "Shark Tale",
+      "Finding Dory",
+      "The Little Mermaid"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "915dab1eaaa6d58d",
+    "category": "movies",
+    "text": "Guess the movie: A cowboy toy feels threatened when a space-ranger toy joins the bedroom.",
+    "options": [
+      "Robots",
+      "Toy Story",
+      "Small Soldiers",
+      "The Lego Movie"
+    ],
+    "answer": 1,
+    "difficulty": 1
+  },
+  {
+    "id": "9e15c6ffa78609ed",
+    "category": "movies",
+    "text": "Guess the movie: A green ogre travels with a talking donkey to rescue a princess.",
+    "options": [
+      "Brave",
+      "Onward",
+      "Shrek",
+      "Tangled"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "524c7e236c69213c",
+    "category": "movies",
+    "text": "Guess the movie: A teenager accidentally travels to 1955 in a modified DeLorean.",
+    "options": [
+      "The Time Machine",
+      "Project Almanac",
+      "Back to the Future",
+      "Bill & Ted's Excellent Adventure"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "335ec7f44fba508b",
+    "category": "movies",
+    "text": "Guess the movie: A boy befriends a stranded alien and helps it return home.",
+    "options": [
+      "Flight of the Navigator",
+      "Explorers",
+      "Super 8",
+      "E.T. the Extra-Terrestrial"
+    ],
+    "answer": 3,
+    "difficulty": 2
+  },
+  {
+    "id": "8979d469c8f03add",
+    "category": "movies",
+    "text": "Guess the movie: A great white shark terrorises the beach town of Amity.",
+    "options": [
+      "The Shallows",
+      "Jaws",
+      "Deep Blue Sea",
+      "The Meg"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "d7868952bc422b15",
+    "category": "movies",
+    "text": "Guess the movie: A computer hacker learns that his reality is a simulation run by machines.",
+    "options": [
+      "Dark City",
+      "TRON",
+      "eXistenZ",
+      "The Matrix"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "aa1de88e1131b621",
+    "category": "movies",
+    "text": "Guess the movie: A cyborg is sent from the future to kill Sarah Connor.",
+    "options": [
+      "Predator",
+      "Universal Soldier",
+      "The Terminator",
+      "RoboCop"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "f5826751b7f18ca4",
+    "category": "movies",
+    "text": "Guess the movie: A police officer battles hostage-takers in Nakatomi Plaza on Christmas Eve.",
+    "options": [
+      "Air Force One",
+      "Die Hard",
+      "Speed",
+      "Under Siege"
+    ],
+    "answer": 1,
+    "difficulty": 3
+  },
+  {
+    "id": "b11cb61af1c3f9da",
+    "category": "movies",
+    "text": "Guess the movie: Passengers must keep a city bus above 50 mph to stop a bomb exploding.",
+    "options": [
+      "Non-Stop",
+      "Speed",
+      "Unstoppable",
+      "The Taking of Pelham 123"
+    ],
+    "answer": 1,
+    "difficulty": 3
+  },
+  {
+    "id": "0699797137c5d834",
+    "category": "movies",
+    "text": "Guess the movie: A Roman general becomes a gladiator after an emperor's son betrays him.",
+    "options": [
+      "Troy",
+      "Ben-Hur",
+      "Gladiator",
+      "Spartacus"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "4226b0d4739e8e94",
+    "category": "movies",
+    "text": "Guess the movie: A hobbit inherits a dangerous ring and sets out with a fellowship.",
+    "options": [
+      "Willow",
+      "Legend",
+      "The Lord of the Rings: The Fellowship of the Ring",
+      "The Hobbit: An Unexpected Journey"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "eab924f7b41e847d",
+    "category": "movies",
+    "text": "Guess the movie: A cursed pirate crew pursues a medallion taken by Elizabeth Swann.",
+    "options": [
+      "Treasure Planet",
+      "Hook",
+      "Pirates of the Caribbean: The Curse of the Black Pearl",
+      "Cutthroat Island"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "c209307ba8671078",
+    "category": "movies",
+    "text": "Guess the movie: A retired assassin seeks revenge after thieves kill his puppy and steal his car.",
+    "options": [
+      "The Equalizer",
+      "Nobody",
+      "John Wick",
+      "Taken"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "1d179e86b7995cf9",
+    "category": "movies",
+    "text": "Guess the movie: A thief enters people's dreams to plant an idea in an heir's mind.",
+    "options": [
+      "The Cell",
+      "Inception",
+      "Paprika",
+      "Dreamscape"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "e0a744f4c5ecc84f",
+    "category": "movies",
+    "text": "Guess the movie: Astronauts enter a wormhole near Saturn to find a new home for humanity.",
+    "options": [
+      "Interstellar",
+      "Gravity",
+      "The Martian",
+      "Ad Astra"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "5895f2afa011c0a3",
+    "category": "movies",
+    "text": "Guess the movie: An astronaut stranded on Mars grows potatoes while awaiting rescue.",
+    "options": [
+      "The Martian",
+      "Mission to Mars",
+      "Red Planet",
+      "Moon"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "8872236934da7d28",
+    "category": "movies",
+    "text": "Guess the movie: A weatherman relives the same day in Punxsutawney.",
+    "options": [
+      "Groundhog Day",
+      "Palm Springs",
+      "Source Code",
+      "Happy Death Day"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "a76436ec05646b39",
+    "category": "movies",
+    "text": "Guess the movie: A man discovers that his entire life is a television production.",
+    "options": [
+      "Edtv",
+      "Pleasantville",
+      "The Game",
+      "The Truman Show"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "98941de3de501982",
+    "category": "movies",
+    "text": "Guess the movie: A rat secretly helps a young kitchen worker cook in a Paris restaurant.",
+    "options": [
+      "Ratatouille",
+      "Flushed Away",
+      "The Tale of Despereaux",
+      "The Secret of NIMH"
+    ],
+    "answer": 0,
+    "difficulty": 6
+  },
+  {
+    "id": "6f7f12eae17cfed9",
+    "category": "movies",
+    "text": "Guess the movie: An old man uses thousands of balloons to fly his house to South America.",
+    "options": [
+      "WALL-E",
+      "The Boy and the Heron",
+      "Castle in the Sky",
+      "Up"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "e9a4e8abd9c913e0",
+    "category": "movies",
+    "text": "Guess the movie: A lonely waste-compacting robot follows a probe into space.",
+    "options": [
+      "Big Hero 6",
+      "WALL-E",
+      "Robots",
+      "The Iron Giant"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "154bedbc4e9f68c7",
+    "category": "movies",
+    "text": "Guess the movie: Emotions inside Riley's mind struggle when her family moves to San Francisco.",
+    "options": [
+      "Luca",
+      "Inside Out",
+      "Soul",
+      "Turning Red"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "7246f5e55cedd78c",
+    "category": "movies",
+    "text": "Guess the movie: A boy named Miguel visits the Land of the Dead during Dia de Muertos.",
+    "options": [
+      "Encanto",
+      "Spirited Away",
+      "Coco",
+      "The Book of Life"
+    ],
+    "answer": 2,
+    "difficulty": 7
+  },
+  {
+    "id": "cda8d18766e43321",
+    "category": "movies",
+    "text": "Guess the movie: A young Viking befriends an injured Night Fury dragon.",
+    "options": [
+      "Pete's Dragon",
+      "How to Train Your Dragon",
+      "Eragon",
+      "Dragonheart"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "a89331dc0bc07e81",
+    "category": "movies",
+    "text": "Guess the movie: A panda becomes the Dragon Warrior under Master Shifu.",
+    "options": [
+      "Kung Fu Panda",
+      "Raya and the Last Dragon",
+      "The Forbidden Kingdom",
+      "Wish Dragon"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "7de53976c246a16a",
+    "category": "movies",
+    "text": "Guess the movie: A boy in Maine befriends a giant robot from space during the Cold War.",
+    "options": [
+      "Short Circuit",
+      "The Iron Giant",
+      "Bumblebee",
+      "Real Steel"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "c4b980dc2ba04dc8",
+    "category": "movies",
+    "text": "Guess the movie: A girl enters a spirit bathhouse after her parents turn into pigs.",
+    "options": [
+      "Spirited Away",
+      "My Neighbour Totoro",
+      "Ponyo",
+      "Kiki's Delivery Service"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "8a1be22815db2cd4",
+    "category": "movies",
+    "text": "Guess the movie: A young witch starts a delivery service in a seaside town.",
+    "options": [
+      "Mary and the Witch's Flower",
+      "The Cat Returns",
+      "Kiki's Delivery Service",
+      "Howl's Moving Castle"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "ca5932b2b3fe00bd",
+    "category": "movies",
+    "text": "Guess the movie: A former police officer hunts replicants in a rain-soaked future Los Angeles.",
+    "options": [
+      "Total Recall",
+      "RoboCop",
+      "Blade Runner",
+      "Minority Report"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "1696225cf9303b90",
+    "category": "movies",
+    "text": "Guess the movie: A linguist tries to communicate with aliens whose ships have arrived around Earth.",
+    "options": [
+      "Annihilation",
+      "Close Encounters of the Third Kind",
+      "Arrival",
+      "Contact"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "29250e7710d9add3",
+    "category": "movies",
+    "text": "Guess the movie: A team of scientists explores a region called the Shimmer.",
+    "options": [
+      "Sphere",
+      "Annihilation",
+      "Arrival",
+      "Stalker"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "67eef6cde0883429",
+    "category": "movies",
+    "text": "Guess the movie: A programmer evaluates an android named Ava at a reclusive CEO's home.",
+    "options": [
+      "A.I. Artificial Intelligence",
+      "I, Robot",
+      "Chappie",
+      "Ex Machina"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "9fee8306f40cfe9e",
+    "category": "movies",
+    "text": "Guess the movie: A man with short-term memory loss uses tattoos and notes to investigate his wife's death.",
+    "options": [
+      "The Machinist",
+      "Shutter Island",
+      "Insomnia",
+      "Memento"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "2273719a2d6cb68c",
+    "category": "movies",
+    "text": "Guess the movie: Two rival stage magicians pursue the ultimate illusion in Victorian London.",
+    "options": [
+      "Now You See Me",
+      "The Great Houdini",
+      "The Prestige",
+      "The Illusionist"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "c0a08ecbeefb84da",
+    "category": "movies",
+    "text": "Guess the movie: A jazz drummer endures the brutal teaching methods of Terence Fletcher.",
+    "options": [
+      "Whiplash",
+      "Bird",
+      "Sound of Metal",
+      "La La Land"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "8ec1b644fc4216f8",
+    "category": "movies",
+    "text": "Guess the movie: A hotel concierge and a lobby boy become involved in the theft of a Renaissance painting.",
+    "options": [
+      "The Royal Tenenbaums",
+      "Moonrise Kingdom",
+      "The Grand Budapest Hotel",
+      "The French Dispatch"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "2db4ffb651d257e3",
+    "category": "movies",
+    "text": "Guess the movie: A family infiltrates a wealthy household by taking jobs under false identities.",
+    "options": [
+      "The Handmaiden",
+      "Parasite",
+      "Shoplifters",
+      "Burning"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "9aed53319940e55b",
+    "category": "movies",
+    "text": "Guess the movie: A laundromat owner gains access to the abilities of her alternate selves.",
+    "options": [
+      "Cloud Atlas",
+      "Doctor Strange",
+      "Everything Everywhere All at Once",
+      "The One"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "7ddb7e28858f9927",
+    "category": "movies",
+    "text": "Guess the movie: A drummer loses his hearing and joins a community for deaf recovering addicts.",
+    "options": [
+      "Crazy Heart",
+      "Sound of Metal",
+      "Whiplash",
+      "CODA"
+    ],
+    "answer": 1,
+    "difficulty": 11
+  },
+  {
+    "id": "ff1edcc618495f82",
+    "category": "movies",
+    "text": "Guess the movie: A lonely lunar worker discovers another version of himself near the end of his contract.",
+    "options": [
+      "Oblivion",
+      "Solaris",
+      "Sunshine",
+      "Moon"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "426a33b8ac645fc9",
+    "category": "movies",
+    "text": "Guess the movie: A crew tries to reignite the dying Sun with a massive bomb.",
+    "options": [
+      "Event Horizon",
+      "Pandorum",
+      "Sunshine",
+      "The Core"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "53692f6f1cc5b5f3",
+    "category": "movies",
+    "text": "Guess the movie: A man is repeatedly sent into a train passenger's last eight minutes.",
+    "options": [
+      "Deja Vu",
+      "Tenet",
+      "Looper",
+      "Source Code"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "26c0a7a06b2a8bb7",
+    "category": "movies",
+    "text": "Guess the movie: A hitman is ordered to kill an older version of himself sent back through time.",
+    "options": [
+      "Timecop",
+      "Gemini Man",
+      "Looper",
+      "Predestination"
+    ],
+    "answer": 2,
+    "difficulty": 12
+  },
+  {
+    "id": "382f20df406df414",
+    "category": "movies",
+    "text": "Guess the movie: A soldier relives a disastrous battle against aliens each time he dies.",
+    "options": [
+      "Edge of Tomorrow",
+      "Source Code",
+      "Oblivion",
+      "Battle: Los Angeles"
+    ],
+    "answer": 0,
+    "difficulty": 12
+  },
+  {
+    "id": "1bb7f2f8cd1d1119",
+    "category": "movies",
+    "text": "Guess the movie: A police officer is transferred to Sandford, where suspicious accidents hide a conspiracy.",
+    "options": [
+      "The World's End",
+      "Shaun of the Dead",
+      "The Guard",
+      "Hot Fuzz"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "56767f76960c27ce",
+    "category": "movies",
+    "text": "Guess the movie: Two hitmen hide in a Belgian city after a job goes wrong.",
+    "options": [
+      "Kiss Kiss Bang Bang",
+      "Seven Psychopaths",
+      "In Bruges",
+      "The Nice Guys"
+    ],
+    "answer": 2,
+    "difficulty": 13
+  },
+  {
+    "id": "16b4c038b23607dd",
+    "category": "movies",
+    "text": "Guess the movie: A teenager plays bass and must defeat his new girlfriend's seven evil exes.",
+    "options": [
+      "Nick and Norah's Infinite Playlist",
+      "Super",
+      "Scott Pilgrim vs. the World",
+      "Kick-Ass"
+    ],
+    "answer": 2,
+    "difficulty": 13
+  },
+  {
+    "id": "3e960daf6846b847",
+    "category": "movies",
+    "text": "Guess the movie: A Los Angeles driver becomes involved in a robbery to help his neighbour's husband.",
+    "options": [
+      "The Driver",
+      "Nightcrawler",
+      "Drive",
+      "Baby Driver"
+    ],
+    "answer": 2,
+    "difficulty": 13
+  },
+  {
+    "id": "96eb9cf3c2a4b65f",
+    "category": "movies",
+    "text": "Guess the movie: A getaway driver with tinnitus times his driving to music.",
+    "options": [
+      "The Transporter",
+      "Wheelman",
+      "Baby Driver",
+      "Drive"
+    ],
+    "answer": 2,
+    "difficulty": 13
+  },
+  {
+    "id": "3ca51a1ea1fe4132",
+    "category": "movies",
+    "text": "Guess the movie: An office worker undergoes a procedure to erase memories of a failed relationship.",
+    "options": [
+      "Eternal Sunshine of the Spotless Mind",
+      "Vanilla Sky",
+      "The Science of Sleep",
+      "Her"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "b63bab506219fde9",
+    "category": "movies",
+    "text": "Guess the movie: An isolated writer develops a relationship with an operating system named Samantha.",
+    "options": [
+      "I'm Your Man",
+      "After Yang",
+      "Her",
+      "Ex Machina"
+    ],
+    "answer": 2,
+    "difficulty": 14
+  },
+  {
+    "id": "e2cf8bea5e2f704b",
+    "category": "movies",
+    "text": "Guess the movie: A struggling puppeteer discovers a portal into a famous actor's mind.",
+    "options": [
+      "Synecdoche, New York",
+      "The Truman Show",
+      "Being John Malkovich",
+      "Adaptation"
+    ],
+    "answer": 2,
+    "difficulty": 14
+  },
+  {
+    "id": "9bac6c27c44d5b3c",
+    "category": "movies",
+    "text": "Guess the movie: A man believes a six-foot rabbit named Frank is predicting the end of the world.",
+    "options": [
+      "Harvey",
+      "The Butterfly Effect",
+      "Jacob's Ladder",
+      "Donnie Darko"
+    ],
+    "answer": 3,
+    "difficulty": 14
+  },
+  {
+    "id": "b9d5f9a1bbac4542",
+    "category": "movies",
+    "text": "Guess the movie: A dinner party becomes fractured into alternate realities after a comet passes overhead.",
+    "options": [
+      "Timecrimes",
+      "Coherence",
+      "The Invitation",
+      "Triangle"
+    ],
+    "answer": 1,
+    "difficulty": 15
+  },
+  {
+    "id": "8beaa2327385a161",
+    "category": "movies",
+    "text": "Guess the movie: Two engineers accidentally build a time machine in their garage.",
+    "options": [
+      "Time Lapse",
+      "Safety Not Guaranteed",
+      "Project Almanac",
+      "Primer"
+    ],
+    "answer": 3,
+    "difficulty": 15
+  },
+  {
+    "id": "bb39a64ff6fc54c4",
+    "category": "movies",
+    "text": "Guess the movie: A theatre director builds a life-sized replica of New York inside a warehouse.",
+    "options": [
+      "Adaptation",
+      "Birdman",
+      "The Fountain",
+      "Synecdoche, New York"
+    ],
+    "answer": 3,
+    "difficulty": 15
+  },
+  {
+    "id": "b2c0afbbacf14808",
+    "category": "movies",
+    "text": "Guess the movie: A guide leads a writer and a professor into the Zone to seek a wish-granting room.",
+    "options": [
+      "Annihilation",
+      "The Holy Mountain",
+      "Stalker",
+      "Solaris"
+    ],
+    "answer": 2,
+    "difficulty": 15
+  },
+  {
+    "id": "12eaa97ceb51e922",
+    "category": "film-roles",
+    "text": "Who plays Jack Sparrow in Pirates of the Caribbean: The Curse of the Black Pearl?",
+    "options": [
+      "Geoffrey Rush",
+      "Javier Bardem",
+      "Johnny Depp",
+      "Orlando Bloom"
+    ],
+    "answer": 2,
+    "difficulty": 1
+  },
+  {
+    "id": "d9d7d06a9a247242",
+    "category": "film-roles",
+    "text": "Who plays Harry Potter in the original eight-film series?",
+    "options": [
+      "Elijah Wood",
+      "Daniel Radcliffe",
+      "Rupert Grint",
+      "Tom Felton"
+    ],
+    "answer": 1,
+    "difficulty": 1
+  },
+  {
+    "id": "854d24bfea6e8378",
+    "category": "film-roles",
+    "text": "Who plays Hermione Granger in the Harry Potter films?",
+    "options": [
+      "Natalie Portman",
+      "Emma Watson",
+      "Emma Stone",
+      "Keira Knightley"
+    ],
+    "answer": 1,
+    "difficulty": 1
+  },
+  {
+    "id": "69fcae3d9dc4267e",
+    "category": "film-roles",
+    "text": "Who plays Tony Stark in Iron Man (2008)?",
+    "options": [
+      "Jeremy Renner",
+      "Robert Downey Jr.",
+      "Chris Evans",
+      "Mark Ruffalo"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "fa078263ab60a837",
+    "category": "film-roles",
+    "text": "Who plays Thor in Thor (2011)?",
+    "options": [
+      "Chris Pratt",
+      "Chris Pine",
+      "Chris Hemsworth",
+      "Liam Hemsworth"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "7c1417eacd1e9c01",
+    "category": "film-roles",
+    "text": "Who plays Captain America in Captain America: The First Avenger?",
+    "options": [
+      "Chris Evans",
+      "Chris Pratt",
+      "Sebastian Stan",
+      "Anthony Mackie"
+    ],
+    "answer": 0,
+    "difficulty": 2
+  },
+  {
+    "id": "a1793cec92709ffc",
+    "category": "film-roles",
+    "text": "Who plays Neo in The Matrix (1999)?",
+    "options": [
+      "Carrie-Anne Moss",
+      "Keanu Reeves",
+      "Laurence Fishburne",
+      "Hugo Weaving"
+    ],
+    "answer": 1,
+    "difficulty": 3
+  },
+  {
+    "id": "9122b8b4476d78b2",
+    "category": "film-roles",
+    "text": "Who plays John McClane in Die Hard (1988)?",
+    "options": [
+      "Mel Gibson",
+      "Bruce Willis",
+      "Arnold Schwarzenegger",
+      "Sylvester Stallone"
+    ],
+    "answer": 1,
+    "difficulty": 3
+  },
+  {
+    "id": "f7a54210b9136b5d",
+    "category": "film-roles",
+    "text": "Who plays the T-800 in The Terminator (1984)?",
+    "options": [
+      "Robert Patrick",
+      "Michael Biehn",
+      "Dolph Lundgren",
+      "Arnold Schwarzenegger"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "ce0f8eaa40fbdf3c",
+    "category": "film-roles",
+    "text": "Who plays Indiana Jones in Raiders of the Lost Ark?",
+    "options": [
+      "Tom Selleck",
+      "Kurt Russell",
+      "Harrison Ford",
+      "Mark Hamill"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "83adf3e7ab14153d",
+    "category": "film-roles",
+    "text": "Who plays Marty McFly in Back to the Future?",
+    "options": [
+      "Christopher Lloyd",
+      "Matthew Broderick",
+      "Eric Stoltz",
+      "Michael J. Fox"
+    ],
+    "answer": 3,
+    "difficulty": 4
+  },
+  {
+    "id": "fc32f233d1492d67",
+    "category": "film-roles",
+    "text": "Who plays Doc Brown in Back to the Future?",
+    "options": [
+      "Christopher Lloyd",
+      "John Lithgow",
+      "Gene Wilder",
+      "Steve Martin"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "f6f20d1a376df340",
+    "category": "film-roles",
+    "text": "Who plays Frodo Baggins in The Lord of the Rings trilogy?",
+    "options": [
+      "Dominic Monaghan",
+      "Billy Boyd",
+      "Elijah Wood",
+      "Sean Astin"
+    ],
+    "answer": 2,
+    "difficulty": 5
+  },
+  {
+    "id": "d15c0306aa60423e",
+    "category": "film-roles",
+    "text": "Who plays Gandalf in The Lord of the Rings trilogy?",
+    "options": [
+      "Patrick Stewart",
+      "Ian McKellen",
+      "Christopher Lee",
+      "Ian Holm"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "dfa6b61aa091e992",
+    "category": "film-roles",
+    "text": "Who plays Aragorn in The Lord of the Rings trilogy?",
+    "options": [
+      "Sean Bean",
+      "Orlando Bloom",
+      "David Wenham",
+      "Viggo Mortensen"
+    ],
+    "answer": 3,
+    "difficulty": 5
+  },
+  {
+    "id": "ea087dff8db28851",
+    "category": "film-roles",
+    "text": "Who plays Ellen Ripley in Alien (1979)?",
+    "options": [
+      "Jamie Lee Curtis",
+      "Geena Davis",
+      "Sigourney Weaver",
+      "Linda Hamilton"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "c2e71dbcfa89e0da",
+    "category": "film-roles",
+    "text": "Who plays Sarah Connor in Terminator 2: Judgment Day?",
+    "options": [
+      "Jodie Foster",
+      "Jamie Lee Curtis",
+      "Linda Hamilton",
+      "Sigourney Weaver"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "66065f71819f63e0",
+    "category": "film-roles",
+    "text": "Who plays Laurie Strode in Halloween (1978)?",
+    "options": [
+      "Heather Langenkamp",
+      "Dee Wallace",
+      "Jamie Lee Curtis",
+      "Sissy Spacek"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "4d17147d03eebc7d",
+    "category": "film-roles",
+    "text": "Who plays Clarice Starling in The Silence of the Lambs?",
+    "options": [
+      "Gillian Anderson",
+      "Jodie Foster",
+      "Julianne Moore",
+      "Nicole Kidman"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "99613158f69ed853",
+    "category": "film-roles",
+    "text": "Who plays Hannibal Lecter in The Silence of the Lambs?",
+    "options": [
+      "Gary Oldman",
+      "Anthony Hopkins",
+      "Brian Cox",
+      "Mads Mikkelsen"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "dd93cae8cdd46ca6",
+    "category": "film-roles",
+    "text": "Who plays the Joker in The Dark Knight (2008)?",
+    "options": [
+      "Jared Leto",
+      "Heath Ledger",
+      "Joaquin Phoenix",
+      "Jack Nicholson"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "d4b94c0bb37022e7",
+    "category": "film-roles",
+    "text": "Who plays Bruce Wayne in The Dark Knight trilogy?",
+    "options": [
+      "Christian Bale",
+      "Michael Keaton",
+      "Ben Affleck",
+      "Robert Pattinson"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "f8b02d6536894b66",
+    "category": "film-roles",
+    "text": "Who plays Maximus in Gladiator (2000)?",
+    "options": [
+      "Russell Crowe",
+      "Gerard Butler",
+      "Brad Pitt",
+      "Eric Bana"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "fea10c0580c76123",
+    "category": "film-roles",
+    "text": "Who plays Dom Cobb in Inception?",
+    "options": [
+      "Tom Hardy",
+      "Cillian Murphy",
+      "Leonardo DiCaprio",
+      "Joseph Gordon-Levitt"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "5ad04cd99ba40d62",
+    "category": "film-roles",
+    "text": "Who plays Cooper in Interstellar?",
+    "options": [
+      "Casey Affleck",
+      "Wes Bentley",
+      "Matthew McConaughey",
+      "Matt Damon"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "b0a3d3dc460423a2",
+    "category": "film-roles",
+    "text": "Who plays Mark Watney in The Martian?",
+    "options": [
+      "Matt Damon",
+      "Matthew McConaughey",
+      "Ryan Gosling",
+      "Jake Gyllenhaal"
+    ],
+    "answer": 0,
+    "difficulty": 9
+  },
+  {
+    "id": "0a7c29ad7537f3b6",
+    "category": "film-roles",
+    "text": "Who plays Furiosa in Mad Max: Fury Road?",
+    "options": [
+      "Emily Blunt",
+      "Rebecca Ferguson",
+      "Charlize Theron",
+      "Anya Taylor-Joy"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "f88a21bb4ee0cdd2",
+    "category": "film-roles",
+    "text": "Who plays Imperator Furiosa in Furiosa: A Mad Max Saga (2024)?",
+    "options": [
+      "Anya Taylor-Joy",
+      "Charlize Theron",
+      "Florence Pugh",
+      "Jodie Comer"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "7d20b8c653cebbe8",
+    "category": "film-roles",
+    "text": "Who plays Paul Atreides in Dune (2021)?",
+    "options": [
+      "Tom Holland",
+      "Timothee Chalamet",
+      "Kyle MacLachlan",
+      "Austin Butler"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "762d8cd08ea6c086",
+    "category": "film-roles",
+    "text": "Who plays Chani in Dune (2021)?",
+    "options": [
+      "Rebecca Ferguson",
+      "Lashana Lynch",
+      "Zendaya",
+      "Florence Pugh"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "a5bac4b41daf129a",
+    "category": "film-roles",
+    "text": "Who plays Evelyn Wang in Everything Everywhere All at Once?",
+    "options": [
+      "Lucy Liu",
+      "Michelle Yeoh",
+      "Gong Li",
+      "Maggie Cheung"
+    ],
+    "answer": 1,
+    "difficulty": 11
+  },
+  {
+    "id": "ce494e50b70c875b",
+    "category": "film-roles",
+    "text": "Who plays Waymond Wang in Everything Everywhere All at Once?",
+    "options": [
+      "Donnie Yen",
+      "Tony Leung",
+      "Ke Huy Quan",
+      "Jackie Chan"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "6839f9ab2f9c9f4e",
+    "category": "film-roles",
+    "text": "Who plays Terence Fletcher in Whiplash?",
+    "options": [
+      "J.K. Simmons",
+      "Bryan Cranston",
+      "Willem Dafoe",
+      "Ed Harris"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  },
+  {
+    "id": "aa096ac2651a68ef",
+    "category": "film-roles",
+    "text": "Who plays Ava in Ex Machina?",
+    "options": [
+      "Rebecca Ferguson",
+      "Saoirse Ronan",
+      "Alicia Vikander",
+      "Sonoya Mizuno"
+    ],
+    "answer": 2,
+    "difficulty": 12
+  },
+  {
+    "id": "f7ae6925dfd882c7",
+    "category": "film-roles",
+    "text": "Who plays Louise Banks in Arrival?",
+    "options": [
+      "Jessica Chastain",
+      "Emily Blunt",
+      "Rachel McAdams",
+      "Amy Adams"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "ed83a4f216944ddb",
+    "category": "film-roles",
+    "text": "Who plays Rick Deckard in Blade Runner (1982)?",
+    "options": [
+      "Sean Young",
+      "Harrison Ford",
+      "Rutger Hauer",
+      "Edward James Olmos"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "b33c1bd3da2ab3d4",
+    "category": "film-roles",
+    "text": "Who plays Officer K in Blade Runner 2049?",
+    "options": [
+      "Harrison Ford",
+      "Jared Leto",
+      "Dave Bautista",
+      "Ryan Gosling"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "30e07f8a4ed2636f",
+    "category": "film-roles",
+    "text": "Who plays Anton Chigurh in No Country for Old Men?",
+    "options": [
+      "Javier Bardem",
+      "Josh Brolin",
+      "Benicio del Toro",
+      "Joaquin Phoenix"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "0f115f3d9f19774d",
+    "category": "film-roles",
+    "text": "Who plays Daniel Plainview in There Will Be Blood?",
+    "options": [
+      "Paul Dano",
+      "Philip Seymour Hoffman",
+      "Gary Oldman",
+      "Daniel Day-Lewis"
+    ],
+    "answer": 3,
+    "difficulty": 14
+  },
+  {
+    "id": "c87771a04eaa5ef2",
+    "category": "film-roles",
+    "text": "Who plays George Smiley in Tinker Tailor Soldier Spy (2011)?",
+    "options": [
+      "Gary Oldman",
+      "Colin Firth",
+      "John Hurt",
+      "Toby Jones"
+    ],
+    "answer": 0,
+    "difficulty": 15
+  },
+  {
+    "id": "a6ab5c436ee07374",
+    "category": "tv",
+    "text": "Which animated family lives at 742 Evergreen Terrace?",
+    "options": [
+      "The Belchers",
+      "The Flintstones",
+      "The Simpsons",
+      "The Griffins"
+    ],
+    "answer": 2,
+    "difficulty": 1
+  },
+  {
+    "id": "9823861fb2434f61",
+    "category": "tv",
+    "text": "Which cartoon character lives in a pineapple under the sea?",
+    "options": [
+      "SpongeBob SquarePants",
+      "Patrick Star",
+      "Squidward Tentacles",
+      "Sandy Cheeks"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "a10f8aa4e337d65f",
+    "category": "tv",
+    "text": "Which TV series follows a boy named Aang, the last surviving Air Nomad?",
+    "options": [
+      "Voltron: Legendary Defender",
+      "Avatar: The Last Airbender",
+      "The Legend of Korra",
+      "The Dragon Prince"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "42ec6bd6d64ff36c",
+    "category": "tv",
+    "text": "In Pokemon's original animated series, who is Ash's main Pokemon partner?",
+    "options": [
+      "Charmander",
+      "Squirtle",
+      "Pikachu",
+      "Eevee"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "b3457fae20451a31",
+    "category": "tv",
+    "text": "Which anime follows Monkey D. Luffy and the Straw Hat Pirates?",
+    "options": [
+      "Naruto",
+      "Bleach",
+      "Fairy Tail",
+      "One Piece"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "4f797092db9ff439",
+    "category": "tv",
+    "text": "Which anime follows a ninja named Naruto Uzumaki?",
+    "options": [
+      "One Piece",
+      "Jujutsu Kaisen",
+      "Hunter x Hunter",
+      "Naruto"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "702b6e882944156b",
+    "category": "tv",
+    "text": "Which anime features Goku and the wish-granting Dragon Balls?",
+    "options": [
+      "Dragon Ball",
+      "One-Punch Man",
+      "Bleach",
+      "Yu Yu Hakusho"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "412f1cbc63671cd6",
+    "category": "tv",
+    "text": "Which series features a notebook that kills people whose names are written in it?",
+    "options": [
+      "Tokyo Ghoul",
+      "Death Note",
+      "Death Parade",
+      "Monster"
+    ],
+    "answer": 1,
+    "difficulty": 4
+  },
+  {
+    "id": "d675819381050d6f",
+    "category": "tv",
+    "text": "Which anime follows brothers Edward and Alphonse Elric?",
+    "options": [
+      "Soul Eater",
+      "D.Gray-man",
+      "Fullmetal Alchemist",
+      "Blue Exorcist"
+    ],
+    "answer": 2,
+    "difficulty": 5
+  },
+  {
+    "id": "61b305a63bcd6ff8",
+    "category": "tv",
+    "text": "Which anime follows Tanjiro Kamado as he seeks a cure for his demon-transformed sister?",
+    "options": [
+      "Inuyasha",
+      "Demon Slayer",
+      "Jujutsu Kaisen",
+      "Bleach"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "ad21b6c3aa62363a",
+    "category": "tv",
+    "text": "Which anime features humanity living behind walls to escape giant humanoid Titans?",
+    "options": [
+      "Vinland Saga",
+      "Attack on Titan",
+      "Kabaneri of the Iron Fortress",
+      "86"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "4d2a16a65f330553",
+    "category": "tv",
+    "text": "Which anime follows Saitama, a hero who defeats most enemies with one punch?",
+    "options": [
+      "Mashle",
+      "One-Punch Man",
+      "Mob Psycho 100",
+      "My Hero Academia"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "c101940c2a69b7f0",
+    "category": "tv",
+    "text": "Which anime features students training as heroes at U.A. High School?",
+    "options": [
+      "Jujutsu Kaisen",
+      "My Hero Academia",
+      "Assassination Classroom",
+      "Blue Lock"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "e7f15cb8000394ed",
+    "category": "tv",
+    "text": "Which anime centres on Yuji Itadori and the curse called Sukuna?",
+    "options": [
+      "Chainsaw Man",
+      "Demon Slayer",
+      "Noragami",
+      "Jujutsu Kaisen"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "f2fc6d15dfcfb75c",
+    "category": "tv",
+    "text": "Which anime follows Denji, who merges with a devil named Pochita?",
+    "options": [
+      "Tokyo Ghoul",
+      "Parasyte",
+      "Chainsaw Man",
+      "Dorohedoro"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "e6ff5de4ca448cf0",
+    "category": "tv",
+    "text": "Which anime follows a fake family formed by spy Loid, assassin Yor and telepath Anya?",
+    "options": [
+      "Hinamatsuri",
+      "The Yozakura Family",
+      "Spy x Family",
+      "Buddy Daddies"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "96dd4417ec2fa21f",
+    "category": "tv",
+    "text": "Which anime follows bounty hunters aboard a spaceship called the Bebop?",
+    "options": [
+      "Trigun",
+      "Outlaw Star",
+      "Cowboy Bebop",
+      "Space Dandy"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "7434558a763f944e",
+    "category": "tv",
+    "text": "Which anime features the pacifist gunslinger Vash the Stampede?",
+    "options": [
+      "Trigun",
+      "Cowboy Bebop",
+      "Gungrave",
+      "Hellsing"
+    ],
+    "answer": 0,
+    "difficulty": 9
+  },
+  {
+    "id": "c19929abf5f21679",
+    "category": "tv",
+    "text": "Which anime follows Mugen, Jin and Fuu on a search for a samurai who smells of sunflowers?",
+    "options": [
+      "Afro Samurai",
+      "Samurai Champloo",
+      "Cowboy Bebop",
+      "Rurouni Kenshin"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "86bdbc025df5b283",
+    "category": "tv",
+    "text": "Which animated series follows Vi and Jinx in Piltover and Zaun?",
+    "options": [
+      "Castlevania",
+      "Cyberpunk: Edgerunners",
+      "Arcane",
+      "DOTA: Dragon's Blood"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "522b7d1bd20fca25",
+    "category": "tv",
+    "text": "Which animated series follows David Martinez in Night City?",
+    "options": [
+      "Psycho-Pass",
+      "Ergo Proxy",
+      "Cyberpunk: Edgerunners",
+      "Akudama Drive"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "d6ce06b2b24534d7",
+    "category": "tv",
+    "text": "Which Castlevania character teams up with Sypha and Alucard in the 2017 animated series?",
+    "options": [
+      "Simon Belmont",
+      "Leon Belmont",
+      "Trevor Belmont",
+      "Richter Belmont"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "865c679a683b4ace",
+    "category": "tv",
+    "text": "Which TV series features the fictional town of Hawkins and the Upside Down?",
+    "options": [
+      "Twin Peaks",
+      "Wayward Pines",
+      "Stranger Things",
+      "Dark"
+    ],
+    "answer": 2,
+    "difficulty": 4
+  },
+  {
+    "id": "8b2b221c7476bfad",
+    "category": "tv",
+    "text": "Which TV series follows a chemistry teacher who adopts the alias Heisenberg?",
+    "options": [
+      "Better Call Saul",
+      "Ozark",
+      "Narcos",
+      "Breaking Bad"
+    ],
+    "answer": 3,
+    "difficulty": 4
+  },
+  {
+    "id": "a45b3d3ebd576c0d",
+    "category": "tv",
+    "text": "Which TV series features FBI agent Dale Cooper investigating Laura Palmer's death?",
+    "options": [
+      "Twin Peaks",
+      "The X-Files",
+      "True Detective",
+      "Hannibal"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "ad0747afabc2ddb8",
+    "category": "tv",
+    "text": "Which TV series features a theme park populated by android hosts?",
+    "options": [
+      "Devs",
+      "Westworld",
+      "Humans",
+      "Dollhouse"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "27440f157990bde5",
+    "category": "tv",
+    "text": "Which TV series follows employees whose work and personal memories are surgically separated?",
+    "options": [
+      "Black Mirror",
+      "Devs",
+      "Homecoming",
+      "Severance"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "af692116671e9889",
+    "category": "tv",
+    "text": "Which German TV series follows time travel and disappearances in the town of Winden?",
+    "options": [
+      "1899",
+      "Bodies",
+      "The Rain",
+      "Dark"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "caadf34f3260eac2",
+    "category": "tv",
+    "text": "Which animated series follows passengers aboard a train whose cars each contain different worlds?",
+    "options": [
+      "The Owl House",
+      "Amphibia",
+      "Infinity Train",
+      "Over the Garden Wall"
+    ],
+    "answer": 2,
+    "difficulty": 15
+  },
+  {
+    "id": "ad473a4aac83d869",
+    "category": "tv",
+    "text": "Which animated miniseries follows Wirt and Greg through a forest called the Unknown?",
+    "options": [
+      "Hilda",
+      "Over the Garden Wall",
+      "Gravity Falls",
+      "Infinity Train"
+    ],
+    "answer": 1,
+    "difficulty": 15
+  },
+  {
+    "id": "e552be5973eb35af",
+    "category": "horror",
+    "text": "Which monster traditionally transforms during a full moon?",
+    "options": [
+      "Mummy",
+      "Werewolf",
+      "Vampire",
+      "Zombie"
+    ],
+    "answer": 1,
+    "difficulty": 1
+  },
+  {
+    "id": "b7d27f70a24b959b",
+    "category": "horror",
+    "text": "Which classic monster is associated with drinking blood and avoiding sunlight?",
+    "options": [
+      "Werewolf",
+      "Golem",
+      "Mummy",
+      "Vampire"
+    ],
+    "answer": 3,
+    "difficulty": 1
+  },
+  {
+    "id": "8c5cf23fe9d0bf4a",
+    "category": "horror",
+    "text": "Which scientist creates the creature in Mary Shelley's Frankenstein?",
+    "options": [
+      "Victor Frankenstein",
+      "Henry Jekyll",
+      "Abraham Van Helsing",
+      "Herbert West"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "e283c2eac30fcffd",
+    "category": "horror",
+    "text": "Which vampire is the title character of Bram Stoker's 1897 novel?",
+    "options": [
+      "Lestat",
+      "Carmilla",
+      "Count Dracula",
+      "Count Orlok"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "f2de93e8abe02a68",
+    "category": "horror",
+    "text": "Which film franchise features the doll Annabelle?",
+    "options": [
+      "Sinister",
+      "Paranormal Activity",
+      "The Conjuring",
+      "Insidious"
+    ],
+    "answer": 2,
+    "difficulty": 2
+  },
+  {
+    "id": "9d85f851b9265234",
+    "category": "horror",
+    "text": "Which film features a killer clown called Pennywise?",
+    "options": [
+      "Clown",
+      "It",
+      "Terrifier",
+      "Killer Klowns from Outer Space"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "86991eb35e404719",
+    "category": "horror",
+    "text": "What is the name of the camp associated with Friday the 13th?",
+    "options": [
+      "Camp Blackfoot",
+      "Camp Nightwing",
+      "Camp Crystal Lake",
+      "Camp Arawak"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "722693d71e5d3737",
+    "category": "horror",
+    "text": "In A Nightmare on Elm Street, what weapon is Freddy Krueger known for?",
+    "options": [
+      "A machete",
+      "A meat hook",
+      "A bladed glove",
+      "A chainsaw"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "1e5ce40269032433",
+    "category": "horror",
+    "text": "Which horror film features Leatherface?",
+    "options": [
+      "Wrong Turn",
+      "House of 1000 Corpses",
+      "The Texas Chain Saw Massacre",
+      "The Hills Have Eyes"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "ad97d5e66cda68ff",
+    "category": "horror",
+    "text": "Which film is set largely at the Overlook Hotel?",
+    "options": [
+      "The Innkeepers",
+      "The Shining",
+      "1408",
+      "Psycho"
+    ],
+    "answer": 1,
+    "difficulty": 4
+  },
+  {
+    "id": "43530552d4afd6b8",
+    "category": "horror",
+    "text": "What is the name of the motel in Psycho (1960)?",
+    "options": [
+      "Overlook Motel",
+      "Dolphin Motel",
+      "Pinewood Motel",
+      "Bates Motel"
+    ],
+    "answer": 3,
+    "difficulty": 4
+  },
+  {
+    "id": "4057cf5d29b10ffe",
+    "category": "horror",
+    "text": "Which film features a girl named Regan possessed by a demon?",
+    "options": [
+      "The Exorcist",
+      "The Omen",
+      "Rosemary's Baby",
+      "Carrie"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "e59edd5864f97572",
+    "category": "horror",
+    "text": "Which film follows a child named Damien, believed to be the Antichrist?",
+    "options": [
+      "Orphan",
+      "The Omen",
+      "The Exorcist",
+      "The Babadook"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "9d0897fa13d1a8e9",
+    "category": "horror",
+    "text": "Which film features a telekinetic teenager humiliated at her prom?",
+    "options": [
+      "Jennifer's Body",
+      "Carrie",
+      "Firestarter",
+      "The Craft"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "a079b2d6374429ee",
+    "category": "horror",
+    "text": "Which film franchise features John Kramer, also called Jigsaw?",
+    "options": [
+      "Saw",
+      "Hostel",
+      "Escape Room",
+      "Cube"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "1a2ffb2178ceb305",
+    "category": "horror",
+    "text": "Which film features a videotape that brings death seven days after it is watched?",
+    "options": [
+      "Dark Water (2005)",
+      "Pulse (2006)",
+      "The Ring (2002)",
+      "The Grudge (2004)"
+    ],
+    "answer": 2,
+    "difficulty": 6
+  },
+  {
+    "id": "efb2f2387eb6e80a",
+    "category": "horror",
+    "text": "Which Japanese horror film introduced Sadako and the cursed videotape?",
+    "options": [
+      "Ju-On: The Grudge",
+      "Audition",
+      "Dark Water (2002)",
+      "Ring (1998)"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "572588c548adbcd0",
+    "category": "horror",
+    "text": "Which film follows students filming a documentary in the woods near Burkittsville?",
+    "options": [
+      "Grave Encounters",
+      "The Last Broadcast",
+      "Willow Creek",
+      "The Blair Witch Project"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "0b63f486279dc8c0",
+    "category": "horror",
+    "text": "Which film follows a family trying to survive creatures that hunt by sound?",
+    "options": [
+      "Bird Box",
+      "The Mist",
+      "The Happening",
+      "A Quiet Place"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "ca3ea1ab3c3b6176",
+    "category": "horror",
+    "text": "Which film requires survivors to wear blindfolds outside to avoid a deadly sight?",
+    "options": [
+      "The Silence",
+      "The Mist",
+      "Bird Box",
+      "A Quiet Place"
+    ],
+    "answer": 2,
+    "difficulty": 7
+  },
+  {
+    "id": "6af02a949712e25b",
+    "category": "horror",
+    "text": "Which film features a mysterious entity that pursues people after sexual contact?",
+    "options": [
+      "The Ring",
+      "Truth or Dare",
+      "It Follows",
+      "Smile"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "14d6a8eb793bbe63",
+    "category": "horror",
+    "text": "Which film follows Chris visiting his white girlfriend's family and discovering a sinister operation?",
+    "options": [
+      "Get Out",
+      "Us",
+      "The Invitation",
+      "Antebellum"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "833892406c20679d",
+    "category": "horror",
+    "text": "Which Jordan Peele film features underground doubles called the Tethered?",
+    "options": [
+      "Get Out",
+      "Nope",
+      "Candyman (2021)",
+      "Us"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "80019501e5a5228a",
+    "category": "horror",
+    "text": "Which film follows a family grieving after a grandmother's death and becoming entangled with a cult?",
+    "options": [
+      "Hereditary",
+      "The Babadook",
+      "Relic",
+      "The Lodge"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "a78be77275f4249c",
+    "category": "horror",
+    "text": "Which film follows American visitors at a disturbing midsummer festival in Sweden?",
+    "options": [
+      "The Wicker Man (1973)",
+      "The Ritual",
+      "Apostle",
+      "Midsommar"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "0a8a22e8a2ec57ba",
+    "category": "horror",
+    "text": "Which film features a pop-up storybook monster that torments a mother and son?",
+    "options": [
+      "Mama",
+      "Lights Out",
+      "The Babadook",
+      "Before I Wake"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "6d9ae52cba776bf2",
+    "category": "horror",
+    "text": "Which horror film follows a Puritan family and a goat called Black Phillip?",
+    "options": [
+      "The Devil's Bath",
+      "The Witch (2015)",
+      "The Wind",
+      "Hagazussa"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "25b873fb7e747b1a",
+    "category": "horror",
+    "text": "Which film follows cave explorers who encounter creatures called Crawlers?",
+    "options": [
+      "Sanctum",
+      "The Descent",
+      "The Cave",
+      "As Above, So Below"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "6fae732210c7155c",
+    "category": "horror",
+    "text": "Which film follows British soldiers attacked by werewolves during a training exercise in Scotland?",
+    "options": [
+      "The Howling",
+      "An American Werewolf in London",
+      "Ginger Snaps",
+      "Dog Soldiers"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "f5e1e9ca28464b08",
+    "category": "horror",
+    "text": "Which film follows a London bicycle courier waking after a rage-virus outbreak?",
+    "options": [
+      "The Crazies (2010)",
+      "28 Days Later",
+      "Dawn of the Dead (2004)",
+      "REC"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "ed312f2caf293f48",
+    "category": "horror",
+    "text": "Which 1978 zombie film is largely set inside a shopping mall?",
+    "options": [
+      "Return of the Living Dead",
+      "Dawn of the Dead",
+      "Day of the Dead",
+      "Night of the Living Dead"
+    ],
+    "answer": 1,
+    "difficulty": 11
+  },
+  {
+    "id": "4e55e87dbb39820d",
+    "category": "horror",
+    "text": "Which 1985 zombie film features a domesticated zombie named Bub?",
+    "options": [
+      "Return of the Living Dead",
+      "Land of the Dead",
+      "Day of the Dead",
+      "Dawn of the Dead"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "e83d938db47b6614",
+    "category": "horror",
+    "text": "Which South Korean film follows a zombie outbreak aboard a train?",
+    "options": [
+      "Train to Busan",
+      "Seoul Station",
+      "Peninsula",
+      "The Wailing"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  },
+  {
+    "id": "7005cce90b858748",
+    "category": "horror",
+    "text": "Which Spanish found-footage film follows a reporter and firefighters into a quarantined apartment building?",
+    "options": [
+      "REC",
+      "The Orphanage",
+      "Veronica",
+      "Atrocious"
+    ],
+    "answer": 0,
+    "difficulty": 12
+  },
+  {
+    "id": "1ed5f0d827ac8db1",
+    "category": "horror",
+    "text": "Which film follows a television crew investigating a supposedly haunted psychiatric hospital overnight?",
+    "options": [
+      "Gonjiam: Haunted Asylum",
+      "Session 9",
+      "Grave Encounters",
+      "Hell House LLC"
+    ],
+    "answer": 2,
+    "difficulty": 12
+  },
+  {
+    "id": "4f0b19d4b9cd216b",
+    "category": "horror",
+    "text": "Which film follows asbestos-removal workers in the abandoned Danvers State Hospital?",
+    "options": [
+      "Grave Encounters",
+      "The Ward",
+      "Stonehearst Asylum",
+      "Session 9"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "37e9386a3f2ec7e1",
+    "category": "horror",
+    "text": "Which film features a puzzle-like prison made of connected cubic rooms?",
+    "options": [
+      "Saw",
+      "Circle",
+      "The Platform",
+      "Cube"
+    ],
+    "answer": 3,
+    "difficulty": 13
+  },
+  {
+    "id": "5ae28f97ffdd9c7b",
+    "category": "horror",
+    "text": "Which science-fiction horror film follows the return of a ship that vanished while testing a gravity drive?",
+    "options": [
+      "Sunshine",
+      "Life",
+      "Event Horizon",
+      "Pandorum"
+    ],
+    "answer": 2,
+    "difficulty": 13
+  },
+  {
+    "id": "d7723a97b12af57f",
+    "category": "horror",
+    "text": "Which 1982 film features an Antarctic team threatened by a shape-shifting alien?",
+    "options": [
+      "Alien",
+      "The Blob",
+      "Invasion of the Body Snatchers (1978)",
+      "The Thing"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "0c08ea028ee7cce5",
+    "category": "horror",
+    "text": "Which film follows an insurance investigator searching for horror writer Sutter Cane?",
+    "options": [
+      "In the Mouth of Madness",
+      "The Dark Half",
+      "Secret Window",
+      "The Ninth Gate"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "496f9d6f28b858ca",
+    "category": "horror",
+    "text": "Which film follows a detective investigating murders linked to a serial killer named the Gemini Killer?",
+    "options": [
+      "Resurrection",
+      "The Exorcist III",
+      "Se7en",
+      "Fallen"
+    ],
+    "answer": 1,
+    "difficulty": 14
+  },
+  {
+    "id": "0461bc07d7cd7a39",
+    "category": "horror",
+    "text": "Which film features reanimating serum developed by Herbert West?",
+    "options": [
+      "Re-Animator",
+      "From Beyond",
+      "Bride of Frankenstein",
+      "Flatliners"
+    ],
+    "answer": 0,
+    "difficulty": 14
+  },
+  {
+    "id": "6b19c1176ebd90f6",
+    "category": "horror",
+    "text": "Which film follows a sound engineer working on an Italian horror movie, where reality begins to fracture?",
+    "options": [
+      "Censor",
+      "Broadcast Signal Intrusion",
+      "Blow Out",
+      "Berberian Sound Studio"
+    ],
+    "answer": 3,
+    "difficulty": 15
+  },
+  {
+    "id": "b5b5c13d48e924c3",
+    "category": "horror",
+    "text": "Which film follows a grieving woman who hires an occultist to perform a lengthy ritual in a remote house?",
+    "options": [
+      "Pyewacket",
+      "A Dark Song",
+      "Anything for Jackson",
+      "The Dark and the Wicked"
+    ],
+    "answer": 1,
+    "difficulty": 15
+  },
+  {
+    "id": "9e63720feb81620e",
+    "category": "horror",
+    "text": "Which film follows Beth investigating the secrets of her late husband and their lakeside house?",
+    "options": [
+      "Rose Red",
+      "Housebound",
+      "The Night House",
+      "Winchester"
+    ],
+    "answer": 2,
+    "difficulty": 15,
+    "sourceUrl": "https://www.searchlightpictures.com/thenighthouse/"
+  },
+  {
+    "id": "11d81698335873d9",
+    "category": "horror",
+    "text": "Which killer is revealed as the murderer in the original Friday the 13th (1980)?",
+    "options": [
+      "Tommy Jarvis",
+      "Pamela Voorhees",
+      "Jason Voorhees",
+      "Roy Burns"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "5593ad4de93e1c81",
+    "category": "horror",
+    "text": "Which film features Art the Clown stalking victims on Halloween night in its 2016 release?",
+    "options": [
+      "Hell Fest",
+      "Terrifier",
+      "It",
+      "Haunt"
+    ],
+    "answer": 1,
+    "difficulty": 8
+  },
+  {
+    "id": "4f3c554577e26d73",
+    "category": "horror",
+    "text": "Which film features a vengeful spirit summoned by repeating his name five times into a mirror?",
+    "options": [
+      "Beetlejuice",
+      "The Bye Bye Man",
+      "Bloody Mary (2006)",
+      "Candyman (1992)"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "30bf2e8a3be20df5",
+    "category": "horror",
+    "text": "Which 1973 folk-horror film follows Sergeant Howie investigating a disappearance on Summerisle?",
+    "options": [
+      "The Wicker Man",
+      "Witchfinder General",
+      "Blood on Satan's Claw",
+      "Don't Look Now"
+    ],
+    "answer": 0,
+    "difficulty": 12
+  },
+  {
+    "id": "eda3cc8c156c8bd2",
+    "category": "horror",
+    "text": "Which film follows a lonely boy named Oskar who befriends the vampire Eli?",
+    "options": [
+      "Only Lovers Left Alive",
+      "Let the Right One In",
+      "Let Me In",
+      "Cronos"
+    ],
+    "answer": 1,
+    "difficulty": 14
+  },
+  {
+    "id": "bee6255222e6acde",
+    "category": "game-lore",
+    "text": "Which company created the original Super Mario Bros.?",
+    "options": [
+      "Capcom",
+      "Atari",
+      "Nintendo",
+      "Sega"
+    ],
+    "answer": 2,
+    "difficulty": 1
+  },
+  {
+    "id": "e856c28d6577200b",
+    "category": "game-lore",
+    "text": "Which company introduced Sonic the Hedgehog as its mascot?",
+    "options": [
+      "Sega",
+      "Nintendo",
+      "Sony",
+      "Namco"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "ff143abd68d17b33",
+    "category": "game-lore",
+    "text": "Which game features the explosive creature called a Creeper?",
+    "options": [
+      "Terraria",
+      "Roblox",
+      "Lego Worlds",
+      "Minecraft"
+    ],
+    "answer": 3,
+    "difficulty": 1
+  },
+  {
+    "id": "7df961c8d6fd0d3a",
+    "category": "game-lore",
+    "text": "Which Minecraft dimension is reached using an activated obsidian portal?",
+    "options": [
+      "The Deep Dark",
+      "The Nether",
+      "The End",
+      "The Aether"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "50aa94ec8b51e4e6",
+    "category": "game-lore",
+    "text": "Which Minecraft boss is fought on the central island of the End?",
+    "options": [
+      "Ender Dragon",
+      "Wither",
+      "Warden",
+      "Elder Guardian"
+    ],
+    "answer": 0,
+    "difficulty": 2
+  },
+  {
+    "id": "c9ef909287d9c3bd",
+    "category": "game-lore",
+    "text": "Which material is used with a stick to craft a normal torch in Minecraft?",
+    "options": [
+      "Gunpowder",
+      "Coal",
+      "Redstone",
+      "Glowstone dust"
+    ],
+    "answer": 1,
+    "difficulty": 2
+  },
+  {
+    "id": "5de95974b2ab1797",
+    "category": "game-lore",
+    "text": "Which type is super effective against Water-type Pokemon in the standard type chart?",
+    "options": [
+      "Steel",
+      "Electric",
+      "Fire",
+      "Ice"
+    ],
+    "answer": 1,
+    "difficulty": 3
+  },
+  {
+    "id": "0f742943475fa11f",
+    "category": "game-lore",
+    "text": "Which Pokemon evolves into Raichu when given a Thunder Stone?",
+    "options": [
+      "Eevee",
+      "Electabuzz",
+      "Pichu",
+      "Pikachu"
+    ],
+    "answer": 3,
+    "difficulty": 3
+  },
+  {
+    "id": "4270f0c9b85d61dd",
+    "category": "game-lore",
+    "text": "Which Pokemon is the final evolution of Charmander?",
+    "options": [
+      "Dragonite",
+      "Salamence",
+      "Charizard",
+      "Charmeleon"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "adc3e319b1c44604",
+    "category": "game-lore",
+    "text": "Which Pokemon is the final evolution of Bulbasaur?",
+    "options": [
+      "Vileplume",
+      "Venusaur",
+      "Ivysaur",
+      "Meganium"
+    ],
+    "answer": 1,
+    "difficulty": 4
+  },
+  {
+    "id": "96e0f1cd9c6f8e1c",
+    "category": "game-lore",
+    "text": "Which Pokemon is the final evolution of Squirtle?",
+    "options": [
+      "Feraligatr",
+      "Swampert",
+      "Blastoise",
+      "Wartortle"
+    ],
+    "answer": 2,
+    "difficulty": 3
+  },
+  {
+    "id": "b3188e88b9b2e0d0",
+    "category": "game-lore",
+    "text": "Which type was introduced alongside Dark in Pokemon Gold and Silver?",
+    "options": [
+      "Fairy",
+      "Dragon",
+      "Ghost",
+      "Steel"
+    ],
+    "answer": 3,
+    "difficulty": 4
+  },
+  {
+    "id": "59ee29c409c6ee00",
+    "category": "game-lore",
+    "text": "Which type was introduced in Pokemon X and Y?",
+    "options": [
+      "Ice",
+      "Fairy",
+      "Steel",
+      "Dark"
+    ],
+    "answer": 1,
+    "difficulty": 5
+  },
+  {
+    "id": "d6e1a0ac450eb38b",
+    "category": "game-lore",
+    "text": "What is the name of the three-piece golden relic in The Legend of Zelda?",
+    "options": [
+      "Golden Compass",
+      "Sacred Crest",
+      "Triforce",
+      "Triad"
+    ],
+    "answer": 2,
+    "difficulty": 5
+  },
+  {
+    "id": "7430517cc15e2d3b",
+    "category": "game-lore",
+    "text": "Which Triforce piece is usually associated with Link?",
+    "options": [
+      "Courage",
+      "Wisdom",
+      "Power",
+      "Time"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "cbf6909b1a6431af",
+    "category": "game-lore",
+    "text": "Which Triforce piece is usually associated with Princess Zelda?",
+    "options": [
+      "Courage",
+      "Power",
+      "Light",
+      "Wisdom"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "cf5e4b8906b1fdfa",
+    "category": "game-lore",
+    "text": "What are the small forest spirits who give seeds called in Breath of the Wild?",
+    "options": [
+      "Gorons",
+      "Zoras",
+      "Ritos",
+      "Koroks"
+    ],
+    "answer": 3,
+    "difficulty": 6
+  },
+  {
+    "id": "4501fc9203e6c518",
+    "category": "game-lore",
+    "text": "Which race in The Legend of Zelda is known for eating rocks?",
+    "options": [
+      "Gerudo",
+      "Gorons",
+      "Zoras",
+      "Ritos"
+    ],
+    "answer": 1,
+    "difficulty": 6
+  },
+  {
+    "id": "4dcad5b2ad97ecf4",
+    "category": "game-lore",
+    "text": "Which organisation employs Agent 47 in many Hitman games?",
+    "options": [
+      "Abstergo",
+      "ICA",
+      "IMF",
+      "FBC"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "d0b3ff149865b1c9",
+    "category": "game-lore",
+    "text": "What does ICA stand for in the Hitman series?",
+    "options": [
+      "International Contract Agency",
+      "International Covert Authority",
+      "Independent Contract Alliance",
+      "International Criminal Agency"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "e2b63c300353315c",
+    "category": "game-lore",
+    "text": "Which corporation is responsible for the T-virus in Resident Evil?",
+    "options": [
+      "Abstergo",
+      "Hyperion",
+      "Umbrella",
+      "Weyland-Yutani"
+    ],
+    "answer": 2,
+    "difficulty": 7
+  },
+  {
+    "id": "5f7e47f58e46ed2e",
+    "category": "game-lore",
+    "text": "What does the S.T.A.R.S. unit abbreviation stand for in Resident Evil?",
+    "options": [
+      "Strategic Threat Assessment and Response Squad",
+      "Special Training and Recovery Section",
+      "Security Tactics and Reconnaissance Service",
+      "Special Tactics and Rescue Service"
+    ],
+    "answer": 3,
+    "difficulty": 8
+  },
+  {
+    "id": "3e8387af78a35018",
+    "category": "game-lore",
+    "text": "Which parasite infects villagers in Resident Evil 4?",
+    "options": [
+      "G-virus",
+      "Mold",
+      "Las Plagas",
+      "T-virus"
+    ],
+    "answer": 2,
+    "difficulty": 8
+  },
+  {
+    "id": "2411231cd242a594",
+    "category": "game-lore",
+    "text": "Which company runs the testing facility in Portal?",
+    "options": [
+      "Aperture Science",
+      "Black Mesa",
+      "Vault-Tec",
+      "Arasaka"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "02f43d2fdbfa8e58",
+    "category": "game-lore",
+    "text": "Which research facility is central to the original Half-Life?",
+    "options": [
+      "Talos I",
+      "Site Alpha",
+      "Black Mesa",
+      "Aperture Science"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "b63faf08dc84ddff",
+    "category": "game-lore",
+    "text": "Which company built the experimental shelters in Fallout?",
+    "options": [
+      "West Tek",
+      "Nuka-Cola",
+      "Vault-Tec",
+      "RobCo"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "c24bfc77b3b25672",
+    "category": "game-lore",
+    "text": "Which faction in Fallout is strongly associated with collecting advanced technology and wearing power armour?",
+    "options": [
+      "Great Khans",
+      "Kings",
+      "Brotherhood of Steel",
+      "Followers of the Apocalypse"
+    ],
+    "answer": 2,
+    "difficulty": 9
+  },
+  {
+    "id": "0b7f09c6b4b6d42c",
+    "category": "game-lore",
+    "text": "Which Fallout faction uses a two-headed bear on its flag?",
+    "options": [
+      "Caesar's Legion",
+      "Brotherhood of Steel",
+      "Enclave",
+      "New California Republic"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "7e18df9ef09072d9",
+    "category": "game-lore",
+    "text": "Which corporation is the dominant power in Midgar in Final Fantasy VII?",
+    "options": [
+      "SeeD",
+      "NERV",
+      "Shinra",
+      "Galbadia"
+    ],
+    "answer": 2,
+    "difficulty": 10
+  },
+  {
+    "id": "3f1a79ff6d957aa7",
+    "category": "game-lore",
+    "text": "What is the name of the energy Shinra extracts from the planet?",
+    "options": [
+      "Materia",
+      "Aether",
+      "Mist",
+      "Mako"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "4f0c91f109f17253",
+    "category": "game-lore",
+    "text": "Which mercenary organisation trains Squall in Final Fantasy VIII?",
+    "options": [
+      "SOLDIER",
+      "AVALANCHE",
+      "Turks",
+      "SeeD"
+    ],
+    "answer": 3,
+    "difficulty": 11
+  },
+  {
+    "id": "2a65e95d51047772",
+    "category": "game-lore",
+    "text": "Which sport is played underwater in Final Fantasy X?",
+    "options": [
+      "Tetra Master",
+      "Sphere Break",
+      "Blitzball",
+      "Triple Triad"
+    ],
+    "answer": 2,
+    "difficulty": 11
+  },
+  {
+    "id": "a95b9d3a2edf1b96",
+    "category": "game-lore",
+    "text": "What is the card game in Final Fantasy VIII called?",
+    "options": [
+      "Pazaak",
+      "Triple Triad",
+      "Tetra Master",
+      "Gwent"
+    ],
+    "answer": 1,
+    "difficulty": 11
+  },
+  {
+    "id": "508087a9ec05a546",
+    "category": "game-lore",
+    "text": "What is the card game in Final Fantasy IX called?",
+    "options": [
+      "Tetra Master",
+      "Triple Triad",
+      "Queen's Blood",
+      "Sphere Break"
+    ],
+    "answer": 0,
+    "difficulty": 12
+  },
+  {
+    "id": "2be40544a7ae1d16",
+    "category": "game-lore",
+    "text": "Which card game is widely played in The Witcher 3?",
+    "options": [
+      "Pazaak",
+      "Caravan",
+      "Triple Triad",
+      "Gwent"
+    ],
+    "answer": 3,
+    "difficulty": 12
+  },
+  {
+    "id": "bab42774883cb3cf",
+    "category": "game-lore",
+    "text": "Which card game is featured in Star Wars: Knights of the Old Republic?",
+    "options": [
+      "Gwent",
+      "Caravan",
+      "Pazaak",
+      "Sabacc"
+    ],
+    "answer": 2,
+    "difficulty": 12
+  },
+  {
+    "id": "a5c96dd2be9e9ea9",
+    "category": "game-lore",
+    "text": "Which card game can the Courier play in Fallout: New Vegas?",
+    "options": [
+      "Triple Triad",
+      "Caravan",
+      "Pazaak",
+      "Poker"
+    ],
+    "answer": 1,
+    "difficulty": 13
+  },
+  {
+    "id": "0899bd8a8f24f475",
+    "category": "game-lore",
+    "text": "Which species created the geth in Mass Effect?",
+    "options": [
+      "Quarians",
+      "Salarians",
+      "Turians",
+      "Asari"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "f346e6355e7e4e2e",
+    "category": "game-lore",
+    "text": "Which Mass Effect species is known for its long lifespan and all-female presentation?",
+    "options": [
+      "Turians",
+      "Salarians",
+      "Vorcha",
+      "Asari"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "a98eaf51e2565f83",
+    "category": "game-lore",
+    "text": "Which order fights the darkspawn in Dragon Age?",
+    "options": [
+      "Antivan Crows",
+      "Grey Wardens",
+      "Templars",
+      "Seekers of Truth"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "496c3ddfed2e56c4",
+    "category": "game-lore",
+    "text": "Which realm of dreams and spirits is central to Dragon Age magic?",
+    "options": [
+      "The Ethereal Plane",
+      "The Fade",
+      "The Void",
+      "The Astral Sea"
+    ],
+    "answer": 1,
+    "difficulty": 10
+  },
+  {
+    "id": "c33ed846dafb0b05",
+    "category": "game-lore",
+    "text": "Which god does Shadowheart serve at the start of Baldur's Gate 3?",
+    "options": [
+      "Selune",
+      "Mystra",
+      "Tymora",
+      "Shar"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "8f1ae41212897359",
+    "category": "game-lore",
+    "text": "Which deity is Gale's former lover in Baldur's Gate 3?",
+    "options": [
+      "Shar",
+      "Selune",
+      "Sune",
+      "Mystra"
+    ],
+    "answer": 3,
+    "difficulty": 10
+  },
+  {
+    "id": "1f9a35d6e7db82af",
+    "category": "game-lore",
+    "text": "Which language do the monks of High Hrothgar teach the Dragonborn to use in shouts?",
+    "options": [
+      "Daedric",
+      "Dwemeris",
+      "Ayleidoon",
+      "Dragon language"
+    ],
+    "answer": 3,
+    "difficulty": 7
+  },
+  {
+    "id": "83b97943e2ab95ea",
+    "category": "game-lore",
+    "text": "Which guild worships Sithis and the Night Mother in The Elder Scrolls?",
+    "options": [
+      "Thieves Guild",
+      "Mages Guild",
+      "Fighters Guild",
+      "Dark Brotherhood"
+    ],
+    "answer": 3,
+    "difficulty": 9
+  },
+  {
+    "id": "8971cf7a24c81058",
+    "category": "game-lore",
+    "text": "Which developer made the original Dark Souls?",
+    "options": [
+      "PlatinumGames",
+      "FromSoftware",
+      "Team Ninja",
+      "Capcom"
+    ],
+    "answer": 1,
+    "difficulty": 7
+  },
+  {
+    "id": "6121dd990c1d4af3",
+    "category": "game-lore",
+    "text": "Which studio developed Hollow Knight?",
+    "options": [
+      "Playdead",
+      "Team Cherry",
+      "Supergiant Games",
+      "Motion Twin"
+    ],
+    "answer": 1,
+    "difficulty": 9
+  },
+  {
+    "id": "a8b1c00a23ce4cf8",
+    "category": "game-lore",
+    "text": "Which studio developed the original Hades?",
+    "options": [
+      "Supergiant Games",
+      "Team Cherry",
+      "Klei Entertainment",
+      "Red Hook Studios"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "6a34a9965fc33f4d",
+    "category": "game-lore",
+    "text": "Which studio developed Disco Elysium?",
+    "options": [
+      "inXile Entertainment",
+      "Larian Studios",
+      "ZA/UM",
+      "Obsidian Entertainment"
+    ],
+    "answer": 2,
+    "difficulty": 12
+  },
+  {
+    "id": "d5f72159fa4a1ec8",
+    "category": "game-lore",
+    "text": "Which developer created both Papers, Please and Return of the Obra Dinn?",
+    "options": [
+      "Jonathan Blow",
+      "Lucas Pope",
+      "Eric Barone",
+      "Toby Fox"
+    ],
+    "answer": 1,
+    "difficulty": 14
   }
 ]
