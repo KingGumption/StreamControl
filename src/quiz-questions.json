@@ -1,17 +1,976 @@
 [
- {"text":"How many sides does a triangle have?","options":["3","4","5","6"],"answer":0,"difficulty":1},
- {"text":"Which planet is known as the Red Planet?","options":["Mars","Venus","Jupiter","Mercury"],"answer":0,"difficulty":2},
- {"text":"What is the chemical formula for water?","options":["H2O","CO2","O2","NaCl"],"answer":0,"difficulty":3},
- {"text":"Who wrote Romeo and Juliet?","options":["William Shakespeare","Charles Dickens","Jane Austen","Mark Twain"],"answer":0,"difficulty":4},
- {"text":"Which is the largest ocean on Earth?","options":["Pacific","Atlantic","Indian","Arctic"],"answer":0,"difficulty":5},
- {"text":"What is 12 squared?","options":["144","124","132","164"],"answer":0,"difficulty":6},
- {"text":"What is the capital of Canada?","options":["Ottawa","Toronto","Vancouver","Montreal"],"answer":0,"difficulty":7},
- {"text":"Which element has the symbol Fe?","options":["Iron","Fluorine","Francium","Lead"],"answer":0,"difficulty":8},
- {"text":"In which year did the Berlin Wall fall?","options":["1989","1987","1991","1993"],"answer":0,"difficulty":9},
- {"text":"Which organelle is the main site of aerobic ATP production in human cells?","options":["Mitochondrion","Ribosome","Nucleus","Golgi apparatus"],"answer":0,"difficulty":10},
- {"text":"Which number is prime?","options":["97","91","87","93"],"answer":0,"difficulty":11},
- {"text":"What is the SI unit of electrical capacitance?","options":["Farad","Henry","Tesla","Weber"],"answer":0,"difficulty":12},
- {"text":"Which treaty ended the Thirty Years' War in 1648?","options":["Peace of Westphalia","Treaty of Utrecht","Treaty of Versailles","Treaty of Tordesillas"],"answer":0,"difficulty":13},
- {"text":"What is the derivative of ln(x), for x greater than zero?","options":["1/x","x","ln(x)/x","e^x"],"answer":0,"difficulty":14},
- {"text":"Which mathematician proved the first incompleteness theorem?","options":["Kurt Gödel","David Hilbert","Georg Cantor","Bernhard Riemann"],"answer":0,"difficulty":15}
+  {
+    "id": "693a66f1e06b20a0",
+    "category": "logos",
+    "text": "Which franchise uses this symbol?",
+    "options": [
+      "The Legend of Zelda",
+      "Final Fantasy",
+      "Dragon Quest",
+      "Kingdom Hearts"
+    ],
+    "answer": 0,
+    "difficulty": 1,
+    "image": {
+      "file": "19400d3be00ee3b0.png",
+      "aspect": 1.1538
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Triforce"
+  },
+  {
+    "id": "f9c8ce73012bc02b",
+    "category": "logos",
+    "text": "Which franchise uses this logo?",
+    "options": [
+      "Mortal Kombat",
+      "Street Fighter",
+      "Tekken",
+      "Killer Instinct"
+    ],
+    "answer": 0,
+    "difficulty": 3,
+    "image": {
+      "file": "18402ddf582d9100.png",
+      "aspect": 1
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mortal_Kombat"
+  },
+  {
+    "id": "0b93100a9e69074c",
+    "category": "logos",
+    "text": "Which franchise uses this symbol?",
+    "options": [
+      "Half-Life",
+      "Portal",
+      "Quake",
+      "Doom"
+    ],
+    "answer": 0,
+    "difficulty": 7,
+    "image": {
+      "file": "0c45870247d7ca25.png",
+      "aspect": 0.951
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Half-Life_(series)"
+  },
+  {
+    "id": "52cd3119a9c8ab34",
+    "category": "logos",
+    "text": "Which franchise uses this emblem?",
+    "options": [
+      "Gears of War",
+      "Halo",
+      "Destiny",
+      "Killzone"
+    ],
+    "answer": 0,
+    "difficulty": 9,
+    "image": {
+      "file": "7ccafa8da1d76d6c.png",
+      "crop": [
+        0,
+        0.1,
+        0.28,
+        0.8
+      ],
+      "aspect": 0.6222
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Gears_of_War"
+  },
+  {
+    "id": "7ac2a17626a17b62",
+    "category": "logos",
+    "text": "Which franchise uses this face as an icon?",
+    "options": [
+      "Minecraft",
+      "Terraria",
+      "Roblox",
+      "Stardew Valley"
+    ],
+    "answer": 0,
+    "difficulty": 2,
+    "image": {
+      "file": "4ea07b63d82191ac.png",
+      "aspect": 1
+    },
+    "sourceUrl": "https://www.minecraft.net/en-us"
+  },
+  {
+    "id": "e4d1d78afa482c51",
+    "category": "characters",
+    "text": "Name this game character.",
+    "options": [
+      "Mario",
+      "Luigi",
+      "Wario",
+      "Waluigi"
+    ],
+    "answer": 0,
+    "difficulty": 1,
+    "image": {
+      "file": "61c8e16ad90d4e6d.png",
+      "aspect": 0.7597
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mario"
+  },
+  {
+    "id": "0403bbf9a43a305d",
+    "category": "characters",
+    "text": "Name this game character.",
+    "options": [
+      "Sonic",
+      "Shadow",
+      "Silver",
+      "Knuckles"
+    ],
+    "answer": 0,
+    "difficulty": 2,
+    "image": {
+      "file": "40f5799ab0f785c6.png",
+      "aspect": 1.3306
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Sonic_the_Hedgehog_(character)"
+  },
+  {
+    "id": "f2f05787bff5e466",
+    "category": "characters",
+    "text": "Name this game character.",
+    "options": [
+      "Kirby",
+      "Jigglypuff",
+      "Meta Knight",
+      "King Dedede"
+    ],
+    "answer": 0,
+    "difficulty": 3,
+    "image": {
+      "file": "65d7d52e12f6859e.png",
+      "aspect": 1.1301
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Kirby_(character)"
+  },
+  {
+    "id": "335e79e5c7422b0a",
+    "category": "characters",
+    "text": "Name this game character.",
+    "options": [
+      "Link",
+      "Zelda",
+      "Ganondorf",
+      "Tingle"
+    ],
+    "answer": 0,
+    "difficulty": 5,
+    "image": {
+      "file": "ca529faa886e8a84.png",
+      "aspect": 0.7003
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)"
+  },
+  {
+    "id": "bf4cfd1becbdca5b",
+    "category": "characters",
+    "text": "Name this game character.",
+    "options": [
+      "Lara Croft",
+      "Jill Valentine",
+      "Claire Redfield",
+      "Ada Wong"
+    ],
+    "answer": 0,
+    "difficulty": 7,
+    "image": {
+      "file": "1ac3138e6eb512c8.png",
+      "aspect": 0.5821
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Lara_Croft"
+  },
+  {
+    "id": "2dc4f6418485cac2",
+    "category": "characters",
+    "text": "Name this game character.",
+    "options": [
+      "Kratos",
+      "Dante",
+      "Geralt",
+      "Doom Slayer"
+    ],
+    "answer": 0,
+    "difficulty": 9,
+    "image": {
+      "file": "2455710d82fb3051.png",
+      "aspect": 0.5372
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Kratos_(God_of_War)"
+  },
+  {
+    "id": "839d4496db7a6349",
+    "category": "characters",
+    "text": "Name this BioShock enemy.",
+    "options": [
+      "Big Daddy",
+      "Big Sister",
+      "Songbird",
+      "Handyman"
+    ],
+    "answer": 0,
+    "difficulty": 12,
+    "image": {
+      "file": "b2eaa18a52712299.jpg",
+      "crop": [
+        0.02,
+        0.25,
+        0.96,
+        0.72
+      ],
+      "aspect": 1.0765
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/BioShock"
+  },
+  {
+    "id": "d77d27d8ab057678",
+    "category": "posters",
+    "text": "Guess the movie from this poster detail.",
+    "options": [
+      "Jaws",
+      "Deep Blue Sea",
+      "The Meg",
+      "Shark Night"
+    ],
+    "answer": 0,
+    "difficulty": 1,
+    "image": {
+      "file": "d5cb0a9cc40fa1c0.jpg",
+      "crop": [
+        0.17,
+        0.28,
+        0.66,
+        0.43
+      ],
+      "aspect": 1.0212
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Jaws_(film)"
+  },
+  {
+    "id": "5c8733dd6de70c97",
+    "category": "posters",
+    "text": "Guess the movie from this poster detail.",
+    "options": [
+      "Jurassic Park",
+      "King Kong",
+      "Godzilla",
+      "The Lost World (1960)"
+    ],
+    "answer": 0,
+    "difficulty": 2,
+    "image": {
+      "file": "5aec2828e198c04d.jpg",
+      "crop": [
+        0.22,
+        0.14,
+        0.55,
+        0.19
+      ],
+      "aspect": 1.9416
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Jurassic_Park"
+  },
+  {
+    "id": "2f5888deb0b5cf19",
+    "category": "posters",
+    "text": "Guess the movie from this poster detail.",
+    "options": [
+      "Back to the Future",
+      "Bill & Ted's Excellent Adventure",
+      "The Time Machine",
+      "Timecop"
+    ],
+    "answer": 0,
+    "difficulty": 4,
+    "image": {
+      "file": "3efd9cf7461d8570.jpg",
+      "crop": [
+        0.05,
+        0.22,
+        0.9,
+        0.62
+      ],
+      "aspect": 0.9178
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Back_to_the_Future"
+  },
+  {
+    "id": "3768399a25810bc1",
+    "category": "posters",
+    "text": "Guess the movie from this poster detail.",
+    "options": [
+      "The Matrix",
+      "Equilibrium",
+      "Dark City",
+      "Blade"
+    ],
+    "answer": 0,
+    "difficulty": 6,
+    "image": {
+      "file": "3fd26c2e6d675083.png",
+      "crop": [
+        0.1,
+        0.09,
+        0.8,
+        0.64
+      ],
+      "aspect": 0.8644
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/The_Matrix"
+  },
+  {
+    "id": "137a221640825849",
+    "category": "posters",
+    "text": "Guess the movie from this poster detail.",
+    "options": [
+      "Alien",
+      "Aliens",
+      "Prometheus",
+      "Life"
+    ],
+    "answer": 0,
+    "difficulty": 9,
+    "image": {
+      "file": "ad098b14471b990f.jpg",
+      "crop": [
+        0.05,
+        0.22,
+        0.9,
+        0.59
+      ],
+      "aspect": 0.9983
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Alien_(film)"
+  },
+  {
+    "id": "f089cfe1549f5a15",
+    "category": "posters",
+    "text": "Guess the movie from this poster detail.",
+    "options": [
+      "The Thing",
+      "The Fog",
+      "The Fly",
+      "Prince of Darkness"
+    ],
+    "answer": 0,
+    "difficulty": 12,
+    "image": {
+      "file": "7e374527e47298b7.png",
+      "crop": [
+        0.13,
+        0.1,
+        0.74,
+        0.54
+      ],
+      "aspect": 0.9039
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/The_Thing_(1982_film)"
+  },
+  {
+    "id": "faeecfdaebf1cb0d",
+    "category": "actors",
+    "text": "Who is this actor?",
+    "options": [
+      "Keanu Reeves",
+      "Johnny Depp",
+      "Tom Cruise",
+      "Brad Pitt"
+    ],
+    "answer": 0,
+    "difficulty": 1,
+    "image": {
+      "file": "796d63d21697d23d.jpg",
+      "aspect": 0.75
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Keanu_Reeves"
+  },
+  {
+    "id": "23abead935803f50",
+    "category": "actors",
+    "text": "Who is this actor?",
+    "options": [
+      "Arnold Schwarzenegger",
+      "Sylvester Stallone",
+      "Dolph Lundgren",
+      "Jean-Claude Van Damme"
+    ],
+    "answer": 0,
+    "difficulty": 3,
+    "image": {
+      "file": "06b27415f6552a86.jpg",
+      "aspect": 0.75
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Arnold_Schwarzenegger"
+  },
+  {
+    "id": "a2802bfdc2b29131",
+    "category": "actors",
+    "text": "Who is this actor?",
+    "options": [
+      "Nicolas Cage",
+      "John Travolta",
+      "John Cusack",
+      "Clive Owen"
+    ],
+    "answer": 0,
+    "difficulty": 5,
+    "image": {
+      "file": "12845c5960b9ceb2.jpg",
+      "aspect": 0.6483
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Nicolas_Cage"
+  },
+  {
+    "id": "e37edeb7da11e0f1",
+    "category": "actors",
+    "text": "Who is this actor?",
+    "options": [
+      "Sigourney Weaver",
+      "Geena Davis",
+      "Susan Sarandon",
+      "Linda Hamilton"
+    ],
+    "answer": 0,
+    "difficulty": 7,
+    "image": {
+      "file": "a629df8b7204556c.jpg",
+      "aspect": 0.75
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Sigourney_Weaver"
+  },
+  {
+    "id": "cc6950f68e744c74",
+    "category": "actors",
+    "text": "Who is this actor?",
+    "options": [
+      "Jamie Lee Curtis",
+      "Linda Hamilton",
+      "Dee Wallace",
+      "Heather Langenkamp"
+    ],
+    "answer": 0,
+    "difficulty": 9,
+    "image": {
+      "file": "1bd215dc9dcbff4f.jpg",
+      "aspect": 0.7517
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Jamie_Lee_Curtis"
+  },
+  {
+    "id": "b18b9274308be0a7",
+    "category": "actors",
+    "text": "Who is this actor?",
+    "options": [
+      "Bruce Campbell",
+      "Kurt Russell",
+      "Sam Neill",
+      "Michael Biehn"
+    ],
+    "answer": 0,
+    "difficulty": 12,
+    "image": {
+      "file": "b73ff1da2a42b7a6.jpg",
+      "aspect": 1
+    },
+    "sourceUrl": "https://en.wikipedia.org/wiki/Bruce_Campbell"
+  },
+  {
+    "id": "449e6fb641f59cd9",
+    "category": "descriptions",
+    "text": "Guess the game: Build, mine and survive in a world made of blocks.",
+    "options": [
+      "Minecraft",
+      "Terraria",
+      "Roblox",
+      "Fortnite"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "53a545ced13bf4b1",
+    "category": "descriptions",
+    "text": "Guess the game: A plumber travels through the Mushroom Kingdom to rescue Princess Peach.",
+    "options": [
+      "Super Mario Bros.",
+      "Sonic the Hedgehog",
+      "Donkey Kong Country",
+      "Rayman"
+    ],
+    "answer": 0,
+    "difficulty": 2
+  },
+  {
+    "id": "3868086ac0026dd9",
+    "category": "descriptions",
+    "text": "Guess the game: Catch creatures, battle trainers and challenge the Elite Four.",
+    "options": [
+      "Pokemon",
+      "Digimon World",
+      "Monster Hunter",
+      "Dragon Quest"
+    ],
+    "answer": 0,
+    "difficulty": 3
+  },
+  {
+    "id": "4713ea77d8662304",
+    "category": "descriptions",
+    "text": "Guess the game: Escape a testing facility using a device that connects two places through portals.",
+    "options": [
+      "Portal",
+      "Half-Life",
+      "BioShock",
+      "Prey"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "2994d2af741eff90",
+    "category": "descriptions",
+    "text": "Guess the game: You inherit your grandfather's farm near Pelican Town.",
+    "options": [
+      "Stardew Valley",
+      "Animal Crossing: New Horizons",
+      "Harvest Moon 64",
+      "My Time at Portia"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "ba11c053a091f569",
+    "category": "descriptions",
+    "text": "Guess the game: Use cameras and powered doors to survive nights at Freddy Fazbear's Pizza.",
+    "options": [
+      "Five Nights at Freddy's",
+      "Poppy Playtime",
+      "Hello Neighbor",
+      "Bendy and the Ink Machine"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "387f7997573b58d0",
+    "category": "descriptions",
+    "text": "Guess the game: Explore the underwater city of Rapture while wielding weapons and plasmids.",
+    "options": [
+      "BioShock",
+      "SOMA",
+      "Prey",
+      "Dishonored"
+    ],
+    "answer": 0,
+    "difficulty": 6
+  },
+  {
+    "id": "5cd85d48c329baca",
+    "category": "descriptions",
+    "text": "Guess the game: You are a Tarnished exploring the Lands Between.",
+    "options": [
+      "Elden Ring",
+      "Dark Souls III",
+      "Bloodborne",
+      "Sekiro: Shadows Die Twice"
+    ],
+    "answer": 0,
+    "difficulty": 6
+  },
+  {
+    "id": "3b56254e7d20d41d",
+    "category": "descriptions",
+    "text": "Guess the game: Four survivors repair generators while a killer hunts them.",
+    "options": [
+      "Dead by Daylight",
+      "Friday the 13th: The Game",
+      "The Outlast Trials",
+      "Left 4 Dead"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "a92f253d205bfa6d",
+    "category": "descriptions",
+    "text": "Guess the game: A journalist uses a camcorder to investigate Mount Massive Asylum.",
+    "options": [
+      "Outlast",
+      "Amnesia: The Dark Descent",
+      "SOMA",
+      "Condemned: Criminal Origins"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "35e7bab7d8ae273b",
+    "category": "descriptions",
+    "text": "Guess the game: Identify the haunting ghost using equipment such as an EMF reader and spirit box.",
+    "options": [
+      "Phasmophobia",
+      "Ghostwire: Tokyo",
+      "Devour",
+      "Forewarned"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "7c02747cbc7467fb",
+    "category": "descriptions",
+    "text": "Guess the game: Amanda Ripley searches Sevastopol station while avoiding a deadly creature.",
+    "options": [
+      "Alien: Isolation",
+      "Dead Space",
+      "Prey",
+      "Alien: Resurrection"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "e6508b834318535c",
+    "category": "descriptions",
+    "text": "Guess the game: An engineer named Isaac Clarke boards a mining ship overrun by Necromorphs.",
+    "options": [
+      "Dead Space",
+      "The Callisto Protocol",
+      "Doom 3",
+      "System Shock 2"
+    ],
+    "answer": 0,
+    "difficulty": 9
+  },
+  {
+    "id": "32628a5506e4e4cc",
+    "category": "descriptions",
+    "text": "Guess the game: A letter from his deceased wife draws James Sunderland to a foggy town.",
+    "options": [
+      "Silent Hill 2",
+      "Alan Wake",
+      "The Evil Within",
+      "Resident Evil 2"
+    ],
+    "answer": 0,
+    "difficulty": 9
+  },
+  {
+    "id": "f5e80ea5e6633770",
+    "category": "descriptions",
+    "text": "Guess the game: Collect scrap from abandoned moons to meet your employer's profit quota.",
+    "options": [
+      "Lethal Company",
+      "Content Warning",
+      "Deep Rock Galactic",
+      "GTFO"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "d8246cc662d884fc",
+    "category": "descriptions",
+    "text": "Guess the game: A detective named Harry Du Bois investigates a hanging in Revachol.",
+    "options": [
+      "Disco Elysium",
+      "L.A. Noire",
+      "Pentiment",
+      "Disco Zoo"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "af482db4d6961436",
+    "category": "descriptions",
+    "text": "Guess the game: Explore an ocean planet after your spacecraft, the Aurora, crashes.",
+    "options": [
+      "Subnautica",
+      "SOMA",
+      "No Man's Sky",
+      "Raft"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  },
+  {
+    "id": "007841b028d8b418",
+    "category": "descriptions",
+    "text": "Guess the game: A child in a yellow raincoat tries to escape a vessel called the Maw.",
+    "options": [
+      "Little Nightmares",
+      "Inside",
+      "Limbo",
+      "Bramble: The Mountain King"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  },
+  {
+    "id": "0f568f4f5c49e6a6",
+    "category": "descriptions",
+    "text": "Guess the game: Awaken in the underwater research facility PATHOS-II, where machines believe they are human.",
+    "options": [
+      "SOMA",
+      "BioShock",
+      "System Shock",
+      "Still Wakes the Deep"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "f6becf52d0185b60",
+    "category": "descriptions",
+    "text": "Guess the game: Use a pocket watch to investigate deaths aboard a deserted merchant ship.",
+    "options": [
+      "Return of the Obra Dinn",
+      "The Case of the Golden Idol",
+      "Outer Wilds",
+      "The Vanishing of Ethan Carter"
+    ],
+    "answer": 0,
+    "difficulty": 15
+  },
+  {
+    "id": "6fe0334894f275d3",
+    "category": "locations",
+    "text": "Which franchise is set in the Mushroom Kingdom?",
+    "options": [
+      "Super Mario",
+      "The Legend of Zelda",
+      "Kirby",
+      "Sonic the Hedgehog"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "ca2f7202262739cd",
+    "category": "locations",
+    "text": "Which franchise features the kingdom of Hyrule?",
+    "options": [
+      "The Legend of Zelda",
+      "Fire Emblem",
+      "Final Fantasy",
+      "Dragon Quest"
+    ],
+    "answer": 0,
+    "difficulty": 3
+  },
+  {
+    "id": "d169eece184ac064",
+    "category": "locations",
+    "text": "Which game takes place in the underwater city of Rapture?",
+    "options": [
+      "BioShock",
+      "SOMA",
+      "Subnautica",
+      "Prey"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "e779955e62451c41",
+    "category": "locations",
+    "text": "Which franchise features Raccoon City?",
+    "options": [
+      "Resident Evil",
+      "Silent Hill",
+      "Dead Rising",
+      "The Last of Us"
+    ],
+    "answer": 0,
+    "difficulty": 6
+  },
+  {
+    "id": "2512f38e7ca8a843",
+    "category": "locations",
+    "text": "Which game features the city of Yharnam?",
+    "options": [
+      "Bloodborne",
+      "Elden Ring",
+      "Dark Souls",
+      "Lies of P"
+    ],
+    "answer": 0,
+    "difficulty": 8
+  },
+  {
+    "id": "980606e2f77df350",
+    "category": "locations",
+    "text": "Which game takes place aboard the USG Ishimura?",
+    "options": [
+      "Dead Space",
+      "Alien: Isolation",
+      "Prey",
+      "Doom 3"
+    ],
+    "answer": 0,
+    "difficulty": 9
+  },
+  {
+    "id": "cb047a74428866a2",
+    "category": "locations",
+    "text": "Which game features the town of Bright Falls?",
+    "options": [
+      "Alan Wake",
+      "Silent Hill 2",
+      "Deadly Premonition",
+      "Life is Strange"
+    ],
+    "answer": 0,
+    "difficulty": 10
+  },
+  {
+    "id": "2674ea0a9143fa72",
+    "category": "locations",
+    "text": "Which game features the city of Dunwall?",
+    "options": [
+      "Dishonored",
+      "Thief",
+      "BioShock Infinite",
+      "Assassin's Creed II"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  },
+  {
+    "id": "54e6cd1d0dcdb31d",
+    "category": "locations",
+    "text": "Which game takes place aboard the Talos I space station?",
+    "options": [
+      "Prey (2017)",
+      "System Shock 2",
+      "Dead Space 2",
+      "Alien: Isolation"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "c3f288ed840f8381",
+    "category": "locations",
+    "text": "Which game features the city of Revachol?",
+    "options": [
+      "Disco Elysium",
+      "Pentiment",
+      "Pathologic 2",
+      "Norco"
+    ],
+    "answer": 0,
+    "difficulty": 15
+  },
+  {
+    "id": "d09409002c1525a9",
+    "category": "horror",
+    "text": "Which horror character wears a hockey mask?",
+    "options": [
+      "Jason Voorhees",
+      "Michael Myers",
+      "Freddy Krueger",
+      "Leatherface"
+    ],
+    "answer": 0,
+    "difficulty": 1
+  },
+  {
+    "id": "47cb71f70cc9f4a5",
+    "category": "horror",
+    "text": "Which horror character attacks people through their dreams?",
+    "options": [
+      "Freddy Krueger",
+      "Jason Voorhees",
+      "Ghostface",
+      "Pinhead"
+    ],
+    "answer": 0,
+    "difficulty": 3
+  },
+  {
+    "id": "1bd3a4723f1ba90b",
+    "category": "horror",
+    "text": "Which horror franchise features the killer doll Chucky?",
+    "options": [
+      "Child's Play",
+      "Annabelle",
+      "The Conjuring",
+      "Puppet Master"
+    ],
+    "answer": 0,
+    "difficulty": 5
+  },
+  {
+    "id": "c43dadc2157fafbb",
+    "category": "horror",
+    "text": "Which horror character is also known as the Shape?",
+    "options": [
+      "Michael Myers",
+      "Ghostface",
+      "Candyman",
+      "Leatherface"
+    ],
+    "answer": 0,
+    "difficulty": 7
+  },
+  {
+    "id": "ef58de335ca5d66b",
+    "category": "horror",
+    "text": "Which film features the puzzle box known as the Lament Configuration?",
+    "options": [
+      "Hellraiser",
+      "Phantasm",
+      "Cube",
+      "Event Horizon"
+    ],
+    "answer": 0,
+    "difficulty": 9
+  },
+  {
+    "id": "6cfb287d00146e7a",
+    "category": "horror",
+    "text": "Which franchise features the killer known as Ghostface?",
+    "options": [
+      "Scream",
+      "Halloween",
+      "Saw",
+      "Friday the 13th"
+    ],
+    "answer": 0,
+    "difficulty": 4
+  },
+  {
+    "id": "2242f90ba7a993a2",
+    "category": "horror",
+    "text": "Which horror film features the Tall Man and flying silver spheres?",
+    "options": [
+      "Phantasm",
+      "Hellraiser",
+      "Candyman",
+      "The Omen"
+    ],
+    "answer": 0,
+    "difficulty": 13
+  },
+  {
+    "id": "ee9513073d832cc9",
+    "category": "horror",
+    "text": "Which film features the deadite-fighting hero Ash Williams?",
+    "options": [
+      "The Evil Dead",
+      "Re-Animator",
+      "The Return of the Living Dead",
+      "The Frighteners"
+    ],
+    "answer": 0,
+    "difficulty": 11
+  }
 ]

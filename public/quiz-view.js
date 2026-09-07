@@ -35,12 +35,47 @@ function updateStatus(g) {
   if (deadline) parts.push(node('span', 'quiz-countdown', `${String(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))).padStart(2, '0')}s`));
   $('status').replaceChildren(...parts);
 }
+function renderMedia(q) {
+  const holder = $('questionMedia');
+  if (!holder) return;
+  holder.replaceChildren(); holder.hidden = !q?.image;
+  $('questionPanel').className = game.phase === 'lobby' ? 'panel quiz-lobby' : q?.image ? 'panel has-media' : 'panel';
+  if (!q?.image) return;
+  const frame = node('div', 'question-image-frame');
+  frame.style.aspectRatio = String(q.image.aspect || 1);
+  const image = node('img', 'question-image');
+  image.alt = 'Quiz picture clue'; image.src = q.image.url;
+  const [x,y,w,h] = q.image.crop || [0,0,1,1];
+  Object.assign(image.style,{width:`${100/w}%`,height:`${100/h}%`,left:`${-100*x/w}%`,top:`${-100*y/h}%`});
+  image.onerror = () => { frame.replaceChildren(node('span', 'picture-error', 'Picture unavailable')); };
+  frame.append(image);holder.append(frame);
+}
+function updateCategories(g) {
+  const holder = $('categoryChoices');
+  if (!holder || !g.categories) return;
+  if (!holder.children.length) {
+    for(const category of g.categories) {
+      const label = node('label','');
+      const input = node('input',''); input.type = 'checkbox'; input.value = category.id;
+      input.checked = (g.selectedCategories || g.categories.map(c=>c.id)).includes(category.id);
+      input.onchange = () => { updateControls(game); const maximum = Number($('questionCount').max); if(Number($('questionCount').value)>maximum) $('questionCount').value=maximum; };
+      label.append(input, node('span','',`${category.label} (${category.count})`));holder.append(label);
+    }
+  }
+  const selected = Array.from(holder.querySelectorAll('input:checked'),input=>input.value);
+  const count = g.categories.filter(c=>selected.includes(c.id)).reduce((n,c)=>n+c.count,0);
+  $('questionCount').max = Math.max(1,Math.min(g.maxQuestions,count));
+  $('categoryHelp').textContent = count ? `${count} questions selected. Sudden death uses unseen questions first, then reshuffles this selection.` : 'Select at least one category.';
+  $('categorySettings').disabled = ['lobby','question','reveal'].includes(g.phase);
+  if(!count) $('open').disabled = true;
+}
 function updateControls(g) {
   if (!$('open')) return;
   $('open').disabled = ['lobby','question','reveal'].includes(g.phase);
   $('next').disabled = animationRunning || !['lobby','question'].includes(g.phase);
   $('next').textContent = g.phase === 'question' ? 'Close answers & reveal' : g.phase === 'lobby' ? 'Lock entries & start' : 'Next question starts automatically';
   $('questionCount').max = g.maxQuestions;
+  updateCategories(g);
 }
 function showOutcome(g) {
   animationRunning = false;
@@ -98,7 +133,7 @@ function render(g) {
   game = g;
   if ($('overlayRoot')) $('overlayRoot').hidden = g.phase === 'idle';
   updateStatus(g);
-  $('questionPanel').className = g.phase === 'lobby' ? 'panel quiz-lobby' : 'panel';
+  $('questionPanel').className = g.phase === 'lobby' ? 'panel quiz-lobby' : g.question?.image ? 'panel has-media' : 'panel';
   $('counts').textContent = g.phase === 'lobby' ? `${g.players} ${g.players === 1 ? 'player' : 'players'} joined` : `${g.players} joined - ${g.survivors} remaining`;
   const key = `${g.gameId}:${g.phase}:${g.round}`;
   if (key !== viewKey) {
@@ -109,6 +144,7 @@ function render(g) {
     $('quizStage').hidden = true;
     $('quizStage').replaceChildren();
     $('question').textContent = g.phase === 'lobby' ? '!join' : g.question?.text || 'Waiting for the next quiz';
+    renderMedia(g.question);
     $('options').replaceChildren();
     (g.question?.options || []).forEach((text, i) => {
       const correct = g.question.answer === i;

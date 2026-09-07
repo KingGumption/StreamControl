@@ -1,0 +1,177 @@
+[
+  {
+    "kind": "character",
+    "title": "Mario",
+    "file": "61c8e16ad90d4e6d.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mario",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/5/5c/Mario_by_Shigehisa_Nakaue.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "character",
+    "title": "Link (The Legend of Zelda)",
+    "file": "ca529faa886e8a84.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Link_(The_Legend_of_Zelda)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/9/9d/Link_%28Hyrule_Historia%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "character",
+    "title": "Sonic the Hedgehog (character)",
+    "file": "40f5799ab0f785c6.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Sonic_the_Hedgehog_(character)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f4/Sonic_modern_and_classic_designs.png/330px-Sonic_modern_and_classic_designs.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "character",
+    "title": "Lara Croft",
+    "file": "1ac3138e6eb512c8.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Lara_Croft",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/a/a8/LaraCroftInfobox.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "character",
+    "title": "Kirby (character)",
+    "file": "65d7d52e12f6859e.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Kirby_(character)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/thumb/4/4e/Kirby_Nintendo.png/330px-Kirby_Nintendo.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "character",
+    "title": "Kratos (God of War)",
+    "file": "2455710d82fb3051.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Kratos_(God_of_War)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/2/2f/Kratos_PS4.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "poster",
+    "title": "Alien (film)",
+    "file": "ad098b14471b990f.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Alien_(film)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/c/c3/Alien_movie_poster.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "poster",
+    "title": "Jaws (film)",
+    "file": "d5cb0a9cc40fa1c0.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Jaws_(film)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Jaws_movie_poster.jpg/330px-Jaws_movie_poster.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "poster",
+    "title": "Jurassic Park (film)",
+    "file": "5aec2828e198c04d.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Jurassic_Park",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/e/e7/Jurassic_Park_poster.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "poster",
+    "title": "The Matrix",
+    "file": "3fd26c2e6d675083.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/The_Matrix",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/d/db/The_Matrix.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "poster",
+    "title": "Back to the Future",
+    "file": "3efd9cf7461d8570.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Back_to_the_Future",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/d/d2/Back_to_the_Future.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "poster",
+    "title": "The Thing (1982 film)",
+    "file": "7e374527e47298b7.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/The_Thing_(1982_film)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/e/e3/The_Thing_%281982_film%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "actor",
+    "title": "Sigourney Weaver",
+    "file": "a629df8b7204556c.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Sigourney_Weaver",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Sigourney_Weaver_at_the_2025_Toronto_International_Film_Festival_%28cropped%29.jpg/330px-Sigourney_Weaver_at_the_2025_Toronto_International_Film_Festival_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "actor",
+    "title": "Keanu Reeves",
+    "file": "796d63d21697d23d.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Keanu_Reeves",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Keanu_Reeves_at_TIFF_2025_02_%28Cropped%29.jpg/330px-Keanu_Reeves_at_TIFF_2025_02_%28Cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "actor",
+    "title": "Arnold Schwarzenegger",
+    "file": "06b27415f6552a86.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Arnold_Schwarzenegger",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Arnold_Schwarzenegger_-_Austrian_World_Summit_2026_BHO-2906.jpg/330px-Arnold_Schwarzenegger_-_Austrian_World_Summit_2026_BHO-2906.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "actor",
+    "title": "Jamie Lee Curtis",
+    "file": "1bd215dc9dcbff4f.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Jamie_Lee_Curtis",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/2025_Jamie_Lee_Curtis_%28cropped%29.jpg/330px-2025_Jamie_Lee_Curtis_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "actor",
+    "title": "Nicolas Cage",
+    "file": "12845c5960b9ceb2.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Nicolas_Cage",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Nicolas_Cage_Deauville_2013.jpg/330px-Nicolas_Cage_Deauville_2013.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "actor",
+    "title": "Bruce Campbell",
+    "file": "b73ff1da2a42b7a6.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Bruce_Campbell",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Bruce_Campbell_at_Rose_City_Comic_Con_01_%28cropped%29.jpg/330px-Bruce_Campbell_at_Rose_City_Comic_Con_01_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "logo",
+    "title": "Assassin's Creed",
+    "file": "7a16d56e9ee5d0ff.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Assassin's_Creed",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/thumb/2/2a/Assassin%27s_Creed_Logo.svg/330px-Assassin%27s_Creed_Logo.svg.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "logo",
+    "title": "Half-Life (series)",
+    "file": "0c45870247d7ca25.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Half-Life_(series)",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Orange_lambda.svg/330px-Orange_lambda.svg.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "logo",
+    "title": "Mortal Kombat",
+    "file": "18402ddf582d9100.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mortal_Kombat",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/thumb/b/b1/Mortal_Kombat_Logo.svg/330px-Mortal_Kombat_Logo.svg.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "logo",
+    "title": "BioShock",
+    "file": "b2eaa18a52712299.jpg",
+    "sourceUrl": "https://en.wikipedia.org/wiki/BioShock",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/6/6d/BioShock_cover.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "logo",
+    "title": "Triforce",
+    "file": "19400d3be00ee3b0.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Triforce",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Trifuerza.svg/330px-Trifuerza.svg.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "kind": "logo",
+    "title": "Gears of War",
+    "file": "7ccafa8da1d76d6c.png",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Gears_of_War",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/0/01/Gears-of-War-Logo-2006.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  },
+  {
+    "kind": "logo",
+    "title": "Minecraft",
+    "file": "4ea07b63d82191ac.png",
+    "sourceUrl": "https://www.minecraft.net/en-us",
+    "imageUrl": "https://www.minecraft.net/content/dam/minecraftnet/franchise/logos/minecraft-creeper-face.jpg"
+  }
+]

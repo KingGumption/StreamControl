@@ -1,4 +1,6 @@
+const picturePreviews = {"picture-logos": {"text": "Which franchise uses this symbol?", "options": ["The Legend of Zelda", "Final Fantasy", "Dragon Quest", "Kingdom Hearts"], "difficulty": 1, "category": "logos", "image": {"url": "/assets/quiz-media/19400d3be00ee3b0.png", "crop": [0, 0, 1, 1], "aspect": 1.1538}}, "picture-characters": {"text": "Name this game character.", "options": ["Mario", "Luigi", "Wario", "Waluigi"], "difficulty": 1, "category": "characters", "image": {"url": "/assets/quiz-media/61c8e16ad90d4e6d.png", "crop": [0, 0, 1, 1], "aspect": 0.7597}}, "picture-posters": {"text": "Guess the movie from this poster detail.", "options": ["Jaws", "Deep Blue Sea", "The Meg", "Shark Night"], "difficulty": 1, "category": "posters", "image": {"url": "/assets/quiz-media/d5cb0a9cc40fa1c0.jpg", "crop": [0.17, 0.28, 0.66, 0.43], "aspect": 1.0212}}, "picture-actors": {"text": "Who is this actor?", "options": ["Keanu Reeves", "Johnny Depp", "Tom Cruise", "Brad Pitt"], "difficulty": 1, "category": "actors", "image": {"url": "/assets/quiz-media/796d63d21697d23d.jpg", "crop": [0, 0, 1, 1], "aspect": 0.75}}, "picture-descriptions": {"text": "Guess the game: Build, mine and survive in a world made of blocks.", "options": ["Minecraft", "Terraria", "Roblox", "Fortnite"], "difficulty": 1, "category": "descriptions"}};
 const previewModes = [
+  ['picture-logos','Logo round'],['picture-characters','Character round'],['picture-posters','Poster round'],['picture-actors','Actor round'],['picture-descriptions','Description round'],
   ['idle', 'Blank / stopped'], ['lobby', 'Lobby'], ['question', 'Question'],
   ['reveal', 'Answer reveal'], ['eliminations', 'Eliminations'], ['winner', 'Winner'],
   ['defeat', 'Defeat'], ['sudden-death', 'Sudden death'], ['last-survivor', 'Last survivor'],
@@ -27,6 +29,7 @@ function previewState(mode) {
   if (mode === 'defeat') { g.phase = 'completed'; g.outcome = 'defeat'; g.survivors = 0; g.winners = []; g.players = 6; g.roundResult.answerCounts = [0,2,0,3]; }
   if (mode === 'sudden-death') { g.round = 11; g.suddenDeath = true; g.question = {text:'What is the remainder when (101 x 17 + 13) is divided by 7?',options:['1','2','3','4'],difficulty:16}; }
   if (mode === 'last-survivor') { g.survivors = 1; g.round = 7; }
+  if(picturePreviews[mode]) g.question = picturePreviews[mode];
   return g;
 }
 function selectPreview(mode) {
@@ -49,7 +52,8 @@ for (const [id,label] of previewModes) {
 }
 $('previewWidth').onchange = () => { $('previewCanvas').style.width = `${$('previewWidth').value}px`; };
 $('playSequence').onclick = () => selectPreview('sequence');
-selectPreview('winner');
+const requestedPreview = new URLSearchParams(location.search).get('state');
+selectPreview(previewModes.some(([id])=>id===requestedPreview) ? requestedPreview : 'winner');
 // Read-only cleanup receipt; previewing never writes to the live game or analytics.
 fetch('/admin/quiz/analytics-baseline').then(r => {
   if (!r.ok) throw Error('Sign in to view the cleanup receipt.');

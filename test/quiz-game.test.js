@@ -40,8 +40,8 @@ test('validates settings, requires entrants, and progressively increases difficu
   for(const questionCount of [0,16,2.5,'10']) assert.throws(()=>game.open({questionCount}));
   assert.throws(()=>game.open({answerSeconds:0}));game.open();assert.equal(game.count,10);
   assert.throws(()=>game.open());assert.throws(()=>game.next());
-  assert.equal(new Set(game.deck.map(q=>q.text)).size,10);
-  assert.ok(game.deck.every((q,i)=>!i||q.difficulty>game.deck[i-1].difficulty));
+  assert.equal(new Set(game.deck.map(q=>q.id||q.text)).size,10);
+  assert.ok(game.deck.every((q,i)=>!i||q.difficulty>=game.deck[i-1].difficulty));
 });
 test('quiz analytics count participation and outcomes with platform filters', () => {
   const { game, chat, events } = setup();game.open({questionCount:1});chat('a','!join');game.next();chat('a',`${(game.deck[0].answer+1)%4+1}`);game.next();
@@ -152,4 +152,22 @@ test('server advances automatically after all reveal batches and cancels advance
  tick();assert.equal(game.phase,'question');assert.equal(game.round,2);assert.equal(game.getState().suddenDeath,true);
  answer('0');answer('1');tick();assert.equal(game.phase,'reveal');
  game.stop();assert.equal(timers.size,0);assert.equal(game.getState().nextQuestionAt,null);
+});
+
+test('category selection restricts normal and sudden-death rounds and rejects insufficient banks',()=>{
+ const {game,chat}=setup();
+ assert.equal(game.getCatalog().length,7);
+ assert.throws(()=>game.open({categories:[]}));assert.throws(()=>game.open({categories:['unknown']}));
+ assert.throws(()=>game.open({categories:['logos'],questionCount:10}));
+ game.open({categories:['posters'],questionCount:1});chat('a','!join');
+ const seen=new Set();
+ for(let i=0;i<7;i++){
+  game.next();const q=game.deck[game.round-1];assert.equal(q.category,'posters');
+  if(i<6){assert.equal(seen.has(q.id),false);seen.add(q.id);}
+  assert.equal(Object.hasOwn(game.getState().question,'answer'),false);
+  assert.ok(game.getState().question.image.url.startsWith('/assets/quiz-media/'));
+  assert.equal(JSON.stringify(game.getState()).includes('sourceUrl'),false);
+  chat('a',String(q.answer+1));game.next();
+ }
+ assert.equal(seen.size,6);
 });

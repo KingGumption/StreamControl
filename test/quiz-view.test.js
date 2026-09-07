@@ -14,7 +14,7 @@ function browser(preview = false) {
     after() {}
     remove() { elements.delete(this.id); }
   }
-  for (const id of ['overlayRoot','questionPanel','quizStage','status','counts','question','options','result','error','open','next','questionCount']) { const el = new Element(); el.id = id; }
+  for (const id of ['questionMedia','overlayRoot','questionPanel','quizStage','status','counts','question','options','result','error','open','next','questionCount']) { const el = new Element(); el.id = id; }
   let fetches = 0;
   const context = vm.createContext({ QUIZ_PREVIEW: preview, document: { getElementById: id => elements.get(id), createElement: () => new Element() },
     setInterval() {}, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); },
@@ -78,4 +78,12 @@ test('overlay is blank before the lobby opens and after stopping',()=>{
 test('preview renderer never fetches the live game and shows sample screens locally',()=>{
  const b=browser(true);assert.equal(b.fetches,0);b.render(result());assert.equal(b.fetches,0);
  b.tick();b.tick();b.tick();b.tick();assert.equal(b.fetches,0);
+});
+
+
+test('picture questions render cropped clues without descriptive answer text, then clear for text rounds',()=>{
+ const b=browser(true);const g=result({phase:'question',roundResult:null,question:{text:'Guess the movie.',options:['A','B','C','D'],image:{url:'/assets/quiz-media/1234567890abcdef.png',crop:[.1,.2,.8,.5],aspect:1.2}}});
+ b.render(g);const holder=b.elements.get('questionMedia');assert.equal(holder.hidden,false);
+ const image=holder.children[0].children[0];assert.equal(image.alt,'Quiz picture clue');assert.equal(image.style.width,'125%');assert.equal(image.style.top,'-40%');
+ b.render({...g,round:2,question:{text:'A written clue.',options:['A','B','C','D']}});assert.equal(holder.hidden,true);assert.equal(holder.children.length,0);
 });
