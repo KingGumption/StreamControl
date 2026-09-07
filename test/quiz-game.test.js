@@ -21,7 +21,8 @@ test('locks roster, separates platform IDs, hides answers, and enforces first an
   game.next(); assert.equal(game.survivors().length,1);
   chat('same','!join','youtube'); assert.equal(game.survivors().length,1);
   assert.equal(events.filter(e=>e.eventType==='player_eliminated').length,2);
-  game.next(); chat('same',`${game.deck[1].answer+1}`); game.next();
+  assert.throws(() => game.next()); // No further round can eliminate the winner.
+  chat('same',`${(correct+1)%4+1}`);
   assert.equal(game.phase,'completed'); assert.equal(game.getState().winners.length,1);
   assert.equal(events.filter(e=>e.eventType==='player_won').length,1);
 });
@@ -53,4 +54,41 @@ test('quiz analytics count participation and outcomes with platform filters', ()
 test('new pages have valid inline scripts',()=>{
  const fs=require('node:fs'),path=require('node:path');
  for(const name of ['admin-games.html','admin-quiz.html','quiz.html']){const html=fs.readFileSync(path.join(__dirname,'../public',name),'utf8');for(const m of html.matchAll(/<script>([\s\S]*?)<\/script>/g))assert.doesNotThrow(()=>new Function(m[1]));}
+});
+
+
+test('reveals answer totals and every elimination, hiding results during questions', () => {
+  const {game,chat}=setup();game.open({questionCount:3});
+  for(const id of ['a','b','c','d','e'])chat(id,'!join');
+  game.next();const answer=game.deck[0].answer,wrong=(answer+1)%4;
+  chat('a',String(answer+1));chat('b',String(answer+1));
+  chat('c',String(wrong+1));chat('d',String(wrong+1));
+  assert.equal(game.getState().roundResult,null);
+  game.next();const result=game.getState().roundResult;
+  assert.equal(game.phase,'reveal');assert.equal(result.answerCounts[answer],2);assert.equal(result.answerCounts[wrong],2);
+  assert.equal(result.missed,1);assert.deepEqual(result.eliminated.map(p=>p.username),['c','d','e']);
+  assert.equal(result.eliminated[2].answer,null);
+  game.next();assert.equal(game.getState().roundResult,null);
+  chat('a',String(game.deck[1].answer+1));game.next();
+  assert.equal(game.getState().outcome,'victory');assert.equal(game.getState().winners[0].username,'a');
+  assert.deepEqual(game.getState().roundResult.eliminated.map(p=>p.username),['b']);
+});
+
+test('simultaneous elimination is defeat and records no winner', () => {
+  const {game,chat,events}=setup();game.open();
+  chat('a','!join');chat('b','!join');game.next();
+  chat('a',String((game.deck[0].answer+1)%4+1));game.next();
+  assert.equal(game.getState().outcome,'defeat');assert.equal(game.getState().winners.length,0);
+  assert.equal(game.getState().roundResult.eliminated.length,2);
+  assert.equal(events.filter(e=>e.eventType==='player_won').length,0);
+  assert.equal(events.find(e=>e.eventType==='game_completed').metadata.outcome,'defeat');
+  game.resolve();assert.equal(events.filter(e=>e.eventType==='game_completed').length,1);
+  game.open();assert.equal(game.getState().outcome,null);assert.equal(game.getState().roundResult,null);
+});
+
+test('multiple final-round survivors share victory', () => {
+  const {game,chat}=setup();game.open({questionCount:1});
+  chat('a','!join');chat('b','!join');game.next();
+  for(const id of ['a','b'])chat(id,String(game.deck[0].answer+1));
+  game.next();assert.equal(game.getState().outcome,'victory');assert.equal(game.getState().winners.length,2);
 });

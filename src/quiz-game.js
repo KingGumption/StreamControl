@@ -19,14 +19,14 @@ class QuizGame {
       for (let i = options.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [options[i], options[j]] = [options[j], options[i]]; }
       return { ...q, options: options.map(o => o.text), answer: options.findIndex(o => o.correct) };
     });
-    this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
+    this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
   }
   next() {
     if (this.phase === 'question') { this.resolve(); return this.getState(); }
     if (!['lobby', 'reveal'].includes(this.phase)) throw new Error('Open a lobby first.');
     if (!this.players.size) throw new Error('At least one player must join first.');
     if (this.phase === 'lobby') this.track('game_started', null, { players: this.players.size, questionCount: this.count });
-    this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; });
+    this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; });
     this.deadline = this.now() + this.answerSeconds * 1000;
     this.timer = this.schedule(() => this.resolve(), this.answerSeconds * 1000); this.timer?.unref?.();
     return this.getState();
@@ -35,16 +35,26 @@ class QuizGame {
     if (this.phase !== 'question') return;
     this.cancel(this.timer); this.deadline = null;
     const q = this.deck[this.round - 1];
+    const answerCounts = [0, 0, 0, 0], eliminated = [];
+    let missed = 0;
     for (const p of this.players.values()) if (p.alive) {
+      if (p.answer === null) missed++;
+      else answerCounts[p.answer]++;
       const correct = p.answer === q.answer;
       this.track('answer_result', p, { correct, missed: p.answer === null });
-      if (!correct) { p.alive = false; this.track('player_eliminated', p); }
+      if (!correct) {
+        p.alive = false;
+        eliminated.push({ username: p.username, platform: p.platform, answer: p.answer });
+        this.track('player_eliminated', p);
+      }
     }
-    this.track('round_completed', null, { survivors: this.survivors().length });
-    this.phase = this.round >= this.count || !this.survivors().length ? 'completed' : 'reveal';
+    this.roundResult = { answerCounts, missed, eliminated };
+    this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, missed, eliminated: eliminated.length });
+    this.phase = this.round >= this.count || this.survivors().length <= 1 ? 'completed' : 'reveal';
     if (this.phase === 'completed') {
+      this.outcome = this.survivors().length ? 'victory' : 'defeat';
       this.survivors().forEach(p => this.track('player_won', p));
-      this.track('game_completed', null, { winners: this.survivors().length, players: this.players.size });
+      this.track('game_completed', null, { winners: this.survivors().length, players: this.players.size, outcome: this.outcome });
     }
   }
   stop() { this.cancel(this.timer); if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; return this.getState(); }
@@ -70,7 +80,7 @@ class QuizGame {
   }
   getState() {
     const q = this.round ? this.deck?.[this.round - 1] : null;
-    return { phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: this.questions.length, deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
+    return { gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: this.questions.length, deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
       question: q && this.phase !== 'idle' ? { text: q.text, options: q.options, difficulty: q.difficulty, ...(['reveal','completed'].includes(this.phase) ? { answer: q.answer } : {}) } : null,
       winners: this.phase === 'completed' ? this.survivors().map(({ username, platform }) => ({ username, platform })) : [] };
   }

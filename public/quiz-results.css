@@ -1,0 +1,20 @@
+﻿[hidden]{display:none!important}
+.option{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.answer-count{flex-shrink:0;padding:6px 10px;border-radius:30px;background:rgba(0,0,0,.2);font-size:.9rem}
+.incorrect .answer-count{color:#ff9da4}.correct .answer-count{color:#b3f5d1}
+.quiz-stage{padding:32px;margin:20px 0;border-radius:16px;border:1px solid #3e5265;background:#182430;text-align:center;overflow:hidden}
+.quiz-stage h2{font-size:clamp(2rem,5vw,3.5rem);margin:8px 0 16px}.quiz-stage p{margin:10px 0 24px}
+.stage-label{font-size:.8rem;letter-spacing:.18em;font-weight:bold;color:#ff9da4}
+.eliminated-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.eliminated-player{padding:18px 12px;border:1px solid #a44455;background:#422732;border-radius:10px;animation:eliminate-in .7s both;animation-delay:var(--delay)}
+.eliminated-player strong,.eliminated-player small,.eliminated-player span{display:block;overflow-wrap:anywhere}
+.eliminated-player strong{font-size:1.15rem}.eliminated-player small{margin:6px 0;color:#dac0c9;text-transform:capitalize}.eliminated-player span{color:#ff9da4;font-size:.85rem}
+.victory{border-color:#f4c95d;background:radial-gradient(ellipse at top,#544321,#181d25 70%);animation:outcome-in .7s both}
+.defeat{border-color:#cc536b;background:radial-gradient(ellipse at top,#522536,#181d25 70%);animation:outcome-in .7s both}
+.outcome-symbol{font-size:5rem;color:#f4c95d;line-height:1.2}.defeat .outcome-symbol{color:#ff7b9e}.outcome-title{letter-spacing:.08em;color:#f4c95d}.defeat .outcome-title{color:#ff7b9e}
+.winner-list{display:flex;justify-content:center;flex-wrap:wrap;gap:14px}.winner-name{padding:16px 24px;border:1px solid #bba05d;border-radius:10px;background:#191c25}.winner-name strong{display:block;font-size:1.8rem;overflow-wrap:anywhere}.winner-name small{display:block;margin-top:8px;text-transform:capitalize;color:#e1c77e}
+.elimination-summary{margin-top:16px;color:#b3c3cf}.elimination-summary summary{cursor:pointer}.elimination-summary li{padding:5px;overflow-wrap:anywhere}
+@keyframes eliminate-in{0%{opacity:0;transform:translateY(-22px) scale(1.05)}60%{opacity:1;transform:translateY(4px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes outcome-in{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@media(max-width:700px){.eliminated-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.quiz-stage{padding:20px}.option{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.eliminated-player,.victory,.defeat{animation:none}}
