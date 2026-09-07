@@ -50,11 +50,11 @@ class QuizGame {
   stop() { this.cancel(this.timer); if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; return this.getState(); }
   survivors() { return [...this.players.values()].filter(p => p.alive); }
   handleChatEvent(event) {
-    const match = String(event.text || '').trim().match(/^!quiz\s+(join|[a-d1-4])$/i);
-    if (!match) return false;
+    const match = String(event.text || '').trim().match(/^(?:!(join)|([1-4])|!quiz\s+(join|[a-d1-4]))$/i);
+    if (!match || !['lobby', 'question', 'reveal'].includes(this.phase)) return false;
     const platform = String(event.platform || '').toLowerCase(), id = String(event.user?.id || '');
     if (!['twitch','youtube','tiktok'].includes(platform) || !id) return true;
-    const key = `${platform}:${id}`, value = match[1].toLowerCase();
+    const key = `${platform}:${id}`, value = (match[1] || match[2] || match[3]).toLowerCase();
     if (value === 'join') {
       if (this.phase === 'lobby' && !this.players.has(key)) {
         const p = { platform, id, username: event.user.username || id, alive: true, answer: null };

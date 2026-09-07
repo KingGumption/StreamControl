@@ -201,10 +201,11 @@ class TikfinityAdapter {
 }
 
 class IntegrationRuntime {
-  constructor({ config = appConfig, commands = commandService, game = hillGame, recordEvent = null, telemetry = null, bridge = null } = {}) {
+  constructor({ config = appConfig, commands = commandService, game = hillGame, quiz = quizGame, recordEvent = null, telemetry = null, bridge = null } = {}) {
     this.config = config;
     this.commands = commands;
     this.game = game;
+    this.quiz = quiz;
     this.recordEvent = recordEvent;
     this.telemetry = telemetry;
     this.bridge = bridge;
@@ -315,7 +316,7 @@ class IntegrationRuntime {
       roles: event.user?.roles,
     });
 
-    if (quizGame.handleChatEvent(event)) return;
+    if (this.quiz?.handleChatEvent(event)) return;
     if (this.game?.handleChatEvent(event)) return;
     const result = await this.commands.handleChatEvent(event);
     if (result.handled) {

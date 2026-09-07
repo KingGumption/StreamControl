@@ -22,7 +22,8 @@ function normalizeStreamerBotEvent(value) {
 }
 
 function normalizeTwitch(data) {
-  if (data.meta?.isMe === true || data.meta?.internal === true) return null;
+  if (data.meta?.internal === true) return null;
+  if (data.meta?.isMe === true && !/^(?:!join|[1-4]|!quiz\s+(?:join|[a-d1-4]))$/i.test(messageText(data).trim())) return null;
   const user = data.user || {};
   const broadcaster = data.broadcaster || {};
   const id = stringFirst(user.id, data.userId);
@@ -56,7 +57,8 @@ function normalizeTwitch(data) {
 }
 
 function normalizeYouTube(data) {
-  if (data.meta?.isMe === true || data.meta?.internal === true) return null;
+  if (data.meta?.internal === true) return null;
+  if (data.meta?.isMe === true && !/^(?:!join|[1-4]|!quiz\s+(?:join|[a-d1-4]))$/i.test(messageText(data).trim())) return null;
   const user = data.user || data.author || {};
   const broadcaster = data.broadcaster || {};
   const id = stringFirst(user.id, user.userId, user.channelId, data.userId);

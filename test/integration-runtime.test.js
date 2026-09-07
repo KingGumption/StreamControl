@@ -147,3 +147,49 @@ test('active game votes are consumed before command handling', async () => {
   assert.equal(commandCalls, 1);
   assert.equal(analytics.filter((event) => event.tool === 'audience').length, 2);
 });
+
+test('quiz receives broadcaster joins through the cloud bridge and numeric answers stay in the quiz', async () => {
+  const { QuizGame } = require('../src/quiz-game');
+  const quiz = new QuizGame({ schedule: () => null, cancel: () => {} });
+  quiz.open({ questionCount: 2 });
+  const bridge = new EventEmitter();
+  bridge.connected = true;
+  bridge.sendService = () => true;
+  bridge.getServiceStates = () => [];
+  let hillCalls = 0;
+  const runtime = new IntegrationRuntime({
+    config: { streamerBot: { password: '' } }, bridge, quiz,
+    game: { handleChatEvent: () => { hillCalls++; return false; } },
+    commands: { handleChatEvent: async () => ({ handled: false }) },
+  });
+  runtime.start();
+  const send = (text, id = 'host', meta = { isMe: true }, messageId = text) => bridge.emit('service-message', 'streamerbot', JSON.stringify({
+    event: { source: 'Twitch', type: 'ChatMessage' },
+    data: { text, messageId, meta, user: { id, login: id } },
+  }));
+  send(' !JOIN ');
+  assert.equal(quiz.getState().players, 1);
+  send('!join', 'internal', { internal: true });
+  assert.equal(quiz.getState().players, 1);
+  quiz.next();
+  send('!join', 'late', {}, 'late-join');
+  assert.equal(quiz.getState().players, 1);
+  const answer = quiz.deck[0].answer;
+  send(String(answer + 1));
+  assert.equal(quiz.players.get('twitch:host').answer, answer);
+  assert.equal(hillCalls, 0);
+  quiz.stop();
+  send('1', 'viewer', {}, 'hill-vote');
+  assert.equal(hillCalls, 1);
+  runtime.stop();
+});
+
+test('YouTube and TikTok adapters deliver simple quiz joins', () => {
+  const { QuizGame } = require('../src/quiz-game');
+  const quiz = new QuizGame(); quiz.open();
+  const runtime = new IntegrationRuntime({ config: { streamerBot: { password: '' } }, quiz });
+  runtime.streamerBot.handleMessage(JSON.stringify({ event: { source: 'YouTube', type: 'Message' }, data: { message: '!join', user: { id: 'yt', name: 'YouTube Viewer' } } }));
+  runtime.tikfinity.handleMessage(JSON.stringify({ event: 'chat', data: { comment: '!join', userId: 'tt', uniqueId: 'TikTokViewer' } }));
+  assert.equal(quiz.getState().players, 2);
+  quiz.stop();
+});

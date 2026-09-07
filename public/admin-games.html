@@ -1,1 +1,36 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Games</title><style>*{box-sizing:border-box}body{margin:0;background:#101418;color:#edf4f7;font:16px Arial,sans-serif}.shell{max-width:1100px;margin:auto;padding:24px}nav,.toolbar{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0}a{color:#4ecdc4}nav a,button{padding:12px;border:1px solid #344454;border-radius:8px;text-decoration:none}button{background:#4ecdc4;color:#101418;font-weight:bold;cursor:pointer}button:disabled{opacity:.4;cursor:default}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}.panel{background:#181d25;border:1px solid #27313d;border-radius:12px;padding:24px;margin:20px 0}p{line-height:1.6;color:#b3c3cf}input{display:block;background:#101418;color:white;border:1px solid #344454;border-radius:6px;padding:10px;margin:10px 0 20px;width:100%}h1{font-size:2.2rem}h2{line-height:1.4}.option{padding:18px;background:#263342;border-radius:8px}.correct{background:#205f4f}#error{color:#ff9090}#status{color:#f4c95d;font-weight:bold}label{display:block}</style><main class="shell"><nav aria-label="Admin pages"><a href="/admin">Song Requests</a><a href="/admin/games">Games</a><a href="/admin/king-of-the-hill">King of the Hill</a><a href="/admin/analytics">Analytics</a><a href="/admin/polaroid">Polaroid Redeem</a></nav><h1>Games</h1><p>Bring Twitch, YouTube and TikTok chat into the same game. Choose an experience to open its controls and stream overlay.</p><div id="games" class="grid"></div></main><script>const games=[{name:'King of the Hill',description:'Chat votes for challengers across themed battles. Configure rounds and timings.',href:'/admin/king-of-the-hill'},{name:'Elimination Quiz',description:'An increasingly difficult quiz. Join before the first question; one wrong or missed answer means elimination.',href:'/admin/quiz'}];for(const game of games){const card=document.createElement('article');card.className='panel';const title=document.createElement('h2');title.textContent=game.name;const description=document.createElement('p');description.textContent=game.description;const link=document.createElement('a');link.href=game.href;link.textContent='Open game controls ?';card.append(title,description,link);document.getElementById('games').append(card)}</script></html>
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>StreamEngagement | Games</title><style>
+    :root { --bg:#101418;--panel:#181d25;--panel-alt:#1e2430;--panel2:#1e2430;--accent:#4ecdc4;--teal:#4ecdc4;--text:#edf4f7;--muted:#a2b5c3;--danger:#ff6b6b;--border:#27313d;--success:#67d889;--green:#67d889;--gold:#f4c95d;--blue:#67a8ff;--violet:#a98bff;--rose:#ff7b9e }
+    *{box-sizing:border-box}[hidden]{display:none!important}html{color-scheme:dark}body{margin:0;min-width:320px;font:15px/1.5 Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}button,select,input{font:inherit}button,select{cursor:pointer}a{color:inherit}.shell{max-width:1200px;margin:0 auto;padding:20px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--border)}h1,h2,h3,p{margin-top:0}h1{margin-bottom:0;font-size:1.8rem}h2{margin-bottom:0;font-size:1.35rem}h3,p{margin-bottom:0}.muted,.subtitle{color:var(--muted)}
+    .admin-nav{display:flex;gap:8px;flex-wrap:wrap}.admin-nav a{padding:9px 13px;color:var(--muted);text-decoration:none;font-weight:bold;background:var(--panel-alt);border:1px solid var(--border);border-radius:7px}.admin-nav a:hover,.admin-nav a.active{color:var(--text);border-color:var(--accent)}.admin-nav a.active{background:rgba(78,205,196,.13)}
+    .panel,.metric-card,.tool-card,.control-deck,.page-heading{border:1px solid var(--border);border-radius:10px;box-shadow:0 0 0 1px rgba(0,0,0,.2)}.panel,.page-heading{padding:18px;margin-bottom:20px;background:var(--panel)}.page-heading p{margin-top:6px;color:var(--muted)}.control-deck{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:8px;z-index:10;padding:12px;margin-bottom:20px;background:var(--panel)}
+    .filters,.tabs{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.field{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.82rem;font-weight:bold}select,input{padding:9px 10px;color:var(--text);background:#0f141a;border:1px solid var(--border);border-radius:6px}.button,.tab,.filter-chip{padding:9px 12px;color:var(--muted);font-weight:bold;background:var(--panel-alt);border:1px solid var(--border);border-radius:6px}.button{color:var(--text)}.button:hover,.tab:hover,.filter-chip:hover{color:var(--text);border-color:var(--accent)}.tab.active,.filter-chip.active{color:#0a1217;background:var(--accent);border-color:var(--accent)}button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid rgba(78,205,196,.35);outline-offset:2px}
+.games-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.game-card{display:block;min-width:0;padding:24px;text-decoration:none;background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:0 0 0 1px rgba(0,0,0,.2);transition:border-color .15s,background .15s}
+.game-card:hover{border-color:var(--accent);background:var(--panel-alt)}
+.game-card:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+.game-card h3{font-size:1.25rem;margin-bottom:10px;color:var(--text)}
+.game-card p{color:var(--muted);line-height:1.5}
+@media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.games-grid{grid-template-columns:1fr}}
+</style></head>
+<body><main class="shell"><header class="topbar"><h1>StreamEngagement</h1><nav class="admin-nav" aria-label="Admin pages"><a href="/admin">Song Requests</a><a class="active" href="/admin/games" aria-current="page">Games</a><a href="/admin/king-of-the-hill">King of the Hill</a><a href="/admin/analytics">Analytics</a><a href="/admin/polaroid">Polaroid Redeem</a></nav></header>
+<section class="page-heading"><h2>Games</h2><p>Bring Twitch, YouTube and TikTok chat into the same game. Choose a game to manage its controls and stream overlay.</p></section>
+<div id="games" class="games-grid"></div>
+</main><script>
+const games = [
+  { name: 'King of the Hill', description: 'Chat votes for challengers across themed battles. Configure rounds and timings.', href: '/admin/king-of-the-hill' },
+  { name: 'Elimination Quiz', description: 'Join with !join, then answer 1, 2, 3 or 4. Survive increasingly difficult questions to win.', href: '/admin/quiz' }
+];
+for (const game of games) {
+  const card = document.createElement('a');
+  card.className = 'game-card';
+  card.href = game.href;
+  const title = document.createElement('h3');
+  title.textContent = game.name;
+  const description = document.createElement('p');
+  description.textContent = game.description;
+  card.append(title, description);
+  document.getElementById('games').append(card);
+}
+</script></body></html>
