@@ -96,3 +96,31 @@ test('picture questions render cropped clues without descriptive answer text, th
  const image=holder.children[0].children[0];assert.equal(image.alt,'Quiz picture clue');assert.equal(image.style.width,'125%');assert.equal(image.style.top,'-40%');
  b.render({...g,round:2,question:{text:'A written clue.',options:['A','B','C','D']}});assert.equal(holder.hidden,true);assert.equal(holder.children.length,0);
 });
+
+test('lobby roster stays bounded, preserves casing, and does not rebuild on identical polling',()=>{
+ const b=browser(true),roster=Array.from({length:20},(_,i)=>({username:'Player'+i,platform:'twitch'}));
+ roster[19].username='KingGumption';
+ const g=result({phase:'lobby',question:null,roundResult:null,players:20,roster});b.render(g);
+ const holder=b.elements.get('quizLobbyPlayers');assert.equal(holder.children.length,9);
+ assert.equal(holder.children[7].children[1].textContent,'KingGumption');assert.equal(holder.children[8].textContent,'+12 more');
+ const card=holder.children[7];b.render(g);assert.equal(holder.children[7],card);
+ b.render({...g,phase:'question',question:{text:'Q',options:['a','b','c','d']}});assert.equal(holder.hidden,true);
+});
+
+test('answer progress and final countdown update without replaying the question or leaking choices',()=>{
+ const b=browser(true);const g=result({phase:'question',roundResult:null,question:{text:'Q',options:['a','b','c','d']},survivors:5,answered:2,answerSeconds:20,deadline:Date.now()+4000});
+ b.render(g);assert.equal(b.elements.get('quizAnswerProgress').textContent,'2 / 5 answers locked in');
+ assert.equal(b.elements.get('quizEnergy').className,'quiz-energy urgent');
+ const first=b.elements.get('options').children[0];b.render({...g,answered:5});
+ assert.equal(b.elements.get('quizAnswerProgress').textContent,'All 5 answers locked in');assert.equal(b.elements.get('options').children[0],first);
+ assert.equal(first.children.length,1);
+ b.render({...g,phase:'reveal',roundResult:{answerCounts:[5,0,0,0],eliminated:[],missed:0}});assert.equal(b.elements.get('quizEnergy').hidden,true);
+});
+
+test('streak celebrations only appear on reveal and sudden death has a nonblocking introduction',()=>{
+ const b=browser(true);const g=result({phase:'reveal',round:5,roundResult:{answerCounts:[5,0,0,0],eliminated:[],missed:0,milestones:[{username:'KingGumption',correctAnswers:5}]}});
+ b.render(g);assert.equal(b.elements.get('quizMoment').children[0].textContent,'5 correct in a row!');
+ assert.equal(b.elements.get('quizMoment').children[1].textContent,'KingGumption');
+ b.render({...g,phase:'question',round:11,suddenDeath:true,roundResult:null});
+ assert.equal(b.elements.get('quizMoment').children[0].textContent,'SUDDEN DEATH');assert.equal(b.elements.get('questionPanel').hidden,false);assert.equal(b.timers.size,0);
+});

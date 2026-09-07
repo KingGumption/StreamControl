@@ -8,6 +8,20 @@ function setup() {
   const chat = (id, text, platform = 'twitch') => game.handleChatEvent({ platform, text, user: { id, username: id } });
   return { game, events, chat, expire: () => { now += 20000; timeout(); }, late: () => { now += 20000; } };
 }
+
+test('public answer progress is aggregate only and streaks appear after every fifth correct answer',()=>{
+ const {game,chat}=setup();game.open({questionCount:10,answerSeconds:15});chat('KingGumption','!join');chat('Other','!join');
+ for(let round=1;round<=5;round++){
+  game.next();assert.equal(game.getState().answered,0);assert.equal(game.getState().answerSeconds,15);
+  chat('KingGumption',String(game.deck[round-1].answer+1));
+  const state=game.getState();assert.equal(state.answered,1);assert.equal(state.roundResult,null);assert.equal(Object.hasOwn(state.question,'answer'),false);
+  assert.ok(state.roster.every(p=>!Object.hasOwn(p,'answer')&&!Object.hasOwn(p,'correctAnswers')));
+  chat('Other',String(game.deck[round-1].answer+1));game.resolve();
+  assert.equal(game.getState().answered,null);
+  assert.equal(game.getState().roundResult.milestones.length,round===5?2:0);
+ }
+ assert.equal(game.getState().roundResult.milestones[0].username,'KingGumption');game.stop();
+});
 test('locks roster, separates platform IDs, hides answers, and enforces first answer', () => {
   const { game, chat, events } = setup(); game.open({ questionCount: 2 });
   for (const platform of ['twitch','youtube','tiktok']) chat('same', '!join', platform);

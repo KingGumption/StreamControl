@@ -66,14 +66,17 @@ class QuizGame {
     if (this.phase !== 'question') return;
     this.cancel(this.timer); this.deadline = null;
     const q = this.deck[this.round - 1];
-    const answerCounts = [0, 0, 0, 0], eliminated = [];
+    const answerCounts = [0, 0, 0, 0], eliminated = [], milestones = [];
     let missed = 0, winnerRunEnded = false;
     const lastPlayer = this.survivors().length === 1;
     for (const p of this.players.values()) if (p.alive) {
       if (p.answer === null) missed++;
       else answerCounts[p.answer]++;
       const correct = p.answer === q.answer;
-      if (correct) p.correctAnswers++;
+      if (correct) {
+        p.correctAnswers++;
+        if(p.correctAnswers%5===0) milestones.push({username:p.username,platform:p.platform,profileImageUrl:p.profileImageUrl,correctAnswers:p.correctAnswers});
+      }
       this.track('answer_result', p, { correct, missed: p.answer === null });
       if (!correct && lastPlayer) {
         winnerRunEnded = true;
@@ -84,7 +87,7 @@ class QuizGame {
         this.track('player_eliminated', p);
       }
     }
-    this.roundResult = { answerCounts, missed, eliminated, winnerRunEnded };
+    this.roundResult = { answerCounts, missed, eliminated, winnerRunEnded, milestones };
     this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, missed, eliminated: eliminated.length });
     this.phase = this.survivors().length === 0 || winnerRunEnded ? 'completed' : 'reveal';
     if (this.phase === 'reveal') {
@@ -139,7 +142,7 @@ class QuizGame {
   }
   getState() {
     const q = this.round ? this.deck?.[this.round - 1] : null;
-    return { categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
+    return { answerSeconds: this.answerSeconds, answered: this.phase === 'question' ? this.survivors().filter(p=>p.answer!==null).length : null, categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
       question: q && this.phase !== 'idle' ? { text: q.text, options: q.options, difficulty: q.difficulty, category: q.category || 'general', ...(q.image ? { image: { url: `/assets/quiz-media/${q.image.file}`, crop: q.image.crop || [0,0,1,1], aspect: q.image.aspect } } : {}), ...(['reveal','completed'].includes(this.phase) ? { answer: q.answer } : {}) } : null,
       winners: this.phase === 'completed' ? this.survivors().map(({ username, platform, profileImageUrl, correctAnswers, totalWins }) => ({ username, platform, profileImageUrl, correctAnswers, totalWins })) : [] };
   }

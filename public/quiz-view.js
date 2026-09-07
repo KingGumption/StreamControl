@@ -1,6 +1,65 @@
 let game;
 const $ = id => document.getElementById(id);
 let viewKey = '', stageTimer = null, animationRunning = false;
+let lobbyRosterKey = '', lobbyCards = new Map();
+function ensurePresentation() {
+  if ($('quizEnergy')) return;
+  const energy = node('div', 'quiz-energy'); energy.id = 'quizEnergy';
+  const track = node('div', 'quiz-time-track');
+  const fill = node('div', 'quiz-time-fill'); fill.id = 'quizTimeFill';
+  track.append(fill);
+  const progress = node('div', 'quiz-answer-progress'); progress.id = 'quizAnswerProgress';
+  energy.append(track, progress); $('status').after(energy);
+  const lobby = node('div', 'quiz-lobby-players'); lobby.id = 'quizLobbyPlayers';
+  $('counts').after(lobby);
+  const moment = node('div', 'quiz-moment'); moment.id = 'quizMoment';
+  $('result').after(moment);
+}
+function updateEnergy(g) {
+  if (!$('quizEnergy')) return;
+  const active = g.phase === 'question';
+  $('quizEnergy').hidden = !active;
+  if (!active) return;
+  const remaining = Math.max(0, (g.deadline - Date.now()) / 1000);
+  const ratio = Math.max(0, Math.min(1, remaining / (g.answerSeconds || 20)));
+  $('quizTimeFill').style.transform = `scaleX(${Number.isFinite(ratio)?ratio:0})`;
+  $('quizEnergy').className = 'quiz-energy' + (remaining <= 5 ? ' urgent' : remaining <= 10 ? ' warning' : '');
+  const answered = Number.isInteger(g.answered) ? Math.min(g.survivors, Math.max(0,g.answered)) : 0;
+  $('quizAnswerProgress').textContent = answered === g.survivors && g.survivors > 0 ? `All ${answered} answers locked in` : `${answered} / ${g.survivors} answers locked in`;
+}
+function updateLobby(g) {
+  const holder = $('quizLobbyPlayers'); holder.hidden = g.phase !== 'lobby';
+  if (holder.hidden) { lobbyRosterKey = ''; lobbyCards.clear(); holder.replaceChildren(); return; }
+  const players = (g.roster || []).slice(-8);
+  const key = JSON.stringify([g.gameId,players,g.players]);
+  if (key === lobbyRosterKey) return;
+  const activeKeys = new Set(), cards = [];
+  players.forEach(p=>{
+    const id = JSON.stringify([g.gameId,p.platform,p.username,p.profileImageUrl]);activeKeys.add(id);
+    let card = lobbyCards.get(id);
+    if(!card){card=node('div','lobby-player');card.append(portrait(p),node('span','',p.username));lobbyCards.set(id,card);}
+    cards.push(card);
+  });
+  for(const id of lobbyCards.keys())if(!activeKeys.has(id))lobbyCards.delete(id);
+  if(g.players>players.length)cards.push(node('div','lobby-more',`+${g.players-players.length} more`));
+  if(!g.players)cards.push(node('p','lobby-first','Be the first to join'));
+  holder.replaceChildren(...cards);lobbyRosterKey=key;
+}
+function showMoment(g) {
+  const holder=$('quizMoment');holder.replaceChildren();holder.hidden=true;
+  const milestones=g.roundResult?.milestones||[];
+  if(milestones.length){
+    holder.hidden=false;holder.className='quiz-moment streak-moment';
+    const score=milestones[0].correctAnswers;
+    holder.append(node('strong','',`${score} correct in a row!`),node('span','',milestones.length===1?milestones[0].username:`${milestones.slice(0,2).map(p=>p.username).join(' · ')}${milestones.length>2?` +${milestones.length-2} more`:''}`));
+  }else if(g.phase==='question'&&g.suddenDeath&&g.round===g.questionCount+1){
+    holder.hidden=false;holder.className='quiz-moment sudden-moment';
+    holder.append(node('strong','','SUDDEN DEATH'),node('span','','Keep your streak alive'));
+  }else if(g.phase==='question'&&g.survivors===1){
+    holder.hidden=false;holder.className='quiz-moment survivor-moment';
+    holder.append(node('strong','','The crown is yours'),node('span','','How far can you go? Keep answering.'));
+  }
+}
 function node(tag, className, text) {
   const element = document.createElement(tag);
   element.className = className;
@@ -34,6 +93,7 @@ function updateStatus(g) {
   const parts = [node('span', 'status-label', label)];
   if (deadline) parts.push(node('span', 'quiz-countdown', `${String(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))).padStart(2, '0')}s`));
   $('status').replaceChildren(...parts);
+  updateEnergy(g);
 }
 function renderMedia(q) {
   const holder = $('questionMedia');
@@ -91,6 +151,11 @@ function showOutcome(g) {
   stage.append(node('div', 'outcome-symbol', won ? '\u265b' : '\u00d7'));
   stage.append(node('h2', 'outcome-title', won ? (g.winners.length === 1 ? 'WINNER!' : 'WINNERS!') : 'DEFEAT'));
   stage.append(node('p', 'outcome-copy', won ? (g.winners.length === 1 ? `Last player standing. Run ended on question ${g.round}.` : 'You survived the final question together.') : 'Everyone was eliminated this round. No one takes the crown.'));
+  if(won){
+    const confetti=node('div','quiz-confetti');
+    for(let i=0;i<24;i++){const piece=node('i','');piece.style.setProperty('--x',`${(i*37)%100}%`);piece.style.setProperty('--delay',`${(i%6)*.09}s`);piece.style.setProperty('--drift',`${(i%2?1:-1)*(15+i%5*9)}px`);confetti.append(piece);}
+    stage.append(confetti);
+  }
   const winners = node('div', 'winner-list');
   g.winners.forEach(p => {
     const card = node('div', 'winner-name');
@@ -132,10 +197,12 @@ function showEliminations(g) {
 }
 function render(g) {
   game = g;
+  ensurePresentation();
   if ($('overlayRoot')) $('overlayRoot').hidden = g.phase === 'idle';
   updateStatus(g);
   $('questionPanel').className = g.phase === 'lobby' ? 'panel quiz-lobby' : g.question?.image ? 'panel has-media' : 'panel';
   $('counts').textContent = g.phase === 'lobby' ? `${g.players} ${g.players === 1 ? 'player' : 'players'} joined` : `${g.players} joined - ${g.survivors} remaining`;
+  updateLobby(g);
   const key = `${g.gameId}:${g.phase}:${g.round}`;
   if (key !== viewKey) {
     viewKey = key;
@@ -146,11 +213,13 @@ function render(g) {
     $('quizStage').replaceChildren();
     $('question').textContent = g.phase === 'lobby' ? '!join' : g.question?.text || 'Waiting for the next quiz';
     renderMedia(g.question);
+    showMoment(g);
     $('options').replaceChildren();
     (g.question?.options || []).forEach((text, i) => {
       const correct = g.question.answer === i;
       const option = node('div', 'option' + (correct ? ' correct' : g.roundResult ? ' incorrect' : ''));
-      option.append(node('span', '', `${i + 1}. ${text}`));
+      const label=node('span','answer-label');label.append(node('b','answer-number',String(i+1)),node('span','answer-text',text));
+      option.append(label);
       if (g.roundResult) option.append(node('strong', 'answer-count', `${g.roundResult.answerCounts[i]} ${correct ? 'correct' : 'wrong'}`));
       $('options').append(option);
     });
@@ -171,7 +240,7 @@ function render(g) {
       animationRunning = true;
       stageTimer = setTimeout(() => showEliminations(g), 3500);
     } else {
-      $('result').textContent = g.phase === 'lobby' ? 'Type in chat to play' : 'Answer 1, 2, 3 or 4. First answer counts.';
+      $('result').textContent = g.phase === 'lobby' ? 'Type in chat to enter. Play with 1, 2, 3 or 4.' : 'Answer 1, 2, 3 or 4. First answer counts.';
     }
   }
   updateControls(g);
