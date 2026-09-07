@@ -4,7 +4,9 @@ const path=require('node:path');
 const sharp=require('sharp');
 const questions=require('../src/quiz-questions.json');
 test('all themed questions have unique identities, valid options and decodable local picture assets',async()=>{
- assert.ok(questions.length>=500,'Keep at least 500 questions available');
+ assert.ok(questions.length>=1040,'Keep the expanded question bank available');
+ const counts=Object.values(questions.reduce((all,q)=>(all[q.category]=(all[q.category]||0)+1,all),{}));
+ assert.ok(Math.min(...counts)>=80&&Math.max(...counts)-Math.min(...counts)<=10,'Keep category sizes comparable');
  assert.equal(new Set(questions.map(q=>q.id)).size,questions.length);
  const normalise=value=>value.toLowerCase().replace(/[^a-z0-9]/g,'');
  assert.equal(new Set(questions.map(q=>JSON.stringify([normalise(q.text),q.image?.file||'']))).size,questions.length,'No repeated prompts for the same image');
@@ -36,7 +38,7 @@ test('expanded categories are selectable with readable labels and questions acro
  }
 });
 
-test('a full bank run exhausts 500 distinct questions before sudden death reuses any',()=>{
+test('a full bank run exhausts all distinct questions before sudden death reuses any',()=>{
  const {QuizGame}=require('../src/quiz-game');
  const game=new QuizGame();game.open({questionCount:15});
  const seen=new Set(game.deck.map(q=>q.id));

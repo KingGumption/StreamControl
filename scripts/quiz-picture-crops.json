@@ -1,0 +1,896 @@
+{
+  "The Terminator": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Terminator 2: Judgment Day": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "RoboCop": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Predator (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Aliens (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Blade Runner": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Blade Runner 2049": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Star Wars (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Empire Strikes Back": [
+    0.06,
+    0.12,
+    0.88,
+    0.48
+  ],
+  "Return of the Jedi": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Raiders of the Lost Ark": [
+    0.1,
+    0.26,
+    0.8,
+    0.54
+  ],
+  "Indiana Jones and the Temple of Doom": [
+    0.1,
+    0.12,
+    0.8,
+    0.43
+  ],
+  "E.T. the Extra-Terrestrial": [
+    0.04,
+    0.08,
+    0.92,
+    0.3
+  ],
+  "Gremlins": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Beetlejuice": [
+    0.08,
+    0.2,
+    0.84,
+    0.6
+  ],
+  "The Goonies": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Die Hard": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Speed (1994 film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Fifth Element": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Total Recall (1990 film)": [
+    0.54,
+    0.08,
+    0.43,
+    0.65
+  ],
+  "The Running Man (1987 film)": [
+    0.3,
+    0.14,
+    0.63,
+    0.52
+  ],
+  "Escape from New York": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Big Trouble in Little China": [
+    0.4,
+    0.16,
+    0.5,
+    0.5
+  ],
+  "Mad Max: Fury Road": [
+    0.24,
+    0.48,
+    0.26,
+    0.15
+  ],
+  "The Lord of the Rings: The Fellowship of the Ring": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Lord of the Rings: The Two Towers": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Lord of the Rings: The Return of the King": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Harry Potter and the Philosopher's Stone (film)": [
+    0.02,
+    0.12,
+    0.2,
+    0.68
+  ],
+  "Harry Potter and the Prisoner of Azkaban (film)": [
+    0.02,
+    0.02,
+    0.42,
+    0.85
+  ],
+  "Pirates of the Caribbean: The Curse of the Black Pearl": [
+    0.06,
+    0.06,
+    0.88,
+    0.42
+  ],
+  "Gladiator (2000 film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Braveheart": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Dark Knight": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Batman (1989 film)": [
+    0.05,
+    0.1,
+    0.9,
+    0.58
+  ],
+  "Spider-Man (2002 film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Iron Man (2008 film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Avengers (2012 film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Guardians of the Galaxy (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Deadpool (film)": [
+    0.07,
+    0.15,
+    0.86,
+    0.6
+  ],
+  "Logan (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Inception": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Interstellar (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Martian (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Arrival (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Ex Machina (film)": [
+    0.54,
+    0.02,
+    0.44,
+    0.93
+  ],
+  "Dune (2021 film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Shining (film)": [
+    0.06,
+    0.18,
+    0.88,
+    0.48
+  ],
+  "Halloween (1978 film)": [
+    0.2,
+    0.15,
+    0.7,
+    0.56
+  ],
+  "A Nightmare on Elm Street": [
+    0.06,
+    0.14,
+    0.88,
+    0.56
+  ],
+  "Friday the 13th (1980 film)": [
+    0.12,
+    0.16,
+    0.76,
+    0.5
+  ],
+  "Scream (1996 film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Exorcist": [
+    0.2,
+    0.38,
+    0.7,
+    0.31
+  ],
+  "The Texas Chain Saw Massacre": [
+    0.5,
+    0.25,
+    0.4,
+    0.46
+  ],
+  "The Evil Dead": [
+    0.06,
+    0.33,
+    0.88,
+    0.32
+  ],
+  "Evil Dead II": [
+    0.22,
+    0.03,
+    0.74,
+    0.65
+  ],
+  "The Fly (1986 film)": [
+    0.13,
+    0.32,
+    0.69,
+    0.32
+  ],
+  "The Lost Boys": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Hellraiser": [
+    0.75,
+    0.05,
+    0.24,
+    0.85
+  ],
+  "The Silence of the Lambs (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Saw (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Blair Witch Project": [
+    0.06,
+    0.52,
+    0.88,
+    0.22
+  ],
+  "Get Out": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "Hereditary (film)": [
+    0.05,
+    0.05,
+    0.9,
+    0.66
+  ],
+  "The Babadook": [
+    0.2,
+    0.12,
+    0.6,
+    0.65
+  ],
+  "The Descent": [
+    0.03,
+    0.18,
+    0.33,
+    0.78
+  ],
+  "Shaun of the Dead": [
+    0.06,
+    0.12,
+    0.86,
+    0.47
+  ],
+  "Hot Fuzz": [
+    0.01,
+    0.01,
+    0.34,
+    0.94
+  ],
+  "Scott Pilgrim vs. the World": [
+    0.08,
+    0.25,
+    0.84,
+    0.51
+  ],
+  "The Princess Bride (film)": [
+    0.06,
+    0.12,
+    0.88,
+    0.55
+  ],
+  "The Iron Giant": [
+    0.08,
+    0.12,
+    0.84,
+    0.47
+  ],
+  "Spirited Away": [
+    0.02,
+    0.06,
+    0.85,
+    0.62
+  ],
+  "Ghostbusters": [
+    0.06,
+    0.2,
+    0.88,
+    0.5
+  ],
+  "The Road Warrior": [
+    0.14,
+    0.23,
+    0.72,
+    0.22
+  ],
+  "Midsommar": [
+    0.04,
+    0.14,
+    0.92,
+    0.56
+  ],
+  "Assassin's Creed": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Doom (franchise)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Destiny (video game series)": [
+    0.33,
+    0.35,
+    0.34,
+    0.63
+  ],
+  "Grand Theft Auto": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Red Dead": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Bully (video game)": [
+    0.06,
+    0.24,
+    0.88,
+    0.69
+  ],
+  "Dead Space": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Five Nights at Freddy's": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Little Nightmares": [
+    0.3,
+    0.01,
+    0.4,
+    0.2
+  ],
+  "Bendy (franchise)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "BioShock (series)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Deus Ex": [
+    0.04,
+    0,
+    0.92,
+    0.77
+  ],
+  "Thief (series)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Portal (series)": [
+    0.11,
+    0.02,
+    0.18,
+    0.96
+  ],
+  "Dragon Age": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "The Witcher (video game series)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Dead by Daylight": [
+    0.15,
+    0.29,
+    0.7,
+    0.36
+  ],
+  "Phasmophobia (video game)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Splinter Cell": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "The Last of Us": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Spyro": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Sonic the Hedgehog": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Star Fox": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Pokemon": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Final Fantasy": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Yakuza (franchise)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "The King of Fighters": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Elden Ring": [
+    0.2,
+    0.32,
+    0.6,
+    0.35
+  ],
+  "Mega Man": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Bomberman": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Command & Conquer": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "League of Legends": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Saints Row": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Darksiders": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Deltarune": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Halo (franchise)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Mass Effect": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "The Elder Scrolls": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Max Payne": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Resident Evil": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Silent Hill": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "F.E.A.R.": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "God of War (franchise)": [
+    0.4,
+    0.01,
+    0.21,
+    0.98
+  ],
+  "Prince of Persia": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Jak and Daxter": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Sly Cooper": [
+    0.26,
+    0,
+    0.35,
+    1
+  ],
+  "Kirby (series)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Pikmin": [
+    0,
+    0,
+    0.14,
+    1
+  ],
+  "Animal Crossing": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Dragon Quest": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Tekken": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "BlazBlue": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Dark Souls": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Bayonetta": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Tetris": [
+    0.07,
+    0.07,
+    0.29,
+    0.38
+  ],
+  "StarCraft": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Dota 2": [
+    0.03,
+    0.81,
+    0.18,
+    0.11
+  ],
+  "Far Cry": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Serious Sam": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "Hitman (franchise)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Metal Gear": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Uncharted": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Horizon (video game series)": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Ratchet & Clank": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Metroid": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Xenoblade Chronicles": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Street Fighter": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Castlevania": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "XCOM": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Age of Empires": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Warcraft": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Overwatch": [
+    0.3,
+    0,
+    0.4,
+    0.7
+  ],
+  "Crysis": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Fortnite": [
+    0,
+    0,
+    0.3,
+    1
+  ],
+  "Don't Starve": [
+    0.2,
+    0.05,
+    0.18,
+    0.32
+  ]
+}

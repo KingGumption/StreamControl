@@ -41,8 +41,9 @@ function renderMedia(q) {
   holder.replaceChildren(); holder.hidden = !q?.image;
   $('questionPanel').className = game.phase === 'lobby' ? 'panel quiz-lobby' : q?.image ? 'panel has-media' : 'panel';
   if (!q?.image) return;
-  const frame = node('div', 'question-image-frame');
+  const frame = node('div', 'question-image-frame' + (q.category === 'logos' ? ' logo-clue' : ''));
   frame.style.aspectRatio = String(q.image.aspect || 1);
+  frame.style.maxWidth = `${240 * (q.image.aspect || 1)}px`;
   const image = node('img', 'question-image');
   image.alt = 'Quiz picture clue'; image.src = q.image.url;
   const [x,y,w,h] = q.image.crop || [0,0,1,1];

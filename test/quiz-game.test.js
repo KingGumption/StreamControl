@@ -158,16 +158,18 @@ test('category selection restricts normal and sudden-death rounds and rejects in
  const {game,chat}=setup();
  assert.equal(game.getCatalog().length,13);
  assert.throws(()=>game.open({categories:[]}));assert.throws(()=>game.open({categories:['unknown']}));
- assert.throws(()=>game.open({categories:['logos'],questionCount:10}));
+ const small=new QuizGame({questions:[...game.questions.filter(q=>q.category==='logos').slice(0,2),...game.questions.filter(q=>q.category==='posters').slice(0,4)]});
+ assert.throws(()=>small.open({categories:['logos'],questionCount:3}),/Selected categories have 2 questions/);
  game.open({categories:['posters'],questionCount:1});chat('a','!join');
  const seen=new Set();
- for(let i=0;i<7;i++){
+ const posterCount=game.getCatalog().find(c=>c.id==='posters').count;
+ for(let i=0;i<posterCount+1;i++){
   game.next();const q=game.deck[game.round-1];assert.equal(q.category,'posters');
-  if(i<6){assert.equal(seen.has(q.id),false);seen.add(q.id);}
+  if(i<posterCount){assert.equal(seen.has(q.id),false);seen.add(q.id);}
   assert.equal(Object.hasOwn(game.getState().question,'answer'),false);
   assert.ok(game.getState().question.image.url.startsWith('/assets/quiz-media/'));
   assert.equal(JSON.stringify(game.getState()).includes('sourceUrl'),false);
   chat('a',String(q.answer+1));game.next();
  }
- assert.equal(seen.size,6);
+ assert.equal(seen.size,posterCount);
 });

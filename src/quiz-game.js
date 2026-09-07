@@ -1,13 +1,15 @@
 const crypto = require('node:crypto');
 const { addEngagementEvent, getQuizWinCount } = require('./db');
 const { resolveTwitchAvatar } = require('./avatar-resolver');
+const { loadQuestionHistory, saveQuestionHistory } = require('./quiz-question-history');
 const QUESTIONS = require('./quiz-questions.json');
 const CATEGORY_LABELS = { logos: 'Franchise logos', characters: 'Game characters', posters: 'Movie posters', actors: 'Guess the actor', descriptions: 'Game descriptions', locations: 'Game locations', horror: 'Horror trivia', items: 'Weapons and items', villains: 'Game villains', movies: 'Guess the movie', 'film-roles': 'Actors and roles', tv: 'TV and animation', 'game-lore': 'Gaming trivia', general: 'General knowledge' };
 function shuffle(items) { const result = [...items]; for (let i = result.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [result[i], result[j]] = [result[j], result[i]]; } return result; }
 function shuffleOptions(q) { const options = shuffle(q.options.map((text,i) => ({text,correct:i===q.answer}))); return {...q,options:options.map(o=>o.text),answer:options.findIndex(o=>o.correct)}; }
 class QuizGame {
-  constructor({ recordEvent = () => {}, now = Date.now, schedule = setTimeout, cancel = clearTimeout, questions = QUESTIONS, resolveAvatar = null, getWins = () => 0 } = {}) {
-    Object.assign(this, { recordEvent, now, schedule, cancel, questions, resolveAvatar, getWins });
+  constructor({ recordEvent = () => {}, now = Date.now, schedule = setTimeout, cancel = clearTimeout, questions = QUESTIONS, resolveAvatar = null, getWins = () => 0, loadHistory = null, saveHistory = () => {} } = {}) {
+    Object.assign(this, { recordEvent, now, schedule, cancel, questions, resolveAvatar, getWins, loadHistory, saveHistory });
+    this.history = [];
     this.phase = 'idle'; this.players = new Map(); this.round = 0; this.count = 10;
   }
   track(eventType, player, metadata = {}) {
@@ -22,17 +24,24 @@ class QuizGame {
     if (!Array.isArray(selected) || !selected.length || selected.some(c => !known.includes(c))) throw new Error('Select at least one valid quiz category.');
     const pool = this.questions.filter(q => selected.includes(q.category || 'general'));
     if (pool.length < questionCount) throw new Error(`Selected categories have ${pool.length} questions. Reduce the question count or select more categories.`);
+    const knownIds = new Set(this.questions.map(q=>q.id || q.text));
+    this.history = [...new Set((this.loadHistory?.() || this.history).filter(id=>knownIds.has(id)))];
+    const recency = new Map(this.history.map((id,i)=>[id,i]));
+    this.historyRank = q => recency.get(q.id || q.text) ?? -1;
     const available = shuffle(pool), chosen = [];
     const min = Math.min(...pool.map(q=>q.difficulty)), max = Math.max(...pool.map(q=>q.difficulty));
     for(let i=0;i<questionCount;i++) {
       const target = questionCount === 1 ? min : min + i*(max-min)/(questionCount-1);
       let best = 0;
-      for(let j=1;j<available.length;j++) if(Math.abs(available[j].difficulty-target)<Math.abs(available[best].difficulty-target)) best=j;
+      for(let j=1;j<available.length;j++) {
+        const rank = this.historyRank(available[j]) - this.historyRank(available[best]);
+        if(rank<0 || (rank===0 && Math.abs(available[j].difficulty-target)<Math.abs(available[best].difficulty-target))) best=j;
+      }
       chosen.push(available.splice(best,1)[0]);
     }
-    chosen.sort((a,b)=>a.difficulty-b.difficulty);
+    chosen.sort((a,b)=>Number(this.historyRank(a)>=0)-Number(this.historyRank(b)>=0)||a.difficulty-b.difficulty);
     this.selectedCategories = [...new Set(selected)]; this.questionPool = pool;
-    this.reserve = shuffle(available).sort((a,b)=>b.difficulty-a.difficulty);
+    this.reserve = shuffle(available).sort((a,b)=>this.historyRank(a)-this.historyRank(b)||b.difficulty-a.difficulty);
     this.id = crypto.randomUUID(); this.count = questionCount; this.answerSeconds = answerSeconds;
     this.deck = chosen.map(shuffleOptions);
     this.nextQuestionAt = null; this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
@@ -45,6 +54,10 @@ class QuizGame {
     this.cancel(this.timer); this.nextQuestionAt = null;
     if (this.round >= this.count) this.deck.push(this.suddenDeathQuestion());
     this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; });
+    const shown = this.deck[this.round-1];
+    const questionId = shown.id || shown.text;
+    this.history = this.history.filter(id=>id!==questionId); this.history.push(questionId);
+    this.saveHistory([...this.history]);
     this.deadline = this.now() + this.answerSeconds * 1000;
     this.timer = this.schedule(() => this.resolve(), this.answerSeconds * 1000); this.timer?.unref?.();
     return this.getState();
@@ -134,4 +147,4 @@ class QuizGame {
 function safeProfileImage(value) {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch { return ''; }
 }
-module.exports = { QuizGame, quizGame: new QuizGame({ recordEvent: addEngagementEvent, resolveAvatar: resolveTwitchAvatar, getWins: getQuizWinCount }) };
+module.exports = { QuizGame, quizGame: new QuizGame({ recordEvent: addEngagementEvent, resolveAvatar: resolveTwitchAvatar, getWins: getQuizWinCount, loadHistory: loadQuestionHistory, saveHistory: saveQuestionHistory }) };
