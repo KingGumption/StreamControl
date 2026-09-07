@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-function browser() {
+function browser(preview = false) {
   const elements = new Map(), timers = new Map(); let timerId = 0;
   class Element {
     constructor() { this.children = []; this.hidden = false; this.textContent = ''; this.style = { setProperty() {} }; }
@@ -15,12 +15,13 @@ function browser() {
     remove() { elements.delete(this.id); }
   }
   for (const id of ['overlayRoot','questionPanel','quizStage','status','counts','question','options','result','error','open','next','questionCount']) { const el = new Element(); el.id = id; }
-  const context = vm.createContext({ document: { getElementById: id => elements.get(id), createElement: () => new Element() },
+  let fetches = 0;
+  const context = vm.createContext({ QUIZ_PREVIEW: preview, document: { getElementById: id => elements.get(id), createElement: () => new Element() },
     setInterval() {}, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); },
-    fetch: () => new Promise(() => {}), Date, URL,
+    fetch: () => { fetches++; return new Promise(() => {}); }, Date, URL,
   });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../public/quiz-view.js'), 'utf8'), context);
-  return { elements, timers, render(g) { context.render(g); }, tick() { const [id,fn] = timers.entries().next().value; timers.delete(id); fn(); } };
+  return { elements, timers, get fetches() { return fetches; }, render(g) { context.render(g); }, tick() { const [id,fn] = timers.entries().next().value; timers.delete(id); fn(); } };
 }
 function result(overrides = {}) {
   return { gameId:'one',phase:'completed',round:1,questionCount:10,maxQuestions:15,players:10,survivors:1,
@@ -71,4 +72,10 @@ test('overlay is blank before the lobby opens and after stopping',()=>{
  const b=browser();b.render(result({phase:'idle',question:null,roundResult:null}));assert.equal(b.elements.get('overlayRoot').hidden,true);
  b.render(result({phase:'lobby',round:0,question:null,roundResult:null}));assert.equal(b.elements.get('overlayRoot').hidden,false);
  b.render(result({phase:'idle',question:null,roundResult:null}));assert.equal(b.elements.get('overlayRoot').hidden,true);
+});
+
+
+test('preview renderer never fetches the live game and shows sample screens locally',()=>{
+ const b=browser(true);assert.equal(b.fetches,0);b.render(result());assert.equal(b.fetches,0);
+ b.tick();b.tick();b.tick();b.tick();assert.equal(b.fetches,0);
 });

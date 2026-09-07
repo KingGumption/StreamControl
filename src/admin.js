@@ -8,6 +8,7 @@ const {
   sanitizeCommandPermissions,
 } = require('./permissions');
 const {
+  archiveQuizValidationEvents,
   upsertOverride,
   deleteOverride,
   addAuditLog,
@@ -38,6 +39,7 @@ const {
   setHillGameConfiguration,
 } = require('./runtime-settings');
 
+const quizAnalyticsBaseline = archiveQuizValidationEvents();
 const app = express();
 const router = express.Router();
 const adminAuth = createAdminAuth(appConfig);
@@ -271,6 +273,8 @@ router.post('/settings/song-requests', (req, res) => {
   res.json({ ok: true, settings });
 });
 
+router.get('/quiz/preview', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'quiz-preview.html')));
+router.get('/quiz/analytics-baseline', (req, res) => res.json({ ok: true, ...quizAnalyticsBaseline }));
 router.get('/games', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'admin-games.html')));
 router.get('/quiz', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'admin-quiz.html')));
 router.get('/quiz/state', (req, res) => res.json({ ok: true, game: quizGame.getState() }));

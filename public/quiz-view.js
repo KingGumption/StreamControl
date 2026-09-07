@@ -131,6 +131,7 @@ function render(g) {
   updateControls(g);
 }
 async function refresh() {
+  if (globalThis.QUIZ_PREVIEW) return;
   try {
     const response = await fetch('/quiz/state', { cache: 'no-store' });
     if (!response.ok) throw Error('Unable to load quiz');

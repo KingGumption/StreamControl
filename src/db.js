@@ -455,6 +455,27 @@ function listEngagementEvents(limit = 50000) {
   `).all(safeLimit).map(parseEngagementEventRow);
 }
 
+// One-time cleanup explicitly requested after validating the quiz on 2026-09-07.
+function archiveQuizValidationEvents() {
+  const key = 'quiz_validation_cleanup_2026_09_07';
+  const cutoff = '2026-09-07T02:36:07.000Z';
+  return db.transaction(() => {
+    const previous = getConfigValue(key);
+    if (previous) return previous;
+    db.exec(`CREATE TABLE IF NOT EXISTS quiz_validation_archive AS
+      SELECT *, '' AS archived_at FROM engagement_events WHERE 0`);
+    const archivedAt = new Date().toISOString();
+    const result = db.prepare(`INSERT INTO quiz_validation_archive
+      SELECT *, ? FROM engagement_events
+      WHERE tool = 'elimination_quiz' AND julianday(timestamp) <= julianday(?)`).run(archivedAt, cutoff);
+    db.prepare(`DELETE FROM engagement_events
+      WHERE tool = 'elimination_quiz' AND julianday(timestamp) <= julianday(?)`).run(cutoff);
+    const summary = { cutoff, archivedEvents: result.changes, archivedAt };
+    setConfigValue(key, summary);
+    return summary;
+  })();
+}
+
 function getQuizWinCount(platform, userId) {
   return db.prepare(`
     SELECT COUNT(DISTINCT COALESCE(correlation_id, CAST(id AS TEXT))) AS wins
@@ -684,6 +705,7 @@ const schema = {
   listEngagementEvents,
   listEngagementEventsForRange,
   getQuizWinCount,
+  archiveQuizValidationEvents,
   openStreamSession,
   closeStreamSession,
   addViewerSnapshot,

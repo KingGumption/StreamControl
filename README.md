@@ -217,3 +217,10 @@ Choose 1?15 questions (default 10) and 5?120 seconds per answer (default 20), th
 The starter bank is `src/quiz-questions.json`, ordered from easiest to hardest. Add questions with `text`, four `options`, a zero-based `answer`, and increasing `difficulty`; restart the service to load changes. Selected questions span the bank's difficulty range, and option order is shuffled each game. The bank stays server-side and correct answers are only exposed after the deadline or host reveal. The catalogue in `public/admin-games.html` can be extended with additional game cards.
 
 Quiz activity is recorded in the existing engagement database and appears in Analytics ? Quiz, overview totals, timeline, audience overlap and the activity ledger. Viewer events retain their platform and stable account ID; game lifecycle totals use the Admin platform. Accounts on different platforms are separate players. The active game is held in memory: restarting cancels it and requires a fresh lobby; recorded analytics remain saved. Settings apply to the lobby being opened.
+
+
+#### Validating quiz screens without analytics
+
+Use `/admin/quiz/preview` (also linked from quiz controls). Switch between blank, lobby, question, answer reveal, elimination animation, winner, defeat, sudden death and last-survivor states. The preview uses sample scores and the production renderer, with no live-game requests or analytics writes. The width selector lets you check OBS-sized layouts. Previewing a winner never increases their real win count.
+
+The requested 2026-09-07 validation cleanup archives only `elimination_quiz` events through `2026-09-07T02:36:07.000Z`, removing them from active analytics and lifetime win counts. Other tools and later events stay untouched. It runs once on server startup in a transaction, retaining original rows in `quiz_validation_archive`. The authenticated preview page shows the cleanup receipt and number of archived events.
