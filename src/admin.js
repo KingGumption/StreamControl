@@ -25,6 +25,7 @@ const { overlayEvents } = require('./overlay-events');
 const { resolveTwitchAvatar } = require('./avatar-resolver');
 const { hillGame } = require('./hill-game');
 const { quizGame } = require('./quiz-game');
+const { quizTestSessions } = require('./quiz-test-sessions');
 const { polaroidRuntime } = require('./polaroid/runtime');
 const { loadAnalyticsReport } = require('./analytics');
 const { appConfig } = require('./app-config');
@@ -271,6 +272,20 @@ router.post('/settings/song-requests', (req, res) => {
     details: settings.songRequestsEnabled ? 'Song requests opened' : 'Song requests closed',
   });
   res.json({ ok: true, settings });
+});
+
+router.get('/quiz/test/catalog', (req, res) => res.json({ ok: true, game: quizTestSessions.catalog() }));
+router.post('/quiz/test', (req, res) => {
+  try { res.json(quizTestSessions.create(req.body)); }
+  catch (error) { res.status(400).json({ ok: false, error: error.message }); }
+});
+router.get('/quiz/test/:id', (req, res) => {
+  try { res.json(quizTestSessions.get(req.params.id)); }
+  catch (error) { res.status(404).json({ ok: false, error: error.message }); }
+});
+router.post('/quiz/test/:id/:action', (req, res) => {
+  try { res.json(req.params.action === 'stop' ? quizTestSessions.stop(req.params.id) : quizTestSessions.action(req.params.id, req.params.action, req.body)); }
+  catch (error) { res.status(400).json({ ok: false, error: error.message }); }
 });
 
 router.get('/quiz/preview', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'quiz-preview.html')));

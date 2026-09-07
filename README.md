@@ -224,3 +224,10 @@ Quiz activity is recorded in the existing engagement database and appears in Ana
 Use `/admin/quiz/preview` (also linked from quiz controls). Switch between blank, lobby, question, answer reveal, elimination animation, winner, defeat, sudden death and last-survivor states. The preview also includes logo, character, poster, actor and description examples. The preview uses sample scores and the production renderer, with no live-game requests or analytics writes. The width selector lets you check OBS-sized layouts. Previewing a winner never increases their real win count.
 
 The requested 2026-09-07 validation cleanup archives only `elimination_quiz` events through `2026-09-07T02:36:07.000Z`, removing them from active analytics and lifetime win counts. Other tools and later events stay untouched. It runs once on server startup in a transaction, retaining original rows in `quiz_validation_archive`. The authenticated preview page shows the cleanup receipt and number of archived events.
+
+
+#### Automatic quiz demos and manual test play
+
+On `/admin/quiz/preview`, click **Run automatic demo**. Simulated viewers join one by one, the lobby starts automatically, and the normal question/reveal/elimination timers run to completion. **Test settings** lets you choose player name, 0-5 opponents, question count, answer time, categories and a scenario: mixed answers, winner's run, everyone eliminated, or sudden death. The latter three scenarios deliberately pick answers to demonstrate those outcomes. **Play myself** opens a manual test lobby; start it and answer with the on-page 1-4 buttons or keyboard. Opponents answer automatically.
+
+Each test has its own in-memory `QuizGame` instance and ID, with event recording and real win lookup disabled. It never consumes real chat, alters the production quiz or writes analytics. Test wins and scores are local to that test. Stop or switch to a static preview to discard the test. Separate browser tabs are independent; abandoned sessions expire after 30 minutes without requests and cancel all timers. Admin authentication protects all test routes.

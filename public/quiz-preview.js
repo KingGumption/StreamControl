@@ -27,12 +27,13 @@ function previewState(mode) {
     if (mode === 'no-photo') { winner.profileImageUrl = ''; winner.username = 'NoPhotoViewer'; }
   }
   if (mode === 'defeat') { g.phase = 'completed'; g.outcome = 'defeat'; g.survivors = 0; g.winners = []; g.players = 6; g.roundResult.answerCounts = [0,2,0,3]; }
-  if (mode === 'sudden-death') { g.round = 11; g.suddenDeath = true; g.question = {text:'What is the remainder when (101 x 17 + 13) is divided by 7?',options:['1','2','3','4'],difficulty:16}; }
+  if (mode === 'sudden-death') { g.round = 11; g.suddenDeath = true; g.question = {text:'Which game takes place aboard the Talos I space station?',options:['Prey (2017)','System Shock 2','Dead Space 2','Alien: Isolation'],difficulty:13}; }
   if (mode === 'last-survivor') { g.survivors = 1; g.round = 7; }
   if(picturePreviews[mode]) g.question = picturePreviews[mode];
   return g;
 }
 function selectPreview(mode) {
+  globalThis.stopQuizTest?.();
   const g = previewState(mode);
   render(g);
   if (mode !== 'sequence') {
