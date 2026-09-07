@@ -27,6 +27,14 @@ function portrait(player) {
 function roundLabel(g) {
   return g.suddenDeath ? `Sudden death ${g.round - g.questionCount}` : `Question ${g.round} of ${g.questionCount}`;
 }
+function updateStatus(g) {
+  let label = g.phase === 'lobby' ? 'Join the quiz' : g.phase === 'question' ? roundLabel(g) : g.phase === 'reveal' ? 'Answer revealed' : g.phase === 'completed' ? (g.winners.length ? 'Quiz complete - victory' : 'Quiz complete - defeat') : 'Waiting for a quiz';
+  const deadline = g.phase === 'question' ? g.deadline : g.phase === 'reveal' ? g.nextQuestionAt : null;
+  if (g.phase === 'reveal' && deadline) label = 'Next question in';
+  const parts = [node('span', 'status-label', label)];
+  if (deadline) parts.push(node('span', 'quiz-countdown', `${String(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))).padStart(2, '0')}s`));
+  $('status').replaceChildren(...parts);
+}
 function updateControls(g) {
   if (!$('open')) return;
   $('open').disabled = ['lobby','question','reveal'].includes(g.phase);
@@ -89,8 +97,9 @@ function showEliminations(g) {
 function render(g) {
   game = g;
   if ($('overlayRoot')) $('overlayRoot').hidden = g.phase === 'idle';
-  $('status').textContent = g.phase === 'lobby' ? 'Lobby open - type !join in chat' : g.phase === 'question' ? `${roundLabel(g)} - Entries locked` : g.phase === 'reveal' ? 'Answer revealed - Entries locked' : g.phase === 'completed' ? (g.winners.length ? 'Quiz complete - victory' : 'Quiz complete - defeat') : 'Waiting for a quiz';
-  $('counts').textContent = `${g.players} joined - ${g.survivors} remaining`;
+  updateStatus(g);
+  $('questionPanel').className = g.phase === 'lobby' ? 'panel quiz-lobby' : 'panel';
+  $('counts').textContent = g.phase === 'lobby' ? `${g.players} ${g.players === 1 ? 'player' : 'players'} joined` : `${g.players} joined - ${g.survivors} remaining`;
   const key = `${g.gameId}:${g.phase}:${g.round}`;
   if (key !== viewKey) {
     viewKey = key;
@@ -99,7 +108,7 @@ function render(g) {
     $('questionPanel').hidden = false;
     $('quizStage').hidden = true;
     $('quizStage').replaceChildren();
-    $('question').textContent = g.question?.text || 'Join with !join before the host starts. Answer with 1, 2, 3 or 4.';
+    $('question').textContent = g.phase === 'lobby' ? '!join' : g.question?.text || 'Waiting for the next quiz';
     $('options').replaceChildren();
     (g.question?.options || []).forEach((text, i) => {
       const correct = g.question.answer === i;
@@ -125,7 +134,7 @@ function render(g) {
       animationRunning = true;
       stageTimer = setTimeout(() => showEliminations(g), 3500);
     } else {
-      $('result').textContent = 'First answer is final. Wrong or missing answers eliminate you. Keep answering until you get one wrong. The last survivor keeps the crown.';
+      $('result').textContent = g.phase === 'lobby' ? 'Type in chat to play' : 'Answer 1, 2, 3 or 4. First answer counts.';
     }
   }
   updateControls(g);
@@ -139,8 +148,5 @@ async function refresh() {
   } catch (error) { $('error').textContent = error.message; }
 }
 setInterval(refresh, 1000);
-setInterval(() => {
-  if (game?.phase === 'question') $('status').textContent = `${roundLabel(game)} - ${Math.max(0, Math.ceil((game.deadline - Date.now()) / 1000))}s - Entries locked`;
-  if (game?.phase === 'reveal' && game.nextQuestionAt) $('status').textContent = `Next question in ${Math.max(0,Math.ceil((game.nextQuestionAt-Date.now())/1000))}s`;
-}, 250);
+setInterval(() => { if (game) updateStatus(game); }, 250);
 refresh();

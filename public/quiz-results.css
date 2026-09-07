@@ -30,3 +30,12 @@
 .winner-stats{display:flex;justify-content:center;gap:18px;margin-top:12px;color:#f4c95d;font-size:.95rem;font-weight:bold}
 
 body.quiz-overlay{background:transparent}.quiz-overlay .shell{padding:12px}
+
+#status{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:1.5em}
+.status-label{min-width:0}.quiz-countdown{flex:0 0 4ch;width:4ch;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+#questionPanel.quiz-lobby{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 20px}
+.quiz-lobby #status{order:0;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#a2b5c3}
+.quiz-lobby #question{order:1;margin:10px 0 2px;font-size:clamp(2.8rem,10vw,4rem);line-height:1.1;color:#4ecdc4}
+.quiz-lobby #result{order:2;margin:6px 0 18px;font-size:1.1rem;color:#edf4f7}
+.quiz-lobby #counts{order:3;margin:0;padding:7px 14px;border-radius:30px;background:#263342;color:#edf4f7;font-size:.95rem;font-variant-numeric:tabular-nums}
+.quiz-lobby #options{display:none}
