@@ -1,4 +1,5 @@
 const fs = require('node:fs');
+const { summarizeQuiz } = require('./quiz-analytics');
 const path = require('node:path');
 const { appConfig } = require('./app-config');
 const {
@@ -46,7 +47,7 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
     .filter((event) => isPolaroidTestEvent(event) && event.eventType === 'capture_completed')
     .map((event) => event.metadata.filename)
     .filter(Boolean));
-  const normalizedEvents = allNormalizedEvents.filter((event) => !isPolaroidTestEvent(event));
+  const normalizedEvents = allNormalizedEvents.filter((event) => !isPolaroidTestEvent(event) && event.metadata.isTest !== true && event.metadata.testMode !== true);
   const normalizedCaptures = mergeCapturesWithEvents(captures, normalizedEvents, testCaptureFilenames)
     .filter((item) => item.timeMs <= nowMs);
   const normalizedSessions = streamSessions.map(normalizeStreamSession).filter((item) => item.startMs <= nowMs);
@@ -55,7 +56,7 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
   const currentRequests = normalizedRequests.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
   const currentEvents = normalizedEvents.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
   const currentCaptures = normalizedCaptures.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
-  const currentSessions = normalizedSessions.filter((item) => (item.endMs || nowMs) >= sinceMs && platformMatches(item));
+  const currentSessions = normalizedSessions.filter((item) => (item.endMs || nowMs) >= sinceMs && (platformMatches(item) || (item.platform === 'obs' && ['twitch','youtube','tiktok'].includes(safePlatform)))).map(item=>({...item,startMs:Math.max(item.startMs,sinceMs),endMs:Math.min(item.endMs||nowMs,nowMs)}));
   const currentSnapshots = normalizedSnapshots.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
   const previousRequests = days
     ? normalizedRequests.filter((item) => item.timeMs >= previousSinceMs && item.timeMs < sinceMs && platformMatches(item))
@@ -67,7 +68,11 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
     ? normalizedCaptures.filter((item) => item.timeMs >= previousSinceMs && item.timeMs < sinceMs && platformMatches(item))
     : [];
 
-  const current = summarizePeriod(currentRequests, currentEvents, currentCaptures);
+  const quizIds = new Set(currentEvents.filter(e=>e.tool==='elimination_quiz').map(e=>e.correlationId).filter(Boolean));
+  const hillIds = new Set(currentEvents.filter(e=>e.tool==='king_of_the_hill').map(e=>e.correlationId).filter(Boolean));
+  const hillContext = normalizedEvents.filter(e=>e.tool==='king_of_the_hill' && e.timeMs>=sinceMs && (safePlatform==='all' || hillIds.has(e.correlationId) || e.platform===safePlatform));
+  const quizContext = normalizedEvents.filter(e=>e.tool==='elimination_quiz' && e.timeMs>=sinceMs && (safePlatform==='all' || quizIds.has(e.correlationId) || e.platform===safePlatform));
+  const current = summarizePeriod(currentRequests, currentEvents, currentCaptures, quizContext, hillContext);
   const previous = summarizePeriod(previousRequests, previousEvents, previousCaptures);
   const sessions = currentSessions.length
     ? buildActualSessions(currentSessions, currentSnapshots, current.activity, nowMs)
@@ -113,7 +118,8 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
     },
     audience: current.audience,
     impact: buildImpactSummary(sessions, currentEvents, current.audience),
-    platforms: breakdown(current.activity, 'platform'),
+    platforms: breakdown(current.activity.filter(isInteraction), 'platform'),
+    limits: { activity:250, sessions:30, quizGames:30, participants:25 },
     timeline,
     sessions: sessions.slice(0, 30),
     activity: current.activity.slice(0, 250),
@@ -135,7 +141,7 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
   };
 }
 
-function summarizePeriod(requests, events, captures) {
+function summarizePeriod(requests, events, captures, quizContext = events.filter(e=>e.tool==='elimination_quiz'), hillContext = events.filter(e=>e.tool==='king_of_the_hill')) {
   const commandEvents = events.filter((event) => event.tool === 'song_requests' && event.eventType === 'command');
   const missingSongAttempts = commandEvents.filter((event) => {
     const command = event.metadata.command;
@@ -178,10 +184,10 @@ function summarizePeriod(requests, events, captures) {
     detail: item.artists || '',
   }));
 
-  const phaseEvents = hillEvents.filter((event) => event.eventType === 'phase_completed');
+  const phaseEvents = hillContext.filter((event) => event.eventType === 'phase_completed');
   const roundEvents = phaseEvents.filter((event) => event.metadata.phase === 'battle');
-  const gameStarts = hillEvents.filter((event) => event.eventType === 'game_started');
-  const gameCompletes = hillEvents.filter((event) => event.eventType === 'game_completed');
+  const gameStarts = hillContext.filter((event) => event.eventType === 'game_started');
+  const gameCompletes = hillContext.filter((event) => event.eventType === 'game_completed');
   const hillPeople = distinctPeople(hillVotes);
   const topTopics = ranked(
     phaseEvents.filter((event) => event.metadata.topic?.title),
@@ -218,6 +224,7 @@ function summarizePeriod(requests, events, captures) {
       total: person.total,
       songRequests: person.counts.song_requests || 0,
       hillVotes: person.counts.king_of_the_hill || 0,
+      quizInteractions: person.counts.elimination_quiz || 0,
       polaroids: person.counts.polaroid || 0,
       toolsUsed: person.tools.size,
       roles: [...person.roles],
@@ -254,20 +261,15 @@ function summarizePeriod(requests, events, captures) {
         response: item.response,
       })),
     },
-    quiz: {
-      gamesStarted: quizCount('game_started'), gamesCompleted: quizCount('game_completed'),
-      joins: quizCount('player_joined'), answers: quizCount('answer_submitted'),
-      uniquePlayers: distinctPeople(quizInteractions).size, eliminations: quizCount('player_eliminated'),
-      winners: quizCount('player_won'), rounds: quizCount('round_completed'),
-      correctAnswers: quizEvents.filter(e => e.eventType === 'answer_result' && e.metadata.correct).length,
-      platforms: breakdown(quizInteractions, 'platform'),
-    },
+    quiz: { ...summarizeQuiz(quizEvents, quizContext), platforms: breakdown(quizInteractions, 'platform') },
     hill: {
       gamesStarted: gameStarts.length,
       gamesCompleted: gameCompletes.length,
-      completionRate: percent(gameCompletes.length, gameStarts.length),
+      completionRate: gameStarts.length ? percent(gameStarts.filter(start=>gameCompletes.some(end=>end.correlationId===start.correlationId)).length, gameStarts.length) : null,
       votes: hillVotes.length,
       uniqueVoters: hillPeople.size,
+      repeatVoters: repeatPeople(hillVotes),
+      topVoters: ranked(hillVotes, personKey, e=>({label:e.username,detail:e.platform})).slice(0,12),
       roundsCompleted: roundEvents.length,
       averageVotesPerRound: average(roundEvents.map((event) => Number(event.metadata.totalVotes) || 0)),
       averageVotesPerGame: average(groupCounts(hillVotes, (event) => event.correlationId).values()),
@@ -290,6 +292,7 @@ function summarizePeriod(requests, events, captures) {
       repeatRedeemers: repeatPeople(captures),
       failures: failures.length,
       deliveryFailures: deliveryFailures.length,
+      recentFailures: [...failures,...deliveryFailures].sort((a,b)=>b.timeMs-a.timeMs).slice(0,30).map(e=>({timestamp:e.timestamp,username:e.username,platform:e.platform,eventType:e.eventType,error:String(e.metadata.error || 'No error detail recorded')})),
       successRate: percent(captures.length, captures.length + failures.length),
       sources: breakdown(captures, 'platform'),
       topRedeemers: topRedeemers.slice(0, 12),
@@ -488,11 +491,14 @@ function genericEventActivity(item) {
     platform: item.platform, userId: item.userId, username: item.username,
     roles: item.roles || [], sessionId: item.sessionId || '',
     status: item.eventType.includes('failed') ? 'error' : 'info', title: labels[item.eventType] || humanize(item.eventType),
-    detail: item.metadata.error || item.metadata.winner?.title || item.metadata.champion?.title || '',
+    detail: item.tool === 'elimination_quiz' ? [item.metadata.round ? `Round ${item.metadata.round}` : '', item.metadata.category || '', item.eventType==='answer_result' ? (item.metadata.correct ? 'Correct' : item.metadata.missed ? 'Missed' : 'Wrong') : '', item.metadata.outcome || '', item.metadata.correctAnswers !== undefined ? `${item.metadata.correctAnswers} correct answers` : ''].filter(Boolean).join(' ? ') : item.metadata.error || item.metadata.winner?.title || item.metadata.champion?.title || '',
     correlationId: item.correlationId,
   };
 }
 
+function isInteraction(item) {
+  return ['song_requests','king_of_the_hill','polaroid','elimination_quiz'].includes(item.tool) && ['song_request','command','vote','capture_completed','player_joined','answer_submitted'].includes(item.eventType);
+}
 function inferSessions(activity) {
   const chronological = activity.slice().sort((a, b) => a.timeMs - b.timeMs);
   const sessions = [];
@@ -506,7 +512,7 @@ function inferSessions(activity) {
     session.activity.push(item);
   }
   return sessions.reverse().map((session, index) => {
-    const people = distinctPeople(session.activity);
+    const people = distinctPeople(session.activity.filter(isInteraction));
     const toolCounts = countBy(session.activity, (item) => item.tool);
     const platforms = breakdown(session.activity, 'platform');
     return {
@@ -514,10 +520,11 @@ function inferSessions(activity) {
       startedAt: new Date(session.startMs).toISOString(),
       endedAt: new Date(session.lastMs).toISOString(),
       durationMinutes: Math.max(1, Math.round((session.lastMs - session.startMs) / 60000)),
-      interactions: session.activity.filter((item) => ['song_request', 'vote', 'capture_completed', 'player_joined', 'answer_submitted'].includes(item.eventType)).length,
+      interactions: session.activity.filter(isInteraction).length,
       uniqueParticipants: people.size,
       songRequests: toolCounts.song_requests || 0,
       hillVotes: session.activity.filter((item) => item.eventType === 'vote').length,
+      quizInteractions: session.activity.filter(item=>item.tool==='elimination_quiz' && isInteraction(item)).length,
       polaroids: session.activity.filter((item) => item.eventType === 'capture_completed').length,
       topPlatform: platforms[0]?.key || 'other',
       standout: sessionStandout(session.activity),
@@ -594,16 +601,17 @@ function buildActualSessions(sessions, snapshots, activity, nowMs) {
     const averageViewers = Math.round(platformViewerStats.reduce((sum, item) => sum + item.average, 0) * 10) / 10;
     const endingViewers = platformViewerStats.reduce((sum, item) => sum + item.end, 0);
     const toolCounts = countBy(relevantActivity, (item) => item.tool);
-    const people = distinctPeople(relevantActivity);
+    const people = distinctPeople(relevantActivity.filter(isInteraction));
     return {
       id: group.sessions.map((session) => session.id).join('|'),
       startedAt: new Date(group.startMs).toISOString(),
       endedAt: new Date(group.endMs).toISOString(),
       durationMinutes: Math.max(1, Math.round((group.endMs - group.startMs) / 60000)),
-      interactions: relevantActivity.filter((item) => ['song_request', 'vote', 'capture_completed', 'player_joined', 'answer_submitted'].includes(item.eventType)).length,
+      interactions: relevantActivity.filter(isInteraction).length,
       uniqueParticipants: people.size,
       songRequests: relevantActivity.filter((item) => item.eventType === 'song_request').length,
       hillVotes: relevantActivity.filter((item) => item.eventType === 'vote').length,
+      quizInteractions: relevantActivity.filter(item=>item.tool==='elimination_quiz' && isInteraction(item)).length,
       polaroids: relevantActivity.filter((item) => item.eventType === 'capture_completed').length,
       topPlatform: displayPlatforms[0],
       platforms: displayPlatforms,
@@ -641,7 +649,7 @@ function buildImpactSummary(sessions, events, audience) {
     raids: outcomes.raid_received || 0,
     shares: outcomes.share || 0,
     outcomeRate: audience.engagedViewers ? percent((outcomes.follow || 0) + (outcomes.subscription || 0), audience.engagedViewers) : 0,
-    toolComparisons: ['songRequests', 'hillVotes', 'polaroids'].map((property) => {
+    toolComparisons: ['songRequests', 'hillVotes', 'polaroids', 'quizInteractions'].map((property) => {
       const withTool = measuredSessions.filter((session) => session[property] > 0);
       const withoutTool = measuredSessions.filter((session) => session[property] === 0);
       const withAverage = average(withTool.map((session) => session.averageViewers || 0));
@@ -667,18 +675,18 @@ function buildTimeline(activity, events, range) {
     const key = personKey(event);
     if (key) chatByDay.get(day).add(key);
   });
-  activity.forEach((item) => {
+  activity.filter(isInteraction).forEach((item) => {
     const date = item.timestamp.slice(0, 10);
     if (!buckets.has(date)) buckets.set(date, { date, songRequests: 0, hillVotes: 0, polaroids: 0, quiz: 0, participants: new Set() });
     const bucket = buckets.get(date);
-    if (item.eventType === 'song_request') bucket.songRequests += 1;
+    if (item.tool === 'song_requests') bucket.songRequests += 1;
     if (item.eventType === 'vote') bucket.hillVotes += 1;
     if (item.tool === 'elimination_quiz' && ['player_joined','answer_submitted'].includes(item.eventType)) bucket.quiz += 1;
     if (item.eventType === 'capture_completed') bucket.polaroids += 1;
     const key = personKey(item);
     if (key) bucket.participants.add(key);
   });
-  const limit = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 120;
+  const limit = Infinity;
   return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-limit).map((bucket) => ({
     date: bucket.date,
     songRequests: bucket.songRequests,
@@ -822,7 +830,7 @@ function percent(numerator, denominator) {
 }
 
 function comparison(current, previous) {
-  if (!previous) return { current, previous, percentChange: current ? 100 : 0, direction: current ? 'up' : 'flat' };
+  if (!previous) return { current, previous, percentChange: current ? null : 0, direction: current ? 'up' : 'flat' };
   const percentChange = Math.round(((current - previous) / previous) * 1000) / 10;
   return { current, previous, percentChange, direction: percentChange > 0 ? 'up' : percentChange < 0 ? 'down' : 'flat' };
 }

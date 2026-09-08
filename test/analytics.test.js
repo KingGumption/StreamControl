@@ -152,3 +152,74 @@ function event(tool, eventType, time, username, userId, metadata = {}, correlati
     username, platform_user_id: userId, metadata, correlation_id: correlationId, roles, session_id: sessionId,
   };
 }
+
+test('quiz drilldown keeps shared game context while filtering player results', () => {
+  const q=(type,name,id,metadata={},game='q1',platform='twitch')=>({...event('elimination_quiz',type,'18:00',name,id,metadata,game),platform});
+  const events=[
+    q('game_started','','',{players:2},'q1','admin'),
+    q('player_joined','KingGumption','1'),q('player_joined','Other','2',{},'q1','youtube'),
+    q('answer_submitted','KingGumption','1'),q('answer_result','KingGumption','1',{correct:true,missed:false,category:'horror',round:1}),
+    q('answer_result','Other','2',{correct:false,missed:true,category:'horror',round:1},'q1','youtube'),
+    q('round_completed','','',{round:1,suddenDeath:true},'q1','admin'),
+    q('player_won','KingGumption','1',{correctAnswers:5}),q('game_completed','','',{outcome:'victory',players:2},'q1','admin'),
+    q('player_joined','KingGumption','1',{},'q2'),q('game_started','','',{players:1},'q2','admin'),q('game_stopped','','',{},'q2','admin'),
+    q('player_joined','Test','3',{isTest:true},'test'),
+  ];
+  const build=platform=>buildAnalyticsReport({events,platform,range:'7d',now:'2026-09-02T00:00:00Z'});
+  const report=build('twitch'), quiz=report.tools.eliminationQuiz;
+  assert.equal(quiz.gamesStarted,2);assert.equal(quiz.gamesCompleted,1);assert.equal(quiz.completionRate,50);
+  assert.equal(quiz.gamesStopped,1);assert.equal(quiz.repeatPlayers,1);assert.equal(quiz.repeatPlayerRate,100);
+  assert.equal(quiz.accuracy,100);assert.equal(quiz.missedAnswers,0);assert.equal(quiz.suddenDeathRounds,1);
+  assert.equal(quiz.leaderboard[0].username,'KingGumption');assert.equal(quiz.leaderboard[0].bestRun,5);
+  assert.equal(quiz.recentGames.find(g=>g.gameId==='q1').players,2);
+  assert.equal(report.overview.interactions,3);assert.equal(report.platforms.reduce((n,p)=>n+p.count,0),3);
+  assert.equal(report.timeline.reduce((n,p)=>n+p.total,0),3);
+  assert.equal(report.audience.topParticipants[0].quizInteractions,3);
+  assert.equal(report.sessions[0].quizInteractions,3);
+  assert.equal(build('all').tools.eliminationQuiz.missedAnswers,1);
+  assert.equal(build('youtube').tools.eliminationQuiz.accuracy,null);
+  assert.equal(build('youtube').tools.eliminationQuiz.gamesCompleted,1);
+  assert.equal(build('all').tools.eliminationQuiz.uniquePlayers,2);
+});
+
+test('zero baseline is new, lifecycle events do not inflate participants, and timeline retains year data',()=>{
+  const events=Array.from({length:150},(_,i)=>({...event('elimination_quiz','player_joined','18:00','Viewer','1',{},'q'+i),timestamp:new Date(Date.UTC(2026,0,1+i)).toISOString()}));
+  events.push({...event('stream','follow','18:00','Follower','2'),timestamp:'2026-05-31T18:00:00Z'});
+  const r=buildAnalyticsReport({events,range:'365d',now:'2026-06-01T00:00:00Z'});
+  assert.equal(r.timeline.length,150);assert.equal(r.platforms[0].count,150);
+  assert.equal(r.overview.comparisons.interactions.percentChange,null);
+  assert.equal(r.sessions[0].uniqueParticipants,0);
+  assert.equal(r.sessions[1].uniqueParticipants,1);
+});
+
+test('completion outside the starting cohort cannot exceed 100 percent',()=>{
+  const events=[event('elimination_quiz','game_completed','18:00','','',{outcome:'defeat'},'old'),event('elimination_quiz','game_started','18:01','','',{players:1},'new')];
+  const r=buildAnalyticsReport({events,now:'2026-09-02T00:00:00Z'});
+  assert.equal(r.tools.eliminationQuiz.completionRate,0);assert.equal(r.tools.eliminationQuiz.defeats,1);
+});
+
+test('real quiz events reconcile joins, answers, final survivor victory and report totals',()=>{
+  const {QuizGame}=require('../src/quiz-game');
+  const events=[];
+  const game=new QuizGame({recordEvent:e=>events.push({...e,timestamp:'2026-09-01T18:00:00Z'}),schedule:()=>null,cancel:()=>{},questions:[{id:'one',text:'One?',options:['A','B','C','D'],answer:0,difficulty:1,category:'general'}]});
+  game.open({questionCount:1});
+  const chat=(id,text)=>game.handleChatEvent({platform:'twitch',user:{id,displayName:id},text});
+  chat('KingGumption','!join');chat('Other','!join');game.next();
+  chat('KingGumption',String(game.deck[0].answer+1));game.resolve();game.next();
+  chat('KingGumption',String((game.deck[1].answer+1)%4+1));game.resolve();
+  const r=buildAnalyticsReport({events,now:'2026-09-02T00:00:00Z'}),q=r.tools.eliminationQuiz;
+  assert.equal(q.victories,1);assert.equal(q.winners,1);assert.equal(q.defeats,0);
+  assert.equal(q.joins,2);assert.equal(q.answers,2);assert.equal(q.correctAnswers,1);
+  assert.equal(q.wrongAnswers,1);assert.equal(q.missedAnswers,1);assert.equal(q.eliminations,1);
+  assert.equal(q.accuracy,50);assert.equal(q.responseRate,66.7);assert.equal(q.rounds,2);
+  assert.equal(r.overview.interactions,4);assert.equal(r.timeline[0].total,4);
+});
+
+test('platform reports retain OBS fallback sessions and clip duration to the reporting window',()=>{
+  const r=buildAnalyticsReport({range:'7d',platform:'twitch',now:'2026-09-02T00:00:00Z',
+    events:[event('king_of_the_hill','vote','18:00','Viewer','1')],
+    streamSessions:[{id:'obs',platform:'obs',started_at:'2026-08-20T00:00:00Z',ended_at:'2026-09-01T19:00:00Z'}],
+    viewerSnapshots:[{timestamp:'2026-09-01T18:00:00Z',platform:'twitch',viewer_count:10,session_id:'obs'}]});
+  assert.equal(r.overview.sessionSource,'platform');assert.equal(r.sessions[0].startedAt,'2026-08-26T00:00:00.000Z');
+  assert.equal(r.sessions[0].averageViewers,10);assert.equal(r.sessions[0].hillVotes,1);
+});
