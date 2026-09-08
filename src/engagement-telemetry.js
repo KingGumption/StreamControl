@@ -28,6 +28,7 @@ class EngagementTelemetry {
     const platform = String(payload?.event?.source || '').toLowerCase();
     const type = String(payload?.event?.type || '').toLowerCase();
     const data = payload?.data || {};
+    if (data.isTest === true || payload?.isTest === true) return null;
     const timestamp = validTimestamp(payload?.timeStamp) || validTimestamp(data.createdAt) || new Date().toISOString();
 
     if (platform === 'twitch') {
@@ -84,6 +85,7 @@ class EngagementTelemetry {
   handleTikfinity(envelope) {
     const type = String(envelope?.event || envelope?.data?.type || '').toLowerCase();
     const data = envelope?.data || {};
+    if (data.isTest === true || envelope?.isTest === true) return null;
     const timestamp = timestampFromMilliseconds(data.createTime || data.timestamp || data.timestampMs) || new Date().toISOString();
     if (['roomuser', 'roomuserseq', 'viewer_count'].includes(type)) {
       return this.viewerSnapshot('tiktok', timestamp, firstNumber(data.viewerCount, data.userCount), firstNumber(data.totalViewers, data.totalUser), 'tikfinity');
@@ -190,7 +192,7 @@ function extractUser(user = {}, data = {}) {
   if (user?.isMember || user?.isSponsor) roles.push('member');
   return {
     id: firstText(user?.id, user?.userId, user?.channelId, data.userId, data.user_id, data.channelId),
-    username: firstText(user?.login, user?.name, user?.displayName, user?.uniqueId, data.userName, data.user_name, data.displayName),
+    username: firstText(user?.displayName, user?.name, user?.login, user?.uniqueId, data.displayName, data.userName, data.user_name),
     roles,
   };
 }
@@ -203,8 +205,9 @@ function sanitizeOutcomeMetadata(eventType, data) {
 
 function firstNumber(...values) {
   for (const value of values) {
+    if (value === null || value === undefined || value === '' || typeof value === 'boolean') continue;
     const number = Number(value);
-    if (Number.isFinite(number)) return number;
+    if (Number.isFinite(number) && number >= 0) return number;
   }
   return NaN;
 }

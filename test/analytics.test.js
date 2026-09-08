@@ -48,7 +48,7 @@ test('builds cross-tool roundups, drill-downs, audience overlap, and sessions', 
   assert.equal(report.audience.observedChatters, 3);
   assert.equal(report.audience.engagementRate, 100);
   assert.equal(report.audience.multiToolViewers, 2);
-  assert.equal(report.sessions[0].standout, '3 Hill votes');
+  assert.equal(report.sessions[0].standout, '3 song interactions');
   assert.equal(report.activity[0].eventType, 'capture_completed');
 });
 
@@ -119,7 +119,7 @@ test('builds measured stream impact, outcomes, roles, and OBS fallback viewer cu
   assert.equal(report.sessions[0].topPlatform, 'twitch');
   assert.equal(report.sessions[0].peakViewers, 20);
   assert.equal(report.sessions[0].averageViewers, 15);
-  assert.equal(report.sessions[0].viewerHours, 15);
+  assert.equal(report.sessions[0].viewerHours, null); // Half-hour sample gaps cannot establish watch time.
   assert.equal(report.sessions[0].follows, 1);
   assert.equal(report.sessions[0].subscriptions, 1);
   assert.equal(report.sessions[0].raids, 1);
@@ -186,7 +186,7 @@ test('zero baseline is new, lifecycle events do not inflate participants, and ti
   const events=Array.from({length:150},(_,i)=>({...event('elimination_quiz','player_joined','18:00','Viewer','1',{},'q'+i),timestamp:new Date(Date.UTC(2026,0,1+i)).toISOString()}));
   events.push({...event('stream','follow','18:00','Follower','2'),timestamp:'2026-05-31T18:00:00Z'});
   const r=buildAnalyticsReport({events,range:'365d',now:'2026-06-01T00:00:00Z'});
-  assert.equal(r.timeline.length,150);assert.equal(r.platforms[0].count,150);
+  assert.equal(r.timeline.filter(d=>d.total>0).length,150);assert.ok(r.timeline.length>=365);assert.equal(r.platforms[0].count,150);
   assert.equal(r.overview.comparisons.interactions.percentChange,null);
   assert.equal(r.sessions[0].uniqueParticipants,0);
   assert.equal(r.sessions[1].uniqueParticipants,1);
@@ -212,7 +212,7 @@ test('real quiz events reconcile joins, answers, final survivor victory and repo
   assert.equal(q.joins,2);assert.equal(q.answers,2);assert.equal(q.correctAnswers,1);
   assert.equal(q.wrongAnswers,1);assert.equal(q.missedAnswers,1);assert.equal(q.eliminations,1);
   assert.equal(q.accuracy,50);assert.equal(q.responseRate,66.7);assert.equal(q.rounds,2);
-  assert.equal(r.overview.interactions,4);assert.equal(r.timeline[0].total,4);
+  assert.equal(r.overview.interactions,4);assert.equal(r.timeline.find(d=>d.date==='2026-09-01').total,4);
 });
 
 test('platform reports retain OBS fallback sessions and clip duration to the reporting window',()=>{

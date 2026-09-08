@@ -92,7 +92,7 @@ router.get('/requests', (req, res) => {
 });
 
 router.get('/analytics/summary', (req, res) => {
-  res.json(loadAnalyticsReport({ range: req.query.range, platform: req.query.platform }));
+  res.json(loadAnalyticsReport({ range: req.query.range, platform: req.query.platform, activityPage:req.query.activityPage,activityTool:req.query.activityTool,activitySearch:req.query.activitySearch }));
 });
 
 router.get('/polaroid/status', (req, res) => {

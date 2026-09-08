@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const { summarizeQuiz } = require('./quiz-analytics');
+const { buildRoundups } = require('./analytics-sessions');
 const path = require('node:path');
 const { appConfig } = require('./app-config');
 const {
@@ -10,11 +11,10 @@ const {
 } = require('./db');
 
 const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90, '365d': 365 };
-const SUCCESS_STATUSES = new Set(['accepted', 'partial', 'dry-run']);
 const STORED_SONG_STATUSES = new Set(['accepted', 'partial', 'dry-run', 'not-found', 'duplicate', 'error']);
 const capturesDir = path.join(appConfig.dataDir, 'polaroid-captures');
 
-function loadAnalyticsReport({ range = '30d', platform = 'all', now = new Date() } = {}) {
+function loadAnalyticsReport({ range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
   const safeRange = RANGE_DAYS[range] ? range : range === 'all' ? 'all' : '30d';
   const days = RANGE_DAYS[safeRange] || null;
   const nowMs = new Date(now).getTime();
@@ -26,12 +26,12 @@ function loadAnalyticsReport({ range = '30d', platform = 'all', now = new Date()
     viewerSnapshots: listViewerSnapshotsForRange({ since: loadSince }),
     captures: listPolaroidCaptures(),
     range: safeRange,
-    platform,
+    platform, activityPage, activityTool, activitySearch,
     now,
   });
 }
 
-function buildAnalyticsReport({ requests = [], events = [], captures = [], streamSessions = [], viewerSnapshots = [], range = '30d', platform = 'all', now = new Date() } = {}) {
+function buildAnalyticsReport({ requests = [], events = [], captures = [], streamSessions = [], viewerSnapshots = [], range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
   const safeRange = RANGE_DAYS[range] ? range : range === 'all' ? 'all' : '30d';
   const safePlatform = ['all', 'twitch', 'youtube', 'tiktok', 'admin', 'api', 'obs', 'other'].includes(platform)
     ? platform
@@ -41,22 +41,25 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
   const sinceMs = days ? nowMs - days * 86400000 : -Infinity;
   const previousSinceMs = days ? sinceMs - days * 86400000 : -Infinity;
 
-  const normalizedRequests = requests.map(normalizeRequest).filter((item) => item.timeMs <= nowMs);
+  const testSessionIds=new Set(streamSessions.filter(s=>s.metadata?.isTest || s.metadata?.testMode).map(s=>s.id));
+  const normalizedRequests = requests.map(normalizeRequest).filter((item) => item.timeMs <= nowMs && !testSessionIds.has(item.sessionId));
   const allNormalizedEvents = events.map(normalizeEvent).filter((item) => item.timeMs <= nowMs);
   const testCaptureFilenames = new Set(allNormalizedEvents
-    .filter((event) => isPolaroidTestEvent(event) && event.eventType === 'capture_completed')
+    .filter((event) => (isPolaroidTestEvent(event) || testSessionIds.has(event.sessionId)) && event.eventType === 'capture_completed')
     .map((event) => event.metadata.filename)
     .filter(Boolean));
-  const normalizedEvents = allNormalizedEvents.filter((event) => !isPolaroidTestEvent(event) && event.metadata.isTest !== true && event.metadata.testMode !== true);
+  const normalizedEvents = allNormalizedEvents.filter((event) => !isPolaroidTestEvent(event) && event.metadata.isTest !== true && event.metadata.testMode !== true && !testSessionIds.has(event.sessionId));
   const normalizedCaptures = mergeCapturesWithEvents(captures, normalizedEvents, testCaptureFilenames)
     .filter((item) => item.timeMs <= nowMs);
-  const normalizedSessions = streamSessions.map(normalizeStreamSession).filter((item) => item.startMs <= nowMs);
-  const normalizedSnapshots = viewerSnapshots.map(normalizeViewerSnapshot).filter((item) => item.timeMs <= nowMs);
+  reconcileKnownNames([...normalizedRequests, ...normalizedEvents, ...normalizedCaptures]);
+  const normalizedSessions = streamSessions.map(normalizeStreamSession).filter((item) => item.startMs <= nowMs && !item.metadata.isTest && !item.metadata.testMode);
+
+  const normalizedSnapshots = viewerSnapshots.filter(s=>!testSessionIds.has(s.session_id || s.sessionId) && !s.metadata?.isTest && !s.metadata?.testMode && (s.viewer_count ?? s.viewerCount) !== null && (s.viewer_count ?? s.viewerCount) !== undefined && Number.isFinite(Number(s.viewer_count ?? s.viewerCount)) && Number(s.viewer_count ?? s.viewerCount)>=0).map(normalizeViewerSnapshot).filter((item) => item.timeMs <= nowMs);
   const platformMatches = (item) => safePlatform === 'all' || item.platform === safePlatform;
   const currentRequests = normalizedRequests.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
   const currentEvents = normalizedEvents.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
   const currentCaptures = normalizedCaptures.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
-  const currentSessions = normalizedSessions.filter((item) => (item.endMs || nowMs) >= sinceMs && (platformMatches(item) || (item.platform === 'obs' && ['twitch','youtube','tiktok'].includes(safePlatform)))).map(item=>({...item,startMs:Math.max(item.startMs,sinceMs),endMs:Math.min(item.endMs||nowMs,nowMs)}));
+  const currentSessions = normalizedSessions.filter((item) => (item.endMs || nowMs) >= sinceMs && (platformMatches(item) || (item.platform === 'obs' && ['twitch','youtube','tiktok'].includes(safePlatform))));
   const currentSnapshots = normalizedSnapshots.filter((item) => item.timeMs >= sinceMs && platformMatches(item));
   const previousRequests = days
     ? normalizedRequests.filter((item) => item.timeMs >= previousSinceMs && item.timeMs < sinceMs && platformMatches(item))
@@ -74,10 +77,14 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
   const quizContext = normalizedEvents.filter(e=>e.tool==='elimination_quiz' && e.timeMs>=sinceMs && (safePlatform==='all' || quizIds.has(e.correlationId) || e.platform===safePlatform));
   const current = summarizePeriod(currentRequests, currentEvents, currentCaptures, quizContext, hillContext);
   const previous = summarizePeriod(previousRequests, previousEvents, previousCaptures);
-  const sessions = currentSessions.length
-    ? buildActualSessions(currentSessions, currentSnapshots, current.activity, nowMs)
-    : inferSessions(current.activity);
-  const timeline = buildTimeline(current.activity, currentEvents, safeRange);
+  const sessions = buildRoundups({sessions:currentSessions,snapshots:currentSnapshots,activity:current.activity,observations:currentEvents.filter(e=>e.tool==='audience'),sinceMs,nowMs,isInteraction});
+  const confirmedSessions=sessions.filter(s=>s.source==='platform').length;
+  const timeline = buildTimeline(current.activity, currentEvents, sinceMs, nowMs);
+  const ledgerSearch=String(activitySearch||'').slice(0,200).trim().toLowerCase();
+  const ledgerTool=['all','elimination_quiz','song_requests','king_of_the_hill','polaroid','stream'].includes(activityTool)?activityTool:'all';
+  const ledger=current.activity.filter(e=>(ledgerTool==='all'||e.tool===ledgerTool) && (!ledgerSearch||[e.username,e.platform,e.eventType,e.title,e.detail,e.status,e.correlationId].join(' ').toLowerCase().includes(ledgerSearch)));
+  const pageSize=100, ledgerPages=Math.max(1,Math.ceil(ledger.length/pageSize));
+  const ledgerPage=Math.max(0,Math.min(ledgerPages-1,Math.floor(Number(activityPage)||0)));
   const coverageStart = earliestTimestamp([...normalizedRequests, ...normalizedEvents, ...normalizedCaptures]);
 
   return {
@@ -93,13 +100,14 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
       songRequestsSince: earliestTimestamp(normalizedRequests),
       polaroidsSince: earliestTimestamp(normalizedCaptures),
       richEventsSince: earliestTimestamp(normalizedEvents),
-      note: 'Historic song requests and archived Polaroids are included. Exact sessions, viewer levels, outcomes, roles, and cross-tool impact accumulate from the telemetry upgrade onward.',
+      note: 'Historic song requests and archived Polaroids are included. Recorded sessions and activity estimates are combined. Coverage dates below describe the records loaded for this report, not necessarily the first-ever use.',
     },
     overview: {
       interactions: current.interactions,
       uniqueParticipants: current.audience.engagedViewers,
       inferredStreams: sessions.length,
-      sessionSource: currentSessions.length ? 'platform' : 'inferred',
+      sessionSource: confirmedSessions===sessions.length && confirmedSessions ? 'platform' : confirmedSessions ? 'mixed' : 'inferred',
+      confirmedSessions, estimatedSessions:sessions.length-confirmedSessions,
       toolsActive: current.toolsActive,
       engagementRate: current.audience.engagementRate,
       comparisons: days ? {
@@ -119,10 +127,12 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
     audience: current.audience,
     impact: buildImpactSummary(sessions, currentEvents, current.audience),
     platforms: breakdown(current.activity.filter(isInteraction), 'platform'),
-    limits: { activity:250, sessions:30, quizGames:30, participants:25 },
+    limits: { activity:pageSize, activityTotal:current.activity.length, sessions:null, quizGames:30, participants:25 },
+    reconciliation: { interactions:current.interactions, timeline:timeline.reduce((n,d)=>n+d.total,0), roundups:sessions.reduce((n,s)=>n+s.interactions,0), platforms:current.activity.filter(isInteraction).length },
     timeline,
-    sessions: sessions.slice(0, 30),
-    activity: current.activity.slice(0, 250),
+    sessions,
+    activity: ledger.slice(ledgerPage*pageSize,(ledgerPage+1)*pageSize),
+    activityPagination:{page:ledgerPage,pages:ledgerPages,total:ledger.length,pageSize,tool:ledgerTool,search:ledgerSearch},
 
     // Preserve the original summary fields for existing callers.
     totalRequests: current.songRequests.total,
@@ -155,7 +165,7 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
   ];
   const quizEvents = events.filter(e => e.tool === 'elimination_quiz');
   const quizInteractions = quizEvents.filter(e => ['player_joined', 'answer_submitted'].includes(e.eventType));
-  const quizCount = type => quizEvents.filter(e => e.eventType === type).length;
+
   const hillEvents = events.filter((event) => event.tool === 'king_of_the_hill');
   const hillVotes = hillEvents.filter((event) => event.eventType === 'vote');
   const polaroidEvents = events.filter((event) => event.tool === 'polaroid');
@@ -232,16 +242,18 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
 
   return {
     interactions: toolActivity.length,
-    toolsActive: [totalSongAttempts, hillVotes.length, captures.length, quizInteractions.length].filter((value) => value > 0).length,
+    toolsActive: [songActivity.length, hillVotes.length, captures.length, quizInteractions.length].filter((value) => value > 0).length,
     activity,
     songRequests: {
       total: totalSongAttempts,
+      interactions:songActivity.length,
+      otherCommands:commandEvents.filter(e=>e.metadata.command!=='song').length,
       accepted,
       partial,
       dryRun,
       successful,
       rejected: Math.max(0, totalSongAttempts - successful),
-      acceptanceRate: percent(successful, totalSongAttempts),
+      acceptanceRate: totalSongAttempts ? percent(successful, totalSongAttempts) : null,
       uniqueRequesters: requestPeople.size,
       repeatRequesters: repeatPeople([...requests, ...missingSongAttempts]),
       commands: commandEvents.length,
@@ -293,7 +305,7 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
       failures: failures.length,
       deliveryFailures: deliveryFailures.length,
       recentFailures: [...failures,...deliveryFailures].sort((a,b)=>b.timeMs-a.timeMs).slice(0,30).map(e=>({timestamp:e.timestamp,username:e.username,platform:e.platform,eventType:e.eventType,error:String(e.metadata.error || 'No error detail recorded')})),
-      successRate: percent(captures.length, captures.length + failures.length),
+      successRate: captures.length+failures.length ? percent(captures.length, captures.length + failures.length) : null,
       sources: breakdown(captures, 'platform'),
       topRedeemers: topRedeemers.slice(0, 12),
       recent: captures.slice().sort((a, b) => b.timeMs - a.timeMs).slice(0, 30).map((item) => ({
@@ -301,10 +313,12 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
         username: item.username,
         platform: item.platform,
         imageUrl: item.imageUrl,
+        imageAvailable: item.imageAvailable,
       })),
     },
     audience: {
       observedChatters: chatters.size,
+      engagedObservedChatters:[...engaged].filter(key=>chatters.has(key)).length,
       engagedViewers: engaged.size,
       engagementRate: chatters.size ? percent([...engaged].filter((key) => chatters.has(key)).length, chatters.size) : null,
       multiToolViewers: multiTool,
@@ -371,6 +385,7 @@ function normalizeCapture(row) {
     roles: Array.isArray(row.roles) ? row.roles : [],
     sessionId: row.sessionId || row.session_id || '',
     filename: row.filename || '',
+    imageAvailable: row.imageAvailable !== false,
     imageUrl: row.imageUrl || (row.filename ? `/polaroid/captures/${encodeURIComponent(row.filename)}` : ''),
   };
 }
@@ -405,8 +420,10 @@ function mergeCapturesWithEvents(captures, events, excludedFilenames = new Set()
       sessionId: event.sessionId,
       filename: event.metadata.filename,
       imageUrl: event.metadata.imageUrl,
+      imageAvailable: false,
     }));
-  return [...files, ...prunedCaptures];
+  const seen=new Set();
+  return [...files,...prunedCaptures].filter(c=>{if(!c.filename)return true;if(seen.has(c.filename))return false;seen.add(c.filename);return true;});
 }
 
 function listPolaroidCaptures() {
@@ -433,7 +450,7 @@ function parseCaptureFilename(filename) {
 }
 
 function isPolaroidTestEvent(event) {
-  return event.tool === 'polaroid' && (event.platform === 'admin' || event.metadata.isTest === true);
+  return event.tool === 'polaroid' && (event.platform === 'admin' || event.metadata.isTest === true || event.metadata.testMode === true);
 }
 
 function isTestCaptureFilename(filename) {
@@ -499,44 +516,6 @@ function genericEventActivity(item) {
 function isInteraction(item) {
   return ['song_requests','king_of_the_hill','polaroid','elimination_quiz'].includes(item.tool) && ['song_request','command','vote','capture_completed','player_joined','answer_submitted'].includes(item.eventType);
 }
-function inferSessions(activity) {
-  const chronological = activity.slice().sort((a, b) => a.timeMs - b.timeMs);
-  const sessions = [];
-  for (const item of chronological) {
-    let session = sessions.at(-1);
-    if (!session || item.timeMs - session.lastMs > 4 * 60 * 60 * 1000) {
-      session = { startMs: item.timeMs, lastMs: item.timeMs, activity: [] };
-      sessions.push(session);
-    }
-    session.lastMs = item.timeMs;
-    session.activity.push(item);
-  }
-  return sessions.reverse().map((session, index) => {
-    const people = distinctPeople(session.activity.filter(isInteraction));
-    const toolCounts = countBy(session.activity, (item) => item.tool);
-    const platforms = breakdown(session.activity, 'platform');
-    return {
-      id: `${new Date(session.startMs).toISOString()}-${index}`,
-      startedAt: new Date(session.startMs).toISOString(),
-      endedAt: new Date(session.lastMs).toISOString(),
-      durationMinutes: Math.max(1, Math.round((session.lastMs - session.startMs) / 60000)),
-      interactions: session.activity.filter(isInteraction).length,
-      uniqueParticipants: people.size,
-      songRequests: toolCounts.song_requests || 0,
-      hillVotes: session.activity.filter((item) => item.eventType === 'vote').length,
-      quizInteractions: session.activity.filter(item=>item.tool==='elimination_quiz' && isInteraction(item)).length,
-      polaroids: session.activity.filter((item) => item.eventType === 'capture_completed').length,
-      topPlatform: platforms[0]?.key || 'other',
-      standout: sessionStandout(session.activity),
-      source: 'inferred',
-      platforms: platforms.map((item) => item.key),
-      peakViewers: null,
-      averageViewers: null,
-      viewerHours: null,
-    };
-  });
-}
-
 function normalizeStreamSession(row) {
   return {
     id: String(row.id || ''),
@@ -560,77 +539,10 @@ function normalizeViewerSnapshot(row) {
     platform: normalizePlatform(row.platform),
     sessionId: row.session_id || row.sessionId || '',
     viewerCount: Math.max(0, Number(row.viewer_count ?? row.viewerCount) || 0),
+    peakViewerCount: Number(row.peak_viewer_count ?? row.viewer_count ?? row.viewerCount),
+    sampleCount:Math.max(1,Number(row.sample_count)||1),
     totalViewers: Number(row.total_viewers ?? row.totalViewers) || null,
   };
-}
-
-function buildActualSessions(sessions, snapshots, activity, nowMs) {
-  const groups = [];
-  sessions.slice().sort((a, b) => a.startMs - b.startMs).forEach((session) => {
-    const endMs = session.endMs || nowMs;
-    const group = groups.find((candidate) => session.startMs <= candidate.endMs + 15 * 60000 && endMs >= candidate.startMs - 15 * 60000);
-    if (group) {
-      group.sessions.push(session);
-      group.startMs = Math.min(group.startMs, session.startMs);
-      group.endMs = Math.max(group.endMs, endMs);
-    } else {
-      groups.push({ sessions: [session], startMs: session.startMs, endMs });
-    }
-  });
-  return groups.sort((a, b) => b.startMs - a.startMs).map((group) => {
-    const ids = new Set(group.sessions.map((session) => session.id));
-    const platforms = [...new Set(group.sessions.map((session) => session.platform).filter((platform) => platform !== 'obs'))];
-    const relevantActivity = activity.filter((item) =>
-      (item.sessionId && ids.has(item.sessionId))
-      || (item.timeMs >= group.startMs && item.timeMs <= group.endMs && (!platforms.length || platforms.includes(item.platform) || item.platform === 'other'))
-    );
-    const relevantSnapshots = snapshots.filter((snapshot) =>
-      (snapshot.sessionId && ids.has(snapshot.sessionId))
-      || (snapshot.timeMs >= group.startMs && snapshot.timeMs <= group.endMs && (!platforms.length || platforms.includes(snapshot.platform)))
-    );
-    const measuredPlatforms = [...new Set(relevantSnapshots.map((snapshot) => snapshot.platform))];
-    const displayPlatforms = [...new Set([...platforms, ...measuredPlatforms])];
-    if (!displayPlatforms.length) displayPlatforms.push('obs');
-    const platformViewerStats = measuredPlatforms.map((platform) => {
-      const ordered = relevantSnapshots.filter((snapshot) => snapshot.platform === platform).sort((a, b) => a.timeMs - b.timeMs);
-      const values = ordered.map((snapshot) => snapshot.viewerCount);
-      return { platform, peak: values.length ? Math.max(...values) : 0, average: average(values), end: values.at(-1) || 0, samples: values.length };
-    });
-    const durationHours = Math.max(0, group.endMs - group.startMs) / 3600000;
-    const peakViewers = platformViewerStats.reduce((sum, item) => sum + item.peak, 0);
-    const averageViewers = Math.round(platformViewerStats.reduce((sum, item) => sum + item.average, 0) * 10) / 10;
-    const endingViewers = platformViewerStats.reduce((sum, item) => sum + item.end, 0);
-    const toolCounts = countBy(relevantActivity, (item) => item.tool);
-    const people = distinctPeople(relevantActivity.filter(isInteraction));
-    return {
-      id: group.sessions.map((session) => session.id).join('|'),
-      startedAt: new Date(group.startMs).toISOString(),
-      endedAt: new Date(group.endMs).toISOString(),
-      durationMinutes: Math.max(1, Math.round((group.endMs - group.startMs) / 60000)),
-      interactions: relevantActivity.filter(isInteraction).length,
-      uniqueParticipants: people.size,
-      songRequests: relevantActivity.filter((item) => item.eventType === 'song_request').length,
-      hillVotes: relevantActivity.filter((item) => item.eventType === 'vote').length,
-      quizInteractions: relevantActivity.filter(item=>item.tool==='elimination_quiz' && isInteraction(item)).length,
-      polaroids: relevantActivity.filter((item) => item.eventType === 'capture_completed').length,
-      topPlatform: displayPlatforms[0],
-      platforms: displayPlatforms,
-      standout: sessionStandout(relevantActivity),
-      source: 'platform',
-      title: group.sessions.find((session) => session.title)?.title || '',
-      category: group.sessions.find((session) => session.category)?.category || '',
-      peakViewers: relevantSnapshots.length ? peakViewers : null,
-      averageViewers: relevantSnapshots.length ? averageViewers : null,
-      viewerHours: relevantSnapshots.length ? Math.round(averageViewers * durationHours * 10) / 10 : null,
-      retentionPercent: relevantSnapshots.length && peakViewers ? percent(endingViewers, peakViewers) : null,
-      viewerSamples: relevantSnapshots.length,
-      follows: relevantActivity.filter((item) => item.eventType === 'follow').length,
-      subscriptions: relevantActivity.filter((item) => item.eventType === 'subscription').length,
-      raids: relevantActivity.filter((item) => item.eventType === 'raid_received').length,
-      shares: relevantActivity.filter((item) => item.eventType === 'share').length,
-      toolCounts,
-    };
-  });
 }
 
 function buildImpactSummary(sessions, events, audience) {
@@ -640,7 +552,7 @@ function buildImpactSummary(sessions, events, audience) {
     measuredStreams: measuredSessions.length,
     peakViewers: measuredSessions.length ? Math.max(...measuredSessions.map((session) => session.peakViewers || 0)) : null,
     averageViewers: measuredSessions.length ? average(measuredSessions.map((session) => session.averageViewers || 0)) : null,
-    estimatedViewerHours: measuredSessions.length ? Math.round(measuredSessions.reduce((sum, session) => sum + (session.viewerHours || 0), 0) * 10) / 10 : null,
+    estimatedViewerHours: measuredSessions.some(s=>s.viewerHours!==null) ? Math.round(measuredSessions.reduce((sum, session) => sum + (session.viewerHours || 0), 0) * 10) / 10 : null,
     averageRetention: measuredSessions.some((session) => session.retentionPercent !== null)
       ? average(measuredSessions.filter((session) => session.retentionPercent !== null).map((session) => session.retentionPercent))
       : null,
@@ -666,7 +578,7 @@ function buildImpactSummary(sessions, events, audience) {
   };
 }
 
-function buildTimeline(activity, events, range) {
+function buildTimeline(activity, events, sinceMs, nowMs) {
   const buckets = new Map();
   const chatByDay = new Map();
   events.filter((event) => event.tool === 'audience' && event.eventType === 'chat_message').forEach((event) => {
@@ -686,8 +598,11 @@ function buildTimeline(activity, events, range) {
     const key = personKey(item);
     if (key) bucket.participants.add(key);
   });
-  const limit = Infinity;
-  return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date)).slice(-limit).map((bucket) => ({
+  if(buckets.size){
+    const start=Number.isFinite(sinceMs)?sinceMs:Date.parse([...buckets.keys()].sort()[0]);
+    for(let ms=Math.floor(start/86400000)*86400000;ms<=nowMs;ms+=86400000){const date=new Date(ms).toISOString().slice(0,10);if(!buckets.has(date))buckets.set(date,{date,songRequests:0,hillVotes:0,polaroids:0,quiz:0,participants:new Set()});}
+  }
+  return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date)).map((bucket) => ({
     date: bucket.date,
     songRequests: bucket.songRequests,
     hillVotes: bucket.hillVotes,
@@ -707,6 +622,7 @@ function addParticipants(map, items, tool) {
       map.set(key, { username: item.username || 'Unknown viewer', platform: item.platform || 'other', tools: new Set(), roles: new Set(), counts: {}, total: 0 });
     }
     const person = map.get(key);
+    if (item.username && (!person.lastSeen || item.timeMs >= person.lastSeen)) { person.username=item.username; person.lastSeen=item.timeMs; }
     person.tools.add(tool);
     person.counts[tool] = (person.counts[tool] || 0) + 1;
     person.total += 1;
@@ -741,6 +657,7 @@ function buildRoleEngagement(chatEvents, participants) {
     roles.forEach((role) => observed.get(key).add(role));
   });
   const roleNames = new Set(['broadcaster', 'moderator', 'vip', 'subscriber', 'member', 'fan-club', 'follower', 'viewer', 'unclassified']);
+  for (const roles of observed.values()) if(roles.size>1) roles.delete('unclassified');
   for (const roles of observed.values()) roles.forEach((role) => roleNames.add(role));
   return [...roleNames].map((role) => {
     const observedKeys = [...observed].filter(([, roles]) => roles.has(role)).map(([key]) => key);
@@ -764,8 +681,14 @@ function buildOverlap(participants) {
   return result;
 }
 
+function reconcileKnownNames(items) {
+  const ids=new Map();
+  for(const i of items){if(!i.userId || !i.username)continue;const k=`${i.platform}:${i.username.toLowerCase()}`;if(!ids.has(k))ids.set(k,new Set());ids.get(k).add(String(i.userId));}
+  for(const i of items){const matches=ids.get(`${i.platform}:${i.username.toLowerCase()}`);if(!i.userId && matches?.size===1)i.userId=[...matches][0];}
+}
+
 function personKey(item) {
-  const userId = String(item?.userId || '').trim().toLowerCase();
+  const userId = String(item?.userId || '').trim();
   if (userId) return `${item.platform || 'other'}:id:${userId}`;
   const username = String(item?.username || '').trim().toLowerCase();
   return username ? `${item.platform || 'other'}:name:${username}` : '';
@@ -838,18 +761,6 @@ function comparison(current, previous) {
 function earliestTimestamp(items) {
   const times = items.map((item) => item.timeMs).filter(Number.isFinite);
   return times.length ? new Date(Math.min(...times)).toISOString() : null;
-}
-
-function sessionStandout(activity) {
-  const songs = activity.filter((item) => item.eventType === 'song_request').length;
-  const votes = activity.filter((item) => item.eventType === 'vote').length;
-  const polaroids = activity.filter((item) => item.eventType === 'capture_completed').length;
-  const values = [
-    { label: `${songs} song request${songs === 1 ? '' : 's'}`, count: songs },
-    { label: `${votes} Hill vote${votes === 1 ? '' : 's'}`, count: votes },
-    { label: `${polaroids} Polaroid${polaroids === 1 ? '' : 's'}`, count: polaroids },
-  ].sort((a, b) => b.count - a.count);
-  return values[0].count ? values[0].label : 'No tool interactions';
 }
 
 function normalizePlatform(value) {

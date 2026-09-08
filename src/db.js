@@ -590,7 +590,7 @@ function addViewerSnapshot({ timestamp, platform, sessionId, viewerCount, totalV
 function listStreamSessionsForRange({ since, before } = {}) {
   const conditions = [];
   const params = {};
-  if (since) { conditions.push('julianday(COALESCE(ended_at, started_at)) >= julianday(@since)'); params.since = since; }
+  if (since) { conditions.push('(ended_at IS NULL OR julianday(ended_at) >= julianday(@since))'); params.since = since; }
   if (before) { conditions.push('julianday(started_at) < julianday(@before)'); params.before = before; }
   return db.prepare(`SELECT * FROM stream_sessions ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''} ORDER BY started_at DESC`).all(params).map((row) => ({
     ...row,
@@ -605,7 +605,7 @@ function listViewerSnapshotsForRange({ since, before } = {}) {
   if (before) { conditions.push('julianday(timestamp) < julianday(@before)'); params.before = before; }
   return db.prepare(`
     SELECT MIN(id) AS id, MIN(timestamp) AS timestamp, platform, session_id,
-           ROUND(AVG(viewer_count)) AS viewer_count, MAX(total_viewers) AS total_viewers,
+           AVG(viewer_count) AS viewer_count, MAX(viewer_count) AS peak_viewer_count, MAX(total_viewers) AS total_viewers,
            source, COUNT(*) AS sample_count, NULL AS metadata
     FROM viewer_snapshots
     ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}

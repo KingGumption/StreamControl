@@ -46,7 +46,7 @@ test('captures Twitch sessions, viewer levels, stable identities, roles, and out
   });
   const subscription = calls.events.find((row) => row.eventType === 'subscription');
   assert.equal(subscription.userId, 'u1');
-  assert.equal(subscription.username, 'alice');
+  assert.equal(subscription.username, 'Alice');
   assert.deepEqual(subscription.roles, ['subscriber']);
   assert.equal(subscription.metadata.months, 3);
   assert.equal(calls.events.find((row) => row.eventType === 'raid_received').metadata.viewerCount, 20);
@@ -78,4 +78,14 @@ test('captures YouTube statistics, TikFinity outcomes, and OBS lifecycle fallbac
   assert.equal(follow.username, 'viewer');
   assert.ok(calls.opened.some((row) => row.platform === 'obs'));
   assert.ok(calls.closed.some((row) => row.platform === 'obs'));
+});
+
+test('missing viewer values are not zero and test lifecycle events never become real sessions',()=>{
+  const {calls,telemetry}=harness();
+  telemetry.handleStreamerBot({event:{source:'Twitch',type:'StreamOnline'},data:{isTest:true}});
+  telemetry.handleStreamerBot({event:{source:'YouTube',type:'StatisticsUpdated'},data:{viewerCount:null,concurrentViewers:12}});
+  telemetry.handleStreamerBot({event:{source:'Twitch',type:'ViewerCountUpdate'},data:{viewerCount:null}});
+  telemetry.handleTikfinity({event:'roomUser',data:{viewerCount:null,userCount:0}});
+  assert.equal(calls.opened.length,0);assert.equal(calls.snapshots.length,2);
+  assert.equal(calls.snapshots[0].viewerCount,12);assert.equal(calls.snapshots[1].viewerCount,0);
 });
