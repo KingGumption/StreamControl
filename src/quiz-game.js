@@ -13,7 +13,8 @@ class QuizGame {
     this.phase = 'idle'; this.players = new Map(); this.round = 0; this.count = 10;
   }
   track(eventType, player, metadata = {}) {
-    this.recordEvent({ tool: 'elimination_quiz', eventType, correlationId: this.id, platform: player?.platform || 'admin', userId: player?.id, username: player?.username, metadata: { round: this.round, category: this.deck?.[this.round-1]?.category, suddenDeath: this.round>this.count, ...metadata } });
+    const question=this.deck?.[this.round-1];
+    this.recordEvent({ tool: 'elimination_quiz', eventType, correlationId: this.id, platform: player?.platform || 'admin', userId: player?.id, username: player?.username, metadata: { round: this.round, category: question?.category, questionId:question?.id || question?.text, difficulty:question?.difficulty, suddenDeath: this.round>this.count, ...metadata } });
   }
   open({ questionCount = 10, answerSeconds = 20, categories } = {}) {
     if (['lobby', 'question', 'reveal'].includes(this.phase)) throw new Error('Stop the current quiz before opening another lobby.');
@@ -50,7 +51,7 @@ class QuizGame {
     if (this.phase === 'question') { this.resolve(); return this.getState(); }
     if (!['lobby', 'reveal'].includes(this.phase)) throw new Error('Open a lobby first.');
     if (!this.players.size) throw new Error('At least one player must join first.');
-    if (this.phase === 'lobby') this.track('game_started', null, { players: this.players.size, questionCount: this.count });
+    if (this.phase === 'lobby') this.track('game_started', null, { players: this.players.size, questionCount: this.count, answerSeconds:this.answerSeconds, categories:this.selectedCategories });
     this.cancel(this.timer); this.nextQuestionAt = null;
     if (this.round >= this.count) this.deck.push(this.suddenDeathQuestion());
     this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; });
@@ -59,6 +60,7 @@ class QuizGame {
     this.history = this.history.filter(id=>id!==questionId); this.history.push(questionId);
     this.saveHistory([...this.history]);
     this.deadline = this.now() + this.answerSeconds * 1000;
+    this.track('question_started', null, { questionText:shown.text, questionImage:shown.image || null, options:shown.options, players:this.survivors().length, answerSeconds:this.answerSeconds });
     this.timer = this.schedule(() => this.resolve(), this.answerSeconds * 1000); this.timer?.unref?.();
     return this.getState();
   }
@@ -88,7 +90,7 @@ class QuizGame {
       }
     }
     this.roundResult = { answerCounts, missed, eliminated, winnerRunEnded, milestones };
-    this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, missed, eliminated: eliminated.length });
+    this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, correctAnswer:q.answer, missed, eliminated: eliminated.length });
     this.phase = this.survivors().length === 0 || winnerRunEnded ? 'completed' : 'reveal';
     if (this.phase === 'reveal') {
       const revealMs = 3500 + Math.ceil(eliminated.length / 4) * 3200 + 1500;
@@ -127,7 +129,7 @@ class QuizGame {
     const p = this.players.get(key);
     if (this.phase !== 'question' || !p?.alive || p.answer !== null) return true;
     p.answer = /[1-4]/.test(value) ? Number(value) - 1 : value.charCodeAt(0) - 97;
-    this.track('answer_submitted', p); return true;
+    this.track('answer_submitted', p, { responseMs:Math.max(0,this.now()-(this.deadline-this.answerSeconds*1000)) }); return true;
   }
   suddenDeathQuestion() {
     if (!this.reserve.length) {

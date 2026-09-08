@@ -1,5 +1,6 @@
 // Receives normalized, range-filtered events. Viewer measures stay platform-filtered;
 // lifecycle events provide shared game context for participating platforms.
+const {quizDetails}=require('./quiz-analytics-detail');
 function summarizeQuiz(events, context = events) {
   const playerKey = e => `${e.platform}:${e.userId || String(e.username).toLowerCase()}`;
   const select = type => events.filter(e => e.eventType === type);
@@ -43,6 +44,7 @@ function summarizeQuiz(events, context = events) {
   const finishedIds=new Set(ends.map(e=>e.correlationId).filter(Boolean));
   const completedStarts=[...startedIds].filter(id=>finishedIds.has(id)).length;
   return {
+    ...quizDetails(events,context),
     gamesStarted:starts.length,gamesCompleted:ends.length,gamesStopped:lifecycle('game_stopped').length,
     victories:ends.filter(e=>e.metadata.outcome==='victory').length,defeats:ends.filter(e=>e.metadata.outcome==='defeat').length,
     completionRate:rate(completedStarts,startedIds.size),joins:joins.length,answers:select('answer_submitted').length,
