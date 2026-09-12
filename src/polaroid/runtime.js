@@ -13,6 +13,7 @@ const { bridgeHub } = require('../bridge-hub');
 const { RemoteObsClient } = require('../remote-obs');
 const { addEngagementEvent } = require('../db');
 const { engagementTelemetry } = require('../engagement-telemetry');
+const { recordCapture, parseFilename } = require('./credits-feed');
 
 class PolaroidRuntime {
   constructor({
@@ -237,16 +238,18 @@ class PolaroidRuntime {
     const screenshot = await this.captureCameraSource();
     const profileImage = await this.downloadProfileImage(job.profileImageUrl);
     const rendered = await renderPolaroid(screenshot, job.redeemerName, this.config.polaroid, profileImage);
-    const timestamp = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
+    const createdAt = new Date().toISOString();
+    const timestamp = createdAt.replaceAll(':', '-').replaceAll('.', '-');
     const filename = `${job.isTest ? 'test_' : ''}${timestamp}_${safeFilePart(job.redeemerName)}.jpg`;
     await fs.mkdir(this.capturesDir, { recursive: true });
     await fs.writeFile(path.join(this.capturesDir, filename), rendered);
+    await recordCapture(this.capturesDir, { filename, name: job.redeemerName, createdAt, image: rendered, isTest: job.isTest });
 
     const photo = {
       type: 'polaroid',
       id: job.id,
       redeemerName: job.redeemerName,
-      createdAt: new Date().toISOString(),
+      createdAt,
       imageUrl: `/polaroid/captures/${encodeURIComponent(filename)}`,
       showMs: this.config.overlay.showMs,
       gapMs: this.config.overlay.gapMs,
@@ -319,7 +322,17 @@ class PolaroidRuntime {
       .map((entry) => entry.name)
       .sort()
       .reverse();
-    await Promise.all(entries.slice(keepLast).map((name) => fs.unlink(path.join(this.capturesDir, name))));
+    // Keep the previous 48 hours even when keepLast is exceeded, so a busy
+    // broadcast cannot evict its own photographs before the credits export.
+    const cutoff = Date.now() - 48 * 60 * 60 * 1000;
+    const expired = entries.slice(keepLast).filter(name => {
+      const capture = parseFilename(name);
+      return !capture || Date.parse(capture.createdAt) < cutoff;
+    });
+    await Promise.all(expired.map(async name => {
+      await fs.unlink(path.join(this.capturesDir, name));
+      await fs.rm(path.join(this.capturesDir, name + '.json'), { force: true });
+    }));
   }
 
   isDuplicateEvent(eventId) {
