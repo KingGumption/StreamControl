@@ -1,4 +1,5 @@
 const express = require('express');
+const { registerCreditsFeed, creditsToken } = require('./polaroid/credits-feed');
 const path = require('node:path');
 const { getLiveConfig, saveConfig } = require('./config');
 const {
@@ -65,6 +66,10 @@ app.use((req, res, next) => {
   next();
 });
 app.get('/health', (req, res) => res.json({ ok: true, mode: appConfig.mode }));
+registerCreditsFeed(app, {
+  capturesDir: polaroidRuntime.capturesDir,
+  token: creditsToken(appConfig.bridge.token, process.env.POLAROID_CREDITS_TOKEN),
+});
 app.use((req, res, next) => {
   if (appConfig.mode !== 'local') return next();
   const host = req.hostname || req.headers.host || '';
