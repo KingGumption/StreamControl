@@ -1,0 +1,35 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs/promises');
+const os = require('node:os');
+const path = require('node:path');
+const express = require('express');
+const { once } = require('node:events');
+const { creditsToken, recordCapture, listCaptures, registerCreditsFeed } = require('../src/polaroid/credits-feed');
+
+test('persistent index preserves names and selects only the exact broadcast, excluding test captures', async t => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'credits-feed-'));
+  t.after(() => fs.rm(dir, { recursive: true, force: true }));
+  const image = Buffer.from([255,216,255,217]);
+  for (const filename of ['2026-09-11T21-29-59-000Z_Old.jpg', '2026-09-11T21-30-00-000Z_Name.jpg', '2026-09-12T03-00-00-000Z_End.jpg', '2026-09-12T03-00-01-000Z_Next.jpg', 'test_2026-09-12T01-00-00-000Z_Test.jpg']) await fs.writeFile(path.join(dir, filename), image);
+  await recordCapture(dir, { filename: '2026-09-11T21-30-00-000Z_Name.jpg', name: 'Viewer 🐷', createdAt: '2026-09-11T21:30:00.000Z', image });
+  const photos = await listCaptures(dir, '2026-09-11T21:30:00Z', '2026-09-12T03:00:00Z');
+  assert.deepEqual(photos.map(p=>p.name), ['Viewer 🐷','End']);
+  assert.equal(photos[0].sha256.length, 64);
+  assert.equal((await listCaptures(dir, '2026-09-13T21:30:00Z', '2026-09-14T03:00:00Z')).length, 0);
+  await assert.rejects(listCaptures(dir, '', ''), /UTC/);
+  await assert.rejects(listCaptures(dir, '2026-09-11T21:30:00Z', '2026-09-14T03:00:00Z'), /48 hours/);
+  const app = express(); registerCreditsFeed(app, { capturesDir: dir, token: creditsToken('bridge-secret') });
+  const server = app.listen(0,'127.0.0.1'); await once(server,'listening');
+  t.after(()=>new Promise(resolve=>server.close(resolve)));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  assert.equal((await fetch(base+'/api/polaroid-credits')).status, 401);
+  const headers = { authorization: 'Bearer '+creditsToken('bridge-secret') };
+  assert.equal((await fetch(base+'/api/polaroid-credits',{headers})).status,400);
+  const response = await fetch(base+'/api/polaroid-credits?start=2026-09-11T21:30:00Z&end=2026-09-12T03:00:00Z',{headers});
+  assert.equal(response.status,200);
+  const body = await response.json(); assert.equal(body.photos.length,2);
+  assert.equal((await fetch(base+body.photos[0].path)).status,401);
+  assert.equal((await fetch(base+body.photos[0].path,{headers})).status,200);
+  assert.equal((await fetch(base+'/api/polaroid-credits/photo/invalid.jpg',{headers})).status,400);
+});
