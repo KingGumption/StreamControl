@@ -9,11 +9,18 @@ const person = e => e.userId || e.username ? `${e.platform}:${e.userId || e.user
 function buildRoundups({ sessions, snapshots, activity, observations = [], sinceMs, nowMs, isInteraction }) {
   const evidence = [...activity, ...observations, ...snapshots];
   const windows = [];
+  const nextSession = new Map(), byPlatform = new Map();
+  for(const session of sessions){const list=byPlatform.get(session.platform)||[];list.push(session);byPlatform.set(session.platform,list);}
+  for(const list of byPlatform.values()){
+    list.sort((a,b)=>a.startMs-b.startMs);
+    let next=null;
+    for(let i=list.length-1;i>=0;){let j=i;while(j>=0&&list[j].startMs===list[i].startMs)j--;for(let k=j+1;k<=i;k++)nextSession.set(list[k],next);next=list[j+1];i=j;}
+  }
   for (const s of sessions.slice().sort((a,b)=>a.startMs-b.startMs)) {
     if (s.metadata?.isTest || s.metadata?.testMode) continue;
-    const next = sessions.filter(n=>n.platform===s.platform && n.startMs>s.startMs).sort((a,b)=>a.startMs-b.startMs)[0];
+    const next = nextSession.get(s);
     const end = Math.min(s.endMs ?? next?.startMs ?? nowMs, nowMs);
-    const points = evidence.filter(e=>e.timeMs>=s.startMs && e.timeMs<=(s.endMs ? end : end-1) && (e.platform===s.platform || s.platform==='obs' || e.sessionId===s.id)).sort((a,b)=>a.timeMs-b.timeMs);
+    const points = s.endMs ? [] : evidence.filter(e=>e.timeMs>=s.startMs && e.timeMs<=(s.endMs ? end : end-1) && (e.platform===s.platform || s.platform==='obs' || e.sessionId===s.id)).sort((a,b)=>a.timeMs-b.timeMs);
     if (s.endMs) {
       if(end>=sinceMs)windows.push({startMs:Math.max(s.startMs,sinceMs),endMs:end,sessions:[s],source:'platform',status:'Ended'});
     } else {

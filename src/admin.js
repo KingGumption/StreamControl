@@ -1,15 +1,17 @@
 const express = require('express');
 const { registerCreditsFeed, creditsToken } = require('./polaroid/credits-feed');
+const { streamEvents } = require('./sse');
+const access = require('./moderator-access');
+const metrics = require('./performance');
 const path = require('node:path');
 const { getLiveConfig, saveConfig } = require('./config');
 const {
-  canUseCommand,
-  normalizeRole,
   DEFAULT_PERMISSION_PRESETS,
   sanitizeCommandPermissions,
 } = require('./permissions');
 const {
   archiveQuizValidationEvents,
+  getAuditLog,
   upsertOverride,
   deleteOverride,
   addAuditLog,
@@ -28,7 +30,7 @@ const { hillGame } = require('./hill-game');
 const { quizGame } = require('./quiz-game');
 const { quizTestSessions } = require('./quiz-test-sessions');
 const { polaroidRuntime } = require('./polaroid/runtime');
-const { loadAnalyticsReport } = require('./analytics');
+const analyticsService = require('./analytics-service');
 const { appConfig } = require('./app-config');
 const { createAdminAuth } = require('./admin-auth');
 const {
@@ -66,23 +68,47 @@ app.use((req, res, next) => {
   next();
 });
 app.get('/health', (req, res) => res.json({ ok: true, mode: appConfig.mode }));
-registerCreditsFeed(app, {
-  capturesDir: polaroidRuntime.capturesDir,
-  token: creditsToken(appConfig.bridge.token, process.env.POLAROID_CREDITS_TOKEN),
-});
+registerCreditsFeed(app,{capturesDir:polaroidRuntime.capturesDir,token:creditsToken(appConfig.bridge.token,process.env.POLAROID_CREDITS_TOKEN)});
 app.use((req, res, next) => {
   if (appConfig.mode !== 'local') return next();
   const host = req.hostname || req.headers.host || '';
-  if (!['127.0.0.1', 'localhost', '::1', '[::1]'].includes(host) && !(host.startsWith('127.0.0.1') || host.startsWith('localhost'))) {
+  if (!['127.0.0.1', 'localhost', '::1', '[::1]'].includes(host)) {
     res.status(403).send('Forbidden');
     return;
   }
   next();
 });
 app.get('/admin/login', adminAuth.loginPage);
-app.post('/admin/login', adminAuth.requireSameOrigin, adminAuth.login);
+app.post('/admin/login', adminAuth.requireSameOrigin, (req,res,next) => adminAuth.login(req,res).catch(next));
 app.post('/admin/logout', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, adminAuth.logout);
-app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin);
+app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, adminAuth.requireCapability);
+
+
+router.get('/games/session', (req,res) => res.json({ok:true,user:req.identity,handoff:access.handoff()}));
+router.get('/games/connections', (req,res) => {
+  const connections = getConnectionStatuses();
+  res.json({ok:true,connections:Object.fromEntries(['streamerbot','tikfinity','connector'].filter(key=>connections[key]).map(key=>[key,{connected:connections[key].connected,state:connections[key].state}]))});
+});
+router.get('/moderators', (req,res) => res.sendFile(path.join(__dirname,'..','public','admin-moderators.html')));
+router.get('/moderators/state', (req,res) => res.json({ok:true,accounts:access.list(),handoff:access.handoff(),audit:getAuditLog(100).filter(row=>['game-control','games-handoff'].includes(row.action)).slice(0,30)}));
+router.post('/moderators/create', async (req,res) => {
+  try { const user=await access.create(req.body.username,req.body.password); addAuditLog({action:'moderator-created',source:req.identity.id,details:user.username}); res.json({ok:true,user}); }
+  catch(error){res.status(400).json({ok:false,error:error.code==='SQLITE_CONSTRAINT_UNIQUE'?'Username already exists.':error.message});}
+});
+router.post('/moderators/:id/revoke', (req,res) => {access.revoke(req.params.id);addAuditLog({action:'moderator-revoked',source:req.identity.id,details:req.params.id});res.json({ok:true});});
+router.post('/moderators/handoff', (req,res) => {
+  try {const handoff=access.setHandoff(req.body.enabled,req.body.minutes);addAuditLog({action:'games-handoff',source:req.identity.id,newValue:handoff});res.json({ok:true,handoff});}
+  catch(error){res.status(400).json({ok:false,error:error.message});}
+});
+router.get('/performance', (req,res) => res.json({ok:true,...metrics.snapshot(),polaroid:polaroidRuntime.getPublicState()}));
+router.use((req,res,next) => {
+  if(req.method!=='POST' || !/^\/(quiz\/(open|next|stop)|king-of-the-hill\/(start|stop|next|settings|timings))$/.test(req.path)) return next();
+  const game=req.path.startsWith('/quiz/')?quizGame:hillGame;
+  const supplied=req.get('x-game-version');
+  if((req.identity.role==='games' && !supplied) || (supplied && supplied!==game.getState().controlVersion)) return res.status(409).json({ok:false,error:'The game changed. Refresh and try again.',message:'The game changed. Refresh and try again.'});
+  res.on('finish',()=>{if(res.statusCode<400)addAuditLog({action:'game-control',source:req.identity.id,details:JSON.stringify({username:req.identity.username,path:req.path})});});
+  next();
+});
 
 router.get('/status', (req, res) => {
   res.json({ ok: true, message: 'admin online', connections: getConnectionStatuses() });
@@ -96,9 +122,12 @@ router.get('/requests', (req, res) => {
   res.json({ ok: true, requests: listSongRequests(50) });
 });
 
-router.get('/analytics/summary', (req, res) => {
-  res.json(loadAnalyticsReport({ range: req.query.range, platform: req.query.platform, activityPage:req.query.activityPage,activityTool:req.query.activityTool,activitySearch:req.query.activitySearch }));
-});
+for (const section of ['activity','summary']) {
+  router.get('/analytics/'+section, async (req,res) => {
+    try {res.json(await analyticsService.request(req.query,section==='activity'));}
+    catch(error){res.status(503).json({ok:false,error:error.message});}
+  });
+}
 
 router.get('/polaroid/status', (req, res) => {
   res.json({ ok: true, ...polaroidRuntime.getPublicState() });
@@ -305,6 +334,7 @@ for (const action of ['open', 'next', 'stop']) {
   });
 }
 app.get('/quiz', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'quiz.html')));
+app.get('/quiz/events', (req,res) => streamEvents(req,res,{name:'quiz-state',subscribe:fn=>quizGame.subscribe(fn),initial:()=>quizGame.getState()}));
 app.get('/quiz/state', (req, res) => res.json({ ok: true, game: quizGame.getState() }));
 
 router.get('/king-of-the-hill/state', (req, res) => {
@@ -458,6 +488,7 @@ router.get('/king-of-the-hill', (req, res) => {
 });
 
 app.use('/admin', router);
+app.use('/assets', (req,res,next) => /\.html$/i.test(req.path) ? res.sendStatus(404) : next());
 app.use('/assets', express.static(path.join(__dirname, '..', 'public')));
 app.get('/overlay', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'overlay.html'));
@@ -470,46 +501,14 @@ app.use('/polaroid/captures', express.static(polaroidRuntime.capturesDir, {
   immutable: true,
   maxAge: '1y',
 }));
-app.get('/polaroid/events', (req, res) => {
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache, no-transform',
-    Connection: 'keep-alive',
-  });
-  res.flushHeaders();
-  res.write(': connected\n\n');
-  const unsubscribe = polaroidRuntime.subscribe((payload) => {
-    res.write(`event: polaroid\ndata: ${JSON.stringify(payload)}\n\n`);
-  });
-  const keepAlive = setInterval(() => res.write(': keep-alive\n\n'), 15000);
-  req.on('close', () => {
-    clearInterval(keepAlive);
-    unsubscribe();
-  });
-});
+app.get('/polaroid/events', (req,res) => streamEvents(req,res,{name:'polaroid',subscribe:fn=>polaroidRuntime.subscribe(fn)}));
 app.get('/king-of-the-hill', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'king-of-the-hill.html'));
 });
 app.get('/king-of-the-hill/state', (req, res) => {
   res.json({ ok: true, game: hillGame.getState() });
 });
-app.get('/king-of-the-hill/events', (req, res) => {
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache, no-transform',
-    Connection: 'keep-alive',
-  });
-  res.flushHeaders();
-  res.write(`event: hill-state\ndata: ${JSON.stringify(hillGame.getState())}\n\n`);
-  const unsubscribe = hillGame.subscribe((state) => {
-    res.write(`event: hill-state\ndata: ${JSON.stringify(state)}\n\n`);
-  });
-  const keepAlive = setInterval(() => res.write(': keep-alive\n\n'), 15000);
-  req.on('close', () => {
-    clearInterval(keepAlive);
-    unsubscribe();
-  });
-});
+app.get('/king-of-the-hill/events', (req,res) => streamEvents(req,res,{name:'hill-state',subscribe:fn=>hillGame.subscribe(fn),initial:()=>hillGame.getState()}));
 app.get('/king-of-the-hill/art/:group/:entry.svg', (req, res) => {
   const svg = hillGame.artwork(req.params.group, req.params.entry);
   if (!svg) {
@@ -518,24 +517,7 @@ app.get('/king-of-the-hill/art/:group/:entry.svg', (req, res) => {
   }
   res.type('image/svg+xml').set('Cache-Control', 'public, max-age=86400').send(svg);
 });
-app.get('/overlay/events', (req, res) => {
-  res.set({
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache, no-transform',
-    Connection: 'keep-alive',
-  });
-  res.flushHeaders();
-  res.write(': connected\n\n');
-
-  const unsubscribe = overlayEvents.subscribe((payload) => {
-    res.write(`event: song-added\ndata: ${JSON.stringify(payload)}\n\n`);
-  });
-  const keepAlive = setInterval(() => res.write(': keep-alive\n\n'), 15000);
-  req.on('close', () => {
-    clearInterval(keepAlive);
-    unsubscribe();
-  });
-});
+app.get('/overlay/events', (req,res) => streamEvents(req,res,{name:'song-added',subscribe:fn=>overlayEvents.subscribe(fn)}));
 app.get('/overlay/avatar/twitch/:username', async (req, res) => {
   const avatarUrl = await resolveTwitchAvatar(req.params.username);
   if (!avatarUrl) {

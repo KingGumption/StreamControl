@@ -92,7 +92,7 @@
         .credits { columns: 1; }
       }
     </style>
-  </head>
+  <script src="/assets/game-access.js" defer></script></head>
   <body>
     <div class="shell">
       <header>
@@ -210,12 +210,6 @@
         document.getElementById('championSeconds').value = timings.championSeconds;
       }
 
-      async function loadState() {
-        try {
-          const response = await fetch('/admin/king-of-the-hill/state', { cache: 'no-store' });
-          if (response.ok) render((await response.json()).game);
-        } catch { /* keep the last known state during a brief disconnect */ }
-      }
 
       async function loadCredits() {
         try {
@@ -241,7 +235,7 @@
       async function action(name) {
         const message = document.getElementById('message');
         try {
-          const response = await fetch(`/admin/king-of-the-hill/${name}`, { method: 'POST' });
+          const response = await fetch(`/admin/king-of-the-hill/${name}`, { method: 'POST', headers: {'Content-Type':'application/json','X-Game-Version':state.game.controlVersion || ''}, body:'{}' });
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.message || 'Game action failed');
           render(result.game);
@@ -281,7 +275,7 @@
         try {
           const response = await fetch('/admin/king-of-the-hill/settings', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-Game-Version':state.game.controlVersion || '' },
             body: JSON.stringify(timings),
           });
           const result = await response.json();
@@ -299,9 +293,10 @@
         }
       });
 
-      loadState();
+
       loadCredits();
-      setInterval(loadState, 2000);
+      const events = new EventSource('/king-of-the-hill/events');
+      events.addEventListener('hill-state', event => render(JSON.parse(event.data)));
     </script>
   </body>
 </html>

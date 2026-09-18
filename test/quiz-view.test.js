@@ -16,7 +16,7 @@ function browser(preview = false) {
   }
   for (const id of ['questionMedia','overlayRoot','questionPanel','quizStage','status','counts','question','options','result','error','open','next','questionCount']) { const el = new Element(); el.id = id; }
   let fetches = 0;
-  const context = vm.createContext({ QUIZ_PREVIEW: preview, document: { getElementById: id => elements.get(id), createElement: () => new Element() },
+  const context = vm.createContext({ EventSource: class { addEventListener() {} }, QUIZ_PREVIEW: preview, document: { getElementById: id => elements.get(id), createElement: () => new Element() },
     setInterval() {}, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); },
     fetch: () => { fetches++; return new Promise(() => {}); }, Date, URL,
   });

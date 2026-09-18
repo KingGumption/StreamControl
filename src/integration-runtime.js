@@ -1,4 +1,5 @@
 const crypto = require('node:crypto');
+const { avatarWarmer } = require('./avatar-warmer');
 const { appConfig } = require('./app-config');
 const {
   WebSocketConnectionMonitor,
@@ -201,8 +202,9 @@ class TikfinityAdapter {
 }
 
 class IntegrationRuntime {
-  constructor({ config = appConfig, commands = commandService, game = hillGame, quiz = quizGame, recordEvent = null, telemetry = null, bridge = null } = {}) {
+  constructor({ config = appConfig, commands = commandService, game = hillGame, quiz = quizGame, recordEvent = null, telemetry = null, bridge = null, avatars = null } = {}) {
     this.config = config;
+    this.avatars = avatars;
     this.commands = commands;
     this.game = game;
     this.quiz = quiz;
@@ -217,13 +219,17 @@ class IntegrationRuntime {
       config: config.streamerBot,
       onChatEvent: (event) => this.handleChatEvent(event),
     });
+    if (avatars) {
+      this.streamerBot.addEventSubscriptions({ Twitch: ['Cheer', 'RewardRedemption'], YouTube: ['SuperChat', 'SuperSticker'] });
+      this.streamerBot.onRawMessage(payload => avatars.streamerBot(payload));
+    }
     if (telemetry) {
       this.streamerBot.addEventSubscriptions(STREAMERBOT_TELEMETRY_SUBSCRIPTIONS);
       this.streamerBot.onRawMessage((payload) => telemetry.handleStreamerBot(payload));
     }
     this.tikfinity = new TikfinityAdapter({
       onChatEvent: (event) => this.handleChatEvent(event),
-      onTelemetryEvent: (event) => telemetry?.handleTikfinity(event),
+      onTelemetryEvent: (event) => { avatars?.tikfinity(event); telemetry?.handleTikfinity(event); },
       tiktokRepliesConfigured: Boolean(config.streamerBot.tiktokReplyActionId),
     });
   }
@@ -291,7 +297,24 @@ class IntegrationRuntime {
       if (service === 'tikfinity' && state.connected) this.tikfinity.onOpen();
     };
     listen('service-state', handleServiceState);
-    listen('service-message', (service, payload) => {
+    listen('service-message', (service, payload, replay = {}) => {
+      if(replay.replayed) {
+        // Historical lifecycle/outcome telemetry may be recovered, but stale chat,
+        // votes, redeems and authentication replies must never execute live actions.
+        const data = typeof payload === 'object' ? payload : parseJson(payload);
+        const received = Date.parse(replay.receivedAt);
+        if (!Number.isFinite(received)) return;
+        const chats = service === 'streamerbot' ? [normalizeStreamerBotEvent(data)].filter(Boolean) : normalizeTikfinityEvents(data);
+        for (const event of chats) {
+          const key = event.messageId && `${event.platform}:${event.messageId}`;
+          if (key && this.recentMessageIds.has(key)) continue;
+          if (key) this.rememberMessage(key);
+          this.track({timestamp:replay.receivedAt,tool:'audience',eventType:'chat_message',platform:event.platform,userId:event.user?.id,username:event.user?.username,roles:event.user?.roles,correlationId:event.messageId});
+        }
+        if (service === 'streamerbot') this.telemetry?.handleStreamerBot({...data,timeStamp:data?.timeStamp || replay.receivedAt});
+        if (service === 'tikfinity') this.telemetry?.handleTikfinity({...data,data:{...data?.data,timestamp:data?.data?.timestamp || received}});
+        return;
+      }
       if (service === 'streamerbot') this.streamerBot.handleMessage(payload);
       if (service === 'tikfinity') this.tikfinity.handleMessage(payload);
     });
@@ -306,6 +329,7 @@ class IntegrationRuntime {
     if (event.messageId && this.recentMessageIds.has(`${event.platform}:${event.messageId}`)) return;
     if (event.messageId) this.rememberMessage(`${event.platform}:${event.messageId}`);
 
+    this.avatars?.warm(event);
     this.track({
       tool: 'audience',
       eventType: 'chat_message',
@@ -393,6 +417,7 @@ function requestId(prefix) {
 }
 
 const integrationRuntime = new IntegrationRuntime({
+  avatars: avatarWarmer,
   recordEvent: addEngagementEvent,
   telemetry: engagementTelemetry,
   bridge: appConfig.mode === 'cloud' ? bridgeHub : null,

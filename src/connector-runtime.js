@@ -18,6 +18,8 @@ class ConnectorRuntime {
     this.obsConnectPromise = null;
     this.localMonitors = [];
     this.outbox = [];
+    this.outboxBytes = 0;
+    this.flushTimer = null;
     this.localPolaroidConfig = loadPolaroidConfig();
     this.registry = { update() {}, markConnected() {}, markEvent() {} };
     this.obs.on('ConnectionClosed', () => {
@@ -143,10 +145,15 @@ class ConnectorRuntime {
   }
 
   send(message) {
-    if (!this.cloud || this.cloud.readyState !== WebSocket.OPEN) {
+    if (!this.cloud || this.cloud.readyState !== WebSocket.OPEN || this.cloud.bufferedAmount > 2 * 1024 * 1024) {
       if (['service.message', 'obs.event'].includes(message?.type)) {
-        this.outbox.push(message);
-        if (this.outbox.length > 1000) this.outbox.shift();
+        const replay = {...message, replayed:true, receivedAt:message.receivedAt || new Date().toISOString()};
+        const bytes = Buffer.byteLength(JSON.stringify(replay));
+        if (bytes <= 4*1024*1024) {
+          this.outbox.push({message:replay,bytes}); this.outboxBytes += bytes;
+          while(this.outbox.length > 1000 || this.outboxBytes > 4*1024*1024) this.outboxBytes -= this.outbox.shift().bytes;
+        }
+        this.scheduleFlush();
       }
       return false;
     }
@@ -154,11 +161,21 @@ class ConnectorRuntime {
   }
 
   flushOutbox() {
-    const queued = this.outbox.splice(0);
-    for (const message of queued) this.send(message);
+    while(this.outbox.length && this.cloud?.readyState === WebSocket.OPEN && !(this.cloud.bufferedAmount>2*1024*1024)) {
+      const {message,bytes}=this.outbox.shift(); this.outboxBytes-=bytes;
+      if(Date.now()-Date.parse(message.receivedAt)>15*60000)continue;
+      this.send(message);
+    }
+    if(this.outbox.length)this.scheduleFlush();
+  }
+
+  scheduleFlush() {
+    if(this.flushTimer || !this.started)return;
+    this.flushTimer=setTimeout(()=>{this.flushTimer=null;this.flushOutbox();},250);this.flushTimer.unref?.();
   }
 
   async stop() {
+    clearTimeout(this.flushTimer);this.flushTimer=null;
     this.started = false;
     if (this.cloudTimer) clearTimeout(this.cloudTimer);
     this.cloudTimer = null;

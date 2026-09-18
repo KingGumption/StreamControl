@@ -1,9 +1,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { getConfigValue, setConfigValue, listOverrides } = require('./db');
+const { getConfigValue, setConfigValue, listOverrides, getConfigRevision } = require('./db');
 const { defaultCommandPermissions, DEFAULT_PERMISSION_PRESETS } = require('./permissions');
 
-const CONFIG_PATH = path.join(__dirname, '..', 'data', 'permissions.json');
+const { appConfig } = require('./app-config');
+const CONFIG_PATH = path.join(appConfig.dataDir, 'permissions.json');
+const LEGACY_PATH = path.join(__dirname, '..', 'data', 'permissions.json');
+let cached, revision = -1;
 
 function ensureDataFile() {
   fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
@@ -17,8 +20,8 @@ function ensureDataFile() {
 }
 
 function readConfig() {
-  ensureDataFile();
-  const raw = fs.readFileSync(CONFIG_PATH, 'utf8');
+  const source = fs.existsSync(CONFIG_PATH) ? CONFIG_PATH : LEGACY_PATH;
+  const raw = fs.existsSync(source) ? fs.readFileSync(source, 'utf8') : '{}';
   try {
     const json = JSON.parse(raw);
     return {
@@ -41,8 +44,10 @@ function writeConfig(config) {
 }
 
 function getLiveConfig() {
-  const config = readConfig();
-  const dbConfig = getConfigValue('permissions_config', config);
+  if (cached && revision === getConfigRevision()) return structuredClone(cached);
+  let dbConfig = getConfigValue('permissions_config');
+  if (!dbConfig) { dbConfig = readConfig(); setConfigValue('permissions_config', dbConfig); }
+  const config = { commands: defaultCommandPermissions(), presets: DEFAULT_PERMISSION_PRESETS };
   if (dbConfig && dbConfig.commands) {
     config.commands = dbConfig.commands;
   }
@@ -58,12 +63,13 @@ function getLiveConfig() {
     access: row.access,
     user_id: row.user_id,
   }));
-  return config;
+  cached = config; revision = getConfigRevision();
+  return structuredClone(config);
 }
 
 function saveConfig(config) {
   setConfigValue('permissions_config', config);
-  writeConfig(config);
+  cached = null;
   return config;
 }
 

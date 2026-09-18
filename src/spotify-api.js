@@ -28,6 +28,7 @@ class SpotifyApiClient {
     let response;
     try {
       response = await this.fetch(`${API_BASE}${path}`, {
+        signal: AbortSignal.timeout(10000),
         ...requestOptions,
         headers: {
           Accept: 'application/json',

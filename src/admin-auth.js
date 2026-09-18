@@ -5,38 +5,50 @@ const COOKIE_NAME = 'stream_control_session';
 const SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
 
 function createAdminAuth(config, { now = () => Date.now() } = {}) {
+  const access = require('./moderator-access');
   const attempts = new Map();
   const enabled = config.mode === 'cloud';
+  const token = req => parseCookies(req.headers.cookie)[COOKIE_NAME];
+  const identity = req => enabled ? access.session(token(req), now()) : {id:'owner',username:'Owner',role:'owner'};
 
   function loginPage(req, res) {
-    if (!enabled || isAuthenticated(req, config, now())) return res.redirect('/admin');
+    const user = identity(req);
+    if (user) return res.redirect(user.role === 'owner' ? '/admin' : '/admin/games');
     return res.sendFile(path.join(__dirname, '..', 'public', 'admin-login.html'));
   }
 
-  function login(req, res) {
+  async function login(req, res) {
     if (!enabled) return res.redirect('/admin');
     const key = String(req.ip || req.socket?.remoteAddress || 'unknown');
+    for (const [id, item] of attempts) if (item.resetAt <= now()) attempts.delete(id);
+    if (!attempts.has(key) && attempts.size >= 10000) return res.status(429).send('Try again later.');
     const record = attempts.get(key) || { count: 0, resetAt: now() + 15 * 60 * 1000 };
     if (record.resetAt <= now()) { record.count = 0; record.resetAt = now() + 15 * 60 * 1000; }
     if (record.count >= 8) return res.status(429).send('Too many login attempts. Try again later.');
-    if (!safeSecretEqual(String(req.body?.password || '').slice(0, 1024), config.admin.password)) {
-      record.count += 1;
-      attempts.set(key, record);
+    record.count += 1;
+    attempts.set(key, record);
+    const username = String(req.body?.username || 'owner').trim().toLowerCase();
+    const password = String(req.body?.password || '').slice(0,1024);
+    const user = username === 'owner'
+      ? (safeSecretEqual(password,config.admin.password) ? {id:'owner',role:'owner'} : null)
+      : await access.authenticate(username,password);
+    if (!user) {
       return res.redirect('/admin/login?error=1');
     }
     attempts.delete(key);
-    const token = createSessionToken(config.admin.sessionSecret, now() + SESSION_MAX_AGE_SECONDS * 1000);
-    res.setHeader('Set-Cookie', serializeSessionCookie(token, SESSION_MAX_AGE_SECONDS));
-    return res.redirect(safeReturnPath(req.body?.returnTo));
+    res.setHeader('Set-Cookie', serializeSessionCookie(access.issue(user,now()), SESSION_MAX_AGE_SECONDS));
+    return res.redirect(user.role === 'games' ? '/admin/games' : safeReturnPath(req.body?.returnTo));
   }
 
   function logout(req, res) {
+    access.logout(token(req));
     res.setHeader('Set-Cookie', serializeSessionCookie('', 0));
     return res.redirect('/admin/login');
   }
 
   function requireAuthentication(req, res, next) {
-    if (!enabled || isAuthenticated(req, config, now())) return next();
+    req.identity = identity(req);
+    if (req.identity) return next();
     if (String(req.get('accept') || '').includes('text/html')) {
       return res.redirect(`/admin/login?returnTo=${encodeURIComponent(req.originalUrl || '/admin')}`);
     }
@@ -46,14 +58,26 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
   function requireSameOrigin(req, res, next) {
     if (!enabled || ['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
     const origin = req.get('origin');
-    if (!origin) return next();
+    // JSON API clients without Origin remain supported; browser form mutations
+    // must include an exact same-origin Origin header.
+    if (!origin && req.is?.('application/json') && req.get('sec-fetch-site') !== 'cross-site') return next();
     try {
       if (new URL(origin).origin === new URL(config.publicBaseUrl).origin) return next();
     } catch { /* Invalid origins are rejected below. */ }
     return res.status(403).json({ ok: false, error: 'Cross-origin request rejected' });
   }
 
-  return { loginPage, login, logout, requireAuthentication, requireSameOrigin };
+  function requireCapability(req,res,next) {
+    if (req.identity?.role === 'owner') return next();
+    const pathname = req.path;
+    const read = ['GET','HEAD'].includes(req.method);
+    const reads = new Set(['/games','/quiz','/quiz/state','/king-of-the-hill','/king-of-the-hill/state','/games/session','/games/connections']);
+    const writes = new Set(['/quiz/open','/quiz/next','/quiz/stop','/king-of-the-hill/start','/king-of-the-hill/stop','/king-of-the-hill/next','/king-of-the-hill/settings']);
+    if (read && reads.has(pathname)) return next();
+    if (req.method === 'POST' && writes.has(pathname) && access.handoff(now()).enabled) return next();
+    return res.status(403).json({ok:false,error:'Owner access required, or moderator handoff is disabled.'});
+  }
+  return { loginPage, login, logout, requireAuthentication, requireSameOrigin, requireCapability };
 }
 
 function createSessionToken(secret, expiresAt) {
@@ -73,11 +97,6 @@ function verifySessionToken(token, secret, currentTime = Date.now()) {
   } catch {
     return false;
   }
-}
-
-function isAuthenticated(req, config, currentTime) {
-  const cookies = parseCookies(req.headers.cookie);
-  return verifySessionToken(cookies[COOKIE_NAME], config.admin.sessionSecret, currentTime);
 }
 
 function parseCookies(header = '') {

@@ -16,12 +16,13 @@ test('parses matching Polaroid rewards and ignores unrelated rewards', () => {
     event: { source: 'Twitch', type: 'RewardRedemption' },
     data: {
       id: 'event-123',
-      user: { id: 'viewer-1', displayName: 'Lovely Viewer', badges: [{ name: 'subscriber' }] },
+      user: { id: 'viewer-1', login: 'lovely_viewer', displayName: 'Lovely Viewer', badges: [{ name: 'subscriber' }] },
       reward: { id: 'reward-1', title: 'Polaroid' },
     },
   }, settings);
   assert.deepEqual(matching, {
     redeemerName: 'Lovely Viewer',
+    username: 'lovely_viewer',
     profileImageUrl: '',
     userId: 'viewer-1',
     roles: ['subscriber'],

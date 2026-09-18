@@ -34,7 +34,8 @@ const defaults = {
     message: '📸 A new stream Polaroid — taken by {redeemer}!',
     username: 'Stream Polaroid Booth',
   },
-  captureDelayMs: 750,
+  captureDelayMs: 0,
+  avatarBudgetMs: 400,
   keepLast: 250,
 };
 
@@ -73,6 +74,8 @@ function applyEnvironmentOverrides(config, environment = process.env) {
     config.streamerBot.rewardId = String(environment.POLAROID_REWARD_ID).trim();
   }
 
+  if (environment.POLAROID_CAPTURE_DELAY_MS !== undefined) config.captureDelayMs = Math.max(0, Number(environment.POLAROID_CAPTURE_DELAY_MS) || 0);
+  if (environment.POLAROID_CAPTURE_FORMAT) config.obs.captureFormat = environment.POLAROID_CAPTURE_FORMAT;
   const twitchChatEnabled = booleanEnvironmentValue(environment, 'POLAROID_TWITCH_CHAT_ENABLED');
   if (twitchChatEnabled !== undefined) config.twitchChat.enabled = twitchChatEnabled;
   if (environment.POLAROID_TWITCH_CHAT_ACTION_NAME) {

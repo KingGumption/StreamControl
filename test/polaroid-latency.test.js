@@ -1,0 +1,23 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const {EventEmitter}=require('node:events');
+const fs=require('node:fs/promises'),path=require('node:path'),os=require('node:os');
+const sharp=require('sharp');
+const {PolaroidRuntime}=require('../src/polaroid/runtime');
+test('two Polaroids reach the overlay before a slow first delivery finishes; credits sidecars persist',async t=>{
+ const dir=await fs.mkdtemp(path.join(os.tmpdir(),'polaroid-pipeline-'));
+ const config={obs:{},streamerBot:{enabled:false},polaroid:{showProfilePicture:false},discord:{enabled:true},twitchChat:{enabled:false},overlay:{showMs:3000,gapMs:0},keepLast:0,captureDelayMs:0};
+ let release;const delivered=new Promise(r=>{release=r;});let deliveries=0;
+ const runtime=new PolaroidRuntime({config,obs:new EventEmitter(),discordSender:async()=>{deliveries++;await delivered;return {skipped:true};}});
+ runtime.capturesDir=dir;
+ const frame=await sharp({create:{width:64,height:64,channels:3,background:'#335566'}}).png().toBuffer();
+ runtime.captureCameraSource=async()=>frame;
+ const photos=[];runtime.subscribe(photo=>photos.push(photo));
+ t.after(async()=>{clearTimeout(runtime.pruneTimer);release();await runtime.deliveries.idle();await fs.rm(dir,{recursive:true,force:true});});
+ const first=runtime.enqueueRedemption('First Viewer','Twitch','first');
+ const second=runtime.enqueueRedemption('Second Viewer','Twitch','second');
+ await Promise.all([first,second]);
+ assert.equal(photos.length,2);assert.equal(deliveries,1);assert.ok(runtime.deliveries.size>=1);
+ assert.ok(photos.every(p=>Number.isFinite(p.processingMs)));
+ const files=await fs.readdir(dir);assert.equal(files.filter(f=>f.endsWith('.jpg.json')).length,2);
+ release();await runtime.deliveries.idle();assert.equal(deliveries,2);
+});

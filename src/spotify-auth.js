@@ -168,6 +168,12 @@ class SpotifyAuthService {
   }
 
   async refreshAccessToken() {
+    if (this.refreshPromise) return this.refreshPromise;
+    this.refreshPromise = this.performRefresh().finally(() => { this.refreshPromise = null; });
+    return this.refreshPromise;
+  }
+
+  async performRefresh() {
     const tokens = this.store.getSpotifyAuth();
     if (!tokens?.refreshToken) throw new SpotifyAuthError('Spotify authorisation is required');
 
@@ -204,6 +210,7 @@ class SpotifyAuthService {
     let response;
     try {
       response = await this.fetch(TOKEN_URL, {
+        signal: AbortSignal.timeout(10000),
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -242,6 +249,7 @@ class SpotifyAuthService {
     let response;
     try {
       response = await this.fetch(PROFILE_URL, {
+        signal: AbortSignal.timeout(10000),
         headers: { Authorization: `Bearer ${accessToken}` },
       });
     } catch (error) {

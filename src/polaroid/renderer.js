@@ -1,4 +1,6 @@
 const sharp = require('sharp');
+const { AvatarCache } = require('../avatar-cache');
+const paperCache = new AvatarCache({ maxEntries: 4, maxBytes: 16 * 1024 * 1024 });
 
 const WIDTH = 1200;
 const HEIGHT = 1450;
@@ -22,6 +24,23 @@ function fontSizeForCaption(text) {
   return 40;
 }
 
+function preparePaper(paper) {
+  return paperCache.get(paper, () => sharp(Buffer.from(`
+    <svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="paperNoise" x="0" y="0" width="100%" height="100%">
+          <feTurbulence baseFrequency="0.72" numOctaves="3" seed="21" type="fractalNoise" result="noise"/>
+          <feColorMatrix in="noise" type="saturate" values="0" result="grey"/>
+          <feComponentTransfer in="grey"><feFuncA type="table" tableValues="0 0.035"/></feComponentTransfer>
+        </filter>
+      </defs>
+      <rect width="1200" height="1450" fill="${escapeXml(paper)}"/>
+      <rect x="72" y="74" width="1080" height="1080" fill="#171717" opacity="0.2"/>
+      <rect width="1200" height="1450" filter="url(#paperNoise)" opacity="0.32"/>
+    </svg>`)).png().toBuffer());
+}
+function warmPolaroidRenderer(options = {}) { return preparePaper(options.paperColour || '#f7f3e8'); }
+
 async function renderPolaroid(input, redeemerName, options = {}, profileImage = null) {
   const caption = `${options.captionPrefix || 'taken by ='} ${redeemerName}`;
   const hasProfileImage = Boolean(profileImage && options.showProfilePicture !== false);
@@ -42,18 +61,10 @@ async function renderPolaroid(input, redeemerName, options = {}, profileImage = 
     .sharpen({ sigma: 0.45 })
     .toBuffer();
 
+  const background = await preparePaper(paper);
+
   const captionSvg = Buffer.from(`
     <svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="paperNoise" x="0" y="0" width="100%" height="100%">
-          <feTurbulence baseFrequency="0.72" numOctaves="3" seed="21" type="fractalNoise" result="noise"/>
-          <feColorMatrix in="noise" type="saturate" values="0" result="grey"/>
-          <feComponentTransfer in="grey"><feFuncA type="table" tableValues="0 0.035"/></feComponentTransfer>
-        </filter>
-      </defs>
-      <rect width="1200" height="1450" fill="${escapeXml(paper)}"/>
-      <rect x="72" y="74" width="1080" height="1080" fill="#171717" opacity="0.2"/>
-      <rect width="1200" height="1450" filter="url(#paperNoise)" opacity="0.32"/>
       <g transform="rotate(-1.15 600 1280)">
         <text x="${captionX}" y="1308" text-anchor="middle" dominant-baseline="middle"
           font-family="${font}, 'Comic Sans MS', cursive" font-size="${fontSize}" font-weight="600"
@@ -81,6 +92,7 @@ async function renderPolaroid(input, redeemerName, options = {}, profileImage = 
   }
 
   const composites = [
+    { input: background, left: 0, top: 0 },
     { input: captionSvg, left: 0, top: 0 },
     { input: photo, left: PHOTO_LEFT, top: PHOTO_TOP },
   ];
@@ -106,4 +118,4 @@ async function renderPolaroid(input, redeemerName, options = {}, profileImage = 
     .toBuffer();
 }
 
-module.exports = { renderPolaroid };
+module.exports = { renderPolaroid, warmPolaroidRenderer };

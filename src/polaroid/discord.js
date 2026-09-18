@@ -15,7 +15,7 @@ async function sendToDiscord(webhookUrl, image, filename, redeemerName, settings
   try {
     const deliveryUrl = new URL(webhookUrl);
     deliveryUrl.searchParams.set('wait', 'true');
-    response = await fetch(deliveryUrl, { method: 'POST', body: form });
+    response = await fetch(deliveryUrl, { method: 'POST', body: form, signal: AbortSignal.timeout(15000) });
   } catch (error) {
     const cause = error.cause?.message || error.cause?.code || '';
     throw new Error(`Could not reach Discord${cause ? ` (${cause})` : ''}`);

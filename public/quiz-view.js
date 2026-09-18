@@ -245,14 +245,16 @@ function render(g) {
   }
   updateControls(g);
 }
-async function refresh() {
-  if (globalThis.QUIZ_PREVIEW) return;
-  try {
-    const response = await fetch('/quiz/state', { cache: 'no-store' });
-    if (!response.ok) throw Error('Unable to load quiz');
-    render((await response.json()).game);
-  } catch (error) { $('error').textContent = error.message; }
+if (!globalThis.QUIZ_PREVIEW) {
+  const events = new EventSource('/quiz/events');
+  let lastRevision = -1;
+  events.addEventListener('quiz-state', event => {
+    const state = JSON.parse(event.data);
+    if (state.revision < lastRevision) return;
+    lastRevision = state.revision; render(state); if ($('error')) $('error').textContent = '';
+  });
+  events.onopen = () => { lastRevision = -1; };
+  events.onerror = () => { if ($('error')) $('error').textContent = 'Reconnecting to the game…'; };
 }
-setInterval(refresh, 1000);
 setInterval(() => { if (game) updateStatus(game); }, 250);
-refresh();
+// The event stream sends an initial state and recovers on reconnect.

@@ -82,6 +82,7 @@ function parseStreamerBotMessage(raw, settings) {
     const name = redeemerName(data);
     return name ? {
       redeemerName: name,
+      username: firstText(data?.user?.login, data?.user?.userName, data?.user?.username, data?.user_login, data?.userName, data?.username, name),
       profileImageUrl: profileImageUrl(data),
       userId: redeemerId(data),
       roles: redeemerRoles(data),

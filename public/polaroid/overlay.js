@@ -4,6 +4,12 @@ const photo = document.querySelector('#photo');
 const queue = [];
 let playing = false;
 let eventSource;
+const preloaded = new Map();
+function warmNext() {
+  queue.slice(0, 3).forEach(item => {
+    if (!preloaded.has(item.imageUrl)) { const pending = preload(item.imageUrl); pending.catch(() => {}); preloaded.set(item.imageUrl, pending); }
+  });
+}
 
 function connect() {
   eventSource?.close();
@@ -11,6 +17,7 @@ function connect() {
   eventSource.addEventListener('polaroid', (event) => {
     try {
       queue.push(JSON.parse(event.data));
+      warmNext();
       if (!playing) void playNext();
     } catch (error) {
       console.warn('[POLAROID] Ignored invalid server message', error);
@@ -29,7 +36,11 @@ async function playNext() {
   stage.style.setProperty('--show-ms', `${showMs}ms`);
   photoShell.setAttribute('aria-hidden', 'false');
   try {
-    await preload(item.imageUrl);
+    const loadStart = performance.now();
+    await (preloaded.get(item.imageUrl) || preload(item.imageUrl));
+    preloaded.delete(item.imageUrl);
+    warmNext();
+    window.polaroidLastTiming = { processingMs: item.processingMs, imageLoadMs: performance.now() - loadStart };
     photo.src = item.imageUrl;
     photo.alt = `Polaroid taken by ${item.redeemerName}`;
     restartClass('is-flashing');
@@ -38,10 +49,12 @@ async function playNext() {
     await wait(showMs + 180);
   } catch (error) {
     console.error('[POLAROID] Could not show image', error);
+  } finally {
+    preloaded.delete(item.imageUrl);
   }
   stage.classList.remove('is-flashing', 'is-showing');
   photoShell.setAttribute('aria-hidden', 'true');
-  await wait(Math.max(0, Number(item.gapMs) || 750));
+  await wait(Math.max(0, Number.isFinite(Number(item.gapMs)) ? Number(item.gapMs) : 750));
   void playNext();
 }
 

@@ -13,10 +13,10 @@
     <div class="eyebrow">StreamEngagement</div>
     <h1>Welcome back</h1>
     <p>Sign in to open your private stream controls and analytics.</p>
-    <div class="error" id="error">That password was not accepted.</div>
+    <div class="error" id="error">Those sign-in details were not accepted.</div>
     <form method="post" action="/admin/login">
       <input type="hidden" name="returnTo" id="returnTo" value="/admin">
-      <label for="password">Admin password</label>
+      <label for="username">Username</label><input id="username" name="username" value="owner" autocomplete="username" required><label for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
       <button type="submit">Open StreamEngagement</button>
     </form>

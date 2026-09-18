@@ -64,10 +64,12 @@ class BridgeHub extends EventEmitter {
       return;
     }
     if (message.type === 'service.message' && ['streamerbot', 'tikfinity'].includes(message.service)) {
-      this.emit('service-message', message.service, message.payload);
+      if (message.replayed) this.emit('service-message', message.service, message.payload, {replayed:true,receivedAt:message.receivedAt});
+      else this.emit('service-message', message.service, message.payload);
       return;
     }
     if (message.type === 'obs.event' && typeof message.event === 'string') {
+      if (message.replayed) return; // Reconnection requests fresh OBS status; old transitions must not replace it.
       this.emit('obs-event', message.event, message.data || {});
       return;
     }
@@ -104,7 +106,7 @@ class BridgeHub extends EventEmitter {
   }
 
   send(message) {
-    if (!this.connected) return false;
+    if (!this.connected || this.socket.bufferedAmount > 2*1024*1024) return false;
     try { this.socket.send(JSON.stringify(message)); return true; } catch { return false; }
   }
 

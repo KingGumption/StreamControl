@@ -1,9 +1,14 @@
 const fs = require('node:fs');
+const { performance } = require('node:perf_hooks');
+const { observe } = require('./performance');
+const reportCache = new Map();
+let captureCache = null;
 const { summarizeQuiz } = require('./quiz-analytics');
 const { buildRoundups } = require('./analytics-sessions');
 const path = require('node:path');
 const { appConfig } = require('./app-config');
 const {
+  db,
   listEngagementEventsForRange,
   listSongRequestsForRange,
   listStreamSessionsForRange,
@@ -14,7 +19,7 @@ const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90, '365d': 365 };
 const STORED_SONG_STATUSES = new Set(['accepted', 'partial', 'dry-run', 'not-found', 'duplicate', 'error']);
 const capturesDir = path.join(appConfig.dataDir, 'polaroid-captures');
 
-function loadAnalyticsReport({ range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
+function loadUncachedAnalyticsReport({ range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
   const safeRange = RANGE_DAYS[range] ? range : range === 'all' ? 'all' : '30d';
   const days = RANGE_DAYS[safeRange] || null;
   const nowMs = new Date(now).getTime();
@@ -87,7 +92,7 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
   const ledgerPage=Math.max(0,Math.min(ledgerPages-1,Math.floor(Number(activityPage)||0)));
   const coverageStart = earliestTimestamp([...normalizedRequests, ...normalizedEvents, ...normalizedCaptures]);
 
-  return {
+  const report = {
     ok: true,
     generatedAt: new Date(nowMs).toISOString(),
     filters: {
@@ -149,6 +154,31 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
     },
     recentRequests: current.songRequests.recent,
   };
+  Object.defineProperty(report, 'ledger', {value:current.activity});
+  return report;
+}
+
+
+function pageActivity(report, options={}) {
+  const search=String(options.activitySearch||'').slice(0,200).trim().toLowerCase();
+  const tool=['all','elimination_quiz','song_requests','king_of_the_hill','polaroid','stream'].includes(options.activityTool)?options.activityTool:'all';
+  const rows=report.ledger.filter(e=>(tool==='all'||e.tool===tool)&&(!search||[e.username,e.platform,e.eventType,e.title,e.detail,e.status,e.correlationId].join(' ').toLowerCase().includes(search)));
+  const pageSize=100,pages=Math.max(1,Math.ceil(rows.length/pageSize)),page=Math.max(0,Math.min(pages-1,Math.floor(Number(options.activityPage)||0)));
+  return {activity:rows.slice(page*pageSize,(page+1)*pageSize),activityPagination:{page,pages,total:rows.length,pageSize,tool,search}};
+}
+function loadAnalyticsReport(options={}) {
+  if(options.now) return loadUncachedAnalyticsReport(options);
+  const key=JSON.stringify([options.range||'30d',options.platform||'all']);
+  let entry=reportCache.get(key);
+  if(!entry || entry.expiresAt<=Date.now()) {
+    const start=performance.now();
+    const report=db.transaction(()=>loadUncachedAnalyticsReport({range:options.range,platform:options.platform}))();
+    observe('analytics.report',performance.now()-start);
+    entry={report,expiresAt:Date.now()+5000};
+    reportCache.delete(key);reportCache.set(key,entry);
+    while(reportCache.size>8)reportCache.delete(reportCache.keys().next().value);
+  }
+  return {...entry.report,...pageActivity(entry.report,options)};
 }
 
 function summarizePeriod(requests, events, captures, quizContext = events.filter(e=>e.tool==='elimination_quiz'), hillContext = events.filter(e=>e.tool==='king_of_the_hill')) {
@@ -427,11 +457,14 @@ function mergeCapturesWithEvents(captures, events, excludedFilenames = new Set()
 }
 
 function listPolaroidCaptures() {
+  if(captureCache && captureCache.expiresAt>Date.now())return captureCache.rows;
   try {
-    return fs.readdirSync(capturesDir, { withFileTypes: true })
+    const rows = fs.readdirSync(capturesDir, { withFileTypes: true })
       .filter((entry) => entry.isFile() && /\.jpe?g$/i.test(entry.name))
       .map((entry) => parseCaptureFilename(entry.name))
       .filter(Boolean);
+    captureCache={rows,expiresAt:Date.now()+5000};
+    return rows;
   } catch {
     return [];
   }

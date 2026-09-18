@@ -1,4 +1,8 @@
 const crypto = require('node:crypto');
+const { recordCapture, parseFilename } = require('./credits-feed');
+const { performance } = require('node:perf_hooks');
+const { observe } = require('../performance');
+const { WorkQueue } = require('../work-queue');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { EventEmitter } = require('node:events');
@@ -6,14 +10,15 @@ const { setTimeout: delay } = require('node:timers/promises');
 const OBSWebSocket = require('obs-websocket-js').default;
 const { sendToDiscord } = require('./discord');
 const { parseStreamerBotMessage, safeFilePart, safeRedeemerName } = require('./events');
-const { renderPolaroid } = require('./renderer');
+const { renderPolaroid, warmPolaroidRenderer } = require('./renderer');
+const { resolveTwitchAvatar } = require('../avatar-resolver');
+const { downloadAvatarImage } = require('../avatar-images');
 const { loadPolaroidConfig, dataDir } = require('./config');
 const { appConfig } = require('../app-config');
 const { bridgeHub } = require('../bridge-hub');
 const { RemoteObsClient } = require('../remote-obs');
 const { addEngagementEvent } = require('../db');
 const { engagementTelemetry } = require('../engagement-telemetry');
-const { recordCapture, parseFilename } = require('./credits-feed');
 
 class PolaroidRuntime {
   constructor({
@@ -43,6 +48,8 @@ class PolaroidRuntime {
     this.events = new EventEmitter();
     this.events.setMaxListeners(50);
     this.queue = [];
+    this.deliveries = new WorkQueue({ limit: 32 });
+    this.pruneTimer = null;
     this.recentEventIds = new Map();
     this.streamerBotRequests = new Map();
     this.avatarResolverRequests = new Map();
@@ -79,6 +86,7 @@ class PolaroidRuntime {
       });
     }
 
+    void warmPolaroidRenderer(this.config.polaroid).catch(error => this.recordError(error));
     this.connectObsWithRetry();
   }
 
@@ -86,6 +94,7 @@ class PolaroidRuntime {
     if (this.stopping) return;
     this.stopping = true;
     this.clearObsReconnectTimer();
+    clearTimeout(this.pruneTimer);
     this.unsubscribeRaw?.();
     this.unsubscribeConnection?.();
     this.rejectPendingStreamerBotRequests();
@@ -163,10 +172,10 @@ class PolaroidRuntime {
     try {
       const response = await this.obs.call('GetSourceScreenshot', {
         sourceName: this.config.obs.cameraSource,
-        imageFormat: 'png',
+        imageFormat: this.config.obs.captureFormat === 'png' ? 'png' : 'jpg',
         imageWidth: Number(this.config.obs.captureWidth) || 1920,
         imageHeight: Number(this.config.obs.captureHeight) || 1080,
-        imageCompressionQuality: 100,
+        imageCompressionQuality: 92,
       });
       const encoded = String(response.imageData || '').replace(/^data:image\/\w+;base64,/, '');
       if (!encoded) throw new Error('OBS returned an empty image');
@@ -187,15 +196,16 @@ class PolaroidRuntime {
     profileImageUrl = '',
     userId = '',
     roles = [],
-    { deliverToDiscord = true, isTest = false } = {},
+    { deliverToDiscord = true, isTest = false, avatar = null, receivedAt = performance.now() } = {},
   ) {
     const safeName = safeRedeemerName(redeemerName);
     if (!safeName) throw new Error('A redeemer name is required.');
     if (eventId && this.isDuplicateEvent(eventId)) return null;
 
+    if (this.queue.length >= 32) throw new Error('Polaroid capture queue is full');
     const id = eventId || crypto.randomUUID();
     const job = {
-      id, redeemerName: safeName, profileImageUrl, source, userId, roles,
+      id, redeemerName: safeName, profileImageUrl, source, userId, roles, avatar, receivedAt,
       deliverToDiscord: deliverToDiscord !== false,
       isTest: isTest === true,
     };
@@ -234,10 +244,17 @@ class PolaroidRuntime {
   }
 
   async processRedemption(job) {
+    const started = performance.now();
+    observe('polaroid.queue', started - (job.receivedAt ?? started));
+    const avatar = this.boundedAvatar(job.avatar || this.downloadProfileImage(job.profileImageUrl));
     if (this.config.captureDelayMs > 0) await delay(this.config.captureDelayMs);
+    const captureStart = performance.now();
     const screenshot = await this.captureCameraSource();
-    const profileImage = await this.downloadProfileImage(job.profileImageUrl);
+    observe('polaroid.capture', performance.now() - captureStart);
+    const profileImage = await avatar;
+    const renderStart = performance.now();
     const rendered = await renderPolaroid(screenshot, job.redeemerName, this.config.polaroid, profileImage);
+    observe('polaroid.render', performance.now() - renderStart);
     const createdAt = new Date().toISOString();
     const timestamp = createdAt.replaceAll(':', '-').replaceAll('.', '-');
     const filename = `${job.isTest ? 'test_' : ''}${timestamp}_${safeFilePart(job.redeemerName)}.jpg`;
@@ -255,17 +272,34 @@ class PolaroidRuntime {
       gapMs: this.config.overlay.gapMs,
       soundVolume: this.config.overlay.soundVolume,
     };
+    photo.processingMs = performance.now() - (job.receivedAt ?? started);
+    observe('polaroid.receiptToAnnouncement', photo.processingMs);
     this.state.lastCapture = photo;
     this.state.lastError = '';
     this.track('capture_completed', job, { filename, imageUrl: photo.imageUrl });
     this.events.emit('polaroid', photo);
     this.log('Sent capture to overlay:', filename);
 
-    await this.deliverCapture(job, rendered, filename);
-
-    await this.pruneCaptures();
+    void this.deliveries.add(async () => {
+      const start = performance.now();
+      await this.deliverCapture(job, rendered, filename);
+      observe('polaroid.delivery', performance.now() - start);
+      this.publishStatus();
+    }).catch(error => { this.track('delivery_failed', job, { error: error.message }); this.recordError(error); });
+    if (!this.pruneTimer) {
+      this.pruneTimer = setTimeout(() => { this.pruneTimer = null; void this.pruneCaptures().catch(error => this.recordError(error)); }, 30000);
+      this.pruneTimer.unref?.();
+    }
     this.publishStatus();
     return photo;
+  }
+
+  async boundedAvatar(promise) {
+    const start = performance.now();
+    let timer;
+    try {
+      return await Promise.race([Promise.resolve(promise).catch(() => null), new Promise(resolve => { timer = setTimeout(() => resolve(null), this.config.avatarBudgetMs ?? 400); })]);
+    } finally { clearTimeout(timer); observe('polaroid.avatarWait', performance.now() - start); }
   }
 
   async deliverCapture(job, rendered, filename) {
@@ -296,18 +330,7 @@ class PolaroidRuntime {
   async downloadProfileImage(value) {
     if (this.config.polaroid.showProfilePicture === false || !value) return null;
     try {
-      const url = new URL(value);
-      if (!['https:', 'http:'].includes(url.protocol)) throw new Error('unsupported avatar URL');
-      const response = await fetch(url, { signal: AbortSignal.timeout(7000) });
-      if (!response.ok) throw new Error(`avatar server returned ${response.status}`);
-      if (!String(response.headers.get('content-type') || '').toLowerCase().startsWith('image/')) {
-        throw new Error('avatar response was not an image');
-      }
-      const declaredSize = Number(response.headers.get('content-length')) || 0;
-      if (declaredSize > 8 * 1024 * 1024) throw new Error('avatar image was too large');
-      const image = Buffer.from(await response.arrayBuffer());
-      if (image.length > 8 * 1024 * 1024) throw new Error('avatar image was too large');
-      return image;
+      return await downloadAvatarImage(value);
     } catch (error) {
       this.log('Profile picture unavailable:', error.message);
       return null;
@@ -322,17 +345,10 @@ class PolaroidRuntime {
       .map((entry) => entry.name)
       .sort()
       .reverse();
-    // Keep the previous 48 hours even when keepLast is exceeded, so a busy
-    // broadcast cannot evict its own photographs before the credits export.
+    // Credits export needs every genuine capture from the last 48 hours.
     const cutoff = Date.now() - 48 * 60 * 60 * 1000;
-    const expired = entries.slice(keepLast).filter(name => {
-      const capture = parseFilename(name);
-      return !capture || Date.parse(capture.createdAt) < cutoff;
-    });
-    await Promise.all(expired.map(async name => {
-      await fs.unlink(path.join(this.capturesDir, name));
-      await fs.rm(path.join(this.capturesDir, name + '.json'), { force: true });
-    }));
+    const expired = entries.slice(keepLast).filter(name => {const capture=parseFilename(name);return !capture || Date.parse(capture.createdAt)<cutoff;});
+    await Promise.all(expired.map(async name=>{await fs.unlink(path.join(this.capturesDir,name));await fs.rm(path.join(this.capturesDir,name+'.json'),{force:true});}));
   }
 
   isDuplicateEvent(eventId) {
@@ -354,15 +370,21 @@ class PolaroidRuntime {
 
   async handleStreamerBotRedemption(redemption) {
     try {
+      const receivedAt = performance.now();
       let profileImageUrl = redemption.profileImageUrl;
+      const avatar = (async () => {
       if (
         redemption.source === 'Twitch' &&
         this.config.polaroid.showProfilePicture !== false &&
         this.config.streamerBot.avatarResolverEnabled &&
         !profileImageUrl
       ) {
-        profileImageUrl = await this.resolveTwitchProfileImage(redemption);
+        profileImageUrl = await resolveTwitchAvatar(redemption.username || redemption.redeemerName, {
+          lookup: () => this.resolveTwitchProfileImage(redemption),
+        });
       }
+      return this.downloadProfileImage(profileImageUrl);
+      })().catch(() => null);
       this.enqueueRedemption(
         redemption.redeemerName,
         redemption.source,
@@ -370,6 +392,7 @@ class PolaroidRuntime {
         profileImageUrl,
         redemption.userId,
         redemption.roles,
+        { avatar, receivedAt },
       )?.catch(() => {});
     } catch (error) {
       this.log('Ignored invalid redemption:', error.message);
@@ -476,6 +499,7 @@ class PolaroidRuntime {
   getPublicState() {
     return {
       ...this.state,
+      deliveryQueueLength: this.deliveries.size,
       streamerBotConnected: Boolean(this.streamerBot?.connected),
       cameraSource: this.config.obs.cameraSource,
       rewardTitle: this.config.streamerBot.rewardTitle,

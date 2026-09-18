@@ -137,3 +137,30 @@ test('Polaroid test jobs do not record analytics events', () => {
   assert.equal(recorded.length, 1);
   assert.equal(recorded[0].correlationId, 'live-1');
 });
+
+test('Polaroid reuses quiz URLs and downloaded avatar bytes', async (t) => {
+  const { resolveTwitchAvatar } = require('../src/avatar-resolver');
+  const url = 'https://static-cdn.jtvnw.net/jtv_user_pictures/runtime-cache.png';
+  await resolveTwitchAvatar('runtime_cache', { fetchImpl: async () => new Response(url) });
+  const config = makeConfig();
+  config.polaroid = { showProfilePicture: true };
+  config.streamerBot.avatarResolverEnabled = true;
+  const runtime = new PolaroidRuntime({ config, obs: new FakeObs() });
+  runtime.resolveTwitchProfileImage = () => { throw Error('cached URL must skip Streamer.bot'); };
+  let received;
+  runtime.enqueueRedemption = (...args) => { received = args; };
+  let avatarUrl; runtime.downloadProfileImage = async value => {avatarUrl=value;return null;};
+  await runtime.handleStreamerBotRedemption({ source: 'Twitch', username: 'runtime_cache', redeemerName: 'Localized Display', eventId: 'test-avatar' });
+  await received[6].avatar;
+  assert.equal(avatarUrl, url);
+  runtime.downloadProfileImage = PolaroidRuntime.prototype.downloadProfileImage;
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  let downloads = 0;
+  globalThis.fetch = async () => { downloads++; return new Response(Buffer.from('avatar'), { headers: { 'content-type': 'image/png' } }); };
+  const first = await runtime.downloadProfileImage(url);
+  assert.equal(await runtime.downloadProfileImage(url), first);
+  assert.equal(downloads, 1);
+  config.polaroid.showProfilePicture = false;
+  assert.equal(await runtime.downloadProfileImage(url), null);
+});

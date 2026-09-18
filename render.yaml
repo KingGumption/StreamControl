@@ -15,6 +15,8 @@ services:
         value: cloud
       - key: BIND_HOST
         value: 0.0.0.0
+      - key: POLAROID_CAPTURE_DELAY_MS
+        value: "0"
       - key: DATA_DIR
         value: /var/data
       - key: ADMIN_PASSWORD

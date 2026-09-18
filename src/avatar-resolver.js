@@ -1,28 +1,31 @@
 const TWITCH_AVATAR_ENDPOINT = 'https://decapi.me/twitch/avatar/';
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
-const cache = new Map();
+const { AvatarCache } = require('./avatar-cache');
+const cache = new AvatarCache({ ttlMs: CACHE_TTL_MS });
 
-async function resolveTwitchAvatar(username, { fetchImpl = globalThis.fetch, now = Date.now } = {}) {
+async function resolveTwitchAvatar(username, { fetchImpl = globalThis.fetch, lookup = null } = {}) {
   const login = String(username || '').trim().replace(/^@+/, '').toLowerCase();
-  if (!/^[a-z0-9_]{1,25}$/.test(login)) return '';
+  // Some redemption events contain only a localized display name. Preserve
+  // the existing resolver in that case without caching under a guessed login.
+  if (!/^[a-z0-9_]{1,25}$/.test(login)) return lookup ? lookup() : '';
 
-  const cached = cache.get(login);
-  if (cached && cached.expiresAt > now()) return cached.url;
+  return cache.get(login, async () => {
+    if (lookup) return safeTwitchCdnUrl(await lookup());
 
-  let response;
-  try {
-    response = await fetchImpl(`${TWITCH_AVATAR_ENDPOINT}${encodeURIComponent(login)}`, {
-      headers: { Accept: 'text/plain' },
-      signal: AbortSignal.timeout(3500),
-    });
-  } catch {
-    return '';
-  }
-  if (!response.ok) return '';
+    let response;
+    try {
+      response = await fetchImpl(`${TWITCH_AVATAR_ENDPOINT}${encodeURIComponent(login)}`, {
+        headers: { Accept: 'text/plain' },
+        signal: AbortSignal.timeout(3500),
+      });
+    } catch {
+      return '';
+    }
+    if (!response.ok) return '';
 
-  const url = safeTwitchCdnUrl((await response.text()).trim());
-  if (url) cache.set(login, { url, expiresAt: now() + CACHE_TTL_MS });
-  return url;
+    const url = safeTwitchCdnUrl((await response.text()).trim());
+    return url;
+  });
 }
 
 function safeTwitchCdnUrl(value) {

@@ -7,10 +7,17 @@ const dataDir = appConfig.dataDir;
 fs.mkdirSync(dataDir, { recursive: true });
 
 const dbPath = path.join(dataDir, 'permissions.db');
-const db = new Database(dbPath);
+const readOnly = process.env.STREAMCONTROL_DB_READONLY === 'true';
+const db = new Database(dbPath,{readonly:readOnly,fileMustExist:readOnly});
 
-db.pragma('journal_mode = WAL');
+if (!readOnly) db.pragma('journal_mode = WAL');
+const statementCache = new Map();
+function prepare(sql) {
+  if (!statementCache.has(sql)) statementCache.set(sql, db.prepare(sql));
+  return statementCache.get(sql);
+}
 
+if (!readOnly) {
 db.exec(`
   CREATE TABLE IF NOT EXISTS config (
     key TEXT PRIMARY KEY,
@@ -137,7 +144,7 @@ db.exec(`
     ON viewer_snapshots(session_id, timestamp);
 `);
 
-const songRequestColumns = db.prepare('PRAGMA table_info(song_requests)').all();
+const songRequestColumns = prepare('PRAGMA table_info(song_requests)').all();
 if (!songRequestColumns.some((column) => column.name === 'album_art_url')) {
   db.exec('ALTER TABLE song_requests ADD COLUMN album_art_url TEXT');
 }
@@ -151,7 +158,7 @@ if (!songRequestColumns.some((column) => column.name === 'session_id')) {
   db.exec('ALTER TABLE song_requests ADD COLUMN session_id TEXT');
 }
 
-const engagementEventColumns = db.prepare('PRAGMA table_info(engagement_events)').all();
+const engagementEventColumns = prepare('PRAGMA table_info(engagement_events)').all();
 if (!engagementEventColumns.some((column) => column.name === 'roles')) {
   db.exec('ALTER TABLE engagement_events ADD COLUMN roles TEXT');
 }
@@ -160,9 +167,18 @@ if (!engagementEventColumns.some((column) => column.name === 'session_id')) {
 }
 db.exec('CREATE INDEX IF NOT EXISTS idx_engagement_events_session ON engagement_events(session_id, timestamp)');
 
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_events_julian ON engagement_events(julianday(timestamp));
+  CREATE INDEX IF NOT EXISTS idx_requests_julian ON song_requests(julianday(timestamp));
+  CREATE INDEX IF NOT EXISTS idx_snapshots_julian ON viewer_snapshots(julianday(timestamp));
+`);
+}
+let configRevision = 0;
+function getConfigRevision() { return configRevision; }
 function setConfigValue(key, value) {
+  configRevision++;
   const serialized = JSON.stringify(value);
-  const stmt = db.prepare(`
+  const stmt = prepare(`
     INSERT INTO config (key, value, updated_at)
     VALUES (@key, @value, CURRENT_TIMESTAMP)
     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
@@ -171,7 +187,7 @@ function setConfigValue(key, value) {
 }
 
 function getConfigValue(key, fallback = null) {
-  const row = db.prepare('SELECT value FROM config WHERE key = ?').get(key);
+  const row = prepare('SELECT value FROM config WHERE key = ?').get(key);
   if (!row) {
     return fallback;
   }
@@ -183,20 +199,8 @@ function getConfigValue(key, fallback = null) {
   }
 }
 
-function getAllConfig() {
-  const rows = db.prepare('SELECT key, value FROM config ORDER BY key').all();
-  return rows.reduce((acc, row) => {
-    try {
-      acc[row.key] = JSON.parse(row.value);
-    } catch {
-      acc[row.key] = row.value;
-    }
-    return acc;
-  }, {});
-}
-
 function addAuditLog({ action, platform, command, previousValue, newValue, source, details }) {
-  db.prepare(`
+  prepare(`
     INSERT INTO audit_log (action, platform, command, previous_value, new_value, source, details)
     VALUES (@action, @platform, @command, @previousValue, @newValue, @source, @details)
   `).run({
@@ -211,13 +215,13 @@ function addAuditLog({ action, platform, command, previousValue, newValue, sourc
 }
 
 function getAuditLog(limit = 50) {
-  return db.prepare(`
+  return prepare(`
     SELECT * FROM audit_log ORDER BY id DESC LIMIT ?
   `).all(limit);
 }
 
 function listOverrides() {
-  return db.prepare(`
+  return prepare(`
     SELECT * FROM user_overrides ORDER BY platform, username, command
   `).all();
 }
@@ -229,7 +233,8 @@ function upsertOverride({ platform, username, command, access, userId }) {
   const normalizedAccess = access === 'allow' ? 'allow' : 'deny';
   const normalizedUserId = userId ? String(userId).trim() : null;
 
-  const existing = db.prepare(`
+  configRevision++;
+  const existing = prepare(`
     SELECT id FROM user_overrides
     WHERE LOWER(platform)=LOWER(?)
       AND LOWER(command)=LOWER(?)
@@ -240,7 +245,7 @@ function upsertOverride({ platform, username, command, access, userId }) {
   `).get(normalizedPlatform, normalizedCommand, normalizedUsername, normalizedUserId || '');
 
   if (existing) {
-    db.prepare(`
+    prepare(`
       UPDATE user_overrides
       SET access = @access, user_id = @userId, username = @username, updated_at = CURRENT_TIMESTAMP
       WHERE id = @id
@@ -253,7 +258,7 @@ function upsertOverride({ platform, username, command, access, userId }) {
     return { updated: true, id: existing.id };
   }
 
-  const result = db.prepare(`
+  const result = prepare(`
     INSERT INTO user_overrides (platform, user_id, username, command, access)
     VALUES (@platform, @userId, @username, @command, @access)
   `).run({
@@ -268,12 +273,13 @@ function upsertOverride({ platform, username, command, access, userId }) {
 }
 
 function deleteOverride({ platform, username, command, userId }) {
+  configRevision++;
   const normalizedPlatform = String(platform || '').trim().toLowerCase();
   const normalizedUsername = String(username || '').trim();
   const normalizedCommand = String(command || '').trim().toLowerCase();
   const normalizedUserId = userId ? String(userId).trim() : null;
 
-  const result = db.prepare(`
+  const result = prepare(`
     DELETE FROM user_overrides
     WHERE LOWER(platform)=LOWER(?)
       AND LOWER(command)=LOWER(?)
@@ -287,7 +293,7 @@ function deleteOverride({ platform, username, command, userId }) {
 }
 
 function getSpotifyAuth() {
-  const row = db.prepare(`
+  const row = prepare(`
     SELECT access_token, refresh_token, expires_at, scope, token_type
     FROM spotify_auth WHERE id = 1
   `).get();
@@ -308,7 +314,7 @@ function saveSpotifyAuth({ accessToken, refreshToken, expiresAt, scope, tokenTyp
     throw new Error('Cannot save incomplete Spotify authorization data');
   }
 
-  db.prepare(`
+  prepare(`
     INSERT INTO spotify_auth (id, access_token, refresh_token, expires_at, scope, token_type, updated_at)
     VALUES (1, @accessToken, @refreshToken, @expiresAt, @scope, @tokenType, CURRENT_TIMESTAMP)
     ON CONFLICT(id) DO UPDATE SET
@@ -328,7 +334,7 @@ function saveSpotifyAuth({ accessToken, refreshToken, expiresAt, scope, tokenTyp
 }
 
 function clearSpotifyAuth() {
-  return db.prepare('DELETE FROM spotify_auth WHERE id = 1').run().changes > 0;
+  return prepare('DELETE FROM spotify_auth WHERE id = 1').run().changes > 0;
 }
 
 function addSongRequest({
@@ -352,7 +358,7 @@ function addSongRequest({
   const occurredAt = new Date().toISOString();
   const normalizedPlatform = String(platform || 'other').toLowerCase();
   const resolvedSessionId = sessionId || findActiveStreamSessionId(normalizedPlatform, occurredAt);
-  const result = db.prepare(`
+  const result = prepare(`
     INSERT INTO song_requests (
       timestamp, platform, platform_user_id, username, query, spotify_track_id,
       spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id, status, response, error_code
@@ -384,19 +390,7 @@ function addSongRequest({
 
 function listSongRequests(limit = 50) {
   const safeLimit = Math.max(1, Math.min(200, Number(limit) || 50));
-  return db.prepare(`
-    SELECT id, timestamp, platform, platform_user_id, username, query,
-           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
-           status, response, error_code
-    FROM song_requests
-    ORDER BY id DESC
-    LIMIT ?
-  `).all(safeLimit);
-}
-
-function listAllSongRequests(limit = 50000) {
-  const safeLimit = Math.max(1, Math.min(100000, Number(limit) || 50000));
-  return db.prepare(`
+  return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
            spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
            status, response, error_code
@@ -424,7 +418,7 @@ function addEngagementEvent({
   const occurredAt = timestamp || new Date().toISOString();
   const normalizedPlatform = platform ? String(platform).trim().toLowerCase() : null;
   const resolvedSessionId = sessionId || findActiveStreamSessionId(normalizedPlatform, occurredAt);
-  const result = db.prepare(`
+  const result = prepare(`
     INSERT INTO engagement_events (
       timestamp, tool, event_type, platform, platform_user_id, username, correlation_id, roles, session_id, metadata
     ) VALUES (
@@ -447,7 +441,7 @@ function addEngagementEvent({
 
 function listEngagementEvents(limit = 50000) {
   const safeLimit = Math.max(1, Math.min(100000, Number(limit) || 50000));
-  return db.prepare(`
+  return prepare(`
     SELECT id, timestamp, tool, event_type, platform, platform_user_id, username, correlation_id, roles, session_id, metadata
     FROM engagement_events
     ORDER BY id DESC
@@ -465,10 +459,10 @@ function archiveQuizValidationEvents() {
     db.exec(`CREATE TABLE IF NOT EXISTS quiz_validation_archive AS
       SELECT *, '' AS archived_at FROM engagement_events WHERE 0`);
     const archivedAt = new Date().toISOString();
-    const result = db.prepare(`INSERT INTO quiz_validation_archive
+    const result = prepare(`INSERT INTO quiz_validation_archive
       SELECT *, ? FROM engagement_events
       WHERE tool = 'elimination_quiz' AND julianday(timestamp) <= julianday(?)`).run(archivedAt, cutoff);
-    db.prepare(`DELETE FROM engagement_events
+    prepare(`DELETE FROM engagement_events
       WHERE tool = 'elimination_quiz' AND julianday(timestamp) <= julianday(?)`).run(cutoff);
     const summary = { cutoff, archivedEvents: result.changes, archivedAt };
     setConfigValue(key, summary);
@@ -477,7 +471,7 @@ function archiveQuizValidationEvents() {
 }
 
 function getQuizWinCount(platform, userId) {
-  return db.prepare(`
+  return prepare(`
     SELECT COUNT(DISTINCT COALESCE(correlation_id, CAST(id AS TEXT))) AS wins
     FROM engagement_events
     WHERE tool = 'elimination_quiz' AND event_type = 'player_won'
@@ -490,12 +484,12 @@ function listEngagementEventsForRange({ since, before } = {}) {
   const params = {};
   if (since) { conditions.push('julianday(timestamp) >= julianday(@since)'); params.since = since; }
   if (before) { conditions.push('julianday(timestamp) < julianday(@before)'); params.before = before; }
-  const detailRows = db.prepare(`
+  const detailRows = prepare(`
     SELECT id, timestamp, tool, event_type, platform, platform_user_id, username, correlation_id, roles, session_id, metadata
     FROM engagement_events
     ${conditions.length ? `WHERE ${conditions.join(' AND ')} AND` : 'WHERE'} NOT (tool = 'audience' AND event_type = 'chat_message')
   `).all(params);
-  const chatRows = db.prepare(`
+  const chatRows = prepare(`
     SELECT MIN(id) AS id, MIN(timestamp) AS timestamp, tool, event_type, platform,
            platform_user_id, username, NULL AS correlation_id, roles, session_id,
            COUNT(*) AS aggregate_count, NULL AS metadata
@@ -513,7 +507,7 @@ function listSongRequestsForRange({ since, before } = {}) {
   const params = {};
   if (since) { conditions.push('julianday(timestamp) >= julianday(@since)'); params.since = since; }
   if (before) { conditions.push('julianday(timestamp) < julianday(@before)'); params.before = before; }
-  return db.prepare(`
+  return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
            spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
            status, response, error_code
@@ -525,7 +519,7 @@ function listSongRequestsForRange({ since, before } = {}) {
 
 function openStreamSession({ id, platform, externalId, startedAt, title, category, source, metadata }) {
   const sessionId = String(id || `${platform}:${externalId || startedAt || Date.now()}`);
-  db.prepare(`
+  prepare(`
     INSERT INTO stream_sessions (id, platform, external_id, started_at, title, category, source, metadata, updated_at)
     VALUES (@id, @platform, @externalId, @startedAt, @title, @category, @source, @metadata, CURRENT_TIMESTAMP)
     ON CONFLICT(id) DO UPDATE SET
@@ -551,13 +545,13 @@ function openStreamSession({ id, platform, externalId, startedAt, title, categor
 
 function closeStreamSession({ id, platform, endedAt, metadata } = {}) {
   const row = id
-    ? db.prepare('SELECT id, metadata FROM stream_sessions WHERE id = ?').get(id)
-    : db.prepare(`SELECT id, metadata FROM stream_sessions WHERE platform = ? AND ended_at IS NULL ORDER BY started_at DESC LIMIT 1`).get(String(platform || 'other').toLowerCase());
+    ? prepare('SELECT id, metadata FROM stream_sessions WHERE id = ?').get(id)
+    : prepare(`SELECT id, metadata FROM stream_sessions WHERE platform = ? AND ended_at IS NULL ORDER BY started_at DESC LIMIT 1`).get(String(platform || 'other').toLowerCase());
   if (!row) return null;
   const mergedMetadata = metadata === undefined
     ? row.metadata
     : JSON.stringify({ ...parseJsonColumn(row.metadata, {}), ...metadata });
-  db.prepare(`
+  prepare(`
     UPDATE stream_sessions
     SET ended_at = @endedAt,
         metadata = @metadata,
@@ -573,7 +567,7 @@ function addViewerSnapshot({ timestamp, platform, sessionId, viewerCount, totalV
   const occurredAt = timestamp || new Date().toISOString();
   const normalizedPlatform = String(platform || 'other').toLowerCase();
   const resolvedSessionId = sessionId || findActiveStreamSessionId(normalizedPlatform, occurredAt);
-  return Number(db.prepare(`
+  return Number(prepare(`
     INSERT INTO viewer_snapshots (timestamp, platform, session_id, viewer_count, total_viewers, source, metadata)
     VALUES (@timestamp, @platform, @sessionId, @viewerCount, @totalViewers, @source, @metadata)
   `).run({
@@ -592,7 +586,7 @@ function listStreamSessionsForRange({ since, before } = {}) {
   const params = {};
   if (since) { conditions.push('(ended_at IS NULL OR julianday(ended_at) >= julianday(@since))'); params.since = since; }
   if (before) { conditions.push('julianday(started_at) < julianday(@before)'); params.before = before; }
-  return db.prepare(`SELECT * FROM stream_sessions ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''} ORDER BY started_at DESC`).all(params).map((row) => ({
+  return prepare(`SELECT * FROM stream_sessions ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''} ORDER BY started_at DESC`).all(params).map((row) => ({
     ...row,
     metadata: parseJsonColumn(row.metadata, {}),
   }));
@@ -603,7 +597,7 @@ function listViewerSnapshotsForRange({ since, before } = {}) {
   const params = {};
   if (since) { conditions.push('julianday(timestamp) >= julianday(@since)'); params.since = since; }
   if (before) { conditions.push('julianday(timestamp) < julianday(@before)'); params.before = before; }
-  return db.prepare(`
+  return prepare(`
     SELECT MIN(id) AS id, MIN(timestamp) AS timestamp, platform, session_id,
            AVG(viewer_count) AS viewer_count, MAX(viewer_count) AS peak_viewer_count, MAX(total_viewers) AS total_viewers,
            source, COUNT(*) AS sample_count, NULL AS metadata
@@ -619,13 +613,13 @@ function listViewerSnapshotsForRange({ since, before } = {}) {
 
 function findActiveStreamSessionId(platform, timestamp) {
   if (!platform) return null;
-  const direct = db.prepare(`
+  const direct = prepare(`
     SELECT id FROM stream_sessions
     WHERE platform = @platform AND ended_at IS NULL AND julianday(started_at) <= julianday(@timestamp)
     ORDER BY started_at DESC LIMIT 1
   `).get({ platform, timestamp });
   if (direct) return direct.id;
-  return db.prepare(`
+  return prepare(`
     SELECT id FROM stream_sessions
     WHERE platform = 'obs' AND ended_at IS NULL AND julianday(started_at) <= julianday(@timestamp)
     ORDER BY started_at DESC LIMIT 1
@@ -649,7 +643,7 @@ function parseJsonColumn(value, fallback) {
 function getSongRequest(id) {
   const requestId = Number(id);
   if (!Number.isSafeInteger(requestId) || requestId < 1) return null;
-  return db.prepare(`
+  return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
            spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
            status, response, error_code
@@ -661,11 +655,11 @@ function getSongRequest(id) {
 function deleteSongRequest(id) {
   const requestId = Number(id);
   if (!Number.isSafeInteger(requestId) || requestId < 1) return false;
-  return db.prepare('DELETE FROM song_requests WHERE id = ?').run(requestId).changes > 0;
+  return prepare('DELETE FROM song_requests WHERE id = ?').run(requestId).changes > 0;
 }
 
 function getLastAcceptedSongRequest() {
-  return db.prepare(`
+  return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
            spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
            status, response
@@ -678,7 +672,7 @@ function getLastAcceptedSongRequest() {
 
 function hasAcceptedTrack(trackId) {
   if (!trackId) return false;
-  return Boolean(db.prepare(`
+  return Boolean(prepare(`
     SELECT 1 FROM song_requests
     WHERE spotify_track_id = ? AND status IN ('accepted', 'partial')
     LIMIT 1
@@ -686,7 +680,7 @@ function hasAcceptedTrack(trackId) {
 }
 
 const schema = {
-  getAllConfig,
+  db, getConfigRevision,
   getConfigValue,
   setConfigValue,
   addAuditLog,
@@ -699,7 +693,6 @@ const schema = {
   clearSpotifyAuth,
   addSongRequest,
   listSongRequests,
-  listAllSongRequests,
   listSongRequestsForRange,
   addEngagementEvent,
   listEngagementEvents,

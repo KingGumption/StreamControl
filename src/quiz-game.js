@@ -1,4 +1,6 @@
 const crypto = require('node:crypto');
+const { EventEmitter } = require('node:events');
+const { controlVersion } = require('./game-control');
 const { addEngagementEvent, getQuizWinCount } = require('./db');
 const { resolveTwitchAvatar } = require('./avatar-resolver');
 const { loadQuestionHistory, saveQuestionHistory } = require('./quiz-question-history');
@@ -10,6 +12,11 @@ class QuizGame {
   constructor({ recordEvent = () => {}, now = Date.now, schedule = setTimeout, cancel = clearTimeout, questions = QUESTIONS, resolveAvatar = null, getWins = () => 0, loadHistory = null, saveHistory = () => {} } = {}) {
     Object.assign(this, { recordEvent, now, schedule, cancel, questions, resolveAvatar, getWins, loadHistory, saveHistory });
     this.history = [];
+    this.events = new EventEmitter(); this.events.setMaxListeners(100);
+    this.revision = 0;
+    const counts = new Map();
+    for (const q of questions) { const id = q.category || 'general'; counts.set(id,(counts.get(id)||0)+1); }
+    this.catalogue = [...counts].map(([id,count]) => ({id,label:CATEGORY_LABELS[id] || id,count}));
     this.phase = 'idle'; this.players = new Map(); this.round = 0; this.count = 10;
   }
   track(eventType, player, metadata = {}) {
@@ -120,7 +127,7 @@ class QuizGame {
         const p = { platform, id, username: event.user.displayName || event.user.username || id, profileImageUrl: safeProfileImage(event.user.profileImageUrl), correctAnswers: 0, totalWins: this.getWins(platform, id), alive: true, answer: null };
         this.players.set(key, p); this.track('player_joined', p);
         if (!p.profileImageUrl && platform === 'twitch' && this.resolveAvatar) {
-          Promise.resolve().then(() => this.resolveAvatar(event.user.username || p.username)).then(url => { p.profileImageUrl = safeProfileImage(url); }).catch(() => {});
+          Promise.resolve().then(() => this.resolveAvatar(event.user.username || p.username)).then(url => { p.profileImageUrl = safeProfileImage(url); this.publish(); }).catch(() => {});
         }
       }
       return true;
@@ -140,14 +147,27 @@ class QuizGame {
     return shuffleOptions(this.reserve.shift());
   }
   getCatalog() {
-    return [...new Set(this.questions.map(q=>q.category || 'general'))].map(id=>({id,label:CATEGORY_LABELS[id] || id,count:this.questions.filter(q=>(q.category || 'general')===id).length}));
+    return this.catalogue;
   }
   getState() {
     const q = this.round ? this.deck?.[this.round - 1] : null;
-    return { answerSeconds: this.answerSeconds, answered: this.phase === 'question' ? this.survivors().filter(p=>p.answer!==null).length : null, categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
+    const state = { revision: this.revision, answerSeconds: this.answerSeconds, answered: this.phase === 'question' ? this.survivors().filter(p=>p.answer!==null).length : null, categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
       question: q && this.phase !== 'idle' ? { text: q.text, options: q.options, difficulty: q.difficulty, category: q.category || 'general', ...(q.image ? { image: { url: `/assets/quiz-media/${q.image.file}`, crop: q.image.crop || [0,0,1,1], aspect: q.image.aspect } } : {}), ...(['reveal','completed'].includes(this.phase) ? { answer: q.answer } : {}) } : null,
       winners: this.phase === 'completed' ? this.survivors().map(({ username, platform, profileImageUrl, correctAnswers, totalWins }) => ({ username, platform, profileImageUrl, correctAnswers, totalWins })) : [] };
+    state.controlVersion = controlVersion(state);
+    return state;
   }
+  subscribe(listener) { this.events.on('state',listener); return () => this.events.off('state',listener); }
+  publish() {
+    this.revision++;
+    if (!this.events.listenerCount('state') || this.publishTimer) return;
+    this.publishTimer = setTimeout(() => { this.publishTimer = null; this.events.emit('state',this.getState()); },30);
+    this.publishTimer.unref?.();
+  }
+}
+for (const name of ['open','next','resolve','stop','handleChatEvent']) {
+  const original = QuizGame.prototype[name];
+  QuizGame.prototype[name] = function (...args) { const result = original.apply(this,args); if (result !== false) this.publish(); return result; };
 }
 function safeProfileImage(value) {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch { return ''; }

@@ -23,6 +23,8 @@ class CooldownManager {
 
   consume(event) {
     const now = this.now();
+    for (const [key, last] of this.users) if (now - last >= this.userMs) this.users.delete(key);
+    if (this.users.size >= 10000) this.users.delete(this.users.keys().next().value);
     const userKey = `${event.platform}:${event.user.id || event.user.username.toLowerCase()}`;
     const globalWait = this.globalMs - (now - this.lastGlobal);
     const userWait = this.userMs - (now - (this.users.get(userKey) || 0));

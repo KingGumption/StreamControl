@@ -1,5 +1,6 @@
 const { EventEmitter } = require('node:events');
 const crypto = require('node:crypto');
+const { controlVersion } = require('./game-control');
 const fs = require('node:fs');
 const path = require('node:path');
 const { getHillGameTimings, getHillGameRoundCount } = require('./runtime-settings');
@@ -462,7 +463,8 @@ class HillGame {
 
   getState() {
     const totalVotes = this.counts[0] + this.counts[1];
-    return {
+    const state = {
+      gameId: this.gameId,
       running: this.running,
       phase: this.phase,
       round: this.round,
@@ -489,6 +491,8 @@ class HillGame {
         isKing: this.phase === 'battle' && index === 0,
       })),
     };
+    state.controlVersion = controlVersion(state);
+    return state;
   }
 
   publish() {

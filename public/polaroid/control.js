@@ -33,6 +33,7 @@ async function updateStatus() {
       card('Camera source', status.cameraSource),
       card('Reward', status.rewardTitle),
       card('Queue', `${status.queueLength}${status.processing ? ' (working)' : ''}`),
+      card('Deliveries', String(status.deliveryQueueLength || 0)),
     ].join('');
     overlayUrl.textContent = status.overlayUrl;
     if (status.lastError) {
@@ -68,7 +69,7 @@ form.addEventListener('submit', async (event) => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
     delete result.dataset.serviceError;
-    result.textContent = `Done — Polaroid taken by ${data.redeemerName}.${deliverToDiscord ? '' : ' Discord and Twitch delivery skipped.'}`;
+    result.textContent = `Polaroid taken by ${data.redeemerName}.${deliverToDiscord ? ' Discord and Twitch delivery is processing separately.' : ' Discord and Twitch delivery skipped.'}`;
     latest.src = `${data.imageUrl}?v=${Date.now()}`;
     latest.hidden = false;
   } catch (error) {

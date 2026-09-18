@@ -214,35 +214,7 @@ connectionStatus.define('tikfinity', { configured: true });
 connectionStatus.define('streamerbot', { configured: true });
 connectionStatus.define('connector', { configured: appConfig.mode === 'cloud', detail: appConfig.mode === 'cloud' ? 'Waiting for local connector' : 'Not used in local mode' });
 
-let activeMonitors = null;
-
-function startConnectionMonitors(config = appConfig) {
-  if (activeMonitors) return activeMonitors;
-
-  const monitors = [
-    new WebSocketConnectionMonitor({
-      service: 'tikfinity',
-      url: config.tikfinity.websocketUrl,
-      registry: connectionStatus,
-    }),
-    new WebSocketConnectionMonitor({
-      service: 'streamerbot',
-      url: config.streamerBot.websocketUrl,
-      registry: connectionStatus,
-    }),
-  ];
-  monitors.forEach((monitor) => monitor.start());
-
-  activeMonitors = {
-    stop() {
-      monitors.forEach((monitor) => monitor.stop());
-      activeMonitors = null;
-    },
-  };
-  return activeMonitors;
-}
-
-// The future OAuth implementation should call this only after validating the
+// OAuth calls this only after validating the
 // access token with Spotify, and set disconnected again on logout/token failure.
 function setSpotifyConnectionState({ state, connected, detail, lastEventAt, ...metadata } = {}) {
   const nextState = state || (connected ? 'connected' : 'disconnected');
@@ -271,6 +243,5 @@ module.exports = {
   WebSocketConnectionMonitor,
   getConnectionStatuses,
   setSpotifyConnectionState,
-  startConnectionMonitors,
   updateConnectionStatus,
 };
