@@ -17,11 +17,9 @@
           if (!['/admin/games','/admin/quiz','/admin/king-of-the-hill'].includes(link.getAttribute('href'))) link.hidden = true;
         });
         banner.textContent = handoff.enabled ? `Signed in as ${user.username}. Game control available until ${new Date(handoff.expiresAt).toLocaleTimeString()}.` : `Signed in as ${user.username}. Waiting for the owner to hand over game control.`;
-        const logout = document.createElement('form'); logout.method = 'post'; logout.action = '/admin/logout';
-        const signout = document.createElement('button'); signout.type = 'submit'; signout.id = 'gamesSignout'; signout.textContent = 'Sign out'; logout.append(signout); banner.append(logout);
         // Server permissions remain authoritative, including after expiry.
         document.querySelectorAll('button').forEach(button => {
-          if (['openOverlay','copyUrl','gamesSignout'].includes(button.id)) return;
+          if (button.hasAttribute('data-admin-logout') || ['openOverlay','copyUrl'].includes(button.id)) return;
           button.inert = !handoff.enabled;
           if (!handoff.enabled) button.setAttribute('aria-disabled','true');
           else button.removeAttribute('aria-disabled');

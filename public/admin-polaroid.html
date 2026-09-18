@@ -80,7 +80,9 @@
       header { flex-direction: column; align-items: flex-start; }
       .test-fields { flex-direction: column; }
     }
-  </style>
+
+.admin-nav .admin-logout{margin:0;display:flex}.admin-logout button{width:auto;margin:0;padding:9px 13px;font:inherit;font-weight:bold;color:var(--muted,#a2b5c3);background:var(--panel-alt,#1e2430);border:1px solid var(--border,#27313d);border-radius:7px;cursor:pointer}.admin-logout button:hover{color:var(--text,#edf4f7);border-color:var(--accent,#4ecdc4)}.admin-logout button:focus-visible{outline:3px solid #4ecdc4;outline-offset:2px}
+</style>
 </head>
 <body>
   <div class="shell">
@@ -88,10 +90,10 @@
       <h1>StreamEngagement</h1>
       <nav class="admin-nav" aria-label="Admin pages">
         <a href="/admin">Song Requests</a>
-        <a href="/admin/games">Games</a><a href="/admin/king-of-the-hill">King of the Hill</a>
+        <a href="/admin/games">Games</a>
         <a href="/admin/analytics">Analytics</a>
         <a class="active" href="/admin/polaroid" aria-current="page">Polaroid Redeem</a>
-      </nav>
+      <form class="admin-logout" method="post" action="/admin/logout"><button type="submit" data-admin-logout>Log out</button></form></nav>
     </header>
 
     <section class="panel">

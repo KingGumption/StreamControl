@@ -91,7 +91,9 @@
         .control-grid, .how-grid, .timing-grid { grid-template-columns: 1fr; }
         .credits { columns: 1; }
       }
-    </style>
+
+.admin-nav .admin-logout{margin:0;display:flex}.admin-logout button{width:auto;margin:0;padding:9px 13px;font:inherit;font-weight:bold;color:var(--muted,#a2b5c3);background:var(--panel-alt,#1e2430);border:1px solid var(--border,#27313d);border-radius:7px;cursor:pointer}.admin-logout button:hover{color:var(--text,#edf4f7);border-color:var(--accent,#4ecdc4)}.admin-logout button:focus-visible{outline:3px solid #4ecdc4;outline-offset:2px}
+</style>
   <script src="/assets/game-access.js" defer></script></head>
   <body>
     <div class="shell">
@@ -99,10 +101,10 @@
         <h1>KingGumption King of the Hill</h1>
         <nav class="admin-nav" aria-label="Admin pages">
           <a href="/admin">Song Requests</a>
-          <a href="/admin/games">Games</a><a class="active" href="/admin/king-of-the-hill" aria-current="page">King of the Hill</a>
+          <a class="active" href="/admin/games" aria-current="page">Games</a>
           <a href="/admin/analytics">Analytics</a>
           <a href="/admin/polaroid">Polaroid Redeem</a>
-        </nav>
+        <form class="admin-logout" method="post" action="/admin/logout"><button type="submit" data-admin-logout>Log out</button></form></nav>
       </header>
 
       <section class="panel">
