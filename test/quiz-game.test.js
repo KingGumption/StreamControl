@@ -6,7 +6,7 @@ function setup() {
   let now = 1000; const events = []; let timeout;
   const game = new QuizGame({ recordEvent: e => events.push(e), now: () => now, schedule: fn => { timeout = fn; }, cancel: () => {} });
   const chat = (id, text, platform = 'twitch') => game.handleChatEvent({ platform, text, user: { id, username: id } });
-  return { game, events, chat, expire: () => { now += 20000; timeout(); }, late: () => { now += 20000; } };
+  return { game, events, chat, expire: () => { now += 20000; timeout(); }, late: () => { now += 22000; } };
 }
 
 test('public answer progress is aggregate only and streaks appear after every fifth correct answer',()=>{
@@ -40,7 +40,7 @@ test('locks roster, separates platform IDs, hides answers, and enforces first an
   assert.equal(game.phase,'completed'); assert.equal(game.getState().winners.length,1);
   assert.equal(events.filter(e=>e.eventType==='player_won').length,1);
 });
-test('deadline rejects late answers even before timer fires and everyone can lose', () => {
+test('grace deadline rejects late answers even before timer fires and everyone can lose', () => {
   const { game, chat, late } = setup(); game.open(); chat('a','!join'); chat('b','!join'); game.next(); late();
   chat('a',`${game.deck[0].answer+1}`);
   assert.equal(game.phase,'completed'); assert.equal(game.getState().winners.length,0);

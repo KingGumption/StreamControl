@@ -104,7 +104,7 @@ test('lobby roster stays bounded, preserves casing, and does not rebuild on iden
  const holder=b.elements.get('quizLobbyPlayers');assert.equal(holder.children.length,9);
  assert.equal(holder.children[7].children[1].textContent,'KingGumption');assert.equal(holder.children[8].textContent,'+12 more');
  const card=holder.children[7];b.render(g);assert.equal(holder.children[7],card);
- b.render({...g,phase:'question',question:{text:'Q',options:['a','b','c','d']}});assert.equal(holder.hidden,true);
+ b.render({...g,phase:'question',question:{text:'Q',options:['a','b','c','d']}});assert.equal(holder.hidden,false);
 });
 
 test('answer progress and final countdown update without replaying the question or leaking choices',()=>{
@@ -119,7 +119,7 @@ test('answer progress and final countdown update without replaying the question 
 
 test('streak celebrations only appear on reveal and sudden death has a nonblocking introduction',()=>{
  const b=browser(true);const g=result({phase:'reveal',round:5,roundResult:{answerCounts:[5,0,0,0],eliminated:[],missed:0,milestones:[{username:'KingGumption',correctAnswers:5}]}});
- b.render(g);assert.equal(b.elements.get('quizMoment').children[0].textContent,'5 correct in a row!');
+ b.render(g);assert.equal(b.elements.get('quizMoment').children[0].textContent,'5 correct answers!');
  assert.equal(b.elements.get('quizMoment').children[1].textContent,'KingGumption');
  b.render({...g,phase:'question',round:11,suddenDeath:true,roundResult:null});
  assert.equal(b.elements.get('quizMoment').children[0].textContent,'SUDDEN DEATH');assert.equal(b.elements.get('questionPanel').hidden,false);assert.equal(b.timers.size,0);

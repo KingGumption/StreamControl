@@ -51,7 +51,7 @@ class QuizTestSessions {
   state(session) {
     const game = session.game;
     const self = game.players.get('twitch:self');
-    return { ok: true, autoplay: session.autoplay, scenario: session.scenario, testId: session.id, game: game.getState(), self: { username: self.username, alive: self.alive, answer: self.answer, correctAnswers: self.correctAnswers },
+    return { ok: true, autoplay: session.autoplay, scenario: session.scenario, testId: session.id, game: game.getState(), self: { username: self.username, alive: self.alive, answer: self.answer, passed:self.passed, passes:self.freePass+self.bonusPass, correctAnswers: self.correctAnswers },
       testPlayers: [...game.players.values()].map(p => ({ username: p.username, alive: p.alive, correctAnswers: p.correctAnswers })),
     };
   }
@@ -63,8 +63,10 @@ class QuizTestSessions {
     } else if (action === 'answer') {
       const self = game.players.get('twitch:self');
       if (!Number.isInteger(payload.answer) || payload.answer < 1 || payload.answer > 4) throw new Error('Choose an answer from 1 to 4.');
-      if (game.phase !== 'question' || this.now() >= game.deadline || !self.alive || self.answer !== null) throw new Error('You cannot answer this question now.');
+      if (game.phase !== 'question' || this.now() >= game.acceptUntil || !self.alive || self.answer !== null || self.passed) throw new Error('You cannot answer this question now.');
       game.handleChatEvent(this.chat('self', self.username, String(payload.answer)));
+    } else if (action === 'pass') {
+      game.handleChatEvent(this.chat('self', session.game.players.get('twitch:self').username, 'pass'));
     } else if (action === 'finish-question') {
       if (game.phase !== 'question') throw new Error('There is no open question.');
       game.resolve();

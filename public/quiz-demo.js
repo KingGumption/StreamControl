@@ -12,8 +12,9 @@ function displayTest(data) {
   $('stopTest').disabled = false;
   $('startTest').hidden = data.autoplay || g.phase !== 'lobby';
   $('finishTestQuestion').disabled = g.phase !== 'question';
+  $('testPass').disabled = testBusy || data.self.answer !== null || data.self.passed || !data.self.passes || g.phase!=='question';
   $('testAnswers').hidden = data.autoplay || g.phase !== 'question' || !data.self.alive;
-  document.querySelectorAll('[data-test-answer]').forEach(button => { button.disabled = testBusy || data.self.answer !== null || !data.self.alive || g.phase !== 'question'; });
+  document.querySelectorAll('[data-test-answer]').forEach(button => { button.disabled = testBusy || data.self.answer !== null || data.self.passed || !data.self.alive || g.phase !== 'question'; });
   const mode = data.autoplay ? 'Automatic demo' : 'Playing as ' + data.self.username;
   const detail = g.phase === 'lobby' ? (data.autoplay ? 'Viewers are joining. The quiz will start automatically.' : 'Ready! Start the test quiz when you are ready.') : g.phase === 'completed' ? (g.outcome === 'victory' ? 'Winner run complete.' : 'Everyone was eliminated.') : !data.autoplay && !data.self.alive ? 'You are out. Watch the remaining viewers play.' : !data.autoplay && data.self.answer !== null && g.phase === 'question' ? `Answer ${data.self.answer + 1} submitted. Waiting for the reveal.` : 'Questions and results advance automatically.';
   $('testStatus').textContent = `${mode}: ${detail}`;
@@ -65,6 +66,7 @@ $('playTest').onclick = () => beginTest(false);
 $('startTest').onclick = () => testAction('start');
 $('finishTestQuestion').onclick = () => testAction('finish-question');
 $('stopTest').onclick = () => { globalThis.stopQuizTest(); selectPreview('idle'); };
+$('testPass').onclick = () => testAction('pass');
 document.querySelectorAll('[data-test-answer]').forEach(button => button.onclick = () => testAction('answer',{answer:Number(button.dataset.testAnswer)}));
 document.addEventListener('keydown',event=>{
   if(!testSession || testSession.autoplay || event.repeat || /INPUT|SELECT|TEXTAREA/.test(event.target.tagName))return;

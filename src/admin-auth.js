@@ -72,7 +72,7 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
     const pathname = req.path;
     const read = ['GET','HEAD'].includes(req.method);
     const reads = new Set(['/games','/quiz','/quiz/state','/king-of-the-hill','/king-of-the-hill/state','/games/session','/games/connections']);
-    const writes = new Set(['/quiz/open','/quiz/next','/quiz/stop','/king-of-the-hill/start','/king-of-the-hill/stop','/king-of-the-hill/next','/king-of-the-hill/settings']);
+    const writes = new Set(['/quiz/audio','/quiz/open','/quiz/next','/quiz/stop','/king-of-the-hill/start','/king-of-the-hill/stop','/king-of-the-hill/next','/king-of-the-hill/settings']);
     if (read && reads.has(pathname)) return next();
     if (req.method === 'POST' && writes.has(pathname) && access.handoff(now()).enabled) return next();
     return res.status(403).json({ok:false,error:'Owner access required, or moderator handoff is disabled.'});

@@ -9,8 +9,9 @@ const CATEGORY_LABELS = { logos: 'Franchise logos', characters: 'Game characters
 function shuffle(items) { const result = [...items]; for (let i = result.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [result[i], result[j]] = [result[j], result[i]]; } return result; }
 function shuffleOptions(q) { const options = shuffle(q.options.map((text,i) => ({text,correct:i===q.answer}))); return {...q,options:options.map(o=>o.text),answer:options.findIndex(o=>o.correct)}; }
 class QuizGame {
-  constructor({ recordEvent = () => {}, now = Date.now, schedule = setTimeout, cancel = clearTimeout, questions = QUESTIONS, resolveAvatar = null, getWins = () => 0, loadHistory = null, saveHistory = () => {} } = {}) {
-    Object.assign(this, { recordEvent, now, schedule, cancel, questions, resolveAvatar, getWins, loadHistory, saveHistory });
+  constructor({ recordEvent = () => {}, now = Date.now, schedule = setTimeout, cancel = clearTimeout, questions = QUESTIONS, resolveAvatar = null, getWins = () => 0, loadHistory = null, saveHistory = () => {}, passBank = null, audioStore = null } = {}) {
+    Object.assign(this, { recordEvent, now, schedule, cancel, questions, resolveAvatar, getWins, loadHistory, saveHistory, passBank, audioStore });
+    this.audio = audioStore?.load() || {muted:false,volume:0.35};
     this.history = [];
     this.events = new EventEmitter(); this.events.setMaxListeners(100);
     this.revision = 0;
@@ -52,7 +53,7 @@ class QuizGame {
     this.reserve = shuffle(available).sort((a,b)=>this.historyRank(a)-this.historyRank(b)||b.difficulty-a.difficulty);
     this.id = crypto.randomUUID(); this.count = questionCount; this.answerSeconds = answerSeconds;
     this.deck = chosen.map(shuffleOptions);
-    this.nextQuestionAt = null; this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
+    this.speedChampion = null; this.submissionSequence = 0; this.acceptUntil = null; this.nextQuestionAt = null; this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
   }
   next() {
     if (this.phase === 'question') { this.resolve(); return this.getState(); }
@@ -61,24 +62,33 @@ class QuizGame {
     if (this.phase === 'lobby') this.track('game_started', null, { players: this.players.size, questionCount: this.count, answerSeconds:this.answerSeconds, categories:this.selectedCategories });
     this.cancel(this.timer); this.nextQuestionAt = null;
     if (this.round >= this.count) this.deck.push(this.suddenDeathQuestion());
-    this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; });
+    this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; p.passed = false; p.responseMs = null; p.answerOrder = null; });
     const shown = this.deck[this.round-1];
     const questionId = shown.id || shown.text;
     this.history = this.history.filter(id=>id!==questionId); this.history.push(questionId);
     this.saveHistory([...this.history]);
-    this.deadline = this.now() + this.answerSeconds * 1000;
+    this.questionStartedAt = this.now();
+    this.deadline = this.questionStartedAt + this.answerSeconds * 1000;
+    this.acceptUntil = this.deadline + 2000;
     this.track('question_started', null, { questionText:shown.text, questionImage:shown.image || null, options:shown.options, players:this.survivors().length, answerSeconds:this.answerSeconds });
-    this.timer = this.schedule(() => this.resolve(), this.answerSeconds * 1000); this.timer?.unref?.();
+    this.timer = this.schedule(() => this.resolve(), this.answerSeconds * 1000 + 2000); this.timer?.unref?.();
     return this.getState();
   }
   resolve() {
     if (this.phase !== 'question') return;
-    this.cancel(this.timer); this.deadline = null;
+    this.cancel(this.timer); this.deadline = null; this.acceptUntil = null;
     const q = this.deck[this.round - 1];
     const answerCounts = [0, 0, 0, 0], eliminated = [], milestones = [];
-    let missed = 0, winnerRunEnded = false;
+    const podium = this.survivors().filter(p => !p.passed && p.answer === q.answer)
+      .sort((a,b) => a.answerOrder - b.answerOrder).slice(0,3).map((p,i) => {
+        const points = 3-i; p.speedPoints += points; if(i===0)p.firstPlaces++;
+        p.speedResponseTotal += p.responseMs;
+        return {username:p.username,platform:p.platform,profileImageUrl:p.profileImageUrl,points,rank:i+1,responseMs:p.responseMs};
+      });
+    let missed = 0, passed = 0, winnerRunEnded = false;
     const lastPlayer = this.survivors().length === 1;
     for (const p of this.players.values()) if (p.alive) {
+      if (p.passed) { passed++; this.track('pass_result',p); continue; }
       if (p.answer === null) missed++;
       else answerCounts[p.answer]++;
       const correct = p.answer === q.answer;
@@ -96,7 +106,7 @@ class QuizGame {
         this.track('player_eliminated', p);
       }
     }
-    this.roundResult = { answerCounts, missed, eliminated, winnerRunEnded, milestones };
+    this.roundResult = { answerCounts, missed, passed, podium, eliminated, winnerRunEnded, milestones };
     this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, correctAnswer:q.answer, missed, eliminated: eliminated.length });
     this.phase = this.survivors().length === 0 || winnerRunEnded ? 'completed' : 'reveal';
     if (this.phase === 'reveal') {
@@ -111,20 +121,29 @@ class QuizGame {
         p.totalWins++;
         this.track('player_won', p, { correctAnswers: p.correctAnswers, totalWins: p.totalWins });
       });
+      const ranked = [...this.players.values()].filter(p=>p.speedPoints>0).sort((a,b)=>
+        b.speedPoints-a.speedPoints || b.firstPlaces-a.firstPlaces || a.speedResponseTotal-b.speedResponseTotal || a.joinOrder-b.joinOrder);
+      const champion = ranked[0];
+      this.speedChampion = champion ? {username:champion.username,platform:champion.platform,profileImageUrl:champion.profileImageUrl,speedPoints:champion.speedPoints} : null;
+      const rewarded = new Set([...this.survivors(), ...(champion ? [champion] : [])]);
+      for(const p of rewarded) {
+        p.savedBonus = this.passBank ? this.passBank.award(this.id,p.platform,p.id) : 1;
+        this.track('bonus_pass_awarded',p,{savedBonus:p.savedBonus,winner:p.alive,speedChampion:p===champion});
+      }
       this.track('game_completed', null, { winners: this.survivors().length, players: this.players.size, outcome: this.outcome });
     }
   }
-  stop() { this.cancel(this.timer); this.nextQuestionAt = null; if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; return this.getState(); }
+  stop() { this.cancel(this.timer); this.nextQuestionAt = null; if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; this.acceptUntil = null; return this.getState(); }
   survivors() { return [...this.players.values()].filter(p => p.alive); }
   handleChatEvent(event) {
-    const match = String(event.text || '').trim().match(/^(?:!(join)|([1-4])|!quiz\s+(join|[a-d1-4]))$/i);
+    const match = String(event.text || '').trim().match(/^(?:!(join)|(pass|[1-4])|!quiz\s+(join|[a-d1-4]))$/i);
     if (!match || !['lobby', 'question', 'reveal'].includes(this.phase)) return false;
     const platform = String(event.platform || '').toLowerCase(), id = String(event.user?.id || '');
     if (!['twitch','youtube','tiktok'].includes(platform) || !id) return true;
     const key = `${platform}:${id}`, value = (match[1] || match[2] || match[3]).toLowerCase();
     if (value === 'join') {
       if (this.phase === 'lobby' && !this.players.has(key)) {
-        const p = { platform, id, username: event.user.displayName || event.user.username || id, profileImageUrl: safeProfileImage(event.user.profileImageUrl), correctAnswers: 0, totalWins: this.getWins(platform, id), alive: true, answer: null };
+        const p = { platform, id, username: event.user.displayName || event.user.username || id, profileImageUrl: safeProfileImage(event.user.profileImageUrl), correctAnswers: 0, totalWins: this.getWins(platform, id), alive: true, answer: null, passed:false, freePass:1, bonusPass:this.passBank?.balance(platform,id) || 0, speedPoints:0, firstPlaces:0, speedResponseTotal:0, joinOrder:this.players.size };
         this.players.set(key, p); this.track('player_joined', p);
         if (!p.profileImageUrl && platform === 'twitch' && this.resolveAvatar) {
           Promise.resolve().then(() => this.resolveAvatar(event.user.username || p.username)).then(url => { p.profileImageUrl = safeProfileImage(url); this.publish(); }).catch(() => {});
@@ -132,11 +151,18 @@ class QuizGame {
       }
       return true;
     }
-    if (this.phase === 'question' && this.now() >= this.deadline) this.resolve();
+    if (this.phase === 'question' && this.now() >= this.acceptUntil) this.resolve();
     const p = this.players.get(key);
-    if (this.phase !== 'question' || !p?.alive || p.answer !== null) return true;
+    if (this.phase !== 'question' || !p?.alive || p.answer !== null || p.passed) return true;
+    if(value === 'pass') {
+      if(p.freePass) p.freePass=0;
+      else if(p.bonusPass && (!this.passBank || this.passBank.spend(platform,id))) p.bonusPass=0;
+      else return true;
+      p.passed=true; this.track('pass_used',p,{remaining:p.freePass+p.bonusPass}); return true;
+    }
+    p.responseMs=Math.max(0,this.now()-this.questionStartedAt); p.answerOrder=++this.submissionSequence;
     p.answer = /[1-4]/.test(value) ? Number(value) - 1 : value.charCodeAt(0) - 97;
-    this.track('answer_submitted', p, { responseMs:Math.max(0,this.now()-(this.deadline-this.answerSeconds*1000)) }); return true;
+    this.track('answer_submitted', p, { responseMs:p.responseMs,inGrace:this.now()>=this.deadline }); return true;
   }
   suddenDeathQuestion() {
     if (!this.reserve.length) {
@@ -146,12 +172,16 @@ class QuizGame {
     }
     return shuffleOptions(this.reserve.shift());
   }
+  setAudio({muted,volume}) {
+    if(typeof muted!=='boolean' || typeof volume!=='number' || !Number.isFinite(volume) || volume<0 || volume>1) throw Error('Choose mute and a volume between 0 and 1.');
+    this.audioStore?.save({muted,volume}); this.audio={muted,volume}; this.publish(); return this.getState();
+  }
   getCatalog() {
     return this.catalogue;
   }
   getState() {
     const q = this.round ? this.deck?.[this.round - 1] : null;
-    const state = { revision: this.revision, answerSeconds: this.answerSeconds, answered: this.phase === 'question' ? this.survivors().filter(p=>p.answer!==null).length : null, categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl}) => ({username, platform, profileImageUrl})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
+    const state = { audio:this.audio, graceMs:2000, acceptUntil:this.acceptUntil || null, speedChampion:this.phase==='completed'?this.speedChampion:null, revision: this.revision, answerSeconds: this.answerSeconds, answered: this.phase === 'question' ? this.survivors().filter(p=>p.answer!==null || p.passed).length : null, categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl, freePass, bonusPass, alive}) => ({username, platform, profileImageUrl, passes:freePass+bonusPass,alive})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
       question: q && this.phase !== 'idle' ? { text: q.text, options: q.options, difficulty: q.difficulty, category: q.category || 'general', ...(q.image ? { image: { url: `/assets/quiz-media/${q.image.file}`, crop: q.image.crop || [0,0,1,1], aspect: q.image.aspect } } : {}), ...(['reveal','completed'].includes(this.phase) ? { answer: q.answer } : {}) } : null,
       winners: this.phase === 'completed' ? this.survivors().map(({ username, platform, profileImageUrl, correctAnswers, totalWins }) => ({ username, platform, profileImageUrl, correctAnswers, totalWins })) : [] };
     state.controlVersion = controlVersion(state);
@@ -172,4 +202,4 @@ for (const name of ['open','next','resolve','stop','handleChatEvent']) {
 function safeProfileImage(value) {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch { return ''; }
 }
-module.exports = { QuizGame, quizGame: new QuizGame({ recordEvent: addEngagementEvent, resolveAvatar: resolveTwitchAvatar, getWins: getQuizWinCount, loadHistory: loadQuestionHistory, saveHistory: saveQuestionHistory }) };
+module.exports = { QuizGame, quizGame: new QuizGame({ recordEvent: addEngagementEvent, resolveAvatar: resolveTwitchAvatar, getWins: getQuizWinCount, loadHistory: loadQuestionHistory, saveHistory: saveQuestionHistory, passBank: require('./quiz-pass-bank'), audioStore:{load:()=>require('./db').getConfigValue('quiz_audio',{muted:false,volume:0.35}),save:value=>require('./db').setConfigValue('quiz_audio',value)} }) };

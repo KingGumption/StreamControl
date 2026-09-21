@@ -28,20 +28,21 @@ function updateEnergy(g) {
   $('quizAnswerProgress').textContent = answered === g.survivors && g.survivors > 0 ? `All ${answered} answers locked in` : `${answered} / ${g.survivors} answers locked in`;
 }
 function updateLobby(g) {
-  const holder = $('quizLobbyPlayers'); holder.hidden = g.phase !== 'lobby';
+  const holder = $('quizLobbyPlayers'); holder.hidden = !['lobby','question'].includes(g.phase);
   if (holder.hidden) { lobbyRosterKey = ''; lobbyCards.clear(); holder.replaceChildren(); return; }
-  const players = (g.roster || []).slice(-8);
+  const available = (g.roster || []).filter(p=>g.phase==='lobby'||p.alive!==false);
+  const players = available.slice(-8);
   const key = JSON.stringify([g.gameId,players,g.players]);
   if (key === lobbyRosterKey) return;
   const activeKeys = new Set(), cards = [];
   players.forEach(p=>{
-    const id = JSON.stringify([g.gameId,p.platform,p.username,p.profileImageUrl]);activeKeys.add(id);
+    const id = JSON.stringify([g.gameId,p.platform,p.username,p.profileImageUrl,p.passes]);activeKeys.add(id);
     let card = lobbyCards.get(id);
-    if(!card){card=node('div','lobby-player');card.append(portrait(p),node('span','',p.username));lobbyCards.set(id,card);}
+    if(!card){card=node('div','lobby-player');card.append(portrait(p),node('span','player-label',p.username),node('small','pass-balance',`${p.passes ?? 1} pass${(p.passes ?? 1)===1?'':'es'}`));lobbyCards.set(id,card);}
     cards.push(card);
   });
   for(const id of lobbyCards.keys())if(!activeKeys.has(id))lobbyCards.delete(id);
-  if(g.players>players.length)cards.push(node('div','lobby-more',`+${g.players-players.length} more`));
+  if(available.length>players.length)cards.push(node('div','lobby-more',`+${available.length-players.length} more`));
   if(!g.players)cards.push(node('p','lobby-first','Be the first to join'));
   holder.replaceChildren(...cards);lobbyRosterKey=key;
 }
@@ -51,7 +52,7 @@ function showMoment(g) {
   if(milestones.length){
     holder.hidden=false;holder.className='quiz-moment streak-moment';
     const score=milestones[0].correctAnswers;
-    holder.append(node('strong','',`${score} correct in a row!`),node('span','',milestones.length===1?milestones[0].username:`${milestones.slice(0,2).map(p=>p.username).join(' · ')}${milestones.length>2?` +${milestones.length-2} more`:''}`));
+    holder.append(node('strong','',`${score} correct answers!`),node('span','',milestones.length===1?milestones[0].username:`${milestones.slice(0,2).map(p=>p.username).join(' · ')}${milestones.length>2?` +${milestones.length-2} more`:''}`));
   }else if(g.phase==='question'&&g.suddenDeath&&g.round===g.questionCount+1){
     holder.hidden=false;holder.className='quiz-moment sudden-moment';
     holder.append(node('strong','','SUDDEN DEATH'),node('span','','Keep your streak alive'));
@@ -89,6 +90,8 @@ function roundLabel(g) {
 function updateStatus(g) {
   let label = g.phase === 'lobby' ? 'Join the quiz' : g.phase === 'question' ? roundLabel(g) : g.phase === 'reveal' ? 'Answer revealed' : g.phase === 'completed' ? (g.winners.length ? 'Quiz complete - victory' : 'Quiz complete - defeat') : 'Waiting for a quiz';
   const deadline = g.phase === 'question' ? g.deadline : g.phase === 'reveal' ? g.nextQuestionAt : null;
+  if (g.phase === 'question' && Date.now() >= g.deadline) label = 'Accepting final answers…';
+  globalThis.QuizAudio?.tick(g);
   if (g.phase === 'reveal' && deadline) label = 'Next question in';
   const parts = [node('span', 'status-label', label)];
   if (deadline) parts.push(node('span', 'quiz-countdown', `${String(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))).padStart(2, '0')}s`));
@@ -166,6 +169,10 @@ function showOutcome(g) {
     winners.append(card);
   });
   stage.append(winners);
+  if(g.speedChampion) {
+    const champion=node('div','speed-champion'); champion.append(node('h3','','SPEED CHAMPION'),portrait(g.speedChampion),node('strong','',g.speedChampion.username),node('p','',g.speedChampion.speedPoints+' speed points · Bonus pass saved (maximum 1)'));stage.append(champion);
+  }
+  globalThis.QuizAudio?.outcome(g);
 }
 function showEliminations(g) {
   const players = g.roundResult?.eliminated || [];
@@ -196,6 +203,7 @@ function showEliminations(g) {
   batch();
 }
 function render(g) {
+  globalThis.QuizAudio?.observe(g);
   game = g;
   ensurePresentation();
   if ($('overlayRoot')) $('overlayRoot').hidden = g.phase === 'idle';
@@ -223,6 +231,7 @@ function render(g) {
       if (g.roundResult) option.append(node('strong', 'answer-count', `${g.roundResult.answerCounts[i]} ${correct ? 'correct' : 'wrong'}`));
       $('options').append(option);
     });
+    $('speedPodium')?.remove();
     const oldList = $('eliminationSummary');
     if (oldList) oldList.remove();
     if (g.roundResult) {
@@ -237,10 +246,12 @@ function render(g) {
         details.append(list);
         $('result').after(details);
       }
+      const podium=node('div','speed-podium');podium.id='speedPodium';
+      if(result.podium?.length) {podium.append(node('strong','','FASTEST CORRECT'));const places=node('div','speed-places');for(const p of result.podium){const card=node('div','speed-place place-'+p.rank);card.append(node('b','',String(p.rank)),portrait(p),node('span','',p.username),node('strong','', '+'+p.points+' pts'));places.append(card);}podium.append(places);$('result').after(podium);}
       animationRunning = true;
       stageTimer = setTimeout(() => showEliminations(g), 3500);
     } else {
-      $('result').textContent = g.phase === 'lobby' ? 'Type in chat to enter. Play with 1, 2, 3 or 4.' : 'Answer 1, 2, 3 or 4. First answer counts.';
+      $('result').textContent = g.phase === 'lobby' ? 'Type in chat to enter. Answer 1–4 or type pass to use a lifeline.' : 'Answer 1–4 OR type pass. Your first choice locks.';
     }
   }
   updateControls(g);

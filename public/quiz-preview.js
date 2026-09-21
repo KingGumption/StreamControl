@@ -20,10 +20,10 @@ function previewState(mode) {
   if (mode === 'idle' || mode === 'lobby') { g.phase = mode; g.question = null; g.round = 0; g.players = mode === 'idle' ? 0 : 8; g.survivors = g.players; }
   if (['reveal','eliminations','winner','defeat','sequence','no-photo'].includes(mode)) {
     g.question.answer = 2; g.survivors = 2; g.phase = 'reveal';
-    g.roundResult = { answerCounts: [0,2,2,3], missed: 1, eliminated };
+    g.roundResult = { answerCounts: [0,2,2,3], missed: 1, eliminated, podium:[{username:'KingGumption',platform:'twitch',rank:1,points:3},{username:'PixelPilot',platform:'youtube',rank:2,points:2},{username:'MoonCat',platform:'tiktok',rank:3,points:1}] };
   }
   if (['winner','sequence','no-photo'].includes(mode)) {
-    g.phase = 'completed'; g.outcome = 'victory'; g.survivors = 1; g.winners = [winner]; g.round = 13; g.suddenDeath = true;
+    g.speedChampion={username:'PixelPilot',platform:'youtube',speedPoints:18}; g.phase = 'completed'; g.outcome = 'victory'; g.survivors = 1; g.winners = [winner]; g.round = 13; g.suddenDeath = true;
     g.roundResult = { answerCounts: [0,1,0,0], missed: 0, eliminated: [], winnerRunEnded: true };
     if (mode === 'no-photo') { winner.profileImageUrl = ''; winner.username = 'NoPhotoViewer'; }
   }

@@ -27,9 +27,13 @@ test('games-only access is enforced across routes, handoff, expiry and revocatio
  for(const url of ['/admin/save','/admin/override','/admin/override/remove','/admin/spotify/disconnect','/admin/polaroid/redeem','/admin/moderators/handoff','/admin/settings/song-requests','/admin/quiz/test'])assert.equal((await call(url,{cookie:mod,method:'POST',body:{}})).status,403,url);
  assert.equal((await call('/admin/requests/1',{cookie:mod,method:'DELETE'})).status,403);
  assert.equal((await call('/admin/quiz/open',{cookie:mod,method:'POST',body:{}})).status,403);
+ assert.equal((await call('/admin/quiz/audio',{cookie:mod,method:'POST',body:{muted:true,volume:.2}})).status,403);
  assert.equal((await call('/admin/moderators/handoff',{cookie:owner,method:'POST',body:{enabled:true,minutes:30}})).status,200);
  assert.equal((await call('/admin/quiz/open',{cookie:mod,method:'POST',body:{},origin:'https://evil.example'})).status,403);
  assert.equal((await call('/admin/quiz/open',{cookie:mod,method:'POST',body:{}})).status,409);
+ assert.equal((await call('/admin/quiz/audio',{cookie:mod,method:'POST',body:{muted:true,volume:.2}})).status,200);
+ assert.equal(quizGame.getState().audio.muted,true);
+ assert.equal((await call('/admin/quiz/audio',{cookie:mod,method:'POST',body:{muted:false,volume:2}})).status,400);
  const version=quizGame.getState().controlVersion;
  const opened=await call('/admin/quiz/open',{cookie:mod,method:'POST',body:{questionCount:1,answerSeconds:5},version});assert.equal(opened.status,200);
  assert.equal((await call('/admin/quiz/stop',{cookie:mod,method:'POST',body:{},version})).status,409);

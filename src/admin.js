@@ -326,6 +326,7 @@ router.get('/quiz/preview', (req, res) => res.sendFile(path.join(__dirname, '..'
 router.get('/quiz/analytics-baseline', (req, res) => res.json({ ok: true, ...quizAnalyticsBaseline }));
 router.get('/games', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'admin-games.html')));
 router.get('/quiz', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'admin-quiz.html')));
+router.post('/quiz/audio', (req,res) => { try { res.json({ok:true,game:quizGame.setAudio(req.body)}); } catch(error) {res.status(400).json({ok:false,error:error.message});} });
 router.get('/quiz/state', (req, res) => res.json({ ok: true, game: quizGame.getState() }));
 for (const action of ['open', 'next', 'stop']) {
   router.post(`/quiz/${action}`, (req, res) => {
