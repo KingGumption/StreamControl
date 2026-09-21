@@ -232,6 +232,7 @@ function render(g) {
       $('options').append(option);
     });
     $('speedPodium')?.remove();
+    $('passedSummary')?.remove();
     const oldList = $('eliminationSummary');
     if (oldList) oldList.remove();
     if (g.roundResult) {
@@ -245,6 +246,17 @@ function render(g) {
         result.eliminated.forEach(p => list.append(node('li', '', `${p.username} (${p.platform}) - ${p.answer === null ? 'no answer' : `answer ${p.answer + 1}`}`)));
         details.append(list);
         $('result').after(details);
+      }
+      if (result.passedPlayers?.length) {
+        const group = node('section', 'passed-summary'); group.id = 'passedSummary';
+        group.append(node('h3', '', 'Passed'), node('p', '', 'Used a pass to survive this question'));
+        const players = node('div', 'passed-players');
+        for (const p of result.passedPlayers) {
+          const card = node('div', 'passed-player');
+          card.append(portrait(p), node('strong', '', p.username));
+          players.append(card);
+        }
+        group.append(players); $('result').after(group);
       }
       const podium=node('div','speed-podium');podium.id='speedPodium';
       if(result.podium?.length) {podium.append(node('strong','','FASTEST CORRECT'));const places=node('div','speed-places');for(const p of result.podium){const card=node('div','speed-place place-'+p.rank);card.append(node('b','',String(p.rank)),portrait(p),node('span','',p.username),node('strong','', '+'+p.points+' pts'));places.append(card);}podium.append(places);$('result').after(podium);}

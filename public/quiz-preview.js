@@ -19,15 +19,15 @@ function previewState(mode) {
   };
   if (mode === 'idle' || mode === 'lobby') { g.phase = mode; g.question = null; g.round = 0; g.players = mode === 'idle' ? 0 : 8; g.survivors = g.players; }
   if (['reveal','eliminations','winner','defeat','sequence','no-photo'].includes(mode)) {
-    g.question.answer = 2; g.survivors = 2; g.phase = 'reveal';
-    g.roundResult = { answerCounts: [0,2,2,3], missed: 1, eliminated, podium:[{username:'KingGumption',platform:'twitch',rank:1,points:3},{username:'PixelPilot',platform:'youtube',rank:2,points:2},{username:'MoonCat',platform:'tiktok',rank:3,points:1}] };
+    g.question.answer = 2; g.players = 11; g.survivors = 5; g.phase = 'reveal';
+    g.roundResult = { answerCounts: [0,2,3,3], missed: 1, eliminated, passed:2, passedPlayers:[{username:'Orbit',platform:'youtube'},{username:'PassPilot',platform:'twitch'}], podium:[{username:'KingGumption',platform:'twitch',rank:1,points:3},{username:'Starlight',platform:'youtube',rank:2,points:2},{username:'ByteKnight',platform:'tiktok',rank:3,points:1}] };
   }
   if (['winner','sequence','no-photo'].includes(mode)) {
     g.speedChampion={username:'PixelPilot',platform:'youtube',speedPoints:18}; g.phase = 'completed'; g.outcome = 'victory'; g.survivors = 1; g.winners = [winner]; g.round = 13; g.suddenDeath = true;
     g.roundResult = { answerCounts: [0,1,0,0], missed: 0, eliminated: [], winnerRunEnded: true };
     if (mode === 'no-photo') { winner.profileImageUrl = ''; winner.username = 'NoPhotoViewer'; }
   }
-  if (mode === 'defeat') { g.phase = 'completed'; g.outcome = 'defeat'; g.survivors = 0; g.winners = []; g.players = 6; g.roundResult.answerCounts = [0,2,0,3]; }
+  if (mode === 'defeat') { g.phase = 'completed'; g.outcome = 'defeat'; g.survivors = 0; g.winners = []; g.players = 6; g.roundResult.passed = 0; g.roundResult.passedPlayers = []; g.roundResult.podium = []; g.roundResult.answerCounts = [0,2,0,3]; }
   if (mode === 'sudden-death') { g.round = 11; g.suddenDeath = true; g.question = {text:'Which game takes place aboard the Talos I space station?',options:['Prey (2017)','System Shock 2','Dead Space 2','Alien: Isolation'],difficulty:13}; }
   if (mode === 'last-survivor') { g.survivors = 1; g.round = 7; }
   if (mode === 'countdown') g.deadline=Date.now()+5000;

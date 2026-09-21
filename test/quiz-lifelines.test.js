@@ -19,7 +19,7 @@ test('pass replaces answer, spends free first, works in grace and sudden death, 
   let bank=1,spends=0;const f=fixture({passBank:{balance:()=>bank,spend:()=>{spends++;bank=0;return true;},award:()=>1}});
   f.chat('a','!join');f.chat('b','!join');f.g.next();f.at(7000);f.chat('a',' PaSs ');f.chat('a',f.correct());f.chat('a','pass');f.chat('b',f.correct());
   assert.equal(spends,0);assert.equal(f.g.players.get('twitch:a').answer,null);f.g.resolve();
-  assert.equal(f.g.players.get('twitch:a').correctAnswers,0);assert.equal(f.g.roundResult.passed,1);assert.equal(f.g.roundResult.missed,0);
+  assert.equal(f.g.players.get('twitch:a').correctAnswers,0);assert.equal(f.g.roundResult.passed,1);assert.deepEqual(f.g.getState().roundResult.passedPlayers.map(p=>[p.username,p.platform]),[['a','twitch']]);assert.equal(f.g.roundResult.missed,0);
   f.g.next();assert.equal(f.g.getState().suddenDeath,true);f.chat('a','pass');assert.equal(spends,1);f.chat('b',f.correct());f.g.resolve();
   f.g.next();f.chat('a','pass');assert.equal(f.g.players.get('twitch:a').passed,false);f.chat('a',f.correct());f.chat('a','pass');assert.equal(f.g.players.get('twitch:a').passed,false);f.g.stop();
 });

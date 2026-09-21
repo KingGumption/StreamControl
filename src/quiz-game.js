@@ -78,7 +78,7 @@ class QuizGame {
     if (this.phase !== 'question') return;
     this.cancel(this.timer); this.deadline = null; this.acceptUntil = null;
     const q = this.deck[this.round - 1];
-    const answerCounts = [0, 0, 0, 0], eliminated = [], milestones = [];
+    const answerCounts = [0, 0, 0, 0], eliminated = [], milestones = [], passedPlayers = [];
     const podium = this.survivors().filter(p => !p.passed && p.answer === q.answer)
       .sort((a,b) => a.answerOrder - b.answerOrder).slice(0,3).map((p,i) => {
         const points = 3-i; p.speedPoints += points; if(i===0)p.firstPlaces++;
@@ -88,7 +88,11 @@ class QuizGame {
     let missed = 0, passed = 0, winnerRunEnded = false;
     const lastPlayer = this.survivors().length === 1;
     for (const p of this.players.values()) if (p.alive) {
-      if (p.passed) { passed++; this.track('pass_result',p); continue; }
+      if (p.passed) {
+        passed++;
+        passedPlayers.push({username:p.username,platform:p.platform,profileImageUrl:p.profileImageUrl});
+        this.track('pass_result',p); continue;
+      }
       if (p.answer === null) missed++;
       else answerCounts[p.answer]++;
       const correct = p.answer === q.answer;
@@ -106,7 +110,7 @@ class QuizGame {
         this.track('player_eliminated', p);
       }
     }
-    this.roundResult = { answerCounts, missed, passed, podium, eliminated, winnerRunEnded, milestones };
+    this.roundResult = { answerCounts, missed, passed, passedPlayers, podium, eliminated, winnerRunEnded, milestones };
     this.track('round_completed', null, { survivors: this.survivors().length, answerCounts, correctAnswer:q.answer, missed, eliminated: eliminated.length });
     this.phase = this.survivors().length === 0 || winnerRunEnded ? 'completed' : 'reveal';
     if (this.phase === 'reveal') {
