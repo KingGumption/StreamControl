@@ -82,7 +82,7 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
   const quizContext = normalizedEvents.filter(e=>e.tool==='elimination_quiz' && e.timeMs>=sinceMs && (safePlatform==='all' || quizIds.has(e.correlationId) || e.platform===safePlatform));
   const current = summarizePeriod(currentRequests, currentEvents, currentCaptures, quizContext, hillContext);
   const previous = summarizePeriod(previousRequests, previousEvents, previousCaptures);
-  const sessions = buildRoundups({sessions:currentSessions,snapshots:currentSnapshots,activity:current.activity,observations:currentEvents.filter(e=>e.tool==='audience'),sinceMs,nowMs,isInteraction});
+  const sessions = buildRoundups({sessions:currentSessions,snapshots:currentSnapshots,activity:current.activity,contextEvents:[...quizContext,...hillContext].filter(e=>!platformMatches(e)&&['game_started','game_completed','game_stopped'].includes(e.eventType)).map(genericEventActivity),observations:currentEvents.filter(e=>e.tool==='audience'),sinceMs,nowMs,isInteraction});
   const confirmedSessions=sessions.filter(s=>s.source==='platform').length;
   const timeline = buildTimeline(current.activity, currentEvents, sinceMs, nowMs);
   const ledgerSearch=String(activitySearch||'').slice(0,200).trim().toLowerCase();

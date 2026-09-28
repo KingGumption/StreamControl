@@ -51,3 +51,8 @@ test('long-session chart payload is bounded without changing the minute peak',()
  const r=report({streamSessions:[long],viewerSnapshots:Array.from({length:1501},(_,i)=>sample(i,i===999?100:1))});
  assert.ok(r.sessions[0].detail.points.length<=720);assert.equal(r.sessions[0].detail.peakConcurrentViewers,100);
 });
+
+test('platform drilldowns retain shared game markers without adding other-platform participants',()=>{
+ const r=report({platform:'twitch',streamSessions:[session()],viewerSnapshots:[0,1,2,3,4].map(i=>sample(i,10+i)),events:[event(0,'game_started',{platform:'other',correlationId:'shared'}),event(1,'answer_submitted',{correlationId:'shared'}),event(2,'answer_submitted',{platform:'youtube',userId:'other',correlationId:'shared'}),event(4,'game_completed',{platform:'other',correlationId:'shared'})]});
+ assert.equal(r.sessions[0].detail.segments.length,1);assert.equal(r.sessions[0].detail.observedParticipants,1);assert.equal(r.sessions[0].detail.points[0].events['Quiz: Game started'],1);assert.equal(r.overview.interactions,1);
+});
