@@ -1,3 +1,4 @@
+const {buildStreamDetail,addReturningParticipants}=require('./analytics-timeline');
 const GAP = 4 * 60 * 60 * 1000;
 const SAMPLE_GAP = 5 * 60 * 1000;
 const round = n => Math.round(n * 10) / 10;
@@ -44,21 +45,22 @@ function buildRoundups({ sessions, snapshots, activity, observations = [], since
     else groups.push({...w,sessions:[...w.sessions]});
   }
   const matches=(g,e)=>e.timeMs>=g.startMs && e.timeMs<=g.endMs && (g.sessions.some(s=>s.id===e.sessionId || s.platform===e.platform || s.platform==='obs') || ['admin','other'].includes(e.platform));
-  const assigned=new Set(), assignedSamples=new Set();
+  const assigned=new Set(), assignedSamples=new Set(), assignedObservations=new Set();
   const output=groups.slice().reverse().map(g=>{
     const rows=activity.filter(e=>!assigned.has(e) && matches(g,e));rows.forEach(e=>assigned.add(e));
     const samples=snapshots.filter(e=>!assignedSamples.has(e) && matches(g,e));samples.forEach(e=>assignedSamples.add(e));
-    return summarize(g,rows,samples,isInteraction);
+    const chats=observations.filter(e=>!assignedObservations.has(e) && matches(g,e));chats.forEach(e=>assignedObservations.add(e));
+    return summarize(g,rows,samples,isInteraction,chats);
   });
   // All uncovered activity remains visible, even with measured sessions present.
-  const remaining=[...activity.filter(e=>!assigned.has(e)),...observations.filter(e=>!groups.some(g=>matches(g,e))),...snapshots.filter(e=>!groups.some(g=>matches(g,e)))].sort((a,b)=>a.timeMs-b.timeMs);
-  const inferred=[], activitySet=new Set(activity), snapshotSet=new Set(snapshots);
-  for(const e of remaining){let g=inferred.at(-1);if(!g || e.timeMs-g.endMs>GAP){g={startMs:e.timeMs,endMs:e.timeMs,sessions:[],source:'inferred',status:'Activity estimate',rows:[],samples:[]};inferred.push(g);}g.endMs=e.timeMs;if(activitySet.has(e))g.rows.push(e);if(snapshotSet.has(e))g.samples.push(e);}
-  inferred.forEach(g=>output.push(summarize(g,g.rows,g.samples,isInteraction)));
-  return output.sort((a,b)=>b.startedAt.localeCompare(a.startedAt));
+  const remaining=[...activity.filter(e=>!assigned.has(e)),...observations.filter(e=>!assignedObservations.has(e)),...snapshots.filter(e=>!groups.some(g=>matches(g,e)))].sort((a,b)=>a.timeMs-b.timeMs);
+  const inferred=[], activitySet=new Set(activity), snapshotSet=new Set(snapshots), observationSet=new Set(observations);
+  for(const e of remaining){let g=inferred.at(-1);if(!g || e.timeMs-g.endMs>GAP){g={startMs:e.timeMs,endMs:e.timeMs,sessions:[],source:'inferred',status:'Activity estimate',rows:[],samples:[],observations:[]};inferred.push(g);}g.endMs=e.timeMs;if(activitySet.has(e))g.rows.push(e);if(snapshotSet.has(e))g.samples.push(e);if(observationSet.has(e))g.observations.push(e);}
+  inferred.forEach(g=>output.push(summarize(g,g.rows,g.samples,isInteraction,g.observations)));
+  return addReturningParticipants(output.sort((a,b)=>b.startedAt.localeCompare(a.startedAt)));
 }
 
-function summarize(g, rows, snapshots, isInteraction) {
+function summarize(g, rows, snapshots, isInteraction, observations = []) {
   const interactions=rows.filter(isInteraction);
   const count=tool=>interactions.filter(e=>e.tool===tool).length;
   const people=new Set(interactions.map(person).filter(Boolean));
@@ -74,7 +76,7 @@ function summarize(g, rows, snapshots, isInteraction) {
   const toolCounts={song_requests:count('song_requests'),king_of_the_hill:count('king_of_the_hill'),elimination_quiz:count('elimination_quiz'),polaroid:count('polaroid')};
   const labels={song_requests:'song interactions',king_of_the_hill:'Hill votes',elimination_quiz:'quiz interactions',polaroid:'Polaroids'};
   const top=Object.entries(toolCounts).sort((a,b)=>b[1]-a[1])[0];
-  return {id:`${g.sessions.map(s=>s.id).join('|') || 'activity'}:${iso(g.startMs)}`,startedAt:iso(g.startMs),endedAt:iso(g.endMs),durationMinutes:round((g.endMs-g.startMs)/60000),source:g.source,status:g.status,estimatedEnd:Boolean(g.estimatedEnd),
+  return {detail:buildStreamDetail(g,rows,snapshots,observations,isInteraction),id:`${g.sessions.map(s=>s.id).join('|') || 'activity'}:${iso(g.startMs)}`,startedAt:iso(g.startMs),endedAt:iso(g.endMs),durationMinutes:round((g.endMs-g.startMs)/60000),source:g.source,status:g.status,estimatedEnd:Boolean(g.estimatedEnd),
     interactions:interactions.length,uniqueParticipants:people.size,songRequests:toolCounts.song_requests,hillVotes:toolCounts.king_of_the_hill,quizInteractions:toolCounts.elimination_quiz,polaroids:toolCounts.polaroid,toolCounts,
     platforms:platforms.length?platforms:[...new Set(g.sessions.map(s=>s.platform))],topPlatform:platforms[0]||g.sessions[0]?.platform||'other',standout:top[1]?`${top[1]} ${labels[top[0]]}`:'No tool interactions',title:g.sessions.find(s=>s.title)?.title||'',category:g.sessions.find(s=>s.category)?.category||'',
     peakViewers:measured?peak:null,averageViewers:measured?round(stats.reduce((n,s)=>n+s.average,0)):null,viewerHours:minutes?round(stats.reduce((n,s)=>n+s.area,0)):null,measuredPlatformMinutes:round(minutes),retentionPercent:measured&&peak?round(stats.reduce((n,s)=>n+s.end,0)/peak*100):null,viewerSamples:snapshots.reduce((n,s)=>n+(s.sampleCount||1),0),

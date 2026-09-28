@@ -26,7 +26,7 @@ function loadUncachedAnalyticsReport({ range = '30d', platform = 'all', activity
   const loadSince = days ? new Date(nowMs - days * 2 * 86400000).toISOString() : null;
   return buildAnalyticsReport({
     requests: listSongRequestsForRange({ since: loadSince }),
-    events: listEngagementEventsForRange({ since: loadSince }),
+    events: listEngagementEventsForRange({ since: loadSince, chatResolution: 'minute' }),
     streamSessions: listStreamSessionsForRange({ since: loadSince }),
     viewerSnapshots: listViewerSnapshotsForRange({ since: loadSince }),
     captures: listPolaroidCaptures(),
@@ -390,6 +390,7 @@ function normalizeRequest(row) {
 
 function normalizeEvent(row) {
   return {
+    aggregateCount: Math.max(1, Number(row.aggregate_count) || 1),
     id: row.id,
     timestamp: toIso(row.timestamp),
     timeMs: toTime(row.timestamp),
@@ -583,6 +584,7 @@ function buildImpactSummary(sessions, events, audience) {
   const measuredSessions = sessions.filter((session) => session.peakViewers !== null);
   return {
     measuredStreams: measuredSessions.length,
+    peakConcurrentViewers: sessions.some(s=>s.detail.peakConcurrentViewers!==null) ? Math.max(...sessions.map(s=>s.detail.peakConcurrentViewers ?? 0)) : null,
     peakViewers: measuredSessions.length ? Math.max(...measuredSessions.map((session) => session.peakViewers || 0)) : null,
     averageViewers: measuredSessions.length ? average(measuredSessions.map((session) => session.averageViewers || 0)) : null,
     estimatedViewerHours: measuredSessions.some(s=>s.viewerHours!==null) ? Math.round(measuredSessions.reduce((sum, session) => sum + (session.viewerHours || 0), 0) * 10) / 10 : null,
