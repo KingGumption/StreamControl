@@ -40,7 +40,8 @@
     lines.push({key:'total',step:d.bucketMinutes,points:d.points.map(p=>({elapsed:p.elapsed,value:p.total}))});
     if(prev)lines.push({key:'previous',step:prev.detail.bucketMinutes,points:prev.detail.points.map(p=>({elapsed:p.elapsed,value:p.total}))});
     $('streamViewerLegend').innerHTML=legend(lines.map(l=>l.key));
-    chart('streamViewers',lines,end,d.points);
+    const manual=(d.coaching?.segments||[]).map(m=>({elapsed:m.elapsed,events:{['Segment: '+m.label]:1}}));
+    chart('streamViewers',lines,end,[...d.points,...manual]);
     chart('streamEngagement',['chat','interactions'].map(key=>({key,step:d.bucketMinutes,points:d.points.map(p=>({elapsed:p.elapsed,value:p[key]}))})),end);
     $('streamActivityLegend').innerHTML=legend(['chat','interactions']);
     $('streamMinute').max=Math.max(0,d.points.length-1);$('streamMinute').value=Math.min(Number($('streamMinute').value),Math.max(0,d.points.length-1));$('streamMinute').disabled=!d.points.length;
@@ -60,6 +61,14 @@
     $('streamSelect').innerHTML=options(sessions);$('streamSelect').value=selected;
     $('streamCompare').innerHTML=options(sessions.filter(s=>s.id!==selected),'<option value="">No comparison</option>');$('streamCompare').value=comparison;
     render();
+  };
+  window.focusStreamMoment=(id,timestamp)=>{
+    const s=sessions.find(s=>s.id===id);if(!s)return;selected=id;comparison='';$('streamSelect').value=id;
+    $('streamCompare').innerHTML=options(sessions.filter(s=>s.id!==id),'<option value="">No comparison</option>');render();
+    const time=Date.parse(timestamp),points=s.detail.points;let nearest=0;
+    points.forEach((p,i)=>{if(Math.abs(Date.parse(p.timestamp)-time)<Math.abs(Date.parse(points[nearest].timestamp)-time))nearest=i;});
+    $('streamMinute').value=nearest;inspect();$('streamPoint').textContent='Requested moment: '+new Date(timestamp).toLocaleString()+'. Nearest recorded bucket: '+$('streamPoint').textContent;
+    $('streamSelect').scrollIntoView({block:'start'});$('streamMinute').focus({preventScroll:true});
   };
   $('streamSelect').addEventListener('change',e=>{
     selected=e.target.value;const index=sessions.findIndex(s=>s.id===selected);comparison=sessions.slice(index+1).find(s=>s.source==='platform')?.id||'';

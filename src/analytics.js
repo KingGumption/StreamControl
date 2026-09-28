@@ -1,3 +1,4 @@
+const {buildCoaching}=require('./analytics-coaching');
 const {buildGrowth}=require('./analytics-growth');
 const growthStore=require('./analytics-growth-store');
 const fs = require('node:fs');
@@ -15,7 +16,7 @@ const {
   listSongRequestsForRange,
   listStreamSessionsForRange,
   listViewerSnapshotsForRange,
-  listGrowthHistory,
+  listGrowthHistory, listFirstChats,
 } = require('./db');
 
 const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90, '365d': 365 };
@@ -29,6 +30,7 @@ function loadUncachedAnalyticsReport({ range = '30d', platform = 'all', activity
   const loadSince = days ? new Date(nowMs - days * 2 * 86400000).toISOString() : null;
   return buildAnalyticsReport({
     growthHistory: listGrowthHistory(),
+    firstChats: listFirstChats(),
     growthSessions: listStreamSessionsForRange(),
     growthNotes: growthStore.read(),
     requests: listSongRequestsForRange({ since: loadSince }),
@@ -42,7 +44,7 @@ function loadUncachedAnalyticsReport({ range = '30d', platform = 'all', activity
   });
 }
 
-function buildAnalyticsReport({ growthHistory = null, growthSessions = null, growthNotes = {formats:{},experiments:[],discovery:[]}, requests = [], events = [], captures = [], streamSessions = [], viewerSnapshots = [], range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
+function buildAnalyticsReport({ firstChats = null, growthHistory = null, growthSessions = null, growthNotes = {formats:{},experiments:[],discovery:[]}, requests = [], events = [], captures = [], streamSessions = [], viewerSnapshots = [], range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
   const safeRange = RANGE_DAYS[range] ? range : range === 'all' ? 'all' : '30d';
   const safePlatform = ['all', 'twitch', 'youtube', 'tiktok', 'admin', 'api', 'obs', 'other'].includes(platform)
     ? platform
@@ -161,6 +163,7 @@ function buildAnalyticsReport({ growthHistory = null, growthSessions = null, gro
     },
     recentRequests: current.songRequests.recent,
   };
+  report.coaching=buildCoaching({sessions,firstChats:(firstChats||normalizedEvents.filter(e=>e.eventType==='chat_message')).map(e=>e.timeMs!==undefined?e:normalizeEvent(e)),notes:growthNotes,now:nowMs,growth:report.growth});
   Object.defineProperty(report, 'ledger', {value:current.activity});
   return report;
 }
