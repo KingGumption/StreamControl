@@ -1,3 +1,5 @@
+const {buildGrowth}=require('./analytics-growth');
+const growthStore=require('./analytics-growth-store');
 const fs = require('node:fs');
 const { performance } = require('node:perf_hooks');
 const { observe } = require('./performance');
@@ -13,6 +15,7 @@ const {
   listSongRequestsForRange,
   listStreamSessionsForRange,
   listViewerSnapshotsForRange,
+  listGrowthHistory,
 } = require('./db');
 
 const RANGE_DAYS = { '7d': 7, '30d': 30, '90d': 90, '365d': 365 };
@@ -25,6 +28,9 @@ function loadUncachedAnalyticsReport({ range = '30d', platform = 'all', activity
   const nowMs = new Date(now).getTime();
   const loadSince = days ? new Date(nowMs - days * 2 * 86400000).toISOString() : null;
   return buildAnalyticsReport({
+    growthHistory: listGrowthHistory(),
+    growthSessions: listStreamSessionsForRange(),
+    growthNotes: growthStore.read(),
     requests: listSongRequestsForRange({ since: loadSince }),
     events: listEngagementEventsForRange({ since: loadSince, chatResolution: 'minute' }),
     streamSessions: listStreamSessionsForRange({ since: loadSince }),
@@ -36,7 +42,7 @@ function loadUncachedAnalyticsReport({ range = '30d', platform = 'all', activity
   });
 }
 
-function buildAnalyticsReport({ requests = [], events = [], captures = [], streamSessions = [], viewerSnapshots = [], range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
+function buildAnalyticsReport({ growthHistory = null, growthSessions = null, growthNotes = {formats:{},experiments:[],discovery:[]}, requests = [], events = [], captures = [], streamSessions = [], viewerSnapshots = [], range = '30d', platform = 'all', activityPage = 0, activityTool = 'all', activitySearch = '', now = new Date() } = {}) {
   const safeRange = RANGE_DAYS[range] ? range : range === 'all' ? 'all' : '30d';
   const safePlatform = ['all', 'twitch', 'youtube', 'tiktok', 'admin', 'api', 'obs', 'other'].includes(platform)
     ? platform
@@ -136,6 +142,7 @@ function buildAnalyticsReport({ requests = [], events = [], captures = [], strea
     reconciliation: { interactions:current.interactions, timeline:timeline.reduce((n,d)=>n+d.total,0), roundups:sessions.reduce((n,s)=>n+s.interactions,0), platforms:current.activity.filter(isInteraction).length },
     timeline,
     sessions,
+    growth: buildGrowth({sessions,history:growthHistory ? growthHistory.map(e=>({...normalizeEvent(e),userId:e.platform_user_id||e.userId||''})) : [...normalizedEvents.filter(e=>isInteraction(e)||(e.tool==='audience'&&e.eventType==='chat_message')), ...normalizedRequests],streamSessions:growthSessions?growthSessions.map(normalizeStreamSession):normalizedSessions,since:sinceMs,now:nowMs,platform:safePlatform,notes:growthNotes}),
     activity: ledger.slice(ledgerPage*pageSize,(ledgerPage+1)*pageSize),
     activityPagination:{page:ledgerPage,pages:ledgerPages,total:ledger.length,pageSize,tool:ledgerTool,search:ledgerSearch},
 
@@ -168,7 +175,7 @@ function pageActivity(report, options={}) {
 }
 function loadAnalyticsReport(options={}) {
   if(options.now) return loadUncachedAnalyticsReport(options);
-  const key=JSON.stringify([options.range||'30d',options.platform||'all']);
+  const key=JSON.stringify([options.range||'30d',options.platform||'all',growthStore.read().revision]);
   let entry=reportCache.get(key);
   if(!entry || entry.expiresAt<=Date.now()) {
     const start=performance.now();

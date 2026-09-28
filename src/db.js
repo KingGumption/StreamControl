@@ -502,6 +502,42 @@ function listEngagementEventsForRange({ since, before, chatResolution = 'day' } 
     .map(parseEngagementEventRow);
 }
 
+// Compact lifetime participation history; content of chat messages is never loaded.
+function listGrowthHistory() {
+  return prepare(`
+    WITH history AS (
+      SELECT timestamp, platform, platform_user_id, username, session_id FROM engagement_events
+      WHERE platform IN ('twitch','youtube','tiktok')
+        AND ((tool='audience' AND event_type='chat_message')
+          OR (tool='elimination_quiz' AND event_type IN ('player_joined','answer_submitted'))
+          OR (tool='king_of_the_hill' AND event_type='vote')
+          OR (tool='polaroid' AND event_type='capture_completed')
+          OR (tool='song_requests' AND event_type='command'))
+        AND COALESCE(json_extract(CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,'$.isTest'),0) != 1
+        AND COALESCE(json_extract(CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,'$.testMode'),0) != 1
+      UNION ALL
+      SELECT timestamp, platform, platform_user_id, username, session_id FROM song_requests
+      WHERE platform IN ('twitch','youtube','tiktok')
+    )
+    SELECT strftime('%Y-%m-%dT%H:%M:%fZ', MIN(julianday(h.timestamp))) AS timestamp,
+      h.platform, h.platform_user_id, h.username, recorded.id AS session_id
+    FROM history h JOIN stream_sessions recorded
+      ON (recorded.platform=h.platform OR recorded.platform='obs')
+      AND recorded.ended_at IS NOT NULL
+      AND julianday(h.timestamp)>=julianday(recorded.started_at)
+      AND julianday(h.timestamp)<julianday(recorded.ended_at)
+    WHERE COALESCE(json_extract(CASE WHEN json_valid(recorded.metadata) THEN recorded.metadata ELSE '{}' END,'$.isTest'),0)!=1
+      AND COALESCE(json_extract(CASE WHEN json_valid(recorded.metadata) THEN recorded.metadata ELSE '{}' END,'$.testMode'),0)!=1
+      AND NOT EXISTS (
+      SELECT 1 FROM stream_sessions s WHERE s.id=h.session_id AND
+      (COALESCE(json_extract(CASE WHEN json_valid(s.metadata) THEN s.metadata ELSE '{}' END,'$.isTest'),0)=1 OR
+       COALESCE(json_extract(CASE WHEN json_valid(s.metadata) THEN s.metadata ELSE '{}' END,'$.testMode'),0)=1)
+    )
+    GROUP BY recorded.id, h.platform, CASE WHEN h.platform_user_id IS NOT NULL AND h.platform_user_id!='' THEN 'id:' || h.platform_user_id ELSE 'name:' || LOWER(h.username) END
+    ORDER BY timestamp
+  `).all();
+}
+
 function listSongRequestsForRange({ since, before } = {}) {
   const conditions = [];
   const params = {};
@@ -680,7 +716,7 @@ function hasAcceptedTrack(trackId) {
 }
 
 const schema = {
-  db, getConfigRevision,
+  db, getConfigRevision, listGrowthHistory,
   getConfigValue,
   setConfigValue,
   addAuditLog,

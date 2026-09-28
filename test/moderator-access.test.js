@@ -19,12 +19,16 @@ test('games-only access is enforced across routes, handoff, expiry and revocatio
  async function login(username,password){const res=await call('/admin/login',{method:'POST',body:{username,password}});assert.equal(res.status,302);return res.headers.get('set-cookie').split(';')[0];}
  assert.equal((await call('/admin/games')).status,401);
  const owner=await login('owner',process.env.ADMIN_PASSWORD);
+ assert.equal((await call('/admin/analytics/growth-notes',{cookie:owner})).status,200);
+ assert.equal((await call('/admin/analytics/growth-notes',{cookie:owner,method:'POST',origin:'https://evil.example',body:{}})).status,403);
+ assert.equal((await call('/admin/analytics/growth-notes',{cookie:owner,method:'POST',body:{revision:0,type:'format',sessionId:'example-stream',value:'Quiz'}})).status,200);
+ assert.equal((await call('/admin/analytics/growth-notes',{cookie:owner,method:'POST',body:{revision:0,type:'format',sessionId:'example-stream',value:'Music'}})).status,409);
  const created=await call('/admin/moderators/create',{cookie:owner,method:'POST',body:{username:'helper',password:'helper-password-long'}});
  assert.equal(created.status,200);const {user}=await created.json();
  const mod=await login('helper','helper-password-long');
  for(const url of ['/admin/games','/admin/quiz','/admin/king-of-the-hill','/admin/games/session','/admin/games/connections','/admin/quiz/state'])assert.equal((await call(url,{cookie:mod})).status,200,url);
- for(const url of ['/admin','/admin/config','/admin/analytics','/admin/analytics/summary','/admin/analytics/activity','/admin/requests','/admin/spotify/connect','/admin/polaroid','/admin/moderators','/admin/performance','/admin/connections','/admin/quiz/preview','/admin/quiz/test/catalog'])assert.equal((await call(url,{cookie:mod})).status,403,url);
- for(const url of ['/admin/save','/admin/override','/admin/override/remove','/admin/spotify/disconnect','/admin/polaroid/redeem','/admin/moderators/handoff','/admin/settings/song-requests','/admin/quiz/test'])assert.equal((await call(url,{cookie:mod,method:'POST',body:{}})).status,403,url);
+ for(const url of ['/admin','/admin/config','/admin/analytics','/admin/analytics/summary','/admin/analytics/activity','/admin/analytics/growth-notes','/admin/requests','/admin/spotify/connect','/admin/polaroid','/admin/moderators','/admin/performance','/admin/connections','/admin/quiz/preview','/admin/quiz/test/catalog'])assert.equal((await call(url,{cookie:mod})).status,403,url);
+ for(const url of ['/admin/analytics/growth-notes','/admin/save','/admin/override','/admin/override/remove','/admin/spotify/disconnect','/admin/polaroid/redeem','/admin/moderators/handoff','/admin/settings/song-requests','/admin/quiz/test'])assert.equal((await call(url,{cookie:mod,method:'POST',body:{}})).status,403,url);
  assert.equal((await call('/admin/requests/1',{cookie:mod,method:'DELETE'})).status,403);
  assert.equal((await call('/admin/quiz/open',{cookie:mod,method:'POST',body:{}})).status,403);
  assert.equal((await call('/admin/quiz/audio',{cookie:mod,method:'POST',body:{muted:true,volume:.2}})).status,403);
