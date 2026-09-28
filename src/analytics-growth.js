@@ -65,7 +65,11 @@ function buildGrowth({sessions,history,streamSessions,since,now,platform,notes})
   if(previous&&s.startMs<previous.endMs)previous.endMs=Math.max(previous.endMs,s.endMs);
   else broadcasts.push({startMs:s.startMs,endMs:s.endMs});
  }
- for(const s of sessions){const start=Date.parse(s.startedAt),window=broadcasts.find(b=>start>=b.startMs&&start<b.endMs);s.growthId=window?'broadcast:'+new Date(window.startMs).toISOString():s.id;}
+ for(const s of sessions){
+  const start=Date.parse(s.startedAt),window=broadcasts.find(b=>start>=b.startMs&&start<b.endMs);
+  const lifecycle=streamSessions.filter(r=>s.sessionIds?.includes(r.id)&&r.startMs<=start&&start-r.startMs<=4*3600000&&!r.metadata?.isTest&&!r.metadata?.testMode);
+  s.growthId=window?'broadcast:'+new Date(window.startMs).toISOString():lifecycle.length?'broadcast:'+new Date(Math.min(...lifecycle.map(r=>r.startMs))).toISOString():s.id;
+ }
  const recorded=sessions.filter(s=>s.source==='platform'&&!s.estimatedEnd&&s.detail.growth.fullStream);
  const schedule=new Map(),formats=new Map();
  for(const s of recorded){

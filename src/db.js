@@ -495,11 +495,29 @@ function listEngagementEventsForRange({ since, before, chatResolution = 'day' } 
            COUNT(*) AS aggregate_count, NULL AS metadata
     FROM engagement_events
     ${conditions.length ? `WHERE ${conditions.join(' AND ')} AND` : 'WHERE'} tool = 'audience' AND event_type = 'chat_message'
+    AND COALESCE(json_extract(CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,'$.isTest'),0)!=1
+    AND COALESCE(json_extract(CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,'$.testMode'),0)!=1
     GROUP BY ${chatResolution === 'minute' ? "strftime('%Y-%m-%dT%H:%M', timestamp)" : 'date(timestamp)'}, platform, platform_user_id, LOWER(username), roles, session_id
   `).all(params);
   return [...detailRows, ...chatRows]
     .sort((left, right) => String(right.timestamp).localeCompare(String(left.timestamp)) || Number(right.id) - Number(left.id))
     .map(parseEngagementEventRow);
+}
+
+// First recorded chat per platform account, including currently open broadcasts.
+function listFirstChats() {
+  return prepare(`SELECT platform, platform_user_id, username,
+    strftime('%Y-%m-%dT%H:%M:%fZ',MIN(julianday(timestamp))) AS timestamp,
+    'audience' AS tool, 'chat_message' AS event_type
+    FROM engagement_events e WHERE tool='audience' AND event_type='chat_message'
+    AND platform IN ('twitch','youtube','tiktok')
+    AND COALESCE(json_extract(CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,'$.isTest'),0)!=1
+    AND COALESCE(json_extract(CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,'$.testMode'),0)!=1
+    AND NOT EXISTS (SELECT 1 FROM stream_sessions s WHERE s.id=e.session_id AND
+      (COALESCE(json_extract(CASE WHEN json_valid(s.metadata) THEN s.metadata ELSE '{}' END,'$.isTest'),0)=1 OR
+       COALESCE(json_extract(CASE WHEN json_valid(s.metadata) THEN s.metadata ELSE '{}' END,'$.testMode'),0)=1))
+    GROUP BY platform, CASE WHEN platform_user_id IS NOT NULL AND platform_user_id!='' THEN 'id:'||platform_user_id ELSE 'name:'||LOWER(username) END
+  `).all();
 }
 
 // Compact lifetime participation history; content of chat messages is never loaded.
@@ -716,7 +734,7 @@ function hasAcceptedTrack(trackId) {
 }
 
 const schema = {
-  db, getConfigRevision, listGrowthHistory,
+  db, getConfigRevision, listGrowthHistory, listFirstChats,
   getConfigValue,
   setConfigValue,
   addAuditLog,

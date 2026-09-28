@@ -255,3 +255,39 @@ Opening and raid windows require complete whole-minute sample coverage. Raid lif
 Discovery data is manually entered or imported using the provided CSV template (`date,platform,source,visits,url,provenance`). It is daily reported clicks/visits, not automatic referral attribution, unique viewers or conversions. Importing the same date/platform/source/link replaces that record. The entire batch is validated before saving, including safe link schemes, valid dates, non-negative integer counts and a 200-row limit.
 
 Format labels, experiments and discovery records persist in the existing SQLite `config` table under `analytics_growth_notes_v1`; no new service or external data transmission is added. Owner authentication and same-origin checks protect the read/write endpoint. Revision checks prevent concurrent edits from overwriting each other. Notes survive deployments on the existing persistent disk.
+
+### Stream coaching
+
+The Analytics **Coaching** tab adds an evidence-based report for each stream, with
+up to three findings, links to the nearest recorded timeline bucket, and one
+suggested experiment. Reports for unclosed sessions are provisional. Download a
+stream's coaching report as JSON, or use the existing complete report export.
+
+- **Content segments:** record labels at an elapsed minute, or start one now in a
+  recently observed unclosed broadcast. The next marker ends the preceding segment;
+  the last extends to the observed stream end. Markers are editable/removable.
+  Segment audience means and changes require complete whole interior minutes.
+- **Engagement breadth:** participating accounts, total recorded chat/tool actions,
+  the top five accounts' share, and single-action accounts. Platform identities are
+  kept separate; this does not estimate silent viewers.
+- **Clip candidates:** at least five actions in a whole minute and at least three
+  times the preceding ten-minute median. Viewer sampling must be present throughout
+  that baseline; chat completeness is still unknown. The five strongest candidates
+  are spaced at least three minutes apart. These are review prompts with stream
+  offsets, not automatic clips or guaranteed recording offsets.
+- **Welcomes:** manual acknowledgements of first recorded chatters, using lifetime
+  stored chat history before report filters. Delay starts at their earliest stored
+  chat, not their arrival. Unmarked welcomes are excluded from the median and may
+  simply be unrecorded. Acknowledgements can be corrected or removed.
+- **Telemetry health:** per-platform measured/missing interior minutes and gaps.
+  Absence can mean a different platform broadcast span or a collection issue; it
+  is not interpreted as zero viewers or a confirmed outage.
+- **Weekly reviews:** rolling seven-day stream counts for saved Growth experiments,
+  descriptive baseline/trial differences, sample readiness, and dated decisions
+  (keep, adjust, collect more, stop). Three samples per group is a review prompt,
+  not a significance test. Review dates are editable by saving the same date again;
+  reviews can be removed. This page does not schedule messages or notifications.
+
+Annotations use the existing owner-only, same-origin protected growth-notes API
+and revision-checked SQLite configuration storage on the persistent data disk.
+No external AI service, new database, or new runtime dependency is needed.

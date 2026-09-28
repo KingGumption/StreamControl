@@ -14,6 +14,7 @@
   try{await getNotes();status('Saving…');const r=await fetch('/admin/analytics/growth-notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...action,revision:notes.revision})});const result=await r.json();if(!r.ok){if(r.status===409){notes=null;await getNotes();}throw new Error(result.error||'Could not save.');}notes=result;status('Saved.');await loadAnalytics();return true;}
   catch(e){status(e.message);return false;}finally{busy=false;}
  }
+ window.invalidateGrowthNotes=()=>{notes=null;};
  function fillOptions(){
   const sessions=report.sessions.filter(s=>s.source==='platform'&&!s.estimatedEnd&&s.detail.growth.fullStream),key=sessions.map(s=>s.growthId||s.id).join('\n');
   if(key===optionKey)return;optionKey=key;
