@@ -1,3 +1,4 @@
+const {streamSignals}=require('./analytics-growth');
 // Minute means are estimates of concurrent audience, never a sum of independent peaks.
 const MINUTE = 60000;
 const round = n => Math.round(n * 10) / 10;
@@ -70,7 +71,7 @@ function buildStreamDetail(g, rows, snapshots, observations, isInteraction) {
   const participants=[...new Set([...rows.filter(isInteraction),...observations.filter(e=>e.eventType==='chat_message')].map(account).filter(Boolean))];
   const hours=(g.endMs-g.startMs)/3600000;
   const rate=type => g.source==='platform'&&!g.estimatedEnd&&hours>0 ? round(rows.filter(e=>e.eventType===type).length/hours) : null;
-  return {platforms,bucketMinutes,points,peakConcurrentViewers:totals.length?Math.max(...totals.map(b=>b.total)):null,coveragePercent:round(totals.length/span*100),platformCoverage:platforms.map(platform=>({platform,percent:round(raw.filter(b=>b.viewers[platform]!==undefined).length/span*100)})),segments,followsPerHour:rate('follow'),subscriptionsPerHour:rate('subscription'),observedParticipants:participants.length,_participants:participants};
+  return {growth:streamSignals(g,raw,rows,observations),platforms,bucketMinutes,points,peakConcurrentViewers:totals.length?Math.max(...totals.map(b=>b.total)):null,coveragePercent:round(totals.length/span*100),platformCoverage:platforms.map(platform=>({platform,percent:round(raw.filter(b=>b.viewers[platform]!==undefined).length/span*100)})),segments,followsPerHour:rate('follow'),subscriptionsPerHour:rate('subscription'),observedParticipants:participants.length,_participants:participants};
 }
 function addReturningParticipants(sessions) {
   const seen=new Set();let recorded=0;

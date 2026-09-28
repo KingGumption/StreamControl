@@ -122,6 +122,13 @@ router.get('/requests', (req, res) => {
   res.json({ ok: true, requests: listSongRequests(50) });
 });
 
+const growthNotes = require('./analytics-growth-store');
+router.get('/analytics/growth-notes', (req,res) => res.json({ok:true,...growthNotes.read()}));
+router.post('/analytics/growth-notes', (req,res) => {
+  try {const notes=growthNotes.save(req.body);addAuditLog({action:'analytics-growth-note',source:req.identity.id,details:req.body.type});res.json({ok:true,...notes});}
+  catch(error){res.status(error.status||400).json({ok:false,error:error.message});}
+});
+
 for (const section of ['activity','summary']) {
   router.get('/analytics/'+section, async (req,res) => {
     try {res.json(await analyticsService.request(req.query,section==='activity'));}
