@@ -26,3 +26,18 @@ test('database loading retains old open sessions, sample peaks, weighted average
     fs.rmSync(resolved,{recursive:true,force:true});
   }
 });
+
+
+test('minute chat aggregation preserves counts and separates broadcasts on the same day',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'analytics-minute-'));
+  try{
+    const result=execFileSync(process.execPath,['-e',`
+      const d=require('./src/db');
+      for(const minute of [0,0,1,10])d.addEngagementEvent({timestamp:new Date(Date.UTC(2026,8,20,12,minute)).toISOString(),tool:'audience',eventType:'chat_message',platform:'twitch',userId:'one',username:'One'});
+      const minute=d.listEngagementEventsForRange({chatResolution:'minute'});
+      const day=d.listEngagementEventsForRange();
+      process.stdout.write(JSON.stringify({minute:minute.map(e=>e.aggregate_count),day:day.map(e=>e.aggregate_count)}));
+    `],{cwd:path.join(__dirname,'..'),env:{...process.env,DATA_DIR:dir},encoding:'utf8'});
+    const resultRows=JSON.parse(result);assert.deepEqual(resultRows.minute,[1,1,2]);assert.deepEqual(resultRows.day,[4]);
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});

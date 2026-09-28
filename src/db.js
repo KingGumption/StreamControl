@@ -479,7 +479,7 @@ function getQuizWinCount(platform, userId) {
   `).get(String(platform), String(userId)).wins;
 }
 
-function listEngagementEventsForRange({ since, before } = {}) {
+function listEngagementEventsForRange({ since, before, chatResolution = 'day' } = {}) {
   const conditions = [];
   const params = {};
   if (since) { conditions.push('julianday(timestamp) >= julianday(@since)'); params.since = since; }
@@ -495,7 +495,7 @@ function listEngagementEventsForRange({ since, before } = {}) {
            COUNT(*) AS aggregate_count, NULL AS metadata
     FROM engagement_events
     ${conditions.length ? `WHERE ${conditions.join(' AND ')} AND` : 'WHERE'} tool = 'audience' AND event_type = 'chat_message'
-    GROUP BY date(timestamp), platform, platform_user_id, LOWER(username), roles, session_id
+    GROUP BY ${chatResolution === 'minute' ? "strftime('%Y-%m-%dT%H:%M', timestamp)" : 'date(timestamp)'}, platform, platform_user_id, LOWER(username), roles, session_id
   `).all(params);
   return [...detailRows, ...chatRows]
     .sort((left, right) => String(right.timestamp).localeCompare(String(left.timestamp)) || Number(right.id) - Number(left.id))

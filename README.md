@@ -237,3 +237,11 @@ Each test has its own in-memory `QuizGame` instance and ID, with event recording
 ## Performance and moderator handoff
 
 See [performance and moderator guide](docs/performance-and-moderators.md) for games-only accounts, timed handoff, latency settings, measurements and release checks. Run `npm test` for serial tests and `npm run benchmark` for an isolated 10,000-event fixture.
+
+### Stream detail analytics
+
+The Overview's **Inside a stream** explorer plots minute-level platform audience and recorded chat/tool activity on a shared elapsed-time axis. Select a stream and an optional comparison; inspect chart values with the keyboard/touch slider or hover, and expand the event ledger for quiz/Hill starts and endings, song requests, raids, follows, subscriptions and Polaroids. Game segments report audience averages and changes only with complete interior-minute coverage.
+
+The aligned minute peak uses the sum of platform minute averages where every listed platform has a sample in that minute. Missing measurements remain gaps, including during long-session downsampling (at most 720 plotted buckets). It is an estimated concurrent audience, not deduplicated people or an instantaneous peak. The exported legacy `peakViewers` remains unchanged; new values live in `detail.peakConcurrentViewers` and `impact.peakConcurrentViewers`.
+
+Returning participants are observed chatters/tool users seen in earlier recorded broadcasts **within the selected report range**, using platform-specific identities. The first recorded stream has no baseline; activity estimates do not establish one. Follows/subscriptions per hour require a recorded duration with a known end. Comparisons align the observed start, which can be clipped by the range filter. Historical charts require stored telemetry; missing history is never reconstructed from interaction counts.
