@@ -6,7 +6,7 @@ const vm = require('node:vm');
 function browser(preview = false) {
   const elements = new Map(), timers = new Map(); let timerId = 0;
   class Element {
-    constructor() { this.children = []; this.hidden = false; this.textContent = ''; this.style = { setProperty() {} }; }
+    constructor() { this.dataset = {}; this.children = []; this.hidden = false; this.textContent = ''; this.style = { setProperty() {} }; }
     set id(value) { this._id = value; elements.set(value, this); }
     get id() { return this._id; }
     append(...items) { this.children.push(...items); }

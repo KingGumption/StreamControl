@@ -206,7 +206,7 @@ function render(g) {
   globalThis.QuizAudio?.observe(g);
   game = g;
   ensurePresentation();
-  if ($('overlayRoot')) $('overlayRoot').hidden = g.phase === 'idle';
+  if ($('overlayRoot')) { $('overlayRoot').hidden = g.phase === 'idle'; $('overlayRoot').dataset.phase = g.roundResult ? 'reveal' : g.phase; }
   updateStatus(g);
   $('questionPanel').className = g.phase === 'lobby' ? 'panel quiz-lobby' : g.question?.image ? 'panel has-media' : 'panel';
   $('counts').textContent = g.phase === 'lobby' ? `${g.players} ${g.players === 1 ? 'player' : 'players'} joined` : `${g.players} joined - ${g.survivors} remaining`;
@@ -249,6 +249,7 @@ function render(g) {
       }
       if (result.passedPlayers?.length) {
         const group = node('section', 'passed-summary'); group.id = 'passedSummary';
+        group.append(node('p','compact-passed',`Passed (${result.passedPlayers.length}): ${result.passedPlayers.slice(0,2).map(p=>p.username).join(' · ')}${result.passedPlayers.length>2?' · +'+(result.passedPlayers.length-2)+' more':''}`));
         group.append(node('h3', '', 'Passed'), node('p', '', 'Used a pass to survive this question'));
         const players = node('div', 'passed-players');
         for (const p of result.passedPlayers) {

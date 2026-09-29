@@ -1,0 +1,90 @@
+/* 1080 × 640: one third of a 1080 × 1920 portrait stream. */
+html.game-overlay-document,body.game-overlay{width:100%;height:100%;margin:0;overflow:hidden;background:transparent}
+.game-viewport{position:relative;width:100%;height:100%;overflow:hidden}
+[data-game-canvas]{position:absolute;left:50%;top:50%;width:1080px!important;height:640px!important;transform-origin:center;box-sizing:border-box}
+.game-canvas-quiz{font:24px/1.25 Arial,sans-serif;color:#edf4f7;background:transparent}
+.game-canvas-quiz .shell{position:relative;width:100%;height:100%;max-width:none;margin:0;padding:20px}
+.game-canvas-quiz #questionPanel,.game-canvas-quiz .quiz-stage{height:600px;margin:0;padding:22px;border:2px solid #354352;border-radius:24px;box-sizing:border-box;background:#181d25}
+.game-canvas-quiz #questionPanel{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:36px 28px auto minmax(0,1fr) 28px;gap:10px;position:relative}
+.game-canvas-quiz #status{grid-area:1/1;min-height:0;font-size:24px;gap:20px;color:#f4c95d}
+.game-canvas-quiz #counts{grid-area:1/2;margin:0;align-self:center;font-size:21px;color:#b3c3cf;white-space:nowrap}
+.game-canvas-quiz #quizEnergy{grid-area:2/1/3/-1;margin:0}
+.game-canvas-quiz .quiz-answer-progress{font-size:18px;margin-top:3px;line-height:20px}
+.game-canvas-quiz #question{grid-area:3/1/4/-1;font-size:32px;line-height:1.15;margin:0;overflow-wrap:anywhere}
+.game-canvas-quiz .question-body{grid-area:4/1/5/-1;min-height:0;gap:20px;align-items:stretch}
+.game-canvas-quiz #options{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:12px;margin:0;min-height:0}
+.game-canvas-quiz #questionPanel .option{font-size:26px;line-height:1.15;padding:12px;gap:8px;min-height:0;flex-wrap:nowrap}
+.game-canvas-quiz .answer-label{gap:12px}.game-canvas-quiz .answer-text{line-height:1.15}
+.game-canvas-quiz .answer-number{flex:0 0 42px;height:42px;font-size:28px}
+.game-canvas-quiz .answer-count{font-size:18px;padding:5px 8px;white-space:nowrap}
+.game-canvas-quiz .has-media .question-body{grid-template-columns:300px minmax(0,1fr)}
+.game-canvas-quiz #questionPanel.has-media #options{grid-template-columns:1fr;gap:8px}
+.game-canvas-quiz #questionPanel.has-media .option{font-size:24px;padding:8px 12px}
+.game-canvas-quiz #questionMedia{height:100%;max-height:300px;min-height:0}
+.game-canvas-quiz .question-image-frame{max-height:100%;max-width:100%;flex-shrink:0}
+.game-canvas-quiz #result{grid-area:5/1/6/-1;margin:0;font-size:22px;line-height:28px;color:#d6e3eb}
+.game-canvas-quiz #quizLobbyPlayers{display:none}
+.game-canvas-quiz #quizMoment{grid-area:6/1/7/-1;margin:0;padding:6px 12px;font-size:20px;display:flex;justify-content:center;gap:20px}
+.game-canvas-quiz #quizMoment strong,.game-canvas-quiz #quizMoment span{font-size:20px;display:inline}
+.game-canvas-quiz #overlayRoot[data-phase="reveal"] #questionPanel{grid-template-rows:36px 0 auto minmax(0,1fr) 28px auto auto;gap:8px}
+.game-canvas-quiz #speedPodium{grid-area:6/1/7/-1;display:flex;align-items:center;gap:12px;margin:0;padding:8px 12px;font-size:18px;min-width:0}
+.game-canvas-quiz #speedPodium>strong{flex:0 0 150px}.game-canvas-quiz .speed-places{display:flex;margin:0;gap:10px;min-width:0;flex:1}
+.game-canvas-quiz .speed-place{display:grid;grid-template-columns:auto 32px minmax(0,1fr) auto;align-items:center;gap:6px;padding:6px;min-width:0}
+.game-canvas-quiz .speed-place>span:not(.player-portrait),.game-canvas-quiz .speed-place>strong{font-size:17px}
+.game-canvas-quiz .speed-place .player-portrait{margin:0}
+.game-canvas-quiz #passedSummary{grid-area:7/1/8/-1;margin:0;padding:5px 10px;min-width:0}
+.compact-passed{display:none}.game-canvas-quiz #passedSummary>*{display:none}.game-canvas-quiz #passedSummary .compact-passed{display:block;font-size:19px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.game-canvas-quiz #overlayRoot[data-phase="reveal"] #quizMoment{grid-area:8/1/9/-1}
+.game-canvas-quiz #questionPanel.quiz-lobby{display:flex;justify-content:center;align-items:center;gap:12px;padding:30px}
+.game-canvas-quiz .quiz-lobby #status{font-size:25px}.game-canvas-quiz .quiz-lobby #question{font-size:76px;line-height:1;margin:0}
+.game-canvas-quiz .quiz-lobby #result{font-size:25px;line-height:1.3;text-align:center;margin:0}
+.game-canvas-quiz .quiz-lobby #counts{font-size:24px;align-self:center;margin:0}
+.game-canvas-quiz .quiz-lobby #quizLobbyPlayers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 0}
+.game-canvas-quiz .lobby-player .player-portrait{width:48px;height:48px;margin-bottom:4px}
+.game-canvas-quiz .lobby-player .player-label{font-size:21px}.game-canvas-quiz .pass-balance{font-size:18px}
+.game-canvas-quiz .lobby-more{font-size:20px;grid-column:1/-1}.game-canvas-quiz .lobby-first{font-size:24px!important}
+.game-canvas-quiz .quiz-stage{display:flex;flex-direction:column;justify-content:center;gap:12px;position:relative}
+.game-canvas-quiz .quiz-stage h2{font-size:40px;line-height:1.1;margin:0}
+.game-canvas-quiz .quiz-stage p{font-size:24px;line-height:1.25;margin:0}
+.game-canvas-quiz .stage-label{font-size:22px}.game-canvas-quiz .outcome-symbol{font-size:60px;line-height:1}
+.game-canvas-quiz .eliminated-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.game-canvas-quiz .eliminated-player{padding:14px}.game-canvas-quiz .eliminated-player strong{font-size:26px}
+.game-canvas-quiz .eliminated-player small,.game-canvas-quiz .eliminated-player span{font-size:20px}
+.game-canvas-quiz .eliminated-player .player-portrait{width:54px;height:54px;margin-bottom:6px}
+.game-canvas-quiz .winner-list{gap:16px}.game-canvas-quiz .winner-name{min-width:0;max-width:100%;padding:8px 16px}
+.game-canvas-quiz .winner-name strong{font-size:36px;overflow-wrap:anywhere}.game-canvas-quiz .winner-name small{font-size:22px}
+.game-canvas-quiz .winner-stats{font-size:24px;margin-top:8px}
+.game-canvas-quiz .speed-champion{padding:10px;margin-top:0}.game-canvas-quiz .speed-champion h3{font-size:23px;margin:0 0 5px}
+.game-canvas-quiz .speed-champion>strong{font-size:25px}.game-canvas-quiz .speed-champion>p{font-size:20px}
+.game-canvas-quiz #error{position:absolute;bottom:22px;left:44px;right:44px;margin:0;background:#181d25;font-size:20px}
+.game-canvas-quiz #error:empty{display:none}
+/* Hill uses the identical outer gutter and panel bounds. */
+.game-canvas-hill .game{left:20px;top:20px;bottom:auto;width:1040px;min-height:0;height:600px;transform:translateY(20px)}
+.game-canvas-hill .game.visible{transform:translateY(0)}
+.game-canvas-hill .glass{height:100%;padding:28px;display:flex;flex-direction:column;gap:24px;border-radius:24px}
+.game-canvas-hill .topline{margin:0;flex:none}.game-canvas-hill .kicker{font-size:24px;letter-spacing:.08em}
+.game-canvas-hill h1{font-size:42px;line-height:1.1;white-space:normal;overflow-wrap:anywhere;margin-top:8px}
+.game-canvas-hill .timer{height:64px;min-width:94px;font-size:36px}
+.game-canvas-hill .versus{flex:1;min-height:0;gap:28px}
+.game-canvas-hill .choice{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;padding:16px;gap:12px;text-align:center}
+.game-canvas-hill .art-wrap{min-height:0;height:100%}.game-canvas-hill .art{width:100%;height:100%;aspect-ratio:auto;min-height:0;object-fit:contain}
+.game-canvas-hill .choice-name{font-size:30px;line-height:1.1;white-space:normal;overflow-wrap:anywhere}
+.game-canvas-hill .vote-row{font-size:22px;margin-top:8px}.game-canvas-hill .percent{font-size:30px}
+.game-canvas-hill .platform-breakdown{font-size:17px;justify-content:center;gap:5px 12px}
+.game-canvas-hill .footer{margin:0;font-size:23px;flex:none}.game-canvas-hill .platform-legend{font-size:17px}
+.game-canvas-hill .champion .versus{display:flex;width:100%;max-width:760px;flex:1}
+.game-canvas-hill .champion .choice{display:grid;grid-template-columns:320px minmax(0,1fr);grid-template-rows:1fr;width:100%;padding:30px;gap:24px}
+.game-canvas-hill .champion .choice:not(:first-child){display:none}
+.game-canvas-hill .champion .art{width:100%;height:100%}.game-canvas-hill .champion .king-badge{top:-28px}
+.game-canvas-hill .champion .choice-name{font-size:40px}
+.game-canvas-hill .versus{grid-template-rows:minmax(0,1fr)}
+.game-canvas-hill .choice{min-height:0}
+.game-canvas-hill .art{position:absolute;inset:0}
+
+.game-canvas-hill .versus::after{width:62px;height:62px;font-size:22px;border-radius:18px}
+.game-canvas-hill .choice-name{min-height:66px}
+.game-canvas-hill .champion .choice-name{min-height:0}
+.game-canvas-quiz #questionPanel .option:has(.answer-count){flex-direction:row;align-items:center}
+.game-canvas-quiz #questionPanel .option .answer-count{align-self:center}
+.game-canvas-quiz #overlayRoot[data-phase="reveal"] #questionPanel.has-media .option{font-size:22px;line-height:1.1;padding:6px 10px}
+.game-canvas-quiz #overlayRoot[data-phase="reveal"] .has-media .answer-number{height:36px;flex-basis:36px;font-size:25px}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="game-overlay-document">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -108,8 +108,9 @@
         .versus::after { width: 46px; height: 46px; font-size: 16px; border-radius: 13px; }
       }
     </style>
+  <link rel="stylesheet" href="/assets/game-canvas.css">
   </head>
-  <body>
+  <body class="game-overlay"><div class="game-viewport"><div class="game-canvas-hill" data-game-canvas>
     <main class="stage">
       <section class="game" id="game" aria-live="polite">
         <div class="glass">
@@ -132,6 +133,7 @@
         </div>
       </section>
     </main>
+    </div></div><script src="/assets/game-canvas.js"></script>
     <script>
       const game = document.getElementById('game');
       const kicker = document.getElementById('kicker');
