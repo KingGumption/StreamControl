@@ -291,3 +291,15 @@ stream's coaching report as JSON, or use the existing complete report export.
 Annotations use the existing owner-only, same-origin protected growth-notes API
 and revision-checked SQLite configuration storage on the persistent data disk.
 No external AI service, new database, or new runtime dependency is needed.
+
+### Shared compact game overlays
+
+Set both **Quiz** (`/quiz`) and **King of the Hill** (`/king-of-the-hill`)
+OBS Browser Sources to **Width 1080, Height 640**. Both use the same transparent
+1080 × 640 canvas, with a 20px gutter and a 1040 × 600 game panel. At native size
+this occupies one third of a 1080 × 1920 vertical stream. Smaller previews scale
+the complete canvas proportionally instead of changing the layout. Other aspect
+ratios are letterboxed transparently. Refresh existing OBS sources after resizing.
+Quiz picture questions, reveals, elimination batches and outcomes share these
+bounds; pass summaries show two names and the remaining count. Admin quiz
+previews use the same canvas and default to its native width.
