@@ -91,3 +91,6 @@ body.quiz-overlay{background:transparent}.quiz-overlay .shell{padding:12px}
 .speed-place{flex-direction:column;justify-content:flex-start;gap:5px;padding:8px 4px}.speed-place>span:not(.player-portrait){display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.75rem}.speed-place>strong{white-space:nowrap;font-size:.8rem}
 
 .passed-summary{margin:12px 0;padding:12px;border:1px solid #4ecdc4;border-radius:10px;background:#182c30}.passed-summary h3{margin:0;color:#73e1d8}.passed-summary>p{margin:4px 0 10px;font-size:.8rem;color:#c4d9dc}.passed-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.passed-player{display:flex;align-items:center;gap:8px;min-width:0}.passed-player .player-portrait{width:32px;height:32px;flex:none;border-color:#4ecdc4}.passed-player strong{font-size:.85rem;overflow-wrap:anywhere;min-width:0}
+
+/* Compact pass summary is used only by the broadcast canvas. */
+.compact-passed{display:none}
