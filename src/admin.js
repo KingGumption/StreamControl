@@ -124,6 +124,8 @@ router.get('/requests', (req, res) => {
 
 const contentCoach = require('./content-coach-store');
 const tikTokContent = require('./content-tiktok').createTikTokConnection();
+const youTubeContent = require('./content-youtube').createYouTubeConnection();
+const instagramContent = require('./content-instagram').createInstagramConnection();
 const {sessionTokenFromCookieHeader}=require('./admin-auth');
 router.use('/content-coach', (req,res,next) => {res.setHeader('Cache-Control','no-store');next();});
 router.get('/content-coach', (req,res) => res.sendFile(path.join(__dirname,'..','public','admin-content-coach.html')));
@@ -145,6 +147,30 @@ router.post('/content-coach/tiktok/disconnect', async (req,res) => {
   try {await tikTokContent.disconnect();addAuditLog({action:'content-tiktok-disconnected',source:req.identity.id});res.json({ok:true,...tikTokContent.status()});}
   catch(e){res.status(503).json({ok:false,error:e.message});}
 });
+
+for (const [platform, connection] of [['youtube', youTubeContent], ['instagram', instagramContent]]) {
+  router.get(`/content-coach/${platform}/status`, (req,res) => res.json({ok:true,...connection.status()}));
+  router.get(`/content-coach/${platform}/connect`, (req,res) => {
+    try {res.redirect(connection.begin(sessionTokenFromCookieHeader(req.get('cookie'))));}
+    catch(error){res.status(400).send(error.message);}
+  });
+  router.get(`/content-coach/${platform}/callback`, async (req,res) => {
+    try {
+      if (req.query.error) throw Error(`${platform} authorisation was declined.`);
+      await connection.callback({state:String(req.query.state||''),code:String(req.query.code||''),sessionCookie:sessionTokenFromCookieHeader(req.get('cookie'))});
+      addAuditLog({action:`content-${platform}-connected`,source:req.identity.id});
+      res.redirect('/admin/content-coach#sources');
+    } catch(error){res.status(400).send(error.message);}
+  });
+  router.post(`/content-coach/${platform}/sync`, async (req,res) => {
+    try {const result=await connection.sync();addAuditLog({action:`content-${platform}-sync`,source:req.identity.id,details:result.posts});res.json({ok:true,...result});}
+    catch(error){res.status(503).json({ok:false,error:error.message});}
+  });
+  router.post(`/content-coach/${platform}/disconnect`, async (req,res) => {
+    try {await connection.disconnect();addAuditLog({action:`content-${platform}-disconnected`,source:req.identity.id});res.json({ok:true,...connection.status()});}
+    catch(error){res.status(503).json({ok:false,error:error.message});}
+  });
+}
 
 router.get('/content-coach/export', (req,res) => {res.attachment('content-coach-backup.json');res.json(contentCoach.read());});
 router.post('/content-coach/validate', (req,res) => {
