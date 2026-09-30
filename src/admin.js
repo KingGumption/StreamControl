@@ -124,16 +124,17 @@ router.get('/requests', (req, res) => {
 
 const contentCoach = require('./content-coach-store');
 const tikTokContent = require('./content-tiktok').createTikTokConnection();
+const {sessionTokenFromCookieHeader}=require('./admin-auth');
 router.use('/content-coach', (req,res,next) => {res.setHeader('Cache-Control','no-store');next();});
 router.get('/content-coach', (req,res) => res.sendFile(path.join(__dirname,'..','public','admin-content-coach.html')));
 router.get('/content-coach/data', (req,res) => res.json({ok:true,...contentCoach.report()}));
 router.get('/content-coach/tiktok/status', (req,res) => res.json({ok:true,...tikTokContent.status()}));
 router.get('/content-coach/tiktok/connect', (req,res) => {
-  try {res.redirect(tikTokContent.begin(req.get('cookie')||''));}
+  try {res.redirect(tikTokContent.begin(sessionTokenFromCookieHeader(req.get('cookie'))));}
   catch(e){res.status(400).send(e.message);}
 });
 router.get('/content-coach/tiktok/callback', async (req,res) => {
-  try {if(req.query.error)throw Error('TikTok authorisation was declined.');await tikTokContent.callback({state:String(req.query.state||''),code:String(req.query.code||''),sessionCookie:req.get('cookie')||''});addAuditLog({action:'content-tiktok-connected',source:req.identity.id});res.redirect('/admin/content-coach#sources');}
+  try {if(req.query.error)throw Error('TikTok authorisation was declined.');await tikTokContent.callback({state:String(req.query.state||''),code:String(req.query.code||''),sessionCookie:sessionTokenFromCookieHeader(req.get('cookie'))});addAuditLog({action:'content-tiktok-connected',source:req.identity.id});res.redirect('/admin/content-coach#sources');}
   catch(e){res.status(400).send(e.message);}
 });
 router.post('/content-coach/tiktok/sync', async (req,res) => {
