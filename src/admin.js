@@ -591,9 +591,9 @@ app.get('/callback', async (req, res) => {
     res.redirect('/admin?spotify=error');
   }
 });
-app.get('/', (req, res) => {
-  res.redirect('/admin');
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'home.html')));
+app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'terms.html')));
+app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'privacy.html')));
 
 function startAdminServer(port = appConfig.port, host = appConfig.bindHost) {
   app.set('trust proxy', appConfig.mode === 'cloud' ? 1 : false);
