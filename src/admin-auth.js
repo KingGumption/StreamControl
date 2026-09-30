@@ -126,4 +126,4 @@ function safeSecretEqual(left, right) {
   return crypto.timingSafeEqual(leftHash, rightHash);
 }
 
-module.exports = { createAdminAuth, createSessionToken, verifySessionToken, serializeSessionCookie };
+module.exports = { createAdminAuth, createSessionToken, verifySessionToken, serializeSessionCookie, sessionTokenFromCookieHeader: header => parseCookies(header)[COOKIE_NAME] || '' };
