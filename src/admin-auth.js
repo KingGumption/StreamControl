@@ -110,7 +110,9 @@ function parseCookies(header = '') {
 }
 
 function serializeSessionCookie(value, maxAge) {
-  return `${COOKIE_NAME}=${encodeURIComponent(value)}; Path=/admin; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Strict`;
+  // TikTok returns to the callback with a top-level cross-site GET. Lax keeps
+  // the admin session on that redirect while blocking cross-site form posts.
+  return `${COOKIE_NAME}=${encodeURIComponent(value)}; Path=/admin; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
 }
 
 function safeReturnPath(value) {
@@ -124,4 +126,4 @@ function safeSecretEqual(left, right) {
   return crypto.timingSafeEqual(leftHash, rightHash);
 }
 
-module.exports = { createAdminAuth, createSessionToken, verifySessionToken };
+module.exports = { createAdminAuth, createSessionToken, verifySessionToken, serializeSessionCookie };
