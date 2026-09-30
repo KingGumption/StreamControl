@@ -4,7 +4,7 @@ Owner-only `/admin/content-coach` is independent of live-stream analytics. Data 
 
 ## Available now
 
-- Short-form and edited long-form library for YouTube, Instagram and Twitch clips/highlights.
+- Short-form and edited long-form library for YouTube, Instagram, Twitch clips/highlights and TikTok.
 - Manual observations, a strict 25-column CSV template, validation preview, atomic upsert, CSV export and complete raw JSON backup.
 - One cumulative observation per canonical post URL and window (24 hours, 7 days, 28 days, lifetime). Fixed-age windows have documented tolerances; other ages must use lifetime. Updates never silently replace newer observations with older ones.
 - Own-platform benchmarks using earlier organic posts of the same format, duration band and fixed window, with at least five measured peers **per metric**. No pooled cross-platform view score. Suggestions flag watch percentage, CTR, shares or follower conversion below 80% of the relevant median; view outliers at 1.5× median get a follow-up experiment. These are transparent product heuristics, not statistical significance tests. Missing metrics stay null.
@@ -14,11 +14,11 @@ Owner-only `/admin/content-coach` is independent of live-stream analytics. Data 
 
 ## Account status and remaining integrations
 
-The owner identified KingGumption on all platforms and confirmed Instagram is a Creator account. Profile links are shown; **no account is connected automatically by entering a handle**.
+The owner identified KingGumption on YouTube, Instagram, Twitch and TikTok and confirmed Instagram is a Creator account. Profile links are shown; **no account is connected automatically by entering a handle**.
 
-This release does not implement OAuth, scheduled API sync, AI video/transcript analysis, automatic similar-post discovery or pre-publication video review. It does not represent public competitor engagement as private retention or causal evidence. No external model calls, scraping or new paid services are enabled.
+This release does not implement OAuth, scheduled API sync, AI video/transcript analysis, automatic similar-post discovery or pre-publication video review. It does not represent public competitor engagement as private retention or causal evidence. No external model calls, scraping or new paid services are enabled. TikTok posts can be entered manually or imported by CSV. TikTok’s Display API can supply public video metadata and view/like/comment/share counts after Login Kit authorisation and app approval, but not creator retention or per-video follower conversion.
 
-Automatic connectors require developer-app registration and account authorisation (Google/YouTube, Meta/Instagram and Twitch), scoped read-only tokens, encrypted refresh-token storage, refresh/revocation handling, sync jobs and platform-specific metric mapping. Configure these through secure provider/deployment settings, never by pasting secrets into chat or storing them in the content notes. AI creative analysis additionally needs a chosen provider, a bounded spend policy and authorised media access. Keep these integrations visibly disconnected until implemented and authorised.
+Automatic connectors require developer-app registration and account authorisation (Google/YouTube, Meta/Instagram, Twitch and TikTok), scoped read-only tokens, encrypted refresh-token storage, refresh/revocation handling, sync jobs and platform-specific metric mapping. Configure these through secure provider/deployment settings, never by pasting secrets into chat or storing them in the content notes. AI creative analysis additionally needs a chosen provider, a bounded spend policy and authorised media access. Keep these integrations visibly disconnected until implemented and authorised.
 
 ## Import rules
 

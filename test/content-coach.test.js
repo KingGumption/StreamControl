@@ -8,12 +8,14 @@ test('missing metrics remain null, zero is measured and watch percent permits re
  const r=normalize(row(0,{views:0,shares:0,averageViewSeconds:45})),a=coach.analyze([r])[0];assert.equal(r.reach,null);assert.equal(r.shares,0);assert.equal(a.watchPercent,150);assert.equal(a.sharesPer1000,null);assert.equal(a.multiple,null);
 });
 test('validation rejects unknown formats, bad timestamps, future observations, negative and nonnumeric metrics',()=>{
- for(const change of [{format:'stream'},{platform:'tiktok'},{publishedAt:'2026-02-31T00:00:00Z'},{observedAt:'2040-01-01T00:00:00Z'},{views:-1},{views:1.5},{views:true},{views:' '},{durationSeconds:0},{completionPercent:101},{window:'7d',observedAt:'2026-08-01T12:00:00Z'},{source:''}])assert.throws(()=>normalize(row(0,change)));
+ for(const change of [{format:'stream'},{platform:'unsupported'},{publishedAt:'2026-02-31T00:00:00Z'},{observedAt:'2040-01-01T00:00:00Z'},{views:-1},{views:1.5},{views:true},{views:' '},{durationSeconds:0},{completionPercent:101},{window:'7d',observedAt:'2026-08-01T12:00:00Z'},{source:''}])assert.throws(()=>normalize(row(0,change)));
  assert.throws(()=>normalize(row(0,Object.fromEntries(coach.METRICS.map(k=>[k,''])))),/at least one/);
 });
 test('links canonicalize YouTube variants and reject arbitrary, credentialed or executable URLs',()=>{
  assert.equal(normalize(row(0)).url,'https://www.youtube.com/watch?v=abcdefghi00');
  assert.equal(normalize(row(0,{url:'https://youtu.be/abcdefghi00?si=tracking'})).url,normalize(row(0)).url);
+ assert.equal(normalize(row(0,{platform:'tiktok',url:'https://www.tiktok.com/@KingGumption/video/1234567890?is_from_webapp=1'})).url,'https://www.tiktok.com/@kinggumption/video/1234567890');
+ assert.throws(()=>normalize(row(0,{platform:'tiktok',url:'https://vm.tiktok.com/something'})),/full TikTok video link|belong/);
  for(const url of ['javascript:alert(1)','https://youtube.com.evil.test/watch?v=abcdefghi00','https://user:pass@youtube.com/watch?v=abcdefghi00','https://youtube.com/@name','https://youtube.com:8080/watch?v=abcdefghi00'])assert.throws(()=>normalize(row(0,{url})));
 });
 test('baseline requires five earlier posts and isolates platform, duration, traffic, format and age',()=>{
