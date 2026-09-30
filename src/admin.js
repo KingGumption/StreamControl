@@ -531,6 +531,9 @@ router.get('/king-of-the-hill', (req, res) => {
 app.use('/admin', router);
 app.use('/assets', (req,res,next) => /\.html$/i.test(req.path) ? res.sendStatus(404) : next());
 app.use('/assets', express.static(path.join(__dirname, '..', 'public')));
+app.get('/tiktok02ShwsPpXcAq9IX8pYJ1VS0XrJtQrT4l.txt', (req, res) => {
+  res.type('text/plain').sendFile(path.join(__dirname, '..', 'public', 'tiktok02ShwsPpXcAq9IX8pYJ1VS0XrJtQrT4l.txt'));
+});
 app.get('/overlay', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'overlay.html'));
 });

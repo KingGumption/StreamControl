@@ -22,4 +22,7 @@ test('Content Coach is owner-only, same-origin, private, and supports persistenc
  const validation=await fetch(base+'/admin/content-coach/validate',{method:'POST',headers,body:JSON.stringify({rows:payload.rows})});assert.equal(validation.status,200);
  assert.equal((await (await fetch(base+paths[1],{headers})).json()).revision,1);
  assert.equal((await fetch(base+'/assets/admin-content-coach.html')).status,404);
+ const verification=await fetch(base+'/tiktok02ShwsPpXcAq9IX8pYJ1VS0XrJtQrT4l.txt');
+ assert.equal(verification.status,200);
+ assert.equal(await verification.text(),fs.readFileSync(path.join(__dirname,'..','public','tiktok02ShwsPpXcAq9IX8pYJ1VS0XrJtQrT4l.txt'),'utf8'));
 });
