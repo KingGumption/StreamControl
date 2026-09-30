@@ -122,6 +122,20 @@ router.get('/requests', (req, res) => {
   res.json({ ok: true, requests: listSongRequests(50) });
 });
 
+const contentCoach = require('./content-coach-store');
+router.use('/content-coach', (req,res,next) => {res.setHeader('Cache-Control','no-store');next();});
+router.get('/content-coach', (req,res) => res.sendFile(path.join(__dirname,'..','public','admin-content-coach.html')));
+router.get('/content-coach/data', (req,res) => res.json({ok:true,...contentCoach.report()}));
+router.get('/content-coach/export', (req,res) => {res.attachment('content-coach-backup.json');res.json(contentCoach.read());});
+router.post('/content-coach/validate', (req,res) => {
+  try {if(!Array.isArray(req.body?.rows)||!req.body.rows.length||req.body.rows.length>100)throw Error('Import 1–100 observations at a time.');req.body.rows.forEach((r,i)=>{try{require('./content-coach').normalize(r);}catch(e){throw Error(`Row ${i+1}: ${e.message}`);}});res.json({ok:true});}
+  catch(error){res.status(400).json({ok:false,error:error.message});}
+});
+router.post('/content-coach/data', (req,res) => {
+  try {contentCoach.save(req.body);addAuditLog({action:'content-coach-update',source:req.identity.id,details:req.body.type});res.json({ok:true,...contentCoach.report()});}
+  catch(error){res.status(error.status||400).json({ok:false,error:error.message});}
+});
+
 const growthNotes = require('./analytics-growth-store');
 router.get('/analytics/growth-notes', (req,res) => res.json({ok:true,...growthNotes.read()}));
 router.post('/analytics/growth-notes', (req,res) => {
