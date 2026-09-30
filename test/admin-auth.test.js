@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { createSessionToken, verifySessionToken, serializeSessionCookie } = require('../src/admin-auth');
+const { createSessionToken, verifySessionToken, serializeSessionCookie, sessionTokenFromCookieHeader } = require('../src/admin-auth');
 
 test('creates signed admin sessions that expire and reject tampering', () => {
   const secret = 's'.repeat(40);
@@ -14,6 +14,8 @@ test('creates signed admin sessions that expire and reject tampering', () => {
 
 test('admin session survives a provider redirect without allowing cross-site posts', () => {
   const cookie = serializeSessionCookie('session-token', 3600);
+  assert.equal(sessionTokenFromCookieHeader('theme=dark; stream_control_session=session-token; extra=1'), 'session-token');
+  assert.equal(sessionTokenFromCookieHeader('extra=1; stream_control_session=session-token; theme=dark'), 'session-token');
   assert.match(cookie, /; Path=\/admin;/);
   assert.match(cookie, /; HttpOnly;/);
   assert.match(cookie, /; Secure;/);

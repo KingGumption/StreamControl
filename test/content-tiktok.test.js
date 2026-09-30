@@ -23,3 +23,15 @@ test('TikTok login enforces state/session and stores encrypted tokens; sync impo
 test('connector stays unavailable without an approved developer app configuration',()=>{
  const connector=createTikTokConnection({environment:{PUBLIC_BASE_URL:'https://example.test'},fetchImpl,now:()=>now});assert.equal(connector.status().configured,false);assert.throws(()=>connector.begin('owner'),/Configure/);
 });
+test('TikTok authorization state survives a server restart and expires after 30 minutes',async()=>{
+ let clock=now;
+ const first=createTikTokConnection({environment,fetchImpl,now:()=>clock});
+ const state=new URL(first.begin('same-session')).searchParams.get('state');
+ const restarted=createTikTokConnection({environment,fetchImpl,now:()=>clock});
+ await assert.rejects(restarted.callback({state,code:'test-code',sessionCookie:'different-session'}),/session/);
+ clock+=29*60*1000;
+ await restarted.callback({state,code:'test-code',sessionCookie:'same-session'});
+ const expired=new URL(first.begin('same-session')).searchParams.get('state');
+ clock+=31*60*1000;
+ await assert.rejects(restarted.callback({state:expired,code:'test-code',sessionCookie:'same-session'}),/expired/);
+});
