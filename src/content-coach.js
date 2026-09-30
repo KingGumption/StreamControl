@@ -21,20 +21,23 @@ function normalize(row,now=Date.now()){
  if(ageHours<0)throw Error('Observation must be after publication.');const window=choice(row.window,[...Object.keys(WINDOWS),'lifetime'],'measurement window');
  if(WINDOWS[window]&&(ageHours<WINDOWS[window][0]||ageHours>WINDOWS[window][1]))throw Error(`${window} observations must be ${WINDOWS[window].join('–')} hours after publication. Use lifetime for other ages.`);
  const out={platform,format,url:link(row.url,platform),title:text(row.title,300,true),publishedAt,observedAt,window,traffic:choice(row.traffic,['organic','paid','unknown'],'traffic type'),durationSeconds:number(row.durationSeconds,'duration',{max:86400}),group:text(row.group,100),topic:text(row.topic,100),hook:text(row.hook,500),notes:text(row.notes,2000),source:text(row.source,300,true)};
- if(!out.durationSeconds)throw Error('Duration must be greater than zero.');
+ // Instagram's media/insights API does not reliably expose video duration.
+ // Keep those observations visible, but exclude them from duration-matched baselines
+ // until the owner supplies a measured duration.
+ if(!out.durationSeconds&&platform!=='instagram')throw Error('Duration must be greater than zero.');
  for(const key of METRICS)out[key]=number(row[key],key,{max:key.endsWith('Percent')?100:Number.MAX_SAFE_INTEGER,integer:!['averageViewSeconds','completionPercent','ctrPercent'].includes(key)});
  if(!METRICS.some(k=>out[k]!=null))throw Error('Enter at least one measured metric.');
  out.id=JSON.stringify([platform,out.url,window]);return out;
 }
 function median(values){const a=values.filter(v=>v!=null&&Number.isFinite(v)).sort((x,y)=>x-y),n=a.length;return n?(a[Math.floor(n/2)]+a[Math.floor((n-1)/2)])/2:null;}
-function durationBand(r){return r.format==='short'?(r.durationSeconds<=30?'≤30s':r.durationSeconds<=60?'31–60s':'>60s'):(r.durationSeconds<=600?'≤10m':r.durationSeconds<=1800?'10–30m':'>30m');}
+function durationBand(r){if(!r.durationSeconds)return 'Duration unknown';return r.format==='short'?(r.durationSeconds<=30?'≤30s':r.durationSeconds<=60?'31–60s':'>60s'):(r.durationSeconds<=600?'≤10m':r.durationSeconds<=1800?'10–30m':'>30m');}
 const cohortKey=r=>JSON.stringify([r.platform,r.format,r.window,r.traffic,durationBand(r)]);
-function rates(r){const rate=k=>r[k]!=null&&r.views>0?r[k]/r.views*1000:null;return {watchPercent:r.averageViewSeconds==null?null:r.averageViewSeconds/r.durationSeconds*100,sharesPer1000:rate('shares'),savesPer1000:rate('saves'),followersPer1000:rate('followers'),completionPercent:r.completionPercent,ctrPercent:r.ctrPercent};}
+function rates(r){const rate=k=>r[k]!=null&&r.views>0?r[k]/r.views*1000:null;return {watchPercent:r.averageViewSeconds==null||!r.durationSeconds?null:r.averageViewSeconds/r.durationSeconds*100,sharesPer1000:rate('shares'),savesPer1000:rate('saves'),followersPer1000:rate('followers'),completionPercent:r.completionPercent,ctrPercent:r.ctrPercent};}
 function analyze(records){
  const enriched=records.map(r=>({...r,...rates(r),durationBand:durationBand(r)}));
  const groups=new Map();for(const r of enriched){const key=cohortKey(r);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);}
  return enriched.map(r=>{
-  const peers=r.window==='lifetime'||r.traffic!=='organic'?[]:groups.get(cohortKey(r)).filter(p=>p.url!==r.url&&p.publishedAt<r.publishedAt);
+  const peers=r.window==='lifetime'||r.traffic!=='organic'||!r.durationSeconds?[]:groups.get(cohortKey(r)).filter(p=>p.durationSeconds&&p.url!==r.url&&p.publishedAt<r.publishedAt);
   const baseline={};for(const key of ['views',...RATE_METRICS]){const values=peers.map(p=>p[key]).filter(v=>v!=null);baseline[key]={n:values.length,median:values.length>=5?median(values):null};}
   const base=baseline.views.median,multiple=base>0&&r.views!=null?r.views/base:null;
   const signals=[];
@@ -47,7 +50,7 @@ function analyze(records){
   return {...r,baseline,multiple,signals};
  });
 }
-function experiments(items,records){const map=new Map(records.map(r=>[r.id,r]));return items.map(e=>{const a=e.baseline.map(id=>map.get(id)),b=e.trial.map(id=>map.get(id)),all=[...a,...b];const comparable=all.length>0&&all.every(Boolean)&&new Set(all.map(cohortKey)).size===1&&all.every(r=>r.window!=='lifetime'&&r.traffic==='organic')&&new Set(all.map(r=>r.url)).size===all.length;
+function experiments(items,records){const map=new Map(records.map(r=>[r.id,r]));return items.map(e=>{const a=e.baseline.map(id=>map.get(id)),b=e.trial.map(id=>map.get(id)),all=[...a,...b];const comparable=all.length>0&&all.every(Boolean)&&new Set(all.map(cohortKey)).size===1&&all.every(r=>r.window!=='lifetime'&&r.traffic==='organic'&&r.durationSeconds)&&new Set(all.map(r=>r.url)).size===all.length;
  const av=a.filter(Boolean).map(r=>r[e.metric]).filter(v=>v!=null),bv=b.filter(Boolean).map(r=>r[e.metric]).filter(v=>v!=null);const am=comparable?median(av):null,bm=comparable?median(bv):null;
  return {...e,comparable,baselineN:av.length,trialN:bv.length,baselineMedian:am,trialMedian:bm,delta:am==null||bm==null?null:bm-am,preliminary:av.length<3||bv.length<3};});}
 module.exports={PLATFORMS,WINDOWS,METRICS,RATE_METRICS,text,choice,link,normalize,median,cohortKey,analyze,experiments};
