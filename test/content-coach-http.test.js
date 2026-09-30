@@ -1,0 +1,22 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'content-coach-http-'));
+process.env.APP_MODE='cloud';process.env.ADMIN_PASSWORD='test-password';process.env.SESSION_SECRET='test-secret'.repeat(6);process.env.BRIDGE_TOKEN='test-bridge'.repeat(6);process.env.PUBLIC_BASE_URL='https://example.test';
+const {app}=require('../src/admin'),access=require('../src/moderator-access');
+test('Content Coach is owner-only, same-origin, private, and supports persistence and export',async t=>{
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>{server.closeAllConnections();server.close(r);}));const base=`http://127.0.0.1:${server.address().port}`;
+ const paths=['/admin/content-coach','/admin/content-coach/data','/admin/content-coach/export'];
+ for(const p of paths)assert.equal((await fetch(base+p)).status,401);
+ const owner=`stream_control_session=${access.issue({id:'owner',role:'owner'})}`;
+ const moderator=await access.create('contenttestmod','good-test-password');const mod=`stream_control_session=${access.issue({...moderator,role:"games"})}`;
+ for(const p of paths)assert.equal((await fetch(base+p,{headers:{Cookie:mod}})).status,403);
+ const headers={Cookie:owner,'Content-Type':'application/json',Origin:'https://example.test'};
+ const page=await fetch(base+paths[0],{headers});assert.equal(page.status,200);assert.match(page.headers.get('cache-control'),/no-store/);assert.match(await page.text(),/Content Coach/);
+ const payload={revision:0,type:'import',rows:[{platform:'youtube',format:'short',title:'Test',url:'https://youtu.be/abcdefghi00',durationSeconds:30,publishedAt:'2026-08-01T00:00:00Z',observedAt:'2026-08-08T00:00:00Z',window:'7d',traffic:'organic',views:100,source:'Test export'}]};
+ assert.equal((await fetch(base+paths[1],{method:'POST',headers:{...headers,Origin:'https://evil.test'},body:JSON.stringify(payload)})).status,403);
+ const save=await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)});assert.equal(save.status,200);const result=await save.json();assert.equal(result.records[0].views,100);assert.equal(result.revision,1);
+ assert.equal((await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)})).status,409);
+ const backup=await fetch(base+paths[2],{headers});assert.match(backup.headers.get('content-disposition'),/attachment/);assert.equal((await backup.json()).records.length,1);
+ const validation=await fetch(base+'/admin/content-coach/validate',{method:'POST',headers,body:JSON.stringify({rows:payload.rows})});assert.equal(validation.status,200);
+ assert.equal((await (await fetch(base+paths[1],{headers})).json()).revision,1);
+ assert.equal((await fetch(base+'/assets/admin-content-coach.html')).status,404);
+});
