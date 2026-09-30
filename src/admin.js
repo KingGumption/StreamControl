@@ -123,9 +123,28 @@ router.get('/requests', (req, res) => {
 });
 
 const contentCoach = require('./content-coach-store');
+const tikTokContent = require('./content-tiktok').createTikTokConnection();
 router.use('/content-coach', (req,res,next) => {res.setHeader('Cache-Control','no-store');next();});
 router.get('/content-coach', (req,res) => res.sendFile(path.join(__dirname,'..','public','admin-content-coach.html')));
 router.get('/content-coach/data', (req,res) => res.json({ok:true,...contentCoach.report()}));
+router.get('/content-coach/tiktok/status', (req,res) => res.json({ok:true,...tikTokContent.status()}));
+router.get('/content-coach/tiktok/connect', (req,res) => {
+  try {res.redirect(tikTokContent.begin(req.get('cookie')||''));}
+  catch(e){res.status(400).send(e.message);}
+});
+router.get('/content-coach/tiktok/callback', async (req,res) => {
+  try {if(req.query.error)throw Error('TikTok authorisation was declined.');await tikTokContent.callback({state:String(req.query.state||''),code:String(req.query.code||''),sessionCookie:req.get('cookie')||''});addAuditLog({action:'content-tiktok-connected',source:req.identity.id});res.redirect('/admin/content-coach#sources');}
+  catch(e){res.status(400).send(e.message);}
+});
+router.post('/content-coach/tiktok/sync', async (req,res) => {
+  try {const result=await tikTokContent.sync();addAuditLog({action:'content-tiktok-sync',source:req.identity.id,details:result.posts});res.json({ok:true,...result});}
+  catch(e){res.status(503).json({ok:false,error:e.message});}
+});
+router.post('/content-coach/tiktok/disconnect', async (req,res) => {
+  try {await tikTokContent.disconnect();addAuditLog({action:'content-tiktok-disconnected',source:req.identity.id});res.json({ok:true,...tikTokContent.status()});}
+  catch(e){res.status(503).json({ok:false,error:e.message});}
+});
+
 router.get('/content-coach/export', (req,res) => {res.attachment('content-coach-backup.json');res.json(contentCoach.read());});
 router.post('/content-coach/validate', (req,res) => {
   try {if(!Array.isArray(req.body?.rows)||!req.body.rows.length||req.body.rows.length>100)throw Error('Import 1–100 observations at a time.');req.body.rows.forEach((r,i)=>{try{require('./content-coach').normalize(r);}catch(e){throw Error(`Row ${i+1}: ${e.message}`);}});res.json({ok:true});}

@@ -15,6 +15,9 @@ test('Content Coach is owner-only, same-origin, private, and supports persistenc
  assert.equal((await fetch(base+paths[1],{method:'POST',headers:{...headers,Origin:'https://evil.test'},body:JSON.stringify(payload)})).status,403);
  const save=await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)});assert.equal(save.status,200);const result=await save.json();assert.equal(result.records[0].views,100);assert.equal(result.revision,1);
  assert.equal((await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)})).status,409);
+ const tikTokStatus=await fetch(base+'/admin/content-coach/tiktok/status',{headers});assert.equal(tikTokStatus.status,200);assert.equal((await tikTokStatus.json()).configured,false);
+ assert.equal((await fetch(base+'/admin/content-coach/tiktok/status',{headers:{Cookie:mod}})).status,403);
+ assert.equal((await fetch(base+'/admin/content-coach/tiktok/connect',{headers})).status,400);
  const backup=await fetch(base+paths[2],{headers});assert.match(backup.headers.get('content-disposition'),/attachment/);assert.equal((await backup.json()).records.length,1);
  const validation=await fetch(base+'/admin/content-coach/validate',{method:'POST',headers,body:JSON.stringify({rows:payload.rows})});assert.equal(validation.status,200);
  assert.equal((await (await fetch(base+paths[1],{headers})).json()).revision,1);
