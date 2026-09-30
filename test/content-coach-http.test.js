@@ -5,6 +5,15 @@ const {app}=require('../src/admin'),access=require('../src/moderator-access');
 test('Content Coach is owner-only, same-origin, private, and supports persistence and export',async t=>{
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>{server.closeAllConnections();server.close(r);}));const base=`http://127.0.0.1:${server.address().port}`;
  const paths=['/admin/content-coach','/admin/content-coach/data','/admin/content-coach/export'];
+ for(const [route,heading] of [['/','Make every stream more engaging'],['/terms','Terms of Service'],['/privacy','Privacy Policy']]){
+  const response=await fetch(base+route,{redirect:'manual'});
+  assert.equal(response.status,200);
+  const html=await response.text();
+  assert.match(html,new RegExp(heading));
+  assert.match(html,/href="\/terms"/);
+  assert.match(html,/href="\/privacy"/);
+ }
+ assert.equal((await fetch(base+'/assets/privacy.html')).status,404);
  for(const p of paths)assert.equal((await fetch(base+p)).status,401);
  const owner=`stream_control_session=${access.issue({id:'owner',role:'owner'})}`;
  const moderator=await access.create('contenttestmod','good-test-password');const mod=`stream_control_session=${access.issue({...moderator,role:"games"})}`;
