@@ -27,6 +27,14 @@ services:
         generateValue: true
       - key: SPOTIFY_CLIENT_ID
         sync: false
+      - key: YOUTUBE_CLIENT_ID
+        sync: false
+      - key: YOUTUBE_CLIENT_SECRET
+        sync: false
+      - key: INSTAGRAM_APP_ID
+        sync: false
+      - key: INSTAGRAM_APP_SECRET
+        sync: false
       - key: SPOTIFY_CLIENT_SECRET
         sync: false
       - key: SPOTIFY_PLAYLIST_ID
