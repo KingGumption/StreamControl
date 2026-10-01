@@ -98,3 +98,15 @@ test('Instagram OAuth imports Reel insights, leaves duration unknown, and retain
   await connector.disconnect();
   assert.equal(connector.status().connected, false);
 });
+
+test('Instagram code exchange reports Meta flat errors with the failing stage', async () => {
+  const fetchImpl = async () => ({ok: false, status: 400,
+    json: async () => ({error_type: 'OAuthException', error_message: 'Invalid client secret', code: 400})});
+  const connector = createInstagramConnection({environment: {...base, INSTAGRAM_APP_ID: 'ig-client', INSTAGRAM_APP_SECRET: 'ig-secret'}, fetchImpl, now: () => now});
+  const auth = new URL(connector.begin('owner-session'));
+  await assert.rejects(
+    connector.callback({state: auth.searchParams.get('state'), code: 'code', sessionCookie: 'owner-session'}),
+    /Instagram code exchange: Instagram request failed: Invalid client secret/
+  );
+  assert.equal(connector.status().connected, false);
+});

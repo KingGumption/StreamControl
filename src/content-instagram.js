@@ -43,15 +43,17 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
     vault.verify(state, sessionCookie);
     if (!code || String(code).length > 2048) throw Error('Instagram did not return an authorisation code.');
     const short = await json(TOKEN, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: new URLSearchParams({client_id: clientId, client_secret: clientSecret, grant_type: 'authorization_code', redirect_uri: redirectUri, code})});
+      body: new URLSearchParams({client_id: clientId, client_secret: clientSecret, grant_type: 'authorization_code', redirect_uri: redirectUri, code})})
+      .catch(error => { throw Error(`Instagram code exchange: ${error.message}`); });
     if (!short.access_token || !short.user_id) throw Error('Instagram did not grant account access.');
     const exchange = new URL(`${GRAPH}/access_token`);
     exchange.search = new URLSearchParams({grant_type: 'ig_exchange_token', client_secret: clientSecret, access_token: short.access_token}).toString();
-    const long = await json(exchange);
+    const long = await json(exchange).catch(error => { throw Error(`Instagram token extension: ${error.message}`); });
     if (!long.access_token || !Number.isFinite(Number(long.expires_in))) throw Error('Instagram did not provide a long-lived token.');
     const profileUrl = new URL(`${GRAPH}/${version}/me`);
     profileUrl.search = new URLSearchParams({fields: 'id,username,account_type'}).toString();
-    const profile = await json(profileUrl, {headers: bearer(long.access_token)});
+    const profile = await json(profileUrl, {headers: bearer(long.access_token)})
+      .catch(error => { throw Error(`Instagram profile verification: ${error.message}`); });
     if (String(profile.id) !== String(short.user_id) || !profile.username) throw Error('Could not verify the authorised Instagram account.');
     if (profile.username.toLowerCase() !== 'kinggumption') throw Error('Please connect the KingGumption Instagram account.');
     vault.save({userId: profile.id, username: profile.username, accountType: profile.account_type,
