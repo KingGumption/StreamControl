@@ -53,4 +53,4 @@ function analyze(records){
 function experiments(items,records){const map=new Map(records.map(r=>[r.id,r]));return items.map(e=>{const a=e.baseline.map(id=>map.get(id)),b=e.trial.map(id=>map.get(id)),all=[...a,...b];const comparable=all.length>0&&all.every(Boolean)&&new Set(all.map(cohortKey)).size===1&&all.every(r=>r.window!=='lifetime'&&r.traffic==='organic'&&r.durationSeconds)&&new Set(all.map(r=>r.url)).size===all.length;
  const av=a.filter(Boolean).map(r=>r[e.metric]).filter(v=>v!=null),bv=b.filter(Boolean).map(r=>r[e.metric]).filter(v=>v!=null);const am=comparable?median(av):null,bm=comparable?median(bv):null;
  return {...e,comparable,baselineN:av.length,trialN:bv.length,baselineMedian:am,trialMedian:bm,delta:am==null||bm==null?null:bm-am,preliminary:av.length<3||bv.length<3};});}
-module.exports={PLATFORMS,WINDOWS,METRICS,RATE_METRICS,text,choice,link,normalize,median,cohortKey,analyze,experiments};
+module.exports={PLATFORMS,WINDOWS,METRICS,RATE_METRICS,text,choice,link,normalize,median,durationBand,cohortKey,analyze,experiments};

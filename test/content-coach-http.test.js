@@ -4,7 +4,7 @@ process.env.APP_MODE='cloud';process.env.ADMIN_PASSWORD='test-password';process.
 const {app}=require('../src/admin'),access=require('../src/moderator-access');
 test('Content Coach is owner-only, same-origin, private, and supports persistence and export',async t=>{
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>{server.closeAllConnections();server.close(r);}));const base=`http://127.0.0.1:${server.address().port}`;
- const paths=['/admin/content-coach','/admin/content-coach/data','/admin/content-coach/export'];
+ const paths=['/admin/content-coach','/admin/content-coach/data','/admin/content-coach/analysis','/admin/content-coach/export'];
  for(const [route,heading] of [['/','Make every stream more engaging'],['/terms','Terms of Service'],['/privacy','Privacy Policy']]){
   const response=await fetch(base+route,{redirect:'manual'});
   assert.equal(response.status,200);
@@ -25,9 +25,11 @@ test('Content Coach is owner-only, same-origin, private, and supports persistenc
  const save=await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)});assert.equal(save.status,200);const result=await save.json();assert.equal(result.records[0].views,100);assert.equal(result.revision,1);
  assert.equal((await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)})).status,409);
  const tikTokStatus=await fetch(base+'/admin/content-coach/tiktok/status',{headers});assert.equal(tikTokStatus.status,200);assert.equal((await tikTokStatus.json()).configured,false);
+ const analysis=await fetch(base+'/admin/content-coach/analysis',{headers});assert.equal(analysis.status,200);assert.deepEqual((await analysis.json()).posts,[]);
+ assert.equal((await fetch(base+'/admin/content-coach/analysis/state',{method:'POST',headers:{...headers,Cookie:mod},body:JSON.stringify({platform:'youtube',url:'https://www.youtube.com/watch?v=abcdefghi00',state:'tried'})})).status,403);
  assert.equal((await fetch(base+'/admin/content-coach/tiktok/status',{headers:{Cookie:mod}})).status,403);
  assert.equal((await fetch(base+'/admin/content-coach/tiktok/connect',{headers})).status,400);
- const backup=await fetch(base+paths[2],{headers});assert.match(backup.headers.get('content-disposition'),/attachment/);assert.equal((await backup.json()).records.length,1);
+ const backup=await fetch(base+paths[3],{headers});assert.match(backup.headers.get('content-disposition'),/attachment/);assert.equal((await backup.json()).records.length,1);
  const validation=await fetch(base+'/admin/content-coach/validate',{method:'POST',headers,body:JSON.stringify({rows:payload.rows})});assert.equal(validation.status,200);
  assert.equal((await (await fetch(base+paths[1],{headers})).json()).revision,1);
  assert.equal((await fetch(base+'/assets/admin-content-coach.html')).status,404);

@@ -7,6 +7,7 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'content-social-'))
 
 const {getConfigValue} = require('../src/db');
 const store = require('../src/content-coach-store');
+const automationStore = require('../src/content-automation-store');
 const {createYouTubeConnection} = require('../src/content-youtube');
 const {createInstagramConnection} = require('../src/content-instagram');
 
@@ -23,7 +24,7 @@ test('YouTube OAuth imports owned public videos and available analytics only', a
     if (url.pathname.endsWith('/channels')) return result({items: [{id: 'channel-1', snippet: {title: 'KingGumption'}, contentDetails: {relatedPlaylists: {uploads: 'uploads-1'}}}]});
     if (url.pathname.endsWith('/playlistItems')) return result({items: [{contentDetails: {videoId: 'abcdefghi00'}}, {contentDetails: {videoId: 'private0001'}}]});
     if (url.pathname.endsWith('/videos')) return result({items: [
-      {id: 'abcdefghi00', snippet: {title: 'Video', publishedAt: '2026-09-23T12:00:00Z'}, contentDetails: {duration: 'PT45S'}, status: {privacyStatus: 'public'}, statistics: {viewCount: '1200', likeCount: '60', commentCount: '4'}},
+      {id: 'abcdefghi00', snippet: {title: 'Video', publishedAt: '2026-09-23T12:00:00Z', description:'A gaming video', tags:['gaming'],categoryId:'20',thumbnails:{high:{url:'https://i.ytimg.com/vi/abcdefghi00/hqdefault.jpg'}}}, contentDetails: {duration: 'PT45S'}, status: {privacyStatus: 'public'}, statistics: {viewCount: '1200', likeCount: '60', commentCount: '4'}},
       {id: 'private0001', snippet: {title: 'Private', publishedAt: '2026-09-23T12:00:00Z'}, contentDetails: {duration: 'PT1M'}, status: {privacyStatus: 'private'}},
     ]});
     if (url.pathname === '/v2/reports') return result({columnHeaders: ['video','views','shares','subscribersGained','averageViewDuration'].map(name => ({name})), rows: [['abcdefghi00', 1100, 12, 3, 24.5]]});
@@ -44,6 +45,11 @@ test('YouTube OAuth imports owned public videos and available analytics only', a
   const rows = store.read().records.filter(row => row.platform === 'youtube');
   assert.deepEqual(new Set(rows.map(row => row.window)), new Set(['lifetime', '7d']));
   assert.ok(rows.every(row => row.views === 1200 && row.shares === 12 && row.followers === 3 && row.averageViewSeconds === 24.5));
+  const packaged=automationStore.listPosts().find(post=>post.platform==='youtube');
+  assert.equal(packaged.metadata.description,'A gaming video');
+  assert.deepEqual(packaged.metadata.hashtags,['gaming']);
+  assert.equal(packaged.metadata.category,'20');
+  assert.equal(packaged.metadata.coverUrl,'https://i.ytimg.com/vi/abcdefghi00/hqdefault.jpg');
   assert.ok(calls.includes('/v2/reports'));
   await connector.disconnect();
   assert.equal(connector.status().connected, false);
@@ -57,7 +63,7 @@ test('Instagram OAuth imports Reel insights, leaves duration unknown, and retain
     if (url.pathname === '/access_token') return result({access_token: 'instagram-long-secret', expires_in: 5000000});
     if (url.pathname.endsWith('/me')) return result({id: 'ig-1', username: 'KingGumption', account_type: 'CREATOR'});
     if (url.pathname.endsWith('/me/media')) return result({data: [
-      {id: 'media-1', media_type: 'VIDEO', media_product_type: 'REELS', permalink: 'https://www.instagram.com/reel/Reel123/', timestamp: '2026-09-23T12:00:00Z', caption: 'My Reel', like_count: 80, comments_count: 5},
+      {id: 'media-1', media_type: 'VIDEO', media_product_type: 'REELS', permalink: 'https://www.instagram.com/reel/Reel123/', timestamp: '2026-09-23T12:00:00Z', caption: 'My Reel #gaming', thumbnail_url:'https://scontent.cdninstagram.com/cover.jpg', like_count: 80, comments_count: 5},
       {id: 'photo-1', media_type: 'IMAGE', media_product_type: 'FEED', permalink: 'https://www.instagram.com/p/Photo123/', timestamp: '2026-09-23T12:00:00Z'},
     ]});
     if (url.pathname.endsWith('/media-1/insights')) {
@@ -80,6 +86,9 @@ test('Instagram OAuth imports Reel insights, leaves duration unknown, and retain
   assert.equal(original.durationSeconds, null);
   assert.equal(original.averageViewSeconds, 12.75);
   assert.equal(original.saves, 9);
+  const packaged=automationStore.listPosts().find(post=>post.platform==='instagram');
+  assert.deepEqual(packaged.metadata.hashtags,['#gaming']);
+  assert.equal(packaged.metadata.coverUrl,'https://scontent.cdninstagram.com/cover.jpg');
   const current = store.read();
   store.save({revision: current.revision, type: 'import', rows: [{...original, durationSeconds: 30, traffic: 'organic', topic: 'Gaming', source: 'Creator correction'}]});
   await connector.sync();

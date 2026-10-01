@@ -2,6 +2,7 @@ const crypto=require('node:crypto');
 const {getConfigValue,setConfigValue}=require('./db');
 const contentCoach=require('./content-coach');
 const store=require('./content-coach-store');
+const automationStore=require('./content-automation-store');
 const KEY='content_tiktok_auth_v1';
 const AUTH='https://www.tiktok.com/v2/auth/authorize/';
 const TOKEN='https://open.tiktokapis.com/v2/oauth/token/';
@@ -27,10 +28,37 @@ function createTikTokConnection({environment=process.env,fetchImpl=globalThis.fe
  async function token(fields){return json(TOKEN,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_key:clientKey,client_secret:clientSecret,...fields})});}
  async function callback({state,code,sessionCookie}){verify(state,sessionCookie);if(!code||String(code).length>1000)throw Error('TikTok did not return an authorization code.');const data=await token({grant_type:'authorization_code',code,redirect_uri:redirectUri});if(!data.access_token||!data.refresh_token||!Number.isFinite(Number(data.expires_in))||!Number.isFinite(Number(data.refresh_expires_in))||!String(data.scope||'').split(',').includes('video.list'))throw Error('TikTok did not grant video.list access.');const info=await json(`${API}user/info/?fields=open_id,display_name`,{headers:{Authorization:`Bearer ${data.access_token}`}});const user=info.data?.user;if(!user?.open_id||user.open_id!==data.open_id)throw Error('Could not verify the authorised TikTok account.');const account={accessToken:data.access_token,refreshToken:data.refresh_token,expiresAt:now()+data.expires_in*1000,refreshExpiresAt:now()+data.refresh_expires_in*1000,openId:user.open_id,displayName:user.display_name||'TikTok creator',scope:data.scope,lastSyncAt:null};save(account);return status();}
  async function access(){const account=read();if(!account)throw Error('Connect TikTok first.');if(account.expiresAt>now()+5*60*1000)return account;if(account.refreshExpiresAt<=now())throw Error('TikTok authorisation expired. Reconnect TikTok.');const data=await token({grant_type:'refresh_token',refresh_token:account.refreshToken});if(!data.access_token)throw Error('TikTok token refresh failed. Reconnect TikTok.');const refreshed={...account,accessToken:data.access_token,refreshToken:data.refresh_token||account.refreshToken,expiresAt:now()+data.expires_in*1000,refreshExpiresAt:data.refresh_expires_in?now()+data.refresh_expires_in*1000:account.refreshExpiresAt,scope:data.scope||account.scope};save(refreshed);return refreshed;}
- async function sync(){const account=await access();const fields='id,create_time,title,video_description,duration,share_url,view_count,like_count,comment_count,share_count';const data=await json(`${API}video/list/?fields=${fields}`,{method:'POST',headers:{Authorization:`Bearer ${account.accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({max_count:20})});const videos=data.data?.videos;if(!Array.isArray(videos))throw Error('TikTok did not return a video list.');const observedAt=new Date(now()).toISOString(),rows=[],skipped=[],existing=store.read().records.filter(r=>r.platform==='tiktok'),previousByUrl=new Map(existing.map(r=>[r.url,r])),previousById=new Map(existing.map(r=>[r.id,r]));
-  for(const v of videos){try{if(!Number.isFinite(Number(v.duration))||Number(v.duration)<=0)throw Error('duration unavailable');const publishedAt=new Date(Number(v.create_time)*1000).toISOString();const age=(Date.parse(observedAt)-Date.parse(publishedAt))/3600000;if(age<0)throw Error('publication in future');const canonicalUrl=contentCoach.link(v.share_url,'tiktok'),previous=previousByUrl.get(canonicalUrl);const common={platform:'tiktok',format:previous?.format||(Number(v.duration)<=180?'short':'long'),title:String(v.title||v.video_description||previous?.title||'TikTok video').slice(0,300),url:canonicalUrl,publishedAt:previous?.publishedAt||publishedAt,observedAt,traffic:previous?.traffic||'unknown',durationSeconds:previous?.durationSeconds||Number(v.duration),group:previous?.group||'',topic:previous?.topic||'',hook:previous?.hook||'',notes:previous?.notes||'',views:v.view_count??null,likes:v.like_count??null,comments:v.comment_count??null,shares:v.share_count??null,source:'TikTok Display API · public post counts'};const windows=['lifetime'];if(age>=21&&age<=27)windows.push('24h');if(age>=156&&age<=180)windows.push('7d');if(age>=648&&age<=696)windows.push('28d');for(const window of windows){const previousWindow=previousById.get(JSON.stringify(['tiktok',canonicalUrl,window]));const merged=previousWindow?{...previousWindow,...common,window,source:previousWindow.source.includes('TikTok Display API')?previousWindow.source:`TikTok Display API; other metrics: ${previousWindow.source}`.slice(0,300)}:{...common,window};rows.push(contentCoach.normalize(merged,now()));}}catch(e){skipped.push({id:String(v.id||'unknown').slice(0,50),reason:e.message});}}
-  if(rows.length){let saved=false;for(let attempt=0;attempt<2&&!saved;attempt++){const revision=store.read().revision;try{store.save({revision,type:'import',rows});saved=true;}catch(e){if(e.status!==409||attempt===1)throw e;}}}
-  save({...account,lastSyncAt:observedAt});return {observations:rows.length,posts:new Set(rows.map(r=>r.url)).size,skipped};}
+ async function sync(){
+  const account=await access();
+  const fields='id,create_time,title,video_description,duration,share_url,cover_image_url,view_count,like_count,comment_count,share_count';
+  const observedAt=new Date(now()).toISOString(),videos=[];
+  let cursor=undefined;
+  for(let page=0;page<100;page++){
+   const data=await json(`${API}video/list/?fields=${fields}`,{method:'POST',headers:{Authorization:`Bearer ${account.accessToken}`,'Content-Type':'application/json'},body:JSON.stringify({max_count:20,...(cursor?{cursor}:{})})});
+   if(!Array.isArray(data.data?.videos))throw Error('TikTok did not return a video list.');
+   videos.push(...data.data.videos);
+   if(data.data.videos.some(v=>Number(v.create_time)*1000<now()-366*86400000)||!data.data.has_more||!data.data.cursor||data.data.cursor===cursor)break;
+   cursor=data.data.cursor;
+  }
+  const posts=[],skipped=[];
+  for(const v of videos){
+   try{
+    const publishedAt=new Date(Number(v.create_time)*1000).toISOString();
+    if(Date.parse(publishedAt)<now()-366*86400000)continue;
+    const url=contentCoach.link(v.share_url,'tiktok'),duration=Number(v.duration);
+    if(!(duration>0))throw Error('duration unavailable');
+    const description=String(v.video_description||v.title||'');
+    posts.push({id:v.id,url,publishedAt,title:String(v.title||description||'TikTok video').slice(0,300),description,
+     hashtags:description.match(/#[\p{L}\p{N}_]+/gu)||[],category:null,coverUrl:v.cover_image_url||null,
+     format:duration<=180?'short':'long',durationSeconds:duration,
+     metrics:{views:v.view_count??null,likes:v.like_count??null,comments:v.comment_count??null,shares:v.share_count??null}});
+   }catch(error){skipped.push({id:String(v.id||'unknown').slice(0,50),reason:error.message});}
+  }
+  const result=require('./content-social-common').saveObservations('tiktok',posts,observedAt,'TikTok Display API · public post counts',now());
+  automationStore.upsertPosts('tiktok',posts,observedAt);
+  save({...account,lastSyncAt:observedAt});
+  return {...result,skipped:[...skipped,...result.skipped]};
+ }
  async function disconnect(){const account=read();if(!account)return;await json(`${API}oauth/revoke/`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_key:clientKey,client_secret:clientSecret,token:account.accessToken})});setConfigValue(KEY,null);}
  return {status,begin,callback,sync,disconnect,redirectUri};
 }
