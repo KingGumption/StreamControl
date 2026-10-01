@@ -25,6 +25,15 @@ db.exec(`
     post_url TEXT NOT NULL, video_id TEXT NOT NULL, data TEXT NOT NULL,
     checked_at TEXT NOT NULL, PRIMARY KEY(post_url,video_id)
   );
+  CREATE TABLE IF NOT EXISTS content_video_groups (
+    id TEXT PRIMARY KEY, created_at TEXT NOT NULL,
+    analysis TEXT, analysis_fingerprint TEXT
+  );
+  CREATE TABLE IF NOT EXISTS content_video_group_members (
+    platform TEXT NOT NULL, url TEXT NOT NULL, group_id TEXT NOT NULL,
+    locked INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(platform,url)
+  );
+  CREATE INDEX IF NOT EXISTS content_video_group_members_group ON content_video_group_members(group_id);
 `);
 
 const parse = value => value ? JSON.parse(value) : null;
@@ -115,4 +124,82 @@ function saveExamples(url,items,now) {
   })();
 }
 function examples(url) {return db.prepare('SELECT data,checked_at FROM content_public_examples WHERE post_url=?').all(url).map(r=>({...parse(r.data),checkedAt:r.checked_at}));}
-module.exports={upsertPosts,listPosts,snapshots,saveAnalysis,setAdviceState,jobStatus,claimJob,finishJob,reserveSpend,spendStatus,saveExamples,examples,fingerprint};
+
+const GROUP_WINDOW_MS = 20 * 60 * 1000;
+function autoGroup() {
+  return db.transaction(() => {
+    const posts = listPosts(2000).sort((a,b) => Date.parse(a.publishedAt)-Date.parse(b.publishedAt));
+    const members = db.prepare('SELECT platform,url,group_id,locked FROM content_video_group_members').all();
+    const byPost = new Set(members.map(row => `${row.platform}\n${row.url}`));
+    const byGroup = new Map();
+    const postMap = new Map(posts.map(post => [`${post.platform}\n${post.url}`,post]));
+    for (const member of members) {
+      const post = postMap.get(`${member.platform}\n${member.url}`);
+      if (!post) continue;
+      if (!byGroup.has(member.group_id)) byGroup.set(member.group_id, []);
+      byGroup.get(member.group_id).push({...post,locked:Boolean(member.locked)});
+    }
+    const addGroup = db.prepare('INSERT INTO content_video_groups(id,created_at) VALUES(?,?)');
+    const addMember = db.prepare('INSERT INTO content_video_group_members(platform,url,group_id) VALUES(?,?,?)');
+    const pending = posts.filter(post => !byPost.has(`${post.platform}\n${post.url}`));
+    const counts = new Map();
+    for (const post of pending) counts.set(post.platform,(counts.get(post.platform)||0)+1);
+    // Seed the platform with more posts first, then attach other platforms to the closest match.
+    // This avoids pairing an Instagram post with an earlier YouTube upload when a closer
+    // YouTube version has not been visited yet.
+    pending.sort((a,b)=>(counts.get(b.platform)-counts.get(a.platform)) ||
+      Date.parse(a.publishedAt)-Date.parse(b.publishedAt) || a.platform.localeCompare(b.platform));
+    let added = 0;
+    for (const post of pending) {
+      const published = Date.parse(post.publishedAt);
+      if (!Number.isFinite(published)) continue;
+      let best = null;
+      for (const [id, groupPosts] of byGroup) {
+        if (groupPosts.some(item => item.platform === post.platform) ||
+            groupPosts.some(item => item.locked) ||
+            groupPosts[0]?.metadata.format !== post.metadata.format) continue;
+        const distance = Math.min(...groupPosts.map(item => Math.abs(Date.parse(item.publishedAt)-published)));
+        if (distance <= GROUP_WINDOW_MS && (!best || distance < best.distance)) best = {id,distance};
+      }
+      const id = best?.id || crypto.randomUUID();
+      if (!best) {addGroup.run(id,iso(Date.now()));byGroup.set(id,[]);}
+      addMember.run(post.platform,post.url,id);
+      byGroup.get(id).push({...post,locked:false});
+      byPost.add(`${post.platform}\n${post.url}`);
+      added++;
+    }
+    return added;
+  })();
+}
+function listGroups() {
+  const posts = listPosts(2000);
+  const postMap = new Map(posts.map(post => [`${post.platform}\n${post.url}`,post]));
+  const members = db.prepare('SELECT platform,url,group_id,locked FROM content_video_group_members').all();
+  const groups = new Map(db.prepare('SELECT * FROM content_video_groups').all()
+    .map(row => [row.id,{id:row.id,createdAt:row.created_at,analysis:parse(row.analysis),analysisFingerprint:row.analysis_fingerprint,posts:[]}]));
+  for (const member of members) {
+    const post = postMap.get(`${member.platform}\n${member.url}`);
+    if (post && groups.has(member.group_id)) groups.get(member.group_id).posts.push(post);
+  }
+  return [...groups.values()].filter(group => group.posts.length)
+    .map(group => ({...group,posts:group.posts.sort((a,b) => Date.parse(a.publishedAt)-Date.parse(b.publishedAt))}))
+    .sort((a,b) => Date.parse(b.posts.at(-1).publishedAt)-Date.parse(a.posts.at(-1).publishedAt));
+}
+function removeFromGroup(id,platform,url) {
+  if (!/^[0-9a-f-]{36}$/.test(String(id)) || !['youtube','instagram','tiktok'].includes(platform) || typeof url !== 'string') return false;
+  return db.transaction(() => {
+    const member = db.prepare('SELECT group_id FROM content_video_group_members WHERE platform=? AND url=?').get(platform,url);
+    if (member?.group_id !== id) return false;
+    const count = db.prepare('SELECT COUNT(*) AS count FROM content_video_group_members WHERE group_id=?').get(id).count;
+    if (count < 2) return false;
+    const soloId = crypto.randomUUID();
+    db.prepare('INSERT INTO content_video_groups(id,created_at) VALUES(?,?)').run(soloId,iso(Date.now()));
+    db.prepare('UPDATE content_video_group_members SET group_id=?,locked=1 WHERE platform=? AND url=?').run(soloId,platform,url);
+    return true;
+  })();
+}
+function saveGroupAnalysis(id,analysis,hash) {
+  return db.prepare('UPDATE content_video_groups SET analysis=?,analysis_fingerprint=? WHERE id=?')
+    .run(JSON.stringify(analysis),hash,id).changes;
+}
+module.exports={upsertPosts,listPosts,snapshots,saveAnalysis,setAdviceState,jobStatus,claimJob,finishJob,reserveSpend,spendStatus,saveExamples,examples,fingerprint,autoGroup,listGroups,removeFromGroup,saveGroupAnalysis};
