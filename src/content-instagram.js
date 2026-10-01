@@ -42,8 +42,10 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
   async function callback({state, code, sessionCookie}) {
     vault.verify(state, sessionCookie);
     if (!code || String(code).length > 2048) throw Error('Instagram did not return an authorisation code.');
-    const short = await json(TOKEN, {method: 'POST', headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: new URLSearchParams({client_id: clientId, client_secret: clientSecret, grant_type: 'authorization_code', redirect_uri: redirectUri, code})})
+    const form = new FormData();
+    for (const [key, value] of Object.entries({client_id: clientId, client_secret: clientSecret,
+      grant_type: 'authorization_code', redirect_uri: redirectUri, code})) form.set(key, value);
+    const short = await json(TOKEN, {method: 'POST', body: form})
       .catch(error => { throw Error(`Instagram code exchange: ${error.message}`); });
     if (!short.access_token || !short.user_id) throw Error('Instagram did not grant account access.');
     const exchange = new URL(`${GRAPH}/access_token`);
