@@ -69,7 +69,7 @@ test('Instagram OAuth imports Reel insights, leaves duration unknown, and retain
     if (url.pathname === '/access_token') return result({access_token: 'instagram-long-secret', expires_in: 5000000});
     if (url.pathname.endsWith('/me')) return result({id: 'ig-1', username: 'KingGumption', account_type: 'CREATOR'});
     if (url.pathname.endsWith('/me/media')) return result({data: [
-      {id: 'media-1', media_type: 'VIDEO', media_product_type: 'REELS', permalink: 'https://www.instagram.com/reel/Reel123/', timestamp: '2026-09-23T12:00:00Z', caption: 'My Reel #gaming', thumbnail_url:'https://scontent.cdninstagram.com/cover.jpg', like_count: 80, comments_count: 5},
+      {id: 'media-1', media_type: 'VIDEO', media_product_type: 'REELS', permalink: 'https://www.instagram.com/reel/Reel123/', timestamp: '2026-09-23T12:00:00+0000', caption: 'My Reel #gaming', thumbnail_url:'https://scontent.cdninstagram.com/cover.jpg', like_count: 80, comments_count: 5},
       {id: 'photo-1', media_type: 'IMAGE', media_product_type: 'FEED', permalink: 'https://www.instagram.com/p/Photo123/', timestamp: '2026-09-23T12:00:00Z'},
     ]});
     if (url.pathname.endsWith('/media-1/insights')) {
@@ -88,7 +88,9 @@ test('Instagram OAuth imports Reel insights, leaves duration unknown, and retain
   const synced = await connector.sync();
   assert.equal(synced.posts, 1);
   assert.equal(synced.observations, 1);
+  assert.deepEqual(synced.skipped, []);
   const original = store.read().records.find(row => row.platform === 'instagram');
+  assert.equal(original.publishedAt, '2026-09-23T12:00:00.000Z');
   assert.equal(original.window, 'lifetime');
   assert.equal(original.durationSeconds, null);
   assert.equal(original.averageViewSeconds, 12.75);
