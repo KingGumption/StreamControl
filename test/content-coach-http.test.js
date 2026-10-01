@@ -25,7 +25,11 @@ test('Content Coach is owner-only, same-origin, private, and supports persistenc
  const save=await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)});assert.equal(save.status,200);const result=await save.json();assert.equal(result.records[0].views,100);assert.equal(result.revision,1);
  assert.equal((await fetch(base+paths[1],{method:'POST',headers,body:JSON.stringify(payload)})).status,409);
  const tikTokStatus=await fetch(base+'/admin/content-coach/tiktok/status',{headers});assert.equal(tikTokStatus.status,200);assert.equal((await tikTokStatus.json()).configured,false);
- const analysis=await fetch(base+'/admin/content-coach/analysis',{headers});assert.equal(analysis.status,200);assert.deepEqual((await analysis.json()).posts,[]);
+ const analysis=await fetch(base+'/admin/content-coach/analysis',{headers});assert.equal(analysis.status,200);const analysisData=await analysis.json();assert.deepEqual(analysisData.posts,[]);assert.deepEqual(analysisData.groups,[]);
+ const groupPath='/admin/content-coach/analysis/group/00000000-0000-0000-0000-000000000000';
+ assert.equal((await fetch(base+groupPath,{method:'POST',headers:{...headers,Cookie:mod},body:'{}'})).status,403);
+ assert.equal((await fetch(base+groupPath+'/remove',{method:'POST',headers:{...headers,Cookie:mod},body:'{}'})).status,403);
+ assert.equal((await fetch(base+groupPath,{method:'POST',headers,body:'{}'})).status,400);
  assert.equal((await fetch(base+'/admin/content-coach/analysis/state',{method:'POST',headers:{...headers,Cookie:mod},body:JSON.stringify({platform:'youtube',url:'https://www.youtube.com/watch?v=abcdefghi00',state:'tried'})})).status,403);
  assert.equal((await fetch(base+'/admin/content-coach/tiktok/status',{headers:{Cookie:mod}})).status,403);
  assert.equal((await fetch(base+'/admin/content-coach/tiktok/connect',{headers})).status,400);

@@ -136,6 +136,16 @@ router.post('/content-coach/analysis/run', async (req,res) => {
   try {res.json({ok:true,...await contentAutomation.run()});}
   catch(error){res.status(503).json({ok:false,error:error.message});}
 });
+router.post('/content-coach/analysis/group/:id', async (req,res) => {
+  try {res.json({ok:true,...await contentAutomation.analyzeGroup(req.params.id)});}
+  catch(error){res.status(400).json({ok:false,error:error.message});}
+});
+router.post('/content-coach/analysis/group/:id/remove', (req,res) => {
+  const {platform,url}=req.body || {};
+  if(!contentAutomation.removeFromGroup(req.params.id,platform,url))
+    return res.status(400).json({ok:false,error:'This post is not in the selected group.'});
+  res.json({ok:true});
+});
 router.post('/content-coach/analysis/state', (req,res) => {
   try {
     const {platform,url,state}=req.body || {};
