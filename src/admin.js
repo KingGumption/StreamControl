@@ -126,10 +126,24 @@ const contentCoach = require('./content-coach-store');
 const tikTokContent = require('./content-tiktok').createTikTokConnection();
 const youTubeContent = require('./content-youtube').createYouTubeConnection();
 const instagramContent = require('./content-instagram').createInstagramConnection();
+const contentAutomation = require('./content-automation').createAutomation({connections:{youtube:youTubeContent,instagram:instagramContent,tiktok:tikTokContent}});
 const {sessionTokenFromCookieHeader}=require('./admin-auth');
 router.use('/content-coach', (req,res,next) => {res.setHeader('Cache-Control','no-store');next();});
 router.get('/content-coach', (req,res) => res.sendFile(path.join(__dirname,'..','public','admin-content-coach.html')));
 router.get('/content-coach/data', (req,res) => res.json({ok:true,...contentCoach.report()}));
+router.get('/content-coach/analysis', (req,res) => res.json({ok:true,...contentAutomation.report()}));
+router.post('/content-coach/analysis/run', async (req,res) => {
+  try {res.json({ok:true,...await contentAutomation.run()});}
+  catch(error){res.status(503).json({ok:false,error:error.message});}
+});
+router.post('/content-coach/analysis/state', (req,res) => {
+  try {
+    const {platform,url,state}=req.body || {};
+    if(!['youtube','instagram','tiktok'].includes(platform)||typeof url!=='string'||url.length>1500||!contentAutomation.setAdviceState(platform,url,state))
+      return res.status(400).json({ok:false,error:'Analysis not found or state invalid.'});
+    res.json({ok:true});
+  }catch(error){res.status(400).json({ok:false,error:error.message});}
+});
 router.get('/content-coach/tiktok/status', (req,res) => res.json({ok:true,...tikTokContent.status()}));
 router.get('/content-coach/tiktok/connect', (req,res) => {
   try {res.redirect(tikTokContent.begin(sessionTokenFromCookieHeader(req.get('cookie'))));}
@@ -633,4 +647,5 @@ module.exports = {
   app,
   startAdminServer,
   ROLE_OPTIONS,
+  contentAutomation,
 };

@@ -11,7 +11,7 @@ const save=db.transaction(input=>{
   const rows=input.rows.map((row,i)=>{try{return coach.normalize(row);}catch(e){throw Error(`Row ${i+1}: ${e.message}`);}}),map=new Map(next.records.map(r=>[r.id,r]));
   if(new Set(rows.map(r=>r.id)).size!==rows.length)throw Error('Duplicate post/window in this import.');
   for(const row of rows){const previous=map.get(row.id);if(previous&&Date.parse(previous.observedAt)>Date.parse(row.observedAt))throw Error('An observation is older than the saved version.');map.set(row.id,row);}
-  next.records=[...map.values()];if(next.records.length>2000)throw Error('Observation limit reached (2,000). Export and remove older records first.');
+  next.records=[...map.values()];if(next.records.length>12000)throw Error('Observation limit reached (12,000). Export and remove older records first.');
   // Publication metadata must agree across a post’s observation windows.
   const posts=new Map();for(const r of next.records){const key=r.platform+r.url,signature=JSON.stringify([r.format,r.publishedAt,r.durationSeconds,r.group,r.traffic]);if(posts.has(key)&&posts.get(key)!==signature)throw Error('Format, publication time, duration, content group and traffic must agree across all windows of a post.');posts.set(key,signature);}
  }else if(input.type==='research'){
@@ -29,7 +29,7 @@ const save=db.transaction(input=>{
   if(input.collection==='records'&&next.experiments.some(e=>[...e.baseline,...e.trial].includes(input.id)))throw Error('Remove experiments using this observation first.');
   next[input.collection]=next[input.collection].filter(r=>r.id!==input.id);
  }else throw Error('Unknown Content Coach action.');
- if(Buffer.byteLength(JSON.stringify(next))>5*1024*1024)throw Error('Content storage limit reached.');
+ if(Buffer.byteLength(JSON.stringify(next))>35*1024*1024)throw Error('Content storage limit reached.');
  next.revision++;setConfigValue(KEY,next);return next;
 });
 function report(){const state=read(),records=require('./content-coach').analyze(state.records);return {...state,records,experiments:coach.experiments(state.experiments,records)};}

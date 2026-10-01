@@ -1,4 +1,6 @@
 const {createVault, requestJson, saveObservations} = require('./content-social-common');
+const automationStore = require('./content-automation-store');
+const {getConfigValue,setConfigValue} = require('./db');
 
 const AUTH = 'https://www.instagram.com/oauth/authorize';
 const TOKEN = 'https://api.instagram.com/oauth/access_token';
@@ -71,18 +73,19 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
   }
   async function media(account) {
     const url = new URL(`${GRAPH}/${version}/me/media`);
-    url.search = new URLSearchParams({fields: 'id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count', limit: '50'}).toString();
+    url.search = new URLSearchParams({fields: 'id,caption,media_type,media_product_type,permalink,timestamp,like_count,comments_count,thumbnail_url', limit: '50'}).toString();
     const result = [];
     let next = url.toString();
-    for (let page = 0; page < 2 && next && result.length < 100; page++) {
+    for (let page = 0; page < 40 && next && result.length < 2000; page++) {
       const pageUrl = new URL(next);
       if (pageUrl.protocol !== 'https:' || pageUrl.hostname !== 'graph.instagram.com') throw Error('Instagram returned an unsafe pagination URL.');
       const data = await json(pageUrl, {headers: bearer(account.accessToken)});
       if (!Array.isArray(data.data)) throw Error('Instagram did not return a media list.');
       result.push(...data.data);
+      if (data.data.some(item=>Date.parse(item.timestamp)<now()-366*86400000)) break;
       next = data.paging?.next || '';
     }
-    return result.filter(item => item.media_type === 'VIDEO' || item.media_product_type === 'REELS');
+    return result.filter(item => (item.media_type === 'VIDEO' || item.media_product_type === 'REELS') && Date.parse(item.timestamp)>=now()-366*86400000);
   }
   async function insights(account, id, isReel) {
     const values = {}, unavailable = [];
@@ -101,7 +104,11 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
   async function sync() {
     const account = await access();
     const observedAt = new Date(now()).toISOString();
-    const items = await media(account);
+    const allItems = await media(account);
+    const recent=allItems.slice(0,20),older=allItems.slice(20);
+    const offset=Number(getConfigValue('content_instagram_backfill_offset_v1',0))||0;
+    const items=[...recent,...older.slice(offset,offset+30)];
+    setConfigValue('content_instagram_backfill_offset_v1',older.length&&offset+30<older.length?offset+30:0);
     const posts = [], warnings = [];
     for (const item of items) {
       let result = {values: {}, unavailable: []};
@@ -110,6 +117,8 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
       if (result.unavailable.length) warnings.push(`${result.unavailable.length} metrics unavailable for ${String(item.id).slice(0, 30)}`);
       const metrics = result.values;
       posts.push({id: item.id, url: item.permalink, title: item.caption || 'Instagram video',
+        description: item.caption || '', hashtags: (item.caption || '').match(/#[\p{L}\p{N}_]+/gu) || [],
+        category: null, coverUrl: item.thumbnail_url || null,
         publishedAt: item.timestamp, format: item.media_product_type === 'REELS' ? 'short' : 'long',
         durationSeconds: null,
         metrics: {views: metrics.views ?? null, reach: metrics.reach ?? null,
@@ -118,6 +127,7 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
           averageViewSeconds: metrics.ig_reels_avg_watch_time == null ? null : metrics.ig_reels_avg_watch_time / 1000}});
     }
     const saved = saveObservations('instagram', posts, observedAt, 'Instagram Graph API · media insights', now());
+    automationStore.upsertPosts('instagram', posts, observedAt);
     vault.save({...account, lastSyncAt: observedAt});
     return {...saved, warning: warnings.length ? 'Some Instagram insights were unavailable; affected metrics remain blank.' : null};
   }

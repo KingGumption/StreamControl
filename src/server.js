@@ -1,4 +1,4 @@
-const { startAdminServer } = require('./admin');
+const { startAdminServer, contentAutomation } = require('./admin');
 const { appConfig, requireDeploymentConfig } = require('./app-config');
 const { integrationRuntime } = require('./integration-runtime');
 const { spotifyAuth } = require('./spotify-auth');
@@ -12,8 +12,10 @@ if (appConfig.mode === 'cloud') bridgeHub.attach(httpServer);
 polaroidRuntime.start({ streamerBot: integrationRuntime.streamerBot, port: appConfig.port });
 integrationRuntime.start();
 spotifyAuth.initialize();
+if (appConfig.mode === 'cloud') contentAutomation.start();
 
 async function shutdown() {
+  contentAutomation.stop();
   integrationRuntime.stop();
   await polaroidRuntime.stop();
   bridgeHub.close();
