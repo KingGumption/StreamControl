@@ -64,7 +64,7 @@ test('Instagram OAuth imports Reel insights, leaves duration unknown, and retain
       assert.equal(options.body.get('redirect_uri'), 'https://example.test/admin/content-coach/instagram/callback');
       assert.equal(options.body.get('code'), 'code');
       assert.equal(options.headers, undefined);
-      return result({access_token: 'instagram-short-secret', user_id: 'ig-1'});
+      return result({data: [{access_token: 'instagram-short-secret', user_id: 'ig-1'}]});
     }
     if (url.pathname === '/access_token') return result({access_token: 'instagram-long-secret', expires_in: 5000000});
     if (url.pathname.endsWith('/me')) return result({id: 'ig-1', username: 'KingGumption', account_type: 'CREATOR'});
@@ -116,4 +116,24 @@ test('Instagram code exchange reports Meta flat errors with the failing stage', 
     /Instagram code exchange: Instagram request failed: Invalid client secret/
   );
   assert.equal(connector.status().connected, false);
+});
+
+test('Instagram developer token is accepted only for KingGumption', async () => {
+  let username = 'SomeoneElse';
+  const fetchImpl = async (input, options = {}) => {
+    assert.equal(new URL(input).pathname, '/v25.0/me');
+    assert.equal(options.headers.Authorization, 'Bearer developer-token');
+    return result({id: 'ig-1', username, account_type: 'CREATOR'});
+  };
+  const connector = createInstagramConnection({environment: {...base, INSTAGRAM_APP_ID: 'ig-client',
+    INSTAGRAM_APP_SECRET: 'ig-secret', INSTAGRAM_BOOTSTRAP_TOKEN: 'developer-token'}, fetchImpl, now: () => now});
+  assert.equal(connector.status().bootstrapAvailable, true);
+  await assert.rejects(connector.bootstrap(), /not for the KingGumption Instagram account/);
+  assert.equal(connector.status().connected, false);
+  username = 'KingGumption';
+  await connector.bootstrap();
+  assert.equal(connector.status().connected, true);
+  assert.equal(connector.status().bootstrapAvailable, false);
+  assert.ok(!getConfigValue('content_instagram_auth_v1').includes('developer-token'));
+  await connector.disconnect();
 });
