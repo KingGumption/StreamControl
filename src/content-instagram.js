@@ -36,7 +36,7 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
     if (!configured) throw Error('Configure INSTAGRAM_APP_ID and INSTAGRAM_APP_SECRET in Render first.');
     const url = new URL(AUTH);
     url.search = new URLSearchParams({client_id: clientId, redirect_uri: redirectUri, scope: SCOPES,
-      response_type: 'code', enable_fb_login: '0', state: vault.state(sessionCookie)}).toString();
+      response_type: 'code', enable_fb_login: '0', force_reauth: 'true', state: vault.state(sessionCookie)}).toString();
     return url.toString();
   }
   async function callback({state, code, sessionCookie}) {

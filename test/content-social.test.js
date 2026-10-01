@@ -81,6 +81,7 @@ test('Instagram OAuth imports Reel insights, leaves duration unknown, and retain
   const connector = createInstagramConnection({environment: {...base, INSTAGRAM_APP_ID: 'ig-client', INSTAGRAM_APP_SECRET: 'ig-secret'}, fetchImpl, now: () => now});
   const auth = new URL(connector.begin('owner-session'));
   assert.equal(auth.searchParams.get('scope'), 'instagram_business_basic,instagram_business_manage_insights');
+  assert.equal(auth.searchParams.get('force_reauth'), 'true');
   await connector.callback({state: auth.searchParams.get('state'), code: 'code', sessionCookie: 'owner-session'});
   await assert.rejects(connector.callback({state: auth.searchParams.get('state'), code: 'code', sessionCookie: 'owner-session'}), /expired/);
   assert.ok(!getConfigValue('content_instagram_auth_v1').includes('instagram-long-secret'));
