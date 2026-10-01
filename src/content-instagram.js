@@ -138,7 +138,7 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
       posts.push({id: item.id, url: item.permalink, title: item.caption || 'Instagram video',
         description: item.caption || '', hashtags: (item.caption || '').match(/#[\p{L}\p{N}_]+/gu) || [],
         category: null, coverUrl: item.thumbnail_url || null,
-        publishedAt: item.timestamp, format: item.media_product_type === 'REELS' ? 'short' : 'long',
+        publishedAt: new Date(item.timestamp).toISOString(), format: item.media_product_type === 'REELS' ? 'short' : 'long',
         durationSeconds: null,
         metrics: {views: metrics.views ?? null, reach: metrics.reach ?? null,
           likes: item.like_count ?? null, comments: item.comments_count ?? null,
