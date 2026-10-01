@@ -57,7 +57,7 @@ async function requestJson(fetchImpl, url, options = {}, platform = 'Provider') 
   let data;
   try { data = await response.json(); } catch { throw Error(`${platform} returned an invalid response.`); }
   if (!response.ok || data.error) {
-    const message = data.error?.message || data.error_description || data.error || `HTTP ${response.status}`;
+    const message = data.error?.message || data.error_message || data.error_description || data.error || `HTTP ${response.status}`;
     throw Error(`${platform} request failed: ${String(message).slice(0, 180)}`);
   }
   return data;
