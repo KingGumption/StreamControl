@@ -57,9 +57,15 @@ test('YouTube OAuth imports owned public videos and available analytics only', a
 });
 
 test('Instagram OAuth imports Reel insights, leaves duration unknown, and retains owner edits', async () => {
-  const fetchImpl = async (input) => {
+  const fetchImpl = async (input, options = {}) => {
     const url = new URL(input);
-    if (url.pathname === '/oauth/access_token') return result({access_token: 'instagram-short-secret', user_id: 'ig-1'});
+    if (url.pathname === '/oauth/access_token') {
+      assert.ok(options.body instanceof FormData);
+      assert.equal(options.body.get('redirect_uri'), 'https://example.test/admin/content-coach/instagram/callback');
+      assert.equal(options.body.get('code'), 'code');
+      assert.equal(options.headers, undefined);
+      return result({access_token: 'instagram-short-secret', user_id: 'ig-1'});
+    }
     if (url.pathname === '/access_token') return result({access_token: 'instagram-long-secret', expires_in: 5000000});
     if (url.pathname.endsWith('/me')) return result({id: 'ig-1', username: 'KingGumption', account_type: 'CREATOR'});
     if (url.pathname.endsWith('/me/media')) return result({data: [
