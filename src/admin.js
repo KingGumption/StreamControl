@@ -185,6 +185,15 @@ for (const [platform, connection] of [['youtube', youTubeContent], ['instagram',
     catch(error){res.status(503).json({ok:false,error:error.message});}
   });
 }
+ 
+router.post('/content-coach/instagram/bootstrap', async (req,res) => {
+  try {
+    await instagramContent.bootstrap();
+    const result = await instagramContent.sync();
+    addAuditLog({action:'content-instagram-connected',source:req.identity.id,details:'developer token'});
+    res.json({ok:true,...result});
+  } catch(error){res.status(503).json({ok:false,error:error.message});}
+});
 
 router.get('/content-coach/export', (req,res) => {res.attachment('content-coach-backup.json');res.json(contentCoach.read());});
 router.post('/content-coach/validate', (req,res) => {

@@ -16,6 +16,7 @@ function metricValue(item) {
 function createInstagramConnection({environment = process.env, fetchImpl = globalThis.fetch, now = () => Date.now()} = {}) {
   const clientId = String(environment.INSTAGRAM_APP_ID || '').trim();
   const clientSecret = String(environment.INSTAGRAM_APP_SECRET || '').trim();
+  const bootstrapToken = String(environment.INSTAGRAM_BOOTSTRAP_TOKEN || '').trim();
   const secret = String(environment.SESSION_SECRET || '');
   const baseUrl = String(environment.PUBLIC_BASE_URL || environment.RENDER_EXTERNAL_URL || 'http://127.0.0.1:8787').replace(/\/+$/, '');
   const version = /^v\d+\.\d+$/.test(environment.INSTAGRAM_GRAPH_VERSION || '') ? environment.INSTAGRAM_GRAPH_VERSION : 'v25.0';
@@ -28,7 +29,7 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
   function status() {
     let account = null;
     try { account = vault.read(); } catch { /* A changed session secret requires reconnection. */ }
-    return {configured, connected: Boolean(account?.accessToken),
+    return {configured, connected: Boolean(account?.accessToken), bootstrapAvailable: Boolean(bootstrapToken && !account?.accessToken),
       account: account ? {username: account.username, displayName: `@${account.username}`, lastSyncAt: account.lastSyncAt || null} : null,
       callbackUrl: redirectUri};
   }
@@ -47,19 +48,33 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
       grant_type: 'authorization_code', redirect_uri: redirectUri, code})) form.set(key, value);
     const short = await json(TOKEN, {method: 'POST', body: form})
       .catch(error => { throw Error(`Instagram code exchange: ${error.message}`); });
-    if (!short.access_token || !short.user_id) throw Error('Instagram did not grant account access.');
+    const grant = Array.isArray(short.data) && short.data.length === 1 ? short.data[0] : short;
+    if (!grant.access_token || !grant.user_id) throw Error('Instagram did not grant account access.');
     const exchange = new URL(`${GRAPH}/access_token`);
-    exchange.search = new URLSearchParams({grant_type: 'ig_exchange_token', client_secret: clientSecret, access_token: short.access_token}).toString();
+    exchange.search = new URLSearchParams({grant_type: 'ig_exchange_token', client_secret: clientSecret, access_token: grant.access_token}).toString();
     const long = await json(exchange).catch(error => { throw Error(`Instagram token extension: ${error.message}`); });
     if (!long.access_token || !Number.isFinite(Number(long.expires_in))) throw Error('Instagram did not provide a long-lived token.');
     const profileUrl = new URL(`${GRAPH}/${version}/me`);
     profileUrl.search = new URLSearchParams({fields: 'id,username,account_type'}).toString();
     const profile = await json(profileUrl, {headers: bearer(long.access_token)})
       .catch(error => { throw Error(`Instagram profile verification: ${error.message}`); });
-    if (String(profile.id) !== String(short.user_id) || !profile.username) throw Error('Could not verify the authorised Instagram account.');
+    if (String(profile.id) !== String(grant.user_id) || !profile.username) throw Error('Could not verify the authorised Instagram account.');
     if (profile.username.toLowerCase() !== 'kinggumption') throw Error('Please connect the KingGumption Instagram account.');
     vault.save({userId: profile.id, username: profile.username, accountType: profile.account_type,
       accessToken: long.access_token, expiresAt: now() + Number(long.expires_in) * 1000, lastSyncAt: null});
+    return status();
+  }
+  async function bootstrap() {
+    if (!bootstrapToken) throw Error('Configure INSTAGRAM_BOOTSTRAP_TOKEN in Render first.');
+    const profileUrl = new URL(`${GRAPH}/${version}/me`);
+    profileUrl.search = new URLSearchParams({fields: 'id,username,account_type'}).toString();
+    const profile = await json(profileUrl, {headers: bearer(bootstrapToken)})
+      .catch(error => { throw Error(`Instagram token verification: ${error.message}`); });
+    if (!profile.id || String(profile.username || '').toLowerCase() !== 'kinggumption')
+      throw Error('The supplied token is not for the KingGumption Instagram account.');
+    // Refresh the dashboard-generated token well before its expected 60-day limit.
+    vault.save({userId: profile.id, username: profile.username, accountType: profile.account_type,
+      accessToken: bootstrapToken, expiresAt: now() + 30 * 86400000, lastSyncAt: null});
     return status();
   }
   async function access() {
@@ -136,7 +151,7 @@ function createInstagramConnection({environment = process.env, fetchImpl = globa
     return {...saved, warning: warnings.length ? 'Some Instagram insights were unavailable; affected metrics remain blank.' : null};
   }
   async function disconnect() { vault.clear(); }
-  return {status, begin, callback, sync, disconnect, redirectUri};
+  return {status, begin, callback, bootstrap, sync, disconnect, redirectUri};
 }
 
 module.exports = {createInstagramConnection, metricValue};
