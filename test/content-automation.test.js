@@ -57,6 +57,7 @@ test('covers only use known public HTTPS hosts and AI receives missing values as
   const report=await askOpenAI(item,{sample:0,median:null},{fetchImpl,environment:{OPENAI_API_KEY:'test-key'}});
   assert.equal(report.actions[0].field,'title');
   assert.equal(sent.store,false);
+  assert.equal(sent.max_output_tokens,1600);
   assert.equal(JSON.parse(sent.input[0].content[0].text.split('\n').at(-1)).metrics.shares,null);
 });
 test('daily run isolates a failed provider and syncs metrics without an AI key',async()=>{
