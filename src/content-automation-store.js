@@ -34,6 +34,17 @@ db.exec(`
     locked INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(platform,url)
   );
   CREATE INDEX IF NOT EXISTS content_video_group_members_group ON content_video_group_members(group_id);
+  CREATE TABLE IF NOT EXISTS content_advice_trials (
+    id TEXT PRIMARY KEY, source_group_id TEXT NOT NULL, action_index INTEGER NOT NULL,
+    analysis_fingerprint TEXT NOT NULL, field TEXT NOT NULL, change_text TEXT NOT NULL,
+    reason TEXT NOT NULL, target_group_id TEXT, state TEXT NOT NULL DEFAULT 'planned',
+    created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+    UNIQUE(source_group_id,action_index,analysis_fingerprint)
+  );
+  CREATE INDEX IF NOT EXISTS content_advice_trials_target ON content_advice_trials(target_group_id);
+  CREATE TABLE IF NOT EXISTS content_group_research (
+    group_id TEXT PRIMARY KEY, examples TEXT NOT NULL, checked_at TEXT NOT NULL
+  );
 `);
 
 const parse = value => value ? JSON.parse(value) : null;
@@ -202,4 +213,39 @@ function saveGroupAnalysis(id,analysis,hash) {
   return db.prepare('UPDATE content_video_groups SET analysis=?,analysis_fingerprint=? WHERE id=?')
     .run(JSON.stringify(analysis),hash,id).changes;
 }
-module.exports={upsertPosts,listPosts,snapshots,saveAnalysis,setAdviceState,jobStatus,claimJob,finishJob,reserveSpend,spendStatus,saveExamples,examples,fingerprint,autoGroup,listGroups,removeFromGroup,saveGroupAnalysis};
+function listTrials() {
+  return db.prepare('SELECT * FROM content_advice_trials ORDER BY created_at DESC').all().map(row=>({
+    id:row.id,sourceGroupId:row.source_group_id,actionIndex:row.action_index,
+    analysisFingerprint:row.analysis_fingerprint,field:row.field,change:row.change_text,
+    reason:row.reason,targetGroupId:row.target_group_id,state:row.state,
+    createdAt:row.created_at,updatedAt:row.updated_at,
+  }));
+}
+function createTrial(group,index,now) {
+  const action=group.analysis?.actions?.[index];
+  if(!action || !group.analysisFingerprint) throw Error('Analyze this group before tracking a suggestion.');
+  const id=crypto.randomUUID(),at=iso(now);
+  db.prepare(`INSERT OR IGNORE INTO content_advice_trials
+    (id,source_group_id,action_index,analysis_fingerprint,field,change_text,reason,created_at,updated_at)
+    VALUES(?,?,?,?,?,?,?,?,?)`).run(id,group.id,index,group.analysisFingerprint,action.field,action.change,action.reason,at,at);
+  return listTrials().find(row=>row.sourceGroupId===group.id&&row.actionIndex===index&&row.analysisFingerprint===group.analysisFingerprint);
+}
+function updateTrial(id,{targetGroupId,state},now) {
+  if(!/^[0-9a-f-]{36}$/.test(String(id)) || !['planned','applied','dismissed'].includes(state)) throw Error('Invalid test update.');
+  if(state==='applied'&&!targetGroupId) throw Error('Choose the video where you applied the suggestion.');
+  if(targetGroupId!=null&&!/^[0-9a-f-]{36}$/.test(String(targetGroupId))) throw Error('Choose a valid video group.');
+  const result=db.prepare('UPDATE content_advice_trials SET target_group_id=?,state=?,updated_at=? WHERE id=?')
+    .run(targetGroupId||null,state,iso(now),id);
+  if(!result.changes) throw Error('Tracked suggestion not found.');
+  return listTrials().find(row=>row.id===id);
+}
+function saveGroupResearch(id,items,now) {
+  db.prepare(`INSERT INTO content_group_research(group_id,examples,checked_at) VALUES(?,?,?)
+    ON CONFLICT(group_id) DO UPDATE SET examples=excluded.examples,checked_at=excluded.checked_at`)
+    .run(id,JSON.stringify(items),iso(now));
+}
+function groupResearch(id) {
+  const row=db.prepare('SELECT examples,checked_at FROM content_group_research WHERE group_id=?').get(id);
+  return row?{examples:parse(row.examples),checkedAt:row.checked_at}:null;
+}
+module.exports={upsertPosts,listPosts,snapshots,saveAnalysis,setAdviceState,jobStatus,claimJob,finishJob,reserveSpend,spendStatus,saveExamples,examples,fingerprint,autoGroup,listGroups,removeFromGroup,saveGroupAnalysis,listTrials,createTrial,updateTrial,saveGroupResearch,groupResearch};

@@ -29,6 +29,10 @@ test('Content Coach is owner-only, same-origin, private, and supports persistenc
  const groupPath='/admin/content-coach/analysis/group/00000000-0000-0000-0000-000000000000';
  assert.equal((await fetch(base+groupPath,{method:'POST',headers:{...headers,Cookie:mod},body:'{}'})).status,403);
  assert.equal((await fetch(base+groupPath+'/remove',{method:'POST',headers:{...headers,Cookie:mod},body:'{}'})).status,403);
+ for(const route of [groupPath+'/track',groupPath+'/research','/admin/content-coach/analysis/trial/00000000-0000-0000-0000-000000000000']){
+  assert.equal((await fetch(base+route,{method:'POST',headers:{...headers,Cookie:mod},body:'{}'})).status,403);
+  assert.equal((await fetch(base+route,{method:'POST',headers:{...headers,Origin:'https://evil.test'},body:'{}'})).status,403);
+ }
  assert.equal((await fetch(base+groupPath,{method:'POST',headers,body:'{}'})).status,400);
  assert.equal((await fetch(base+'/admin/content-coach/analysis/state',{method:'POST',headers:{...headers,Cookie:mod},body:JSON.stringify({platform:'youtube',url:'https://www.youtube.com/watch?v=abcdefghi00',state:'tried'})})).status,403);
  assert.equal((await fetch(base+'/admin/content-coach/tiktok/status',{headers:{Cookie:mod}})).status,403);
