@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'content-automation-'));
 const store=require('../src/content-automation-store');
-const {comparable,allowedCover,askOpenAI,createAutomation}=require('../src/content-automation');
+const {comparable,allowedCover,askOpenAI,createAutomation,validateVideoEvidence}=require('../src/content-automation');
 
 const now=Date.parse('2026-10-01T12:00:00Z');
 function post(i,views=100,publishedAt='2026-09-20T12:00:00Z'){
@@ -127,4 +127,49 @@ test('group analysis is manual, cached, and subject to the monthly allowance',as
   const limited=createAutomation({connections,fetchImpl,environment:{OPENAI_API_KEY:'configured',CONTENT_COACH_AI_BUDGET_GBP:'0.05'},now:()=>now});
   await assert.rejects(limited.analyzeGroup(store.listGroups().find(item=>item.posts.some(post=>post.metadata.title==='Reel version')).id),/allowance is exhausted/);
   assert.equal(requests,1);
+});
+
+test('optional original frames are bounded, manually analyzed, and never persisted',async()=>{
+  const group=store.listGroups().find(item=>item.posts.some(item=>item.metadata.title==='TikTok version'));
+  const frame='data:image/jpeg;base64,'+Buffer.from('sample frame').toString('base64');
+  assert.throws(()=>validateVideoEvidence({durationSeconds:10,transcript:'',frames:[{second:1,image:'https://evil.test/frame.jpg'}]}),/Invalid video frame/);
+  const evidence={durationSeconds:10,transcript:'hello',frames:[{second:1,image:frame}]};
+  let sent;
+  const fetchImpl=async(_url,options)=>{sent=JSON.parse(options.body);return {ok:true,json:async()=>({output:[{content:[{type:'output_text',text:JSON.stringify({summary:'The visible hook is clear',measuredFacts:[],hypotheses:[],actions:[{field:'hook',change:'Test a faster opening',reason:'Hypothesis'}]})}]}]})};};
+  const automation=createAutomation({connections:{youtube:{status:()=>({connected:false})}},fetchImpl,environment:{OPENAI_API_KEY:'key'},now:()=>now});
+  const result=await automation.analyzeGroup(group.id,evidence);
+  assert.equal(result.analysis.visualSamples,1);
+  assert.equal(sent.input[0].content.some(item=>item.type==='input_image'&&item.image_url===frame),true);
+  const stored=store.listGroups().find(item=>item.id===group.id).analysis;
+  assert.equal(JSON.stringify(stored).includes(frame),false);
+  assert.equal(automation.report().groups.find(item=>item.id===group.id).stale,false);
+});
+
+test('tracked advice can be applied only to a later same-format group and reports measured outcomes',()=>{
+  const source=store.listGroups().find(item=>item.posts.some(item=>item.metadata.title==='TikTok version'));
+  const target=store.listGroups().find(item=>item.posts.some(item=>item.metadata.title==='Post 78'));
+  const automation=createAutomation({connections:{youtube:{status:()=>({connected:false})}},environment:{},now:()=>now});
+  const trial=automation.trackSuggestion(source.id,0);
+  assert.equal(trial.state,'planned');
+  assert.throws(()=>automation.updateTrial(trial.id,{targetGroupId:source.id,state:'applied'}),/later video/);
+  const updated=automation.updateTrial(trial.id,{targetGroupId:target.id,state:'applied'});
+  assert.equal(updated.state,'applied');
+  const report=automation.report().trials.find(item=>item.id===trial.id);
+  assert.equal(report.targetGroupId,target.id);
+  assert.equal(report.outcomes.length,1);
+  assert.equal(report.outcomes[0].platform,'youtube');
+});
+
+test('public research is source-linked, cached, and separate from AI analysis',async()=>{
+  const item=post(8765,500,'2026-09-27T12:00:00Z');
+  store.upsertPosts('youtube',[item],'2026-09-28T12:00:00Z');store.autoGroup();
+  const group=store.listGroups().find(group=>group.posts.some(entry=>entry.url===item.url));
+  let searches=0;
+  const automation=createAutomation({connections:{youtube:{status:()=>({connected:true}),publicExamples:async()=>{searches++;return [{id:'reference1',url:'https://www.youtube.com/watch?v=reference1',title:'Reference',creator:'Creator',publishedAt:'2026-09-20T00:00:00Z',publicViews:5000}];}}},
+    fetchImpl:async()=>{throw Error('Research must not spend AI credits.');},environment:{},now:()=>now});
+  const first=await automation.researchGroup(group.id);
+  assert.equal(first.examples[0].publicViews,5000);
+  assert.equal((await automation.researchGroup(group.id)).cached,true);
+  assert.equal(searches,1);
+  assert.equal(automation.report().groups.find(item=>item.id===group.id).research.examples[0].url,first.examples[0].url);
 });

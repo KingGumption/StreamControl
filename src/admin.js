@@ -55,6 +55,7 @@ const ROLE_OPTIONS = {
   tiktok: ['broadcaster', 'moderator', 'subscriber', 'fan-club', 'follower', 'everyone'],
 };
 
+app.use(/^\/admin\/content-coach\/analysis\/group\/[^/]+$/,express.json({limit:'1mb'}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
@@ -137,7 +138,7 @@ router.post('/content-coach/analysis/run', async (req,res) => {
   catch(error){res.status(503).json({ok:false,error:error.message});}
 });
 router.post('/content-coach/analysis/group/:id', async (req,res) => {
-  try {res.json({ok:true,...await contentAutomation.analyzeGroup(req.params.id)});}
+  try {res.json({ok:true,...await contentAutomation.analyzeGroup(req.params.id,req.body?.videoEvidence)});}
   catch(error){res.status(400).json({ok:false,error:error.message});}
 });
 router.post('/content-coach/analysis/group/:id/remove', (req,res) => {
@@ -145,6 +146,18 @@ router.post('/content-coach/analysis/group/:id/remove', (req,res) => {
   if(!contentAutomation.removeFromGroup(req.params.id,platform,url))
     return res.status(400).json({ok:false,error:'This post is not in the selected group.'});
   res.json({ok:true});
+});
+router.post('/content-coach/analysis/group/:id/track', (req,res) => {
+  try {res.json({ok:true,trial:contentAutomation.trackSuggestion(req.params.id,req.body?.actionIndex)});}
+  catch(error){res.status(400).json({ok:false,error:error.message});}
+});
+router.post('/content-coach/analysis/trial/:id', (req,res) => {
+  try {res.json({ok:true,trial:contentAutomation.updateTrial(req.params.id,req.body||{})});}
+  catch(error){res.status(400).json({ok:false,error:error.message});}
+});
+router.post('/content-coach/analysis/group/:id/research', async (req,res) => {
+  try {res.json({ok:true,...await contentAutomation.researchGroup(req.params.id)});}
+  catch(error){res.status(400).json({ok:false,error:error.message});}
 });
 router.post('/content-coach/analysis/state', (req,res) => {
   try {
