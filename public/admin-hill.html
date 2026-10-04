@@ -131,7 +131,7 @@
             </div>
             <div class="message" id="message" role="status" aria-live="polite"></div>
           </div>
-          <iframe class="preview" title="King of the Hill overlay preview" src="/king-of-the-hill"></iframe>
+          <iframe class="preview" title="King of the Hill overlay preview" src="/games"></iframe>
         </div>
       </section>
 
@@ -182,7 +182,7 @@
     </div>
 
     <script>
-      const overlayUrl = `${window.location.origin}/king-of-the-hill`;
+      const overlayUrl = `${window.location.origin}/games`;
       const state = { game: { running: false, phase: 'idle' } };
       let timingsLoaded = false;
       document.getElementById('overlayUrl').value = overlayUrl;
@@ -253,7 +253,7 @@
       document.getElementById('startGame').addEventListener('click', () => action('start'));
       document.getElementById('nextGame').addEventListener('click', () => action('next'));
       document.getElementById('stopGame').addEventListener('click', () => action('stop'));
-      document.getElementById('openOverlay').addEventListener('click', () => window.open('/king-of-the-hill', '_blank', 'noopener'));
+      document.getElementById('openOverlay').addEventListener('click', () => window.open('/games', '_blank', 'noopener'));
       document.getElementById('copyUrl').addEventListener('click', async () => {
         const message = document.getElementById('message');
         try {

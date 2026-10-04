@@ -9,7 +9,9 @@ class GameLauncher {
  constructor({quiz=quizGame,hill=hillGame,arcade=arcadeGames,permission=()=>access.handoff().enabled,load=()=>getConfigValue('game_presets',{}),save=v=>setConfigValue('game_presets',v),audit=addAuditLog}={}){Object.assign(this,{quiz,hill,arcade,permission,load,save,audit});}
  catalog(){return [{id:'quiz',name:'Elimination Quiz'},{id:'hill',name:'King of the Hill'},...CATALOG];}
  canonical(id){id=String(id||'').trim().toLowerCase();return ALIASES[id]||id;}
- active(){if(['lobby','question','reveal'].includes(this.quiz.phase))return 'quiz';if(this.hill.running)return 'hill';if(['question','reveal'].includes(this.arcade.phase))return this.arcade.id;return null;}
+ active(){if(['lobby','question','reveal','completed'].includes(this.quiz.phase))return 'quiz';if(this.hill.running)return 'hill';if(['question','reveal','completed'].includes(this.arcade.phase))return this.arcade.id;return null;}
+ overlayState(){return {active:this.active()};}
+ subscribeOverlay(fn){const notify=()=>fn(this.overlayState());const off=[this.quiz,this.hill,this.arcade].map(game=>game.subscribe(notify));return ()=>off.forEach(unsubscribe=>unsubscribe());}
  allowed(actor){return actor?.role==='owner'||actor?.role==='device'||(actor?.role==='games'&&this.permission());}
  preset(id){return this.load()[id]||{};}
  savePreset(id,values){id=this.canonical(id);if(!this.catalog().some(g=>g.id===id))throw Error('Unknown game.');const next={};
@@ -21,7 +23,7 @@ class GameLauncher {
  }
  action(action,id,actor){
   if(!this.allowed(actor))throw Error('Moderator game controls are disabled.');
-  id=this.canonical(id);if(!this.catalog().some(g=>g.id===id))throw Error('Unknown game. Type !games for the list.');
+  id=this.canonical(id)||(action==='stop'?this.active():null);if(!this.catalog().some(g=>g.id===id))throw Error(action==='stop'&&!id?'No game is active.':'Unknown game. Type !games for the list.');
   const active=this.active();if(action==='launch'&&active)throw Error(`${active} is already running. Stop it first.`);
   const game=id==='quiz'?this.quiz:id==='hill'?this.hill:this.arcade;
   if(action!=='launch'&&active!==id)throw Error('That game is not active.');
@@ -33,10 +35,11 @@ class GameLauncher {
   this.audit({action:'game-control',source:actor.id||actor.role,details:JSON.stringify({action,game:id})});return this.state();
  }
  state(){return {active:this.active(),catalog:this.catalog(),quiz:this.quiz.getState(),hill:this.hill.getState(),arcade:this.arcade.getState(),presets:this.load(),hillCategories:[...new Set(this.hill.topics.map(t=>t.category||'general'))]};}
- chat(event){const m=String(event.text||'').trim().match(/^!(launch|start|stop|games)(?:\s+([\w-]+))?\s*$/i);if(!m)return null;
-  if(m[1].toLowerCase()==='games')return 'Games: '+this.catalog().map(g=>g.id).join(', ')+'. Mods: !launch gamename; !start quiz; !stop gamename.';
+ chat(event){const m=String(event.text||'').trim().match(/^!(launch|start|next|stop|games)(?:\s+([\w-]+))?\s*$/i);if(!m)return null;
+  if(m[1].toLowerCase()==='games')return 'Games: '+this.catalog().map(g=>g.id).join(', ')+'. Mods: !launch gamename; !start quiz; !next gamename; !stop.';
   const roles=event.user?.roles||[];const actor={id:event.platform+':'+event.user?.id,role:roles.includes('broadcaster')?'owner':roles.includes('moderator')?'games':'viewer'};
-  try{this.action(m[1].toLowerCase(),m[2],actor);return m[1].toLowerCase()==='launch'&&this.canonical(m[2])==='quiz'?`Quiz joining is open! Type !join. Starts in ${this.quiz.lobbySeconds} seconds.`:`${this.canonical(m[2])}: ${m[1].toLowerCase()} accepted.`;}catch(e){return e.message;}
+  const id=m[2]||(m[1].toLowerCase()==='stop'?this.active():undefined);
+  try{this.action(m[1].toLowerCase(),id,actor);return m[1].toLowerCase()==='launch'&&this.canonical(m[2])==='quiz'?`Quiz joining is open! Type !join. Starts in ${this.quiz.lobbySeconds} seconds.`:`${this.canonical(id)}: ${m[1].toLowerCase()} accepted.`;}catch(e){return e.message;}
  }
 }
 const gameLauncher=new GameLauncher();

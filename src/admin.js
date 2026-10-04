@@ -87,6 +87,9 @@ app.post('/admin/logout', adminAuth.requireAuthentication, adminAuth.requireSame
 app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, adminAuth.requireCapability);
 
 
+app.get('/games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-overlay.html')));
+app.get('/games/state',(req,res)=>res.json(gameLauncher.overlayState()));
+app.get('/games/events',(req,res)=>streamEvents(req,res,{name:'game-selection',subscribe:fn=>gameLauncher.subscribeOverlay(fn),initial:()=>gameLauncher.overlayState()}));
 app.get('/chat-games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','chat-games.html')));
 app.get('/chat-games/state',(req,res)=>res.json({ok:true,game:arcadeGames.getState()}));
 app.get('/chat-games/events',(req,res)=>streamEvents(req,res,{name:'arcade-state',subscribe:fn=>arcadeGames.subscribe(fn),initial:()=>arcadeGames.getState()}));

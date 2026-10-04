@@ -1,1 +1,21 @@
 :root{--accent:#4ecdc4;--secondary:#b47dff;--panel:#181d25;--text:#edf4f7;--border:#425263;--gold:#f4c95d}*{box-sizing:border-box}body{margin:0;background:transparent;font:16px/1.4 system-ui;color:var(--text)}main{max-width:760px;margin:12px auto;padding:24px;border:2px solid var(--accent);border-radius:20px;background:var(--panel);box-shadow:0 12px 40px #0008}header,.meta{display:flex;justify-content:space-between;gap:12px}header{font-size:.75rem;letter-spacing:.14em;color:var(--accent)}h1{font-size:clamp(1.5rem,6vw,2.5rem);margin:12px 0}.meta{color:var(--gold)}#prompt{font-size:1.2rem;font-weight:650}#options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.choice{border:1px solid var(--border);border-radius:12px;padding:16px;background:#ffffff08;overflow-wrap:anywhere}.choice b{display:block;color:var(--accent);font-size:1.8rem}.choice strong{display:block;font-size:1.15rem}.choice small{display:block;color:#dce5ec;margin-top:7px}.choice.winner{border-color:var(--gold);background:#f4c95d15}#help{color:#cedae4;font-size:.9rem}#stats{margin:12px 0;color:var(--secondary);font-weight:700}#result{border-top:1px solid var(--accent);padding:14px 0;font-size:1.1rem;color:var(--gold)}#leaders{padding-left:24px}#leaders li{padding:4px}#connection{color:#ffb7b7;font-size:.8rem}#connection:empty{display:none}@media(max-width:420px){main{padding:16px;margin:4px}#options{gap:8px}.choice{padding:12px}.choice strong{font-size:1rem}}
+
+/* Match the shared 1080 x 640 broadcast canvas, including final results. */
+.game-canvas-arcade main{max-width:none;width:1040px;height:600px;margin:20px;padding:24px;display:flex;flex-direction:column;gap:8px;box-shadow:none}
+.game-canvas-arcade main[hidden]{display:none}
+.game-canvas-arcade header{font-size:18px}
+.game-canvas-arcade h1{font-size:36px;line-height:1.1;margin:0}
+.game-canvas-arcade .meta{font-size:21px}
+.game-canvas-arcade #prompt{font-size:25px;line-height:1.2;margin:0}
+.game-canvas-arcade #stats{font-size:22px;margin:0}
+.game-canvas-arcade #stats:empty,.game-canvas-arcade #leaders:empty{display:none}
+.game-canvas-arcade #options{flex:1;min-height:0;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.game-canvas-arcade .choice{padding:14px;display:flex;flex-direction:column;justify-content:center}
+.game-canvas-arcade .choice b{font-size:30px;line-height:1.2}
+.game-canvas-arcade .choice strong{font-size:25px;line-height:1.2}
+.game-canvas-arcade .choice small{font-size:18px;margin-top:5px}
+.game-canvas-arcade #help{font-size:19px;margin:0}
+.game-canvas-arcade #result{font-size:23px;line-height:1.2;padding:8px 0 0}
+.game-canvas-arcade #leaders{display:flex;flex-wrap:wrap;gap:4px 20px;margin:0;padding:0;list-style-position:inside;font-size:18px}
+.game-canvas-arcade #leaders li{max-width:310px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0}
+.game-canvas-arcade #connection{margin:0}

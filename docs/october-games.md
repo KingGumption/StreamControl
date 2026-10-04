@@ -4,7 +4,7 @@
 
 Add an OBS Custom Browser Dock with URL `https://streamengagement.onrender.com/admin/games/quick` and sign in. The dock provides all eight games, launch presets, current state, Start quiz now, Next/reveal and Stop. Owner accounts also see the persistent moderator switch and device-key setup. A width of around 320 pixels is suitable.
 
-The owner always retains control. Moderator dashboard accounts and verified platform moderators can operate games while **Allow moderator game controls** is enabled. It persists through restarts until switched off. Switching it off does not stop an active game. Existing timed permissions retain their old expiry until the owner first uses the new switch.
+The owner always retains control. Moderator dashboard accounts and verified platform moderators can operate games while **Allow moderator game controls** is enabled. It persists through restarts until switched off. Switching it off immediately blocks all moderator control commands in chat and the dashboard, including stop and next. Viewers can still join, answer and vote. Switching it off does not stop an active game. Existing timed permissions retain their old expiry until the owner first uses the new switch.
 
 ## Chat commands
 
@@ -13,14 +13,15 @@ Broadcasters always have access; moderators require the switch. Viewer chat cann
 - `!launch quiz`: open joining and automatically start after 30 seconds (configurable 5–300 in Launch presets).
 - `!start quiz`: start an open lobby early after at least one player joins.
 - `!launch hill`, `!launch snacks`, `!launch escape`, `!launch higher`, `!launch split`, `!launch boss`, `!launch number`.
-- `!stop gamename`: stop the named active game.
+- `!stop`: stop the current game (or use `!stop gamename`).
+- `!next gamename`: advance/reveal the active game.
 - `!games`: list game IDs and usage.
 
-Only one game accepts chat at a time. Repeated launches cannot reset it. The manual quiz page remains available. Empty automatic quiz lobbies close without starting; the dock shows the reason. Existing quiz passes, grace period and speed rewards are unchanged.
+Only one game can occupy the overlay at a time, including its final results. Stop it through chat or the controls before launching any game again. Repeated launches cannot reset it. The manual quiz page remains available. Empty automatic quiz lobbies close without starting; the dock shows the reason. Existing quiz passes, grace period and speed rewards are unchanged.
 
 ## New games
 
-All new games use the same transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/chat-games`. Use around 760×700 for the source, then resize it in OBS. Each game has 3–10 rounds (default 5), 10–60 seconds per turn (default 20), and a five-second reveal. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop or a new launch.
+All eight games, including Quiz and King of the Hill, use one transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/games`. Set Width 1080 and Height 640. Replace the separate game sources with this one; the active game appears automatically. Each game has 3–10 rounds (default 5), 10–60 seconds per turn (default 20), and a five-second reveal. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop.
 
 | ID | Rules |
 |---|---|
@@ -37,7 +38,7 @@ Hill now includes 57 topics, each with ten options. Launch presets can restrict 
 
 ## URL colour variants
 
-Append `?theme=halloween`, `?theme=ghost` or `?theme=slime` to `/quiz`, `/king-of-the-hill`, `/chat-games`, `/polaroid` or `/overlay`. If the URL already has parameters, use `&theme=...`. Omit the parameter for existing branding. The dock has themed overlay links. Themes alter presentation colours, not photo pixels or gameplay; correctness and platform identity colours remain distinguishable.
+Append `?theme=halloween`, `?theme=ghost` or `?theme=slime` to `/games`, `/polaroid` or `/overlay`. The shared games source forwards the colour variant to each game. If the URL already has parameters, use `&theme=...`. Omit the parameter for existing branding. The dock has themed overlay links. Themes alter presentation colours, not photo pixels or gameplay; correctness and platform identity colours remain distinguishable.
 
 ## Stream Deck
 

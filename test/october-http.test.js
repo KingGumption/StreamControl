@@ -10,7 +10,16 @@ test('persistent moderator switch, owner-only tests/device keys, device revocati
  assert.equal((await call('/admin/games/action',{action:'launch',game:'snacks'},mod)).status,403);
  await call('/admin/moderators/handoff',{enabled:true},owner);assert.equal(access.handoff(Date.now()+365*86400000).enabled,true);assert.equal(getConfigValue('games_control_persistent').expiresAt,null);
  assert.equal((await call('/admin/games/action',{action:'launch',game:'snacks'},mod)).status,200);assert.equal((await call('/admin/games/action',{action:'launch',game:'quiz'},owner)).status,409);
- await call('/admin/moderators/handoff',{enabled:false},owner);assert.equal((await call('/admin/games/action',{action:'stop',game:'snacks'},mod)).status,403);assert.equal(arcadeGames.phase,'question');await call('/admin/games/action',{action:'stop',game:'snacks'},owner);
+ assert.deepEqual(await(await call('/games/state')).json(),{active:'snacks'});
+ assert.equal((await call('/admin/quiz/open',{},owner)).status,400);
+ assert.equal((await call('/admin/king-of-the-hill/start',{},owner)).status,409);
+ while(arcadeGames.phase!=='completed')arcadeGames.next();
+ assert.equal((await call('/admin/games/action',{action:'launch',game:'hill'},owner)).status,409);
+ assert.equal((await call('/admin/quiz/open',{},owner)).status,400);
+ assert.equal((await call('/admin/king-of-the-hill/start',{},owner)).status,409);
+ assert.deepEqual(await(await call('/games/state')).json(),{active:'snacks'});
+ await call('/admin/moderators/handoff',{enabled:false},owner);assert.equal((await call('/admin/games/action',{action:'stop',game:'snacks'},mod)).status,403);assert.equal(arcadeGames.phase,'completed');await call('/admin/games/action',{action:'stop',game:'snacks'},owner);
+ assert.deepEqual(await(await call('/games/state')).json(),{active:null});
  const {token}=await(await call('/admin/games/device-token',{},owner)).json();assert.equal((await call('/api/games/action',{action:'launch',game:'snacks'})).status,401);assert.equal((await call('/api/games/action',{action:'launch',game:'snacks'},null,token)).status,200);await call('/api/games/action',{action:'stop',game:'snacks'},null,token);await call('/admin/games/device-token/revoke',{},owner);assert.equal((await call('/api/games/action',{action:'launch',game:'snacks'},null,token)).status,401);
- for(const url of ['/chat-games','/quiz?theme=halloween','/king-of-the-hill?theme=ghost','/assets/seasonal-theme.css'])assert.equal((await call(url)).status,200,url);assert.equal((await call('/assets/games-quick.html')).status,404);
+ for(const url of ['/games','/assets/games-overlay.js','/chat-games','/quiz?theme=halloween','/king-of-the-hill?theme=ghost','/assets/seasonal-theme.css'])assert.equal((await call(url)).status,200,url);assert.equal((await call('/assets/games-quick.html')).status,404);
 });
