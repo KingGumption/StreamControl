@@ -5,7 +5,7 @@
   const key=`${g.gameId}:${g.round}:${g.phase}`;if(key===last)return;
   const first=!last;last=key;clearTimeout(timeout);canvas.querySelector('.fx-burst')?.remove();
   canvas.dataset.show=type;canvas.dataset.moment=g.phase;
-  if(g.phase==='idle'||reduced)return;
+  if(g.phase==='idle'||reduced||type==='boss')return;
   // Animate only phase changes, never individual votes or reconnect snapshots.
   canvas.getAnimations?.().forEach(a=>a.cancel());
   if(!first&&['reveal','completed','champion'].includes(g.phase)){

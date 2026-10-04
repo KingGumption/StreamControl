@@ -9,10 +9,10 @@
    const next=`${g.gameId}:${g.round}:${g.phase}`;if(next===key)return;
    const first=lastGame!==g.gameId;lastGame=g.gameId;key=next;clear();
    const sprite=stage.querySelector('.boss-sprite'),callout=stage.querySelector('.combat-callout');
-   const id=['pumpkin','frost','golem'].includes(g.boss?.id)?g.boss.id:'pumpkin';stage.dataset.boss=id;stage.dataset.move=String(g.combat?.style??(g.round-1)%3);
-   if(sprite.dataset.boss!==id){sprite.innerHTML=window.BossArt[id];sprite.dataset.boss=id;}
+   const id=['pumpkin','frost','golem'].includes(g.boss?.id)?g.boss.id:'pumpkin';stage.dataset.boss=id;stage.dataset.hit=String(Boolean(g.combat?.hit));stage.dataset.move=String(g.combat?.style??(g.round-1)%3);
+   if(sprite.dataset.boss!==id){sprite.style.backgroundImage=`url("${window.BossArt[id]}")`;sprite.dataset.boss=id;}
    const pose=(name,message='')=>{stage.dataset.pose=name;callout.textContent=message;const effect=name==='attack'?['slam','breath','sweep'][Number(stage.dataset.move)]:name==='blocked'?'block':name==='healing'?'heal':null;if(effect)window.GameSound?.effect(effect,`${next}:${name}`);};
-   if(g.phase==='question'){pose('idle',g.bossMove);return;}
+   if(g.phase==='question'){pose('idle','');return;}
    if(first){pose(g.phase==='completed'&&g.result?.success?'defeat':'idle',g.phase==='completed'?'BATTLE OVER':'');return;}
    // The sequence visualises the authoritative totals; it does not change damage.
    const combat=g.combat||{};

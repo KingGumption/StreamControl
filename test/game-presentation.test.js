@@ -24,7 +24,17 @@ test('sound engine deduplicates, respects URL mute and does not replay results a
 });
 test('boss sequences deduplicate vote updates and cancel pending actions on stop',()=>{
  const tasks=new Map();let seq=0;const sprite={dataset:{},style:{}},callout={textContent:''},stage={dataset:{},querySelector:selector=>selector==='.boss-sprite'?sprite:callout};
- const window={BossArt:{pumpkin:'<svg/>'}};vm.runInNewContext(read('boss-stage.js'),{window,document:{getElementById:()=>stage},setTimeout:fn=>{tasks.set(++seq,fn);return seq;},clearTimeout:id=>tasks.delete(id)});
+ const window={BossArt:{pumpkin:'/assets/boss-sprites/pumpkin.webp'}};vm.runInNewContext(read('boss-stage.js'),{window,document:{getElementById:()=>stage},setTimeout:fn=>{tasks.set(++seq,fn);return seq;},clearTimeout:id=>tasks.delete(id)});
  const q={gameId:'1',round:1,phase:'question',boss:{id:'pumpkin'},bossMove:'Thorn Slam'};window.BossStage.observe(q);assert.equal(stage.dataset.pose,'idle');
  const result={...q,phase:'reveal',combat:{damage:13,shield:10,heal:8,hit:15,move:'Thorn Slam',style:0}};window.BossStage.observe(result);assert.equal(stage.dataset.pose,'hit');const count=tasks.size;window.BossStage.observe(result);assert.equal(tasks.size,count);for(const fn of tasks.values())fn();assert.equal(stage.dataset.pose,'idle');window.BossStage.stop();assert.equal(tasks.size,0);
+});
+
+test('battle tallies update live, duplicate moves stay locked, and the party preview is bounded',()=>{
+ const g=new ArcadeGames({random:()=>.3,schedule:()=>1,cancel:()=>{}});g.start('boss');
+ for(let i=0;i<7;i++)g.handleChatEvent({platform:'twitch',text:i<3?'attack':i<5?'defend':'heal',user:{id:String(i),username:'Player'+i}});
+ assert.deepEqual(g.getState().moveCounts,[3,2,2]);assert.equal(g.getState().party.length,5);
+ g.handleChatEvent({platform:'twitch',text:'heal',user:{id:'0',username:'Player0'}});
+ assert.deepEqual(g.getState().moveCounts,[3,2,2]);assert.equal(g.getState().combat,null);
+ g.resolve();g.next();assert.deepEqual(g.getState().moveCounts,[0,0,0]);
+ g.stop();g.start('higher');assert.equal(g.getState().moveCounts,undefined);assert.equal(g.getState().party,undefined);
 });
