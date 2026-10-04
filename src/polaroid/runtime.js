@@ -267,7 +267,6 @@ class PolaroidRuntime {
     if (this.config.captureDelayMs > 0) await delay(this.config.captureDelayMs);
     const captureStart = performance.now();
     if(!job[OWNER_TEST]&&job.generation!==this.streamGeneration)throw Error('Polaroid cancelled: stream ended or disconnected.');
-    await this.assertCaptureAllowed(job[OWNER_TEST]);
     const screenshot = await this.captureCameraSource(job[OWNER_TEST]);
     observe('polaroid.capture', performance.now() - captureStart);
     const profileImage = await avatar;

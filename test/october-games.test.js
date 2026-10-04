@@ -52,4 +52,9 @@ test('connector checks live state locally immediately before photo, while owner 
  await c.handleObsRequest({id:'1',method:'CapturePolaroid',args:{screenshot:{}}});assert.equal(captured,0);assert.equal(sent.at(-1).ok,false);
  await c.handleObsRequest({id:'2',method:'CapturePolaroid',args:{ownerTest:true,screenshot:{}}});assert.equal(captured,1);assert.equal(sent.at(-1).ok,true);
 });
+test('local Polaroid rechecks live status immediately before screenshot',async()=>{
+ const obs=new EventEmitter();let captures=0;obs.call=async method=>method==='GetStreamStatus'?{outputActive:false}:(captures++,{imageData:'data:image/png;base64,YQ=='});
+ const r=new PolaroidRuntime({config:{obs:{cameraSource:'Camera'},streamerBot:{},discord:{},polaroid:{}},obs});r.state.obsConnected=true;
+ await assert.rejects(r.captureCameraSource(),/must be live/);assert.equal(captures,0);assert.equal((await r.captureCameraSource(true)).toString(),'a');assert.equal(captures,1);
+});
 
