@@ -93,7 +93,8 @@ class ConnectorRuntime {
   scheduleCloudReconnect() {
     if (!this.started || this.cloudTimer) return;
     this.cloudTimer = setTimeout(() => { this.cloudTimer = null; this.connectCloud(); }, this.reconnectDelayMs);
-    this.cloudTimer.unref?.();
+    // This is a standalone process, unlike the HTTP server. Keep its retry
+    // alive when cloud and local sockets are all down; stop() releases it.
   }
 
   handleCloudMessage(raw) {

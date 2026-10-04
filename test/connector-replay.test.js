@@ -2,6 +2,18 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const {EventEmitter}=require('node:events');
 const {ConnectorRuntime}=require('../src/connector-runtime');
 const {IntegrationRuntime}=require('../src/integration-runtime');
+
+test('standalone connector survives disconnected sockets until explicitly stopped',()=>{
+ const {execFileSync}=require('node:child_process');
+ const output=execFileSync(process.execPath,['-e',`
+  const {ConnectorRuntime}=require('./src/connector-runtime');
+  const {EventEmitter}=require('node:events');
+  const c=new ConnectorRuntime({config:{},obs:new EventEmitter(),reconnectDelayMs:5000});
+  c.started=true;c.scheduleCloudReconnect();console.log('waiting');
+  setTimeout(async()=>{await c.stop();console.log('stopped');},100).unref();
+ `],{cwd:require('node:path').join(__dirname,'..'),encoding:'utf8',timeout:3000});
+ assert.match(output,/waiting[\s\S]*stopped/);
+});
 test('offline connector backlog is byte-bounded and expires old messages',()=>{
  const connector=new ConnectorRuntime({config:{},obs:new EventEmitter()});
  for(let i=0;i<20;i++)connector.send({type:'service.message',service:'tikfinity',payload:'x'.repeat(500000)});
