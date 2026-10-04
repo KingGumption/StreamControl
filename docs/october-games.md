@@ -2,7 +2,7 @@
 
 ## Quick Games in OBS
 
-Add an OBS Custom Browser Dock with URL `https://streamengagement.onrender.com/admin/games/quick` and sign in. The dock provides all eight games, launch presets, current state, Start quiz now, Next/reveal and Stop. Owner accounts also see the persistent moderator switch and device-key setup. A width of around 320 pixels is suitable.
+Add an OBS Custom Browser Dock with URL `https://streamengagement.onrender.com/admin/games/quick` and sign in. The dock provides all eight games, launch presets, current state, Start quiz now, Next/reveal and Stop. Owner accounts also see the persistent moderator switch and device-key setup. A width of around 320 pixels is suitable. Launch, start and stop act immediately without confirmation pop-ups, so they also work in OBS browser interactions.
 
 The owner always retains control. Moderator dashboard accounts and verified platform moderators can operate games while **Allow moderator game controls** is enabled. It persists through restarts until switched off. Switching it off immediately blocks all moderator control commands in chat and the dashboard, including stop and next. Viewers can still join, answer and vote. Switching it off does not stop an active game. Existing timed permissions retain their old expiry until the owner first uses the new switch.
 
