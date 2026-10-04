@@ -12,7 +12,7 @@
   filter.type='bandpass';filter.frequency.value=tone[0];filter.Q.value=.6;gain.gain.setValueAtTime(.28,at);gain.gain.exponentialRampToValueAtTime(.001,at+tone[1]);
   source.connect(filter);filter.connect(gain);gain.connect(master);source.start(at);source.stop(at+tone[1]);source.onended=()=>{source.disconnect();filter.disconnect();gain.disconnect();};
  }
- const voices={escape:'sine',higher:'triangle',split:'sine',boss:'sawtooth',number:'square',snacks:'triangle',hill:'triangle'};
+ const voices={escape:'sine',higher:'triangle',split:'triangle',boss:'triangle',number:'triangle',snacks:'triangle',hill:'triangle'};
  const motifs={round:[392,587,784],tick:[880],reveal:[330,440,659],victory:[523,659,784,1047,1319],defeat:[330,294,220,147],hit:[110,65,49],block:[784,1047],heal:[523,784,1047],slam:[98,65,33],breath:[220,165,110],sweep:[330,220,147],join:[659,784],crown:[392,523,659,784,1047]};
  const palettes={escape:{notes:[196,233,294],speed:.16,decay:.38},higher:{notes:[330,494,659],speed:.06,decay:.12},split:{notes:[392,440,587],speed:.09,decay:.18},snacks:{notes:[523,659,880],speed:.085,decay:.15},number:{notes:[220,330,440],speed:.12,decay:.23},hill:{notes:[392,523,784],speed:.11,decay:.27},boss:{notes:[98,147,196],speed:.12,decay:.25}};
  motifs.draw=[392,392];
@@ -21,11 +21,13 @@
   if(muted||!volume)return;
   try{
    const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
-   if(!context){context=new Audio();master=context.createGain();master.gain.value=volume*.075;master.connect(context.destination);}
+   if(!context){context=new Audio();master=context.createGain();master.gain.value=volume*.16;
+    if(context.createDynamicsCompressor){const limiter=context.createDynamicsCompressor();limiter.threshold.value=-14;limiter.knee.value=12;limiter.ratio.value=6;limiter.attack.value=.004;limiter.release.value=.16;master.connect(limiter);limiter.connect(context.destination);}else master.connect(context.destination);}
    // Do not queue old effects for playback after an autoplay restriction lifts.
    if(context.state==='suspended'){void context.resume().catch(()=>{});return;}
    const palette=palettes[id]||palettes.hill;
    if(!['tick','join'].includes(name))texture(id,context.currentTime);
+   if(['victory','crown','defeat','slam','hit'].includes(name)){const bass=context.createOscillator(),env=context.createGain(),at=context.currentTime; bass.type='sine';bass.frequency.setValueAtTime(['defeat','slam','hit'].includes(name)?65:131,at);env.gain.setValueAtTime(.4,at);env.gain.exponentialRampToValueAtTime(.001,at+.55);bass.connect(env);env.connect(master);bass.start(at);bass.stop(at+.6);bass.onended=()=>{bass.disconnect();env.disconnect();};}
    (['round','reveal'].includes(name)?palette.notes:(motifs[name]||motifs.reveal)).forEach((frequency,index)=>{
     const oscillator=context.createOscillator(),gain=context.createGain(),at=context.currentTime+index*palette.speed;
     oscillator.type=voices[id]||'triangle';oscillator.frequency.setValueAtTime(frequency,at);

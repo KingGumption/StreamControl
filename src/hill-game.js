@@ -313,6 +313,7 @@ class HillGame {
 
   handleChatEvent(event) {
     if (!this.running || !['topic', 'battle'].includes(this.phase)) return false;
+    if (this.now() >= this.endsAt + 2000) { this.finishPhase(); return true; }
     const match = String(event?.text || '').trim().match(/^([12])$/);
     if (!match) return false;
     const platform = String(event?.platform || '').trim().toLowerCase();
@@ -451,7 +452,7 @@ class HillGame {
     this.platformCounts = [{}, {}];
     this.endsAt = this.now() + durationMs;
     this.publish();
-    this.armTimer(durationMs);
+    this.armTimer(durationMs + 2000);
   }
 
   armTimer(durationMs) {
@@ -482,6 +483,7 @@ class HillGame {
       round: this.round,
       totalRounds: ['battle', 'champion'].includes(this.phase) ? this.activeRoundCount : this.configuredRoundCount,
       roundCount: this.configuredRoundCount,
+      acceptUntil: ['topic','battle'].includes(this.phase) && this.endsAt ? new Date(this.endsAt + 2000).toISOString() : null,
       endsAt: this.endsAt ? new Date(this.endsAt).toISOString() : null,
       totalVotes,
       kingStreak:this.kingStreak||0,

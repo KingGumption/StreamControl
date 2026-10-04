@@ -7,7 +7,7 @@ function card(option,i,g){
   const art=node('img','snack-art');art.src=option.image||'/assets/game-art/snacks.svg';art.alt=option.name;art.onerror=()=>{art.onerror=null;art.src='/assets/game-art/snacks.svg';};el.append(art,node('span','team-name',option.team==='britain'?'BRITAIN':'THE WORLD'));
  }else el.append(node('span','symbol',g.id==='boss'?['⚔','⬡','✚'][i]:g.id==='higher'?['↗','↘'][i]:g.id==='escape'?['⌁','✦','◈'][i]:['◒','◓'][i]));
  el.append(node('strong','',option.name));if(option.origin)el.append(node('small','',`Origin: ${option.origin}`));
- if(g.id==='boss')el.append(node('small','boss-tally','0 moves'));
+ if(g.id==='boss')el.append(node('small','boss-tally','0 moves'),node('span','move-explanation',['DAMAGE THE BOSS','REDUCE ITS HIT','RESTORE TEAM HP'][i]));
  if(g.id!=='boss'&&g.result?.counts){const total=g.result.counts.reduce((a,b)=>a+b,0),votes=g.result.counts[i]||0;el.append(node('small','vote-label',`${votes} votes · ${total?Math.round(votes/total*100):0}%`));const track=node('div','vote-meter'),fill=node('i');fill.style.width=`${total?votes/total*100:0}%`;track.append(fill);el.append(track);}
  return el;
 }
@@ -20,7 +20,7 @@ function render(g){
  $('participation').textContent=`${g.answered||0} LOCKED IN · ${g.players} PLAYERS`;
  const key=`${g.gameId}:${g.round}:${g.phase}`;
  if(key!==viewKey){
-  viewKey=key;$('prompt').textContent=g.phase==='question'?(g.prompt||''):g.id==='boss'?'Your team has made its move.':g.id==='higher'?`The next card is ${g.card}.`:g.id==='number'?(g.phase==='completed'?'The vault result':'The search narrows. Follow the new range.'):(g.prompt||'');$('help').textContent=g.phase==='question'?(g.id==='number'?`Guess ${g.range.low}–${g.range.high}. One number each.`:g.help||''):g.phase==='completed'?'Game complete · use controls or a chat command to start the next game.':'Answers locked · next round shortly';
+  viewKey=key;$('prompt').textContent=g.phase==='question'?(g.prompt||''):g.id==='boss'?'Your team has made its move.':g.id==='higher'?`The draw is ${g.cardLabel||g.card}.`:g.id==='number'?(g.phase==='completed'?'The vault result':'The search narrows. Follow the new range.'):(g.prompt||'');$('help').textContent=g.phase==='question'?(g.id==='number'?`Guess ${g.range.low}–${g.range.high}. One number each.`:g.id==='escape'?`Collect ${g.rounds} clues · ${g.rounds} rooms maximum · type 1, 2 or 3`:g.help||''):g.phase==='completed'?'Game complete · stop this game before launching another.':'Answers locked · next round shortly';
   $('options').replaceChildren(...(g.options||[]).map((o,i)=>card(o,i,g)));
   $('numberGuide').hidden=g.id!=='number';$('range').textContent=`${g.range?.low||1} — ${g.range?.high||100}`;
   $('sceneArt').hidden=g.id==='boss';$('bossStage').hidden=g.id!=='boss';
@@ -48,6 +48,6 @@ function render(g){
  }
  tick();
 }
-function tick(){if(!game||game.phase==='idle')return;const remaining=Math.max(0,Math.ceil((game.endsAt-Date.now())/1000));$('timer').textContent=game.endsAt?remaining:'★';$('game').classList.toggle('urgent',game.phase==='question'&&remaining<=3);$('timeFill').style.transform=`scaleX(${game.endsAt?Math.min(1,Math.max(0,(game.endsAt-Date.now())/((game.phase==='question'?game.seconds||20:5)*1000))):1})`;window.GameSound?.tick(game,game.id);}
+function tick(){if(!game||game.phase==='idle')return;const remaining=Math.max(0,Math.ceil((game.endsAt-Date.now())/1000));const grace=game.phase==='question'&&remaining===0&&Date.now()<(game.acceptUntil||0);$('timer').textContent=grace?'…':game.endsAt?remaining:'★';if(grace)$('phase').textContent='LAST CALL';else if(game.phase==='question')$('phase').textContent='YOUR MOVE';$('game').classList.toggle('urgent',game.phase==='question'&&remaining<=3);$('timeFill').style.transform=`scaleX(${game.endsAt?Math.min(1,Math.max(0,(game.endsAt-Date.now())/((game.phase==='question'?game.seconds||20:5)*1000))):1})`;window.GameSound?.tick(game,game.id);}
 setInterval(tick,200);
 const events=new EventSource('/chat-games/events');events.addEventListener('arcade-state',e=>{try{render(JSON.parse(e.data));$('connection').textContent='';}catch{$('connection').textContent='Waiting for game state…';}});events.onerror=()=>{$('connection').textContent='Reconnecting…';};

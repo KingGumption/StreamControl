@@ -25,3 +25,7 @@
 @media(prefers-reduced-motion:reduce){#bossStage *,#bossStage *:after{animation:none!important}.boss-projectile{display:none!important}}
 
 
+
+#game[data-game=boss] .choice{grid-template-rows:24px 15px;row-gap:3px}
+#game[data-game=boss] .move-explanation{grid-column:1/4;grid-row:2;text-align:left;font-size:10px;letter-spacing:1px;color:#c7d2dd}
+#game[data-game=boss] #options{height:65px;bottom:60px}#game[data-game=boss] #help{font-size:14px}

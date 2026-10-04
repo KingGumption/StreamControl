@@ -23,8 +23,11 @@ test('provides 57 topics with ten answers each', () => {
 test('every answer has a locally cached attributed image', () => {
   const artDirectory = path.join(__dirname, '..', 'public', 'hill-art-official');
   const manifest = JSON.parse(fs.readFileSync(path.join(artDirectory, 'manifest.json'), 'utf8'));
+  TOPICS.forEach(topic => {
+    const thumbnail = manifest.assets[`topics/${topic.id}`];
+    assert.ok(thumbnail?.file && fs.existsSync(path.join(artDirectory, thumbnail.file)), `${topic.title} topic thumbnail is missing`);
+  });
   TOPICS.forEach((topic) => topic.entries.forEach((entry) => {
-    if(topic.id.startsWith('extra-')){const generated=new HillGame().artwork(topic.id,entry.id);assert.match(generated,/<svg/);return;}
     const asset = manifest.assets[`${topic.id}/${entry.id}`];
     assert.ok(asset, `${topic.title}: ${entry.title} is missing artwork metadata`);
     assert.ok(fs.existsSync(path.join(artDirectory, asset.file)), `${entry.title} artwork file is missing`);
@@ -51,7 +54,7 @@ test('runs topic voting followed by five one-vote-per-viewer hill rounds', () =>
   let state = game.start();
   assert.equal(state.phase, 'topic');
   assert.equal(state.options.length, 2);
-  assert.equal(timers.at(-1).delay, 30000);
+  assert.equal(timers.at(-1).delay, 32000);
 
   assert.equal(game.handleChatEvent(voter('a', '1')), true);
   assert.equal(game.handleChatEvent(voter('a', '2')), true);
@@ -107,12 +110,12 @@ test('updated timings apply from the next game stage', () => {
   });
 
   game.start();
-  assert.equal(delays.at(-1), 30000);
+  assert.equal(delays.at(-1), 32000);
   const state = game.setTimings({ topicSeconds: 12, roundSeconds: 14, championSeconds: 4 });
   assert.deepEqual(state.timings, { topicSeconds: 12, roundSeconds: 14, championSeconds: 4 });
-  assert.equal(delays.at(-1), 30000);
+  assert.equal(delays.at(-1), 32000);
   game.finishPhase();
-  assert.equal(delays.at(-1), 14000);
+  assert.equal(delays.at(-1), 16000);
   game.stop();
 });
 

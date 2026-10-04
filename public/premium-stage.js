@@ -2,33 +2,29 @@
 (() => {
  const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text!==undefined)e.textContent=text;return e;};
  let key='', previousCard=null, history=[], gameId='';
- function card(value,cls){const c=make('div','table-card '+cls);c.append(make('span','card-corner',value),make('strong','card-value',value),make('span','card-suit','♠'));return c;}
+ const rank=n=>({1:'A',11:'J',12:'Q',13:'K'})[n]||String(n);
+ function card(value,cls){value=value==='?'?value:rank(value);const c=make('div','table-card '+cls);c.append(make('span','card-corner',value),make('strong','card-value',value),make('span','card-suit','♠'));return c;}
  function room(g,root){
   const name=(g.prompt||'The house:').split(':')[0].replace(/^The /,'');
-  root.className='premium-scene haunted-room';root.dataset.room=name;root.dataset.route=String(g.result?.route??-1);
-  root.append(make('div','room-ceiling'),make('div','room-floor'));
-  const window=make('div','moon-window');window.append(make('i','moon'));root.append(window);
-  for(let i=0;i<2;i++){const candle=make('div','wall-candle');candle.style.setProperty('--side',i);candle.append(make('i','flame'));root.append(candle);}
+  root.className='premium-scene haunted-room';root.dataset.room=name;const roomId=['library','kitchen','cellar','garden','tower','crypt','attic','conservatory','ballroom'].includes(name)?name:'hall';root.style.setProperty('--room-art',`url("/assets/stage-art/haunted-${roomId}.webp")`);root.dataset.route=String(g.result?.route??-1);
   const plaque=make('div','room-plaque',name.toUpperCase());root.append(plaque);
   const doors=make('div','room-doors');
-  (g.options||[]).forEach((o,i)=>{const door=make('div','room-door'+(g.result?.route===i?' chosen':''));const prop=make('div','room-prop');const text=o.name.toLowerCase();prop.dataset.object=/book|desk|inscription|portrait/.test(text)?'book':/bell/.test(text)?'bell':/candle|flame|light|chandelier/.test(text)?'candle':/box|chest|coat/.test(text)?'chest':/rope|vine/.test(text)?'rope':'passage';prop.append(make('i','prop-detail'));door.append(make('span','door-number',String(i+1)),make('div','door-panel'),prop,make('i','door-handle'),make('strong','door-label',o.name));doors.append(door);});
+  (g.options||[]).forEach((o,i)=>{const door=make('div','room-door'+(g.result?.route===i?' chosen':''));door.append(make('span','door-number',String(i+1)),make('strong','door-label',o.name));doors.append(door);});
   root.append(doors);
   const route=make('div','route-map');for(let i=1;i<=g.rounds;i++)route.append(make('span',i<g.round?'visited':i===g.round?'current':'',i<g.round?'◆':String(i)));root.append(route);
-  if(g.phase==='completed')root.append(make('div','scene-ending',g.result?.success?'THE WAY OUT':'TRAPPED IN THE HOUSE'));
+
  }
  function higher(g,root){
   root.className='premium-scene card-table';
-  if(g.phase==='question'){if(history[history.length-1]!==g.card)history.push(g.card);previousCard=g.card;}
+  history=g.cardHistory||[g.card];previousCard=g.previousCard??g.card;
   root.append(make('div','table-brand','GUMPTION CARD CLUB'));
   const pair=make('div','card-pair'),left=card(previousCard??g.card,'current-card'),right=card(g.phase==='question'?'?':g.card,g.phase==='question'?'card-back':'drawn-card');
   left.append(make('small','card-caption','CURRENT'));right.append(make('small','card-caption',g.phase==='question'?'NEXT CARD':'THE DRAW'));pair.append(left,right);root.append(pair);
-  const trail=make('div','card-history');trail.append(make('span','','PREVIOUS DRAWS'));history.slice(-7).forEach(n=>trail.append(make('b','',String(n))));root.append(trail);
+  const trail=make('div','card-history');trail.append(make('span','','CARDS SEEN'));history.slice(-7).forEach(n=>trail.append(make('b','',rank(n))));root.append(trail);
+  root.append(make('div','rank-guide','A · 2 · 3 · 4 · 5 · 6 · 7 · 8 · 9 · 10 · J · Q · K'));
  }
  function vault(g,root){
-  root.className='premium-scene vault-scene';const vault=make('div','vault-machine'),inside=make('div','vault-interior');inside.append(make('strong','',g.revealedNumber===undefined?'THE SECRET':String(g.revealedNumber)));
-  const door=make('div','vault-door');for(let i=0;i<8;i++){const bolt=make('i','vault-bolt');bolt.style.left=`${8+(i%4)*27}%`;bolt.style.top=`${8+Math.floor(i/4)*80}%`;door.append(bolt);}
-  const dial=make('div','vault-dial');dial.append(make('span','','KG'));door.append(dial,make('span','vault-serial','SUGAR VAULT • Nº 001'));
-  vault.append(inside,door);root.append(vault);
+  root.className='premium-scene vault-scene';
   const display=make('div','vault-display');display.append(make('span','eyebrow',g.phase==='question'?'ACCEPTED RANGE':g.phase==='completed'?'SEARCH COMPLETE':'RANGE UPDATED'),make('strong','',`${g.range.low} — ${g.range.high}`),make('span','',g.phase==='question'?'Type one number in chat':'Answers locked'));
   const rail=make('div','range-rail'),fill=make('i','');fill.style.left=`${g.range.low-1}%`;fill.style.width=`${Math.max(1,g.range.high-g.range.low+1)}%`;rail.append(fill);display.append(rail);
   if(g.result?.guesses?.length){const guesses=make('div','guess-trail');guesses.append(make('span','','LAST GUESSES'));g.result.guesses.slice(0,9).forEach(n=>guesses.append(make('b','',String(n))));display.append(guesses);}
@@ -37,8 +33,8 @@
  function split(g,root){
   root.className='premium-scene crowd-arena';root.append(make('div','crowd-title',g.phase==='question'?'WHERE WILL YOU STAND?':'THE CROWD HAS CHOSEN'));
   const sides=make('div','crowd-sides');(g.options||[]).forEach((o,i)=>{const side=make('div','crowd-side'+(g.result?.winner===i?' minority':''));side.append(make('span','eyebrow',g.phase==='question'?`TYPE ${i+1}`:g.result?.winner===i?'MINORITY WINS':'THE CROWD'),make('strong','crowd-option',o.name));
-   const crowd=make('div','crowd-tokens');if(g.phase==='question'){for(let j=0;j<12;j++)crowd.append(make('i','unassigned'));}else{const count=g.result?.counts?.[i]||0;for(let j=0;j<Math.min(30,count);j++){const t=make('i','crowd-token');t.style.setProperty('--i',j);crowd.append(t);}side.append(make('b','crowd-count',`${count} ${count===1?'PLAYER':'PLAYERS'}`));}side.append(crowd);sides.append(side);});root.append(sides);
-  if(g.phase==='question')root.append(make('div','sealed-votes','VOTES SEALED · THE SMALLER GROUP SCORES'));
+   const crowd=make('div','crowd-tokens');if(g.phase==='question'){crowd.append(make('span','sealed-label','?'));}else{const count=g.result?.counts?.[i]||0;for(let j=0;j<Math.min(30,count);j++){const username=g.result?.groups?.[i]?.[j];if(!username)continue;const t=make('b','crowd-token',Array.from(username).slice(0,2).join('').toUpperCase());t.title=username;t.style.setProperty('--i',j);crowd.append(t);}side.append(make('b','crowd-count',`${count} ${count===1?'PLAYER':'PLAYERS'}`));}side.append(crowd);sides.append(side);});root.append(sides);
+  if(g.phase==='question')root.append(make('div','sealed-votes','COUNTS HIDDEN · CHAT MESSAGES REMAIN PUBLIC'));
  }
  window.PremiumStage={observe(g){
   const next=`${g.gameId}:${g.round}:${g.phase}`;if(next===key)return;const first=gameId!==g.gameId;key=next;

@@ -11,16 +11,17 @@ test('self messages accept the entire game input vocabulary without granting rol
   const p=payload('50',source);delete p.data.user.isBroadcaster;assert.equal(normalizeStreamerBotEvent(p).user.roles.includes('broadcaster'),false);
  }
 });
-test('raw Twitch owner messages travel through the real adapter and runtime into both reported games',async()=>{
+test('raw Twitch owner messages travel through the real adapter and runtime into all six arcade games',async()=>{
  const runtime=new IntegrationRuntime({config:{streamerBot:{},tikfinity:{}},game:null,quiz:null,commands:{handleChatEvent:async()=>({handled:false})}});
  try{
-  for(const [id,input]of [['escape','2'],['number','50']]){
+  for(const [id,input]of [['escape','2'],['number','50'],['higher','1'],['split','1'],['boss','attack'],['snacks','2']]){
    arcadeGames.stop();arcadeGames.start(id,{seconds:60});
-   runtime.streamerBot.handleMessage(JSON.stringify(payload(input)));
+   const raw=payload(input);raw.data.messageId+='-'+id;
+   runtime.streamerBot.handleMessage(JSON.stringify(raw));
    await new Promise(setImmediate);
    assert.equal(arcadeGames.getState().answered,1,id);assert.equal(arcadeGames.getState().players,1,id);
-   assert.equal(arcadeGames.votes.get('twitch:owner'),id==='number'?50:1);
-   runtime.streamerBot.handleMessage(JSON.stringify(payload(input)));await new Promise(setImmediate);
+   assert.equal(arcadeGames.votes.get('twitch:owner'),id==='number'?50:id==='boss'?0:Number(input)-1);
+   runtime.streamerBot.handleMessage(JSON.stringify(raw));await new Promise(setImmediate);
    assert.equal(arcadeGames.getState().answered,1,'duplicate is not counted again');
   }
  }finally{arcadeGames.stop();}

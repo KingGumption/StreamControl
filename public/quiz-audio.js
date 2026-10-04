@@ -12,10 +12,10 @@
     try {
       const Audio=window.AudioContext||window.webkitAudioContext;if(!Audio)return;
       if(!context){context=new Audio();master=context.createGain();master.connect(context.destination);}
-      sync();void context.resume().catch(()=>{});
+      sync();if(context.state==='suspended'){void context.resume().catch(()=>{});return;}
       motifs[name].forEach((frequency,i)=>{
         const start=context.currentTime+i*.115,osc=context.createOscillator(),gain=context.createGain();
-        osc.type='square';osc.frequency.value=frequency;gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.7,start+.008);gain.gain.exponentialRampToValueAtTime(.001,start+.11);
+        osc.type=name==='tick'?'sine':name==='sudden'?'square':'triangle';osc.frequency.value=frequency;gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.7,start+.008);gain.gain.exponentialRampToValueAtTime(.001,start+.11);
         osc.connect(gain);gain.connect(master);osc.start(start);osc.stop(start+.12);osc.onended=()=>{osc.disconnect();gain.disconnect();};
       });
     } catch { /* Audio must never block the quiz. */ }

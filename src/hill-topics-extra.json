@@ -495,7 +495,7 @@
   {
     "id": "extra-30",
     "category": "screen",
-    "title": "Best Movie Robot",
+    "title": "Best Screen Robot",
     "entries": [
       "R2-D2",
       "C-3PO",
@@ -512,7 +512,7 @@
   {
     "id": "extra-31",
     "category": "screen",
-    "title": "Best TV Detective",
+    "title": "Best Screen Detective",
     "entries": [
       "Sherlock Holmes",
       "Columbo",
@@ -563,7 +563,7 @@
   {
     "id": "extra-34",
     "category": "debates",
-    "title": "Best Minor Inconvenience",
+    "title": "Worst Everyday Annoyance",
     "entries": [
       "Wet Socks",
       "Low Battery",

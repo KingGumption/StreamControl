@@ -13,7 +13,7 @@
    if(sprite.dataset.boss!==id){sprite.style.backgroundImage=`url("${window.BossArt[id]}")`;sprite.dataset.boss=id;}
    const pose=(name,message='')=>{stage.dataset.pose=name;callout.textContent=message;const effect=name==='attack'?['slam','breath','sweep'][Number(stage.dataset.move)]:name==='blocked'?'block':name==='healing'?'heal':null;if(effect)window.GameSound?.effect(effect,`${next}:${name}`);};
    if(g.phase==='question'){pose(g.bossIntent?.type==='guard'?'guard':'idle','');stage.dataset.enraged=String(Boolean(g.bossIntent?.enraged));return;}
-   if(first){pose(g.phase==='completed'&&g.result?.success?'defeat':'idle',g.phase==='completed'?'BATTLE OVER':'');return;}
+   if(first){pose(g.phase==='completed'?(g.result?.success?'defeat':'victory'):'idle',g.phase==='completed'?(g.result?.success?'BOSS DEFEATED':'THE BOSS WINS'):'');return;}
    // The sequence visualises the authoritative totals; it does not change damage.
    const combat=g.combat||{};
    pose(combat.damage?'hit':'guard',combat.damage?`−${combat.damage} BOSS HP`:'NO DAMAGE');

@@ -29,3 +29,40 @@
 .premium-scene[data-animate=false] .drawn-card,.premium-scene[data-animate=false] .room-door.chosen{animation:none}.premium-scene[data-animate=false] .room-door.chosen{filter:brightness(1.35)}
 .final-spotlight{position:absolute;left:12%;right:12%;top:36%;z-index:20;padding:25px 28px;text-align:center;border-block:2px solid #d6bc83;background:linear-gradient(100deg,#0e1728f2,#252840f7,#0e1728f2);box-shadow:0 15px 50px #000a;animation:productEntrance .65s both}.final-spotlight h2{font-size:40px;line-height:1.1;letter-spacing:2px;margin:12px 0;color:#f3d69c}.final-spotlight p{font-size:20px;line-height:1.3;margin:10px 0 0;color:#e3e7ed}.final-spotlight small{display:block;font-size:18px;margin-top:10px;color:#b4e0d7}#game[data-outcome=failure] .final-spotlight{border-color:#c197a1}#game[data-outcome=failure] .final-spotlight h2{color:#dfb3b3}#game[data-phase=completed] #prompt{opacity:.3}
 html[data-theme] #game:not([data-game=boss]){background:radial-gradient(ellipse at top,var(--panel),var(--theme-deep));border-color:var(--border)}html[data-theme] .premium-scene{box-shadow:inset 0 0 60px color-mix(in srgb,var(--accent) 15%,transparent)}
+
+/* Broadcast legibility and explicit game rules. */
+.rank-guide{position:absolute;left:18%;right:18%;bottom:76px;text-align:center;color:#ebdfb9;font-size:13px;letter-spacing:2px}
+.card-pair{inset:52px 0 102px}.table-card{width:140px;height:184px}.card-value{font-size:64px}
+.sealed-label{font:900 78px/1 Georgia,serif;color:#b8cbda66}.crowd-title{font-size:13px}
+.final-spotlight{animation:none!important;background:#101625f5!important;backdrop-filter:blur(12px);z-index:15}
+#game[data-phase=completed] .scene-ending{display:none}
+#game[data-game=snacks] .snack-art{opacity:1;filter:drop-shadow(0 12px 13px #0009)}
+#game[data-game=snacks] .choice strong{font-size:24px}
+#game footer{gap:12px}#participation{font-size:12px;white-space:nowrap}#help{font-size:15px;line-height:1.25}
+#game[data-phase=reveal] .choice.winner{border-color:#a8e1cc;background:#174638}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+/* Original illustrated environments; controls remain live HTML. */
+#premiumScene.haunted-room{background:linear-gradient(#080e1988,transparent 25%,transparent 70%,#070c1699),var(--room-art,url('/assets/stage-art/haunted-hall.webp')) center 58%/cover!important}
+.haunted-room .room-plaque{top:52px;left:24px;background:#101321d9;padding:7px 12px;border-left:2px solid #e2c89c;font-size:12px}
+.haunted-room .room-doors{inset:110px 70px 44px;gap:48px;align-items:stretch}
+.haunted-room .room-door{background:none;border:0;box-shadow:none;max-width:none;border-radius:14px;transform:none}
+.haunted-room .door-number{top:25%;box-shadow:0 3px 20px #000;border-color:#927658;background:#f3d8a7}
+.haunted-room .door-label{bottom:0;font-size:17px;padding:12px 7px;border:1px solid #ab967f;border-radius:6px;background:#0e1728ef}
+.haunted-room .room-door.chosen{animation:routeChosen .65s ease both;border:1px solid #efd496;box-shadow:inset 0 0 65px #dfbe8355,0 0 30px #efd49655}
+@keyframes routeChosen{from{filter:brightness(1)}to{filter:brightness(1.3)}}
+#premiumScene.vault-scene{background:url('/assets/stage-art/vault-room.webp') center/100% 100%;border:1px solid #92765066}
+.vault-display{left:49%;right:3%;top:28%;bottom:20%;background:#07111bcc;padding:25px 20px;border:1px solid #69787866;border-radius:8px}
+#game[data-game=number] #prompt{left:50%;right:24px;font-size:18px}
+#game[data-game=escape] #prompt{background:#0b1322dc;border-radius:5px;padding:8px 12px;top:8px;font-size:18px}
+#game[data-game=number][data-phase=reveal] .vault-scene{animation:vaultClue .8s ease}
+@keyframes vaultClue{50%{box-shadow:inset 0 0 80px #dbb66d44}}
+
+.card-pair{inset:52px 0 134px}.table-card{width:128px;height:166px}.card-value{font-size:57px}.card-caption{bottom:-23px}.rank-guide{bottom:77px;font-size:12px}
+#premiumScene.vault-scene{background-size:cover;background-position:left 54%}
+
+.haunted-room .door-number{top:auto;bottom:69px}.haunted-room .room-door.chosen{border:0;box-shadow:none}.haunted-room .room-door.chosen .door-label{background:#315043f5;border-color:#e8d290;box-shadow:0 0 30px #e8d29044}
+
+.crowd-token{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:11px;color:#142236;border:1px solid #c8e5f3}.crowd-token:before{display:none}.crowd-tokens{max-width:320px;gap:7px}.crowd-option{font-size:36px}.crowd-count{font-size:24px;bottom:13px}.crowd-title{color:#dee3e7}
+.crowd-arena{background:linear-gradient(#07111b99,transparent 55%,#07111b66),url('/assets/stage-art/split-stage.webp') center 60%/cover}.crowd-sides{inset:82px 43px 44px;gap:94px}.crowd-side,.crowd-side:nth-child(2){border:1px solid #b4bccb44;border-radius:12px;background:#08152699;box-shadow:none;padding:15px}.crowd-side:nth-child(2){background:#21102299}.crowd-side.minority{border:2px solid #edcd83;box-shadow:0 0 35px #edcd8355}.sealed-label{color:#e0ddd177}.crowd-option{font-size:32px;text-align:center}.sealed-votes{background:#07111bd9;bottom:8px;padding:5px 0}
+.vault-display{gap:12px;padding:18px 20px}.range-rail{flex-shrink:0}

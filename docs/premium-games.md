@@ -7,9 +7,9 @@ The existing shared OBS games overlay remains 1080 × 640. Chat commands, modera
 - Quiz: prominent question, contestant rail, tiered 3/2/1 podium and pass recap.
 - Hill: full matchup imagery, champion/challenger labels and consecutive win streak. Vote updates preserve the artwork and entrance state.
 - Snack Wars: large real product photos on podiums, origins and persistent series scores. Final results distinguish overall wins from draws.
-- Higher/Lower: card table, concealed next card, flip and recent draw history. History starts when the overlay connects.
+- Higher/Lower: card table, concealed next card, flip and recent draw history. Server-backed history survives overlay reconnections; ranks run from Ace low to King high.
 - Haunted Escape: room architecture, choice props, selected-route animation, route progress and final escape/failure result.
-- Split the Crowd: sealed choices; crowd tokens and counts appear only after answers lock. Tokens cap at 30 per side; numeric counts remain exact.
+- Split the Crowd: sealed choices; crowd tokens and counts appear only after answers lock. Tokens identify actual voters and cap at 18 per side; numeric counts remain exact.
 - Number Hunt: mechanical vault, accepted range, post-lock guesses and vault-opening winner display.
 - Boss Battle: retained stylised sprites, larger party, clearer combat cues, enrage and arena finales.
 

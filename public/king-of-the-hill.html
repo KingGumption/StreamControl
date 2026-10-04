@@ -186,7 +186,9 @@
         const image = document.createElement('img');
         image.className = 'art';
         image.src = option.imageUrl;
-        image.alt = '';
+        image.alt = option.title;
+        image.loading = 'eager';
+        image.onerror = () => { image.onerror = null; image.hidden = true; artWrap.classList.add('art-unavailable'); };
         artWrap.appendChild(image);
         const number = document.createElement('span');
         number.className = 'number';
@@ -259,7 +261,7 @@
           return;
         }
         const remaining = Math.max(0, Math.ceil((new Date(current.endsAt).getTime() - Date.now()) / 1000));
-        timer.textContent = remaining;window.GameSound?.tick(current,'hill');
+        timer.textContent = remaining === 0 && current.acceptUntil && Date.now() < Date.parse(current.acceptUntil) ? '…' : remaining;window.GameSound?.tick(current,'hill');
       }
 
       const events = new EventSource('/king-of-the-hill/events');

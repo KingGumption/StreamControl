@@ -1,0 +1,2402 @@
+{
+  "extra-1/extra-1-0": {
+    "title": "Alien",
+    "topic": "Best Horror Film",
+    "subject": "Alien (film)",
+    "illustrative": false
+  },
+  "extra-1/extra-1-1": {
+    "title": "The Thing",
+    "topic": "Best Horror Film",
+    "subject": "The Thing (1982 film)",
+    "illustrative": false
+  },
+  "extra-1/extra-1-2": {
+    "title": "Halloween",
+    "topic": "Best Horror Film",
+    "subject": "Halloween (1978 film)",
+    "illustrative": false
+  },
+  "extra-1/extra-1-3": {
+    "title": "Scream",
+    "topic": "Best Horror Film",
+    "subject": "Scream (1996 film)",
+    "illustrative": false
+  },
+  "extra-1/extra-1-4": {
+    "title": "The Conjuring",
+    "topic": "Best Horror Film",
+    "subject": "The Conjuring",
+    "illustrative": false
+  },
+  "extra-1/extra-1-5": {
+    "title": "The Exorcist",
+    "topic": "Best Horror Film",
+    "subject": "The Exorcist (film)",
+    "illustrative": false
+  },
+  "extra-1/extra-1-6": {
+    "title": "The Shining",
+    "topic": "Best Horror Film",
+    "subject": "The Shining (film)",
+    "illustrative": false
+  },
+  "extra-1/extra-1-7": {
+    "title": "Get Out",
+    "topic": "Best Horror Film",
+    "subject": "Get Out",
+    "illustrative": false
+  },
+  "extra-1/extra-1-8": {
+    "title": "The Descent",
+    "topic": "Best Horror Film",
+    "subject": "The Descent",
+    "illustrative": false
+  },
+  "extra-1/extra-1-9": {
+    "title": "The Babadook",
+    "topic": "Best Horror Film",
+    "subject": "The Babadook",
+    "illustrative": false
+  },
+  "extra-2/extra-2-0": {
+    "title": "Michael Myers",
+    "topic": "Best Horror Villain",
+    "subject": "Michael Myers (Halloween)",
+    "illustrative": false
+  },
+  "extra-2/extra-2-1": {
+    "title": "Freddy Krueger",
+    "topic": "Best Horror Villain",
+    "subject": "Freddy Krueger",
+    "illustrative": false
+  },
+  "extra-2/extra-2-2": {
+    "title": "Jason Voorhees",
+    "topic": "Best Horror Villain",
+    "subject": "Jason Voorhees",
+    "illustrative": false
+  },
+  "extra-2/extra-2-3": {
+    "title": "Ghostface",
+    "topic": "Best Horror Villain",
+    "subject": "Ghostface (identity)",
+    "illustrative": false
+  },
+  "extra-2/extra-2-4": {
+    "title": "Chucky",
+    "topic": "Best Horror Villain",
+    "subject": "Chucky (Child's Play)",
+    "illustrative": false
+  },
+  "extra-2/extra-2-5": {
+    "title": "Pinhead",
+    "topic": "Best Horror Villain",
+    "subject": "Pinhead (Hellraiser)",
+    "illustrative": false
+  },
+  "extra-2/extra-2-6": {
+    "title": "Pennywise",
+    "topic": "Best Horror Villain",
+    "subject": "It (character)",
+    "illustrative": false
+  },
+  "extra-2/extra-2-7": {
+    "title": "Leatherface",
+    "topic": "Best Horror Villain",
+    "subject": "Leatherface",
+    "illustrative": false
+  },
+  "extra-2/extra-2-8": {
+    "title": "The Xenomorph",
+    "topic": "Best Horror Villain",
+    "subject": "Xenomorph",
+    "illustrative": false
+  },
+  "extra-2/extra-2-9": {
+    "title": "Count Dracula",
+    "topic": "Best Horror Villain",
+    "subject": "Count Dracula",
+    "illustrative": false
+  },
+  "extra-3/extra-3-0": {
+    "title": "Vampire",
+    "topic": "Best Spooky Creature",
+    "subject": "Vampire",
+    "illustrative": false
+  },
+  "extra-3/extra-3-1": {
+    "title": "Werewolf",
+    "topic": "Best Spooky Creature",
+    "subject": "Werewolf",
+    "illustrative": false
+  },
+  "extra-3/extra-3-2": {
+    "title": "Ghost",
+    "topic": "Best Spooky Creature",
+    "subject": "Ghost",
+    "illustrative": false
+  },
+  "extra-3/extra-3-3": {
+    "title": "Zombie",
+    "topic": "Best Spooky Creature",
+    "subject": "Zombie",
+    "illustrative": false
+  },
+  "extra-3/extra-3-4": {
+    "title": "Witch",
+    "topic": "Best Spooky Creature",
+    "subject": "Witchcraft",
+    "illustrative": false
+  },
+  "extra-3/extra-3-5": {
+    "title": "Mummy",
+    "topic": "Best Spooky Creature",
+    "subject": "Mummy",
+    "illustrative": false
+  },
+  "extra-3/extra-3-6": {
+    "title": "Skeleton",
+    "topic": "Best Spooky Creature",
+    "subject": "Skeleton (undead)",
+    "illustrative": false
+  },
+  "extra-3/extra-3-7": {
+    "title": "Banshee",
+    "topic": "Best Spooky Creature",
+    "subject": "Banshee",
+    "illustrative": false
+  },
+  "extra-3/extra-3-8": {
+    "title": "Gargoyle",
+    "topic": "Best Spooky Creature",
+    "subject": "Gargoyle",
+    "illustrative": false
+  },
+  "extra-3/extra-3-9": {
+    "title": "Headless Horseman",
+    "topic": "Best Spooky Creature",
+    "subject": "Headless Horseman",
+    "illustrative": false
+  },
+  "extra-4/extra-4-0": {
+    "title": "Abandoned Hospital",
+    "topic": "Best Haunted Location",
+    "subject": "Waverly Hills Sanatorium",
+    "illustrative": true
+  },
+  "extra-4/extra-4-1": {
+    "title": "Old Castle",
+    "topic": "Best Haunted Location",
+    "subject": "Bran Castle",
+    "illustrative": true
+  },
+  "extra-4/extra-4-2": {
+    "title": "Foggy Graveyard",
+    "topic": "Best Haunted Location",
+    "subject": "Highgate Cemetery",
+    "illustrative": true
+  },
+  "extra-4/extra-4-3": {
+    "title": "Empty School",
+    "topic": "Best Haunted Location",
+    "subject": "School",
+    "illustrative": true
+  },
+  "extra-4/extra-4-4": {
+    "title": "Cursed Forest",
+    "topic": "Best Haunted Location",
+    "subject": "Black Forest",
+    "illustrative": true
+  },
+  "extra-4/extra-4-5": {
+    "title": "Deserted Carnival",
+    "topic": "Best Haunted Location",
+    "subject": "Pripyat amusement park",
+    "illustrative": true
+  },
+  "extra-4/extra-4-6": {
+    "title": "Lonely Lighthouse",
+    "topic": "Best Haunted Location",
+    "subject": "Lighthouse",
+    "illustrative": true
+  },
+  "extra-4/extra-4-7": {
+    "title": "Victorian Mansion",
+    "topic": "Best Haunted Location",
+    "subject": "Winchester Mystery House",
+    "illustrative": true
+  },
+  "extra-4/extra-4-8": {
+    "title": "Underground Crypt",
+    "topic": "Best Haunted Location",
+    "subject": "Crypt",
+    "illustrative": true
+  },
+  "extra-4/extra-4-9": {
+    "title": "Ghost Ship",
+    "topic": "Best Haunted Location",
+    "subject": "Flying Dutchman",
+    "illustrative": true
+  },
+  "extra-5/extra-5-0": {
+    "title": "Toffee Apple",
+    "topic": "Best Halloween Treat",
+    "subject": "Candy apple",
+    "illustrative": true
+  },
+  "extra-5/extra-5-1": {
+    "title": "Chocolate Pumpkin",
+    "topic": "Best Halloween Treat",
+    "subject": "Chocolate",
+    "illustrative": true
+  },
+  "extra-5/extra-5-2": {
+    "title": "Gummy Worms",
+    "topic": "Best Halloween Treat",
+    "subject": "Gummy candy",
+    "illustrative": true
+  },
+  "extra-5/extra-5-3": {
+    "title": "Candy Corn",
+    "topic": "Best Halloween Treat",
+    "subject": "Candy corn",
+    "illustrative": true
+  },
+  "extra-5/extra-5-4": {
+    "title": "Caramel Popcorn",
+    "topic": "Best Halloween Treat",
+    "subject": "Caramel corn",
+    "illustrative": true
+  },
+  "extra-5/extra-5-5": {
+    "title": "Ghost Marshmallows",
+    "topic": "Best Halloween Treat",
+    "subject": "Marshmallow",
+    "illustrative": true
+  },
+  "extra-5/extra-5-6": {
+    "title": "Bat Biscuits",
+    "topic": "Best Halloween Treat",
+    "subject": "Biscuit",
+    "illustrative": true
+  },
+  "extra-5/extra-5-7": {
+    "title": "Pumpkin Cupcake",
+    "topic": "Best Halloween Treat",
+    "subject": "Cupcake",
+    "illustrative": true
+  },
+  "extra-5/extra-5-8": {
+    "title": "Sour Skulls",
+    "topic": "Best Halloween Treat",
+    "subject": "Salmiakki",
+    "illustrative": true
+  },
+  "extra-5/extra-5-9": {
+    "title": "Jelly Fangs",
+    "topic": "Best Halloween Treat",
+    "subject": "Gummy candy",
+    "illustrative": true
+  },
+  "extra-6/extra-6-0": {
+    "title": "Vampire",
+    "topic": "Best Halloween Costume",
+    "subject": "Vampire",
+    "illustrative": true
+  },
+  "extra-6/extra-6-1": {
+    "title": "Zombie Pirate",
+    "topic": "Best Halloween Costume",
+    "subject": "Pirate",
+    "illustrative": true
+  },
+  "extra-6/extra-6-2": {
+    "title": "Witch",
+    "topic": "Best Halloween Costume",
+    "subject": "Witchcraft",
+    "illustrative": true
+  },
+  "extra-6/extra-6-3": {
+    "title": "Skeleton",
+    "topic": "Best Halloween Costume",
+    "subject": "Skeleton (undead)",
+    "illustrative": true
+  },
+  "extra-6/extra-6-4": {
+    "title": "Ghost",
+    "topic": "Best Halloween Costume",
+    "subject": "Ghost",
+    "illustrative": true
+  },
+  "extra-6/extra-6-5": {
+    "title": "Werewolf",
+    "topic": "Best Halloween Costume",
+    "subject": "Werewolf",
+    "illustrative": true
+  },
+  "extra-6/extra-6-6": {
+    "title": "Mummy",
+    "topic": "Best Halloween Costume",
+    "subject": "Mummy",
+    "illustrative": true
+  },
+  "extra-6/extra-6-7": {
+    "title": "Scarecrow",
+    "topic": "Best Halloween Costume",
+    "subject": "Scarecrow",
+    "illustrative": true
+  },
+  "extra-6/extra-6-8": {
+    "title": "Mad Scientist",
+    "topic": "Best Halloween Costume",
+    "subject": "Mad scientist",
+    "illustrative": true
+  },
+  "extra-6/extra-6-9": {
+    "title": "Headless Butler",
+    "topic": "Best Halloween Costume",
+    "subject": "Headless Horseman",
+    "illustrative": true
+  },
+  "extra-7/extra-7-0": {
+    "title": "Creaking Door",
+    "topic": "Best Spooky Sound",
+    "subject": "Door",
+    "illustrative": true
+  },
+  "extra-7/extra-7-1": {
+    "title": "Distant Footsteps",
+    "topic": "Best Spooky Sound",
+    "subject": "Footstep",
+    "illustrative": true
+  },
+  "extra-7/extra-7-2": {
+    "title": "Wolf Howl",
+    "topic": "Best Spooky Sound",
+    "subject": "Wolf",
+    "illustrative": true
+  },
+  "extra-7/extra-7-3": {
+    "title": "Whispering",
+    "topic": "Best Spooky Sound",
+    "subject": "Whispering",
+    "illustrative": true
+  },
+  "extra-7/extra-7-4": {
+    "title": "Thunder",
+    "topic": "Best Spooky Sound",
+    "subject": "Lightning",
+    "illustrative": true
+  },
+  "extra-7/extra-7-5": {
+    "title": "Rattling Chains",
+    "topic": "Best Spooky Sound",
+    "subject": "Chain",
+    "illustrative": true
+  },
+  "extra-7/extra-7-6": {
+    "title": "Owl Hoot",
+    "topic": "Best Spooky Sound",
+    "subject": "Owl",
+    "illustrative": true
+  },
+  "extra-7/extra-7-7": {
+    "title": "Evil Laugh",
+    "topic": "Best Spooky Sound",
+    "subject": "Evil laughter",
+    "illustrative": true
+  },
+  "extra-7/extra-7-8": {
+    "title": "Clock Chime",
+    "topic": "Best Spooky Sound",
+    "subject": "Grandfather clock",
+    "illustrative": true
+  },
+  "extra-7/extra-7-9": {
+    "title": "Scratching Window",
+    "topic": "Best Spooky Sound",
+    "subject": "Window",
+    "illustrative": true
+  },
+  "extra-8/extra-8-0": {
+    "title": "Pumpkin Carving",
+    "topic": "Best Halloween Activity",
+    "subject": "Jack-o'-lantern",
+    "illustrative": true
+  },
+  "extra-8/extra-8-1": {
+    "title": "Horror Marathon",
+    "topic": "Best Halloween Activity",
+    "subject": "Horror film",
+    "illustrative": true
+  },
+  "extra-8/extra-8-2": {
+    "title": "Ghost Tour",
+    "topic": "Best Halloween Activity",
+    "subject": "Ghost hunting",
+    "illustrative": true
+  },
+  "extra-8/extra-8-3": {
+    "title": "Costume Party",
+    "topic": "Best Halloween Activity",
+    "subject": "Costume party",
+    "illustrative": true
+  },
+  "extra-8/extra-8-4": {
+    "title": "Escape Room",
+    "topic": "Best Halloween Activity",
+    "subject": "Escape room",
+    "illustrative": true
+  },
+  "extra-8/extra-8-5": {
+    "title": "Trick-or-Treating",
+    "topic": "Best Halloween Activity",
+    "subject": "Trick-or-treating",
+    "illustrative": true
+  },
+  "extra-8/extra-8-6": {
+    "title": "Haunted House",
+    "topic": "Best Halloween Activity",
+    "subject": "Haunted house",
+    "illustrative": true
+  },
+  "extra-8/extra-8-7": {
+    "title": "Spooky Baking",
+    "topic": "Best Halloween Activity",
+    "subject": "Halloween cake",
+    "illustrative": true
+  },
+  "extra-8/extra-8-8": {
+    "title": "Campfire Stories",
+    "topic": "Best Halloween Activity",
+    "subject": "Campfire",
+    "illustrative": true
+  },
+  "extra-8/extra-8-9": {
+    "title": "Night Walk",
+    "topic": "Best Halloween Activity",
+    "subject": "Hiking",
+    "illustrative": true
+  },
+  "extra-9/extra-9-0": {
+    "title": "It Takes Two",
+    "topic": "Best Co-op Game",
+    "subject": "It Takes Two (video game)",
+    "illustrative": false
+  },
+  "extra-9/extra-9-1": {
+    "title": "Portal 2",
+    "topic": "Best Co-op Game",
+    "subject": "Portal 2",
+    "illustrative": false
+  },
+  "extra-9/extra-9-2": {
+    "title": "Overcooked 2",
+    "topic": "Best Co-op Game",
+    "subject": "Overcooked 2",
+    "illustrative": false
+  },
+  "extra-9/extra-9-3": {
+    "title": "Deep Rock Galactic",
+    "topic": "Best Co-op Game",
+    "subject": "Deep Rock Galactic",
+    "illustrative": false
+  },
+  "extra-9/extra-9-4": {
+    "title": "Left 4 Dead 2",
+    "topic": "Best Co-op Game",
+    "subject": "Left 4 Dead 2",
+    "illustrative": false
+  },
+  "extra-9/extra-9-5": {
+    "title": "Phasmophobia",
+    "topic": "Best Co-op Game",
+    "subject": "Phasmophobia (video game)",
+    "illustrative": false
+  },
+  "extra-9/extra-9-6": {
+    "title": "Sea of Thieves",
+    "topic": "Best Co-op Game",
+    "subject": "Sea of Thieves",
+    "illustrative": false
+  },
+  "extra-9/extra-9-7": {
+    "title": "Stardew Valley",
+    "topic": "Best Co-op Game",
+    "subject": "Stardew Valley",
+    "illustrative": false
+  },
+  "extra-9/extra-9-8": {
+    "title": "Helldivers 2",
+    "topic": "Best Co-op Game",
+    "subject": "Helldivers 2",
+    "illustrative": false
+  },
+  "extra-9/extra-9-9": {
+    "title": "A Way Out",
+    "topic": "Best Co-op Game",
+    "subject": "A Way Out (video game)",
+    "illustrative": false
+  },
+  "extra-10/extra-10-0": {
+    "title": "Phasmophobia",
+    "topic": "Best Horror Game",
+    "subject": "Phasmophobia (video game)",
+    "illustrative": false
+  },
+  "extra-10/extra-10-1": {
+    "title": "Resident Evil 2",
+    "topic": "Best Horror Game",
+    "subject": "Resident Evil 2 (2019 video game)",
+    "illustrative": false
+  },
+  "extra-10/extra-10-2": {
+    "title": "Silent Hill 2",
+    "topic": "Best Horror Game",
+    "subject": "Silent Hill 2",
+    "illustrative": false
+  },
+  "extra-10/extra-10-3": {
+    "title": "Alien Isolation",
+    "topic": "Best Horror Game",
+    "subject": "Alien: Isolation",
+    "illustrative": false
+  },
+  "extra-10/extra-10-4": {
+    "title": "Dead Space",
+    "topic": "Best Horror Game",
+    "subject": "Dead Space (2008 video game)",
+    "illustrative": false
+  },
+  "extra-10/extra-10-5": {
+    "title": "Amnesia",
+    "topic": "Best Horror Game",
+    "subject": "Amnesia: The Dark Descent",
+    "illustrative": false
+  },
+  "extra-10/extra-10-6": {
+    "title": "Outlast",
+    "topic": "Best Horror Game",
+    "subject": "Outlast",
+    "illustrative": false
+  },
+  "extra-10/extra-10-7": {
+    "title": "SOMA",
+    "topic": "Best Horror Game",
+    "subject": "Soma (video game)",
+    "illustrative": false
+  },
+  "extra-10/extra-10-8": {
+    "title": "Until Dawn",
+    "topic": "Best Horror Game",
+    "subject": "Until Dawn",
+    "illustrative": false
+  },
+  "extra-10/extra-10-9": {
+    "title": "The Mortuary Assistant",
+    "topic": "Best Horror Game",
+    "subject": "The Mortuary Assistant",
+    "illustrative": false
+  },
+  "extra-11/extra-11-0": {
+    "title": "Portal Gun",
+    "topic": "Best Game Weapon",
+    "subject": "Portal (video game)",
+    "illustrative": true
+  },
+  "extra-11/extra-11-1": {
+    "title": "Gravity Gun",
+    "topic": "Best Game Weapon",
+    "subject": "Gravity gun",
+    "illustrative": true
+  },
+  "extra-11/extra-11-2": {
+    "title": "Master Sword",
+    "topic": "Best Game Weapon",
+    "subject": "Master Sword",
+    "illustrative": true
+  },
+  "extra-11/extra-11-3": {
+    "title": "Energy Sword",
+    "topic": "Best Game Weapon",
+    "subject": "Halo: Combat Evolved",
+    "illustrative": true
+  },
+  "extra-11/extra-11-4": {
+    "title": "BFG",
+    "topic": "Best Game Weapon",
+    "subject": "BFG (weapon)",
+    "illustrative": true
+  },
+  "extra-11/extra-11-5": {
+    "title": "Keyblade",
+    "topic": "Best Game Weapon",
+    "subject": "Kingdom Hearts",
+    "illustrative": true
+  },
+  "extra-11/extra-11-6": {
+    "title": "Blades of Chaos",
+    "topic": "Best Game Weapon",
+    "subject": "God of War (2005 video game)",
+    "illustrative": true
+  },
+  "extra-11/extra-11-7": {
+    "title": "Buster Sword",
+    "topic": "Best Game Weapon",
+    "subject": "Cloud Strife",
+    "illustrative": true
+  },
+  "extra-11/extra-11-8": {
+    "title": "Hidden Blade",
+    "topic": "Best Game Weapon",
+    "subject": "Assassin's Creed",
+    "illustrative": true
+  },
+  "extra-11/extra-11-9": {
+    "title": "Blue Shell",
+    "topic": "Best Game Weapon",
+    "subject": "Blue shell",
+    "illustrative": true
+  },
+  "extra-12/extra-12-0": {
+    "title": "Bowser",
+    "topic": "Best Game Boss",
+    "subject": "Bowser",
+    "illustrative": false
+  },
+  "extra-12/extra-12-1": {
+    "title": "GLaDOS",
+    "topic": "Best Game Boss",
+    "subject": "GLaDOS",
+    "illustrative": false
+  },
+  "extra-12/extra-12-2": {
+    "title": "Sephiroth",
+    "topic": "Best Game Boss",
+    "subject": "Sephiroth",
+    "illustrative": false
+  },
+  "extra-12/extra-12-3": {
+    "title": "Ganondorf",
+    "topic": "Best Game Boss",
+    "subject": "Ganon",
+    "illustrative": false
+  },
+  "extra-12/extra-12-4": {
+    "title": "Malenia",
+    "topic": "Best Game Boss",
+    "subject": "Malenia",
+    "illustrative": false
+  },
+  "extra-12/extra-12-5": {
+    "title": "Nemesis",
+    "topic": "Best Game Boss",
+    "subject": "Nemesis (Resident Evil)",
+    "illustrative": false
+  },
+  "extra-12/extra-12-6": {
+    "title": "Dracula",
+    "topic": "Best Game Boss",
+    "subject": "Dracula (Castlevania)",
+    "illustrative": false
+  },
+  "extra-12/extra-12-7": {
+    "title": "Pyramid Head",
+    "topic": "Best Game Boss",
+    "subject": "Pyramid Head",
+    "illustrative": false
+  },
+  "extra-12/extra-12-8": {
+    "title": "King K Rool",
+    "topic": "Best Game Boss",
+    "subject": "King K. Rool",
+    "illustrative": false
+  },
+  "extra-12/extra-12-9": {
+    "title": "Shao Kahn",
+    "topic": "Best Game Boss",
+    "subject": "Shao Kahn",
+    "illustrative": false
+  },
+  "extra-13/extra-13-0": {
+    "title": "Hyrule",
+    "topic": "Best Fictional Game World",
+    "subject": "The Legend of Zelda: Breath of the Wild",
+    "illustrative": true
+  },
+  "extra-13/extra-13-1": {
+    "title": "Rapture",
+    "topic": "Best Fictional Game World",
+    "subject": "Rapture (BioShock)",
+    "illustrative": true
+  },
+  "extra-13/extra-13-2": {
+    "title": "Tamriel",
+    "topic": "Best Fictional Game World",
+    "subject": "The Elder Scrolls V: Skyrim",
+    "illustrative": true
+  },
+  "extra-13/extra-13-3": {
+    "title": "The Mushroom Kingdom",
+    "topic": "Best Fictional Game World",
+    "subject": "Mushroom Kingdom",
+    "illustrative": true
+  },
+  "extra-13/extra-13-4": {
+    "title": "Midgar",
+    "topic": "Best Fictional Game World",
+    "subject": "Final Fantasy VII",
+    "illustrative": true
+  },
+  "extra-13/extra-13-5": {
+    "title": "Azeroth",
+    "topic": "Best Fictional Game World",
+    "subject": "World of Warcraft",
+    "illustrative": true
+  },
+  "extra-13/extra-13-6": {
+    "title": "Stardew Valley",
+    "topic": "Best Fictional Game World",
+    "subject": "Stardew Valley",
+    "illustrative": true
+  },
+  "extra-13/extra-13-7": {
+    "title": "Night City",
+    "topic": "Best Fictional Game World",
+    "subject": "Cyberpunk 2077",
+    "illustrative": true
+  },
+  "extra-13/extra-13-8": {
+    "title": "Pandora",
+    "topic": "Best Fictional Game World",
+    "subject": "Borderlands 2",
+    "illustrative": true
+  },
+  "extra-13/extra-13-9": {
+    "title": "The Citadel",
+    "topic": "Best Fictional Game World",
+    "subject": "Mass Effect",
+    "illustrative": true
+  },
+  "extra-14/extra-14-0": {
+    "title": "Dogmeat",
+    "topic": "Best Game Companion",
+    "subject": "Dogmeat (Fallout)",
+    "illustrative": false
+  },
+  "extra-14/extra-14-1": {
+    "title": "Elizabeth",
+    "topic": "Best Game Companion",
+    "subject": "Elizabeth (BioShock)",
+    "illustrative": false
+  },
+  "extra-14/extra-14-2": {
+    "title": "Garrus",
+    "topic": "Best Game Companion",
+    "subject": "Garrus Vakarian",
+    "illustrative": false
+  },
+  "extra-14/extra-14-3": {
+    "title": "Alyx Vance",
+    "topic": "Best Game Companion",
+    "subject": "Alyx Vance",
+    "illustrative": false
+  },
+  "extra-14/extra-14-4": {
+    "title": "Yoshi",
+    "topic": "Best Game Companion",
+    "subject": "Yoshi",
+    "illustrative": false
+  },
+  "extra-14/extra-14-5": {
+    "title": "Tails",
+    "topic": "Best Game Companion",
+    "subject": "Tails (Sonic the Hedgehog)",
+    "illustrative": false
+  },
+  "extra-14/extra-14-6": {
+    "title": "Atreus",
+    "topic": "Best Game Companion",
+    "subject": "Atreus (God of War)",
+    "illustrative": false
+  },
+  "extra-14/extra-14-7": {
+    "title": "Cortana",
+    "topic": "Best Game Companion",
+    "subject": "Cortana (Halo)",
+    "illustrative": false
+  },
+  "extra-14/extra-14-8": {
+    "title": "Claptrap",
+    "topic": "Best Game Companion",
+    "subject": "Claptrap",
+    "illustrative": false
+  },
+  "extra-14/extra-14-9": {
+    "title": "Daxter",
+    "topic": "Best Game Companion",
+    "subject": "Daxter",
+    "illustrative": false
+  },
+  "extra-15/extra-15-0": {
+    "title": "Mario Kart",
+    "topic": "Best Racing Game",
+    "subject": "Mario Kart 8 Deluxe",
+    "illustrative": false
+  },
+  "extra-15/extra-15-1": {
+    "title": "Forza Horizon",
+    "topic": "Best Racing Game",
+    "subject": "Forza Horizon 5",
+    "illustrative": false
+  },
+  "extra-15/extra-15-2": {
+    "title": "Gran Turismo",
+    "topic": "Best Racing Game",
+    "subject": "Gran Turismo 7",
+    "illustrative": false
+  },
+  "extra-15/extra-15-3": {
+    "title": "Burnout",
+    "topic": "Best Racing Game",
+    "subject": "Burnout 3: Takedown",
+    "illustrative": false
+  },
+  "extra-15/extra-15-4": {
+    "title": "Need for Speed",
+    "topic": "Best Racing Game",
+    "subject": "Need for Speed: Most Wanted (2005 video game)",
+    "illustrative": false
+  },
+  "extra-15/extra-15-5": {
+    "title": "F-Zero",
+    "topic": "Best Racing Game",
+    "subject": "F-Zero",
+    "illustrative": false
+  },
+  "extra-15/extra-15-6": {
+    "title": "Wipeout",
+    "topic": "Best Racing Game",
+    "subject": "Wipeout (video game)",
+    "illustrative": false
+  },
+  "extra-15/extra-15-7": {
+    "title": "Dirt Rally",
+    "topic": "Best Racing Game",
+    "subject": "Dirt Rally",
+    "illustrative": false
+  },
+  "extra-15/extra-15-8": {
+    "title": "Crash Team Racing",
+    "topic": "Best Racing Game",
+    "subject": "Crash Team Racing",
+    "illustrative": false
+  },
+  "extra-15/extra-15-9": {
+    "title": "Trackmania",
+    "topic": "Best Racing Game",
+    "subject": "TrackMania",
+    "illustrative": false
+  },
+  "extra-16/extra-16-0": {
+    "title": "Super Star",
+    "topic": "Best Game Power-up",
+    "subject": "Super Mario Bros.",
+    "illustrative": true
+  },
+  "extra-16/extra-16-1": {
+    "title": "Fire Flower",
+    "topic": "Best Game Power-up",
+    "subject": "Super Mario Bros. 3",
+    "illustrative": true
+  },
+  "extra-16/extra-16-2": {
+    "title": "Mega Mushroom",
+    "topic": "Best Game Power-up",
+    "subject": "New Super Mario Bros.",
+    "illustrative": true
+  },
+  "extra-16/extra-16-3": {
+    "title": "Extra Life",
+    "topic": "Best Game Power-up",
+    "subject": "1-up",
+    "illustrative": true
+  },
+  "extra-16/extra-16-4": {
+    "title": "Speed Boost",
+    "topic": "Best Game Power-up",
+    "subject": "Sonic the Hedgehog (1991 video game)",
+    "illustrative": true
+  },
+  "extra-16/extra-16-5": {
+    "title": "Invincibility Shield",
+    "topic": "Best Game Power-up",
+    "subject": "Shield",
+    "illustrative": true
+  },
+  "extra-16/extra-16-6": {
+    "title": "Double Damage",
+    "topic": "Best Game Power-up",
+    "subject": "Quake (video game)",
+    "illustrative": true
+  },
+  "extra-16/extra-16-7": {
+    "title": "Invisibility",
+    "topic": "Best Game Power-up",
+    "subject": "Invisibility",
+    "illustrative": true
+  },
+  "extra-16/extra-16-8": {
+    "title": "Time Freeze",
+    "topic": "Best Game Power-up",
+    "subject": "Hourglass",
+    "illustrative": true
+  },
+  "extra-16/extra-16-9": {
+    "title": "Health Potion",
+    "topic": "Best Game Power-up",
+    "subject": "Potion",
+    "illustrative": true
+  },
+  "extra-17/extra-17-0": {
+    "title": "Chocolate Digestive",
+    "topic": "Best British Biscuit",
+    "subject": "Chocolate digestive",
+    "illustrative": false
+  },
+  "extra-17/extra-17-1": {
+    "title": "Hobnob",
+    "topic": "Best British Biscuit",
+    "subject": "Hobnob biscuit",
+    "illustrative": false
+  },
+  "extra-17/extra-17-2": {
+    "title": "Custard Cream",
+    "topic": "Best British Biscuit",
+    "subject": "Custard cream",
+    "illustrative": false
+  },
+  "extra-17/extra-17-3": {
+    "title": "Bourbon",
+    "topic": "Best British Biscuit",
+    "subject": "Bourbon biscuit",
+    "illustrative": false
+  },
+  "extra-17/extra-17-4": {
+    "title": "Ginger Nut",
+    "topic": "Best British Biscuit",
+    "subject": "Ginger nut",
+    "illustrative": false
+  },
+  "extra-17/extra-17-5": {
+    "title": "Rich Tea",
+    "topic": "Best British Biscuit",
+    "subject": "Rich tea",
+    "illustrative": false
+  },
+  "extra-17/extra-17-6": {
+    "title": "Malted Milk",
+    "topic": "Best British Biscuit",
+    "subject": "Malted milk (biscuit)",
+    "illustrative": false
+  },
+  "extra-17/extra-17-7": {
+    "title": "Shortbread",
+    "topic": "Best British Biscuit",
+    "subject": "Shortbread",
+    "illustrative": false
+  },
+  "extra-17/extra-17-8": {
+    "title": "Jammy Dodger",
+    "topic": "Best British Biscuit",
+    "subject": "Jammie Dodgers",
+    "illustrative": false
+  },
+  "extra-17/extra-17-9": {
+    "title": "Nice Biscuit",
+    "topic": "Best British Biscuit",
+    "subject": "Nice biscuit",
+    "illustrative": false
+  },
+  "extra-18/extra-18-0": {
+    "title": "Dairy Milk",
+    "topic": "Best Chocolate Bar",
+    "subject": "Cadbury Dairy Milk",
+    "illustrative": false
+  },
+  "extra-18/extra-18-1": {
+    "title": "KitKat",
+    "topic": "Best Chocolate Bar",
+    "subject": "Kit Kat",
+    "illustrative": false
+  },
+  "extra-18/extra-18-2": {
+    "title": "Twix",
+    "topic": "Best Chocolate Bar",
+    "subject": "Twix",
+    "illustrative": false
+  },
+  "extra-18/extra-18-3": {
+    "title": "Mars",
+    "topic": "Best Chocolate Bar",
+    "subject": "Mars (chocolate bar)",
+    "illustrative": false
+  },
+  "extra-18/extra-18-4": {
+    "title": "Snickers",
+    "topic": "Best Chocolate Bar",
+    "subject": "Snickers",
+    "illustrative": false
+  },
+  "extra-18/extra-18-5": {
+    "title": "Bounty",
+    "topic": "Best Chocolate Bar",
+    "subject": "Bounty (chocolate bar)",
+    "illustrative": false
+  },
+  "extra-18/extra-18-6": {
+    "title": "Crunchie",
+    "topic": "Best Chocolate Bar",
+    "subject": "Crunchie",
+    "illustrative": false
+  },
+  "extra-18/extra-18-7": {
+    "title": "Wispa",
+    "topic": "Best Chocolate Bar",
+    "subject": "Wispa",
+    "illustrative": false
+  },
+  "extra-18/extra-18-8": {
+    "title": "Aero",
+    "topic": "Best Chocolate Bar",
+    "subject": "Aero (chocolate bar)",
+    "illustrative": false
+  },
+  "extra-18/extra-18-9": {
+    "title": "Toblerone",
+    "topic": "Best Chocolate Bar",
+    "subject": "Toblerone",
+    "illustrative": false
+  },
+  "extra-19/extra-19-0": {
+    "title": "Vanilla",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Vanilla ice cream",
+    "illustrative": false
+  },
+  "extra-19/extra-19-1": {
+    "title": "Chocolate",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Chocolate ice cream",
+    "illustrative": false
+  },
+  "extra-19/extra-19-2": {
+    "title": "Strawberry",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Strawberry ice cream",
+    "illustrative": false
+  },
+  "extra-19/extra-19-3": {
+    "title": "Mint Choc Chip",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Mint chocolate chip",
+    "illustrative": false
+  },
+  "extra-19/extra-19-4": {
+    "title": "Salted Caramel",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Caramel",
+    "illustrative": false
+  },
+  "extra-19/extra-19-5": {
+    "title": "Cookie Dough",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Cookie dough ice cream",
+    "illustrative": false
+  },
+  "extra-19/extra-19-6": {
+    "title": "Pistachio",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Pistachio ice cream",
+    "illustrative": false
+  },
+  "extra-19/extra-19-7": {
+    "title": "Coffee",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Coffee ice cream",
+    "illustrative": false
+  },
+  "extra-19/extra-19-8": {
+    "title": "Raspberry Ripple",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Raspberry ripple",
+    "illustrative": false
+  },
+  "extra-19/extra-19-9": {
+    "title": "Rum and Raisin",
+    "topic": "Best Ice Cream Flavour",
+    "subject": "Rum raisin",
+    "illustrative": false
+  },
+  "extra-20/extra-20-0": {
+    "title": "Pepperoni",
+    "topic": "Best Pizza Topping",
+    "subject": "Pepperoni",
+    "illustrative": false
+  },
+  "extra-20/extra-20-1": {
+    "title": "Mushrooms",
+    "topic": "Best Pizza Topping",
+    "subject": "Edible mushroom",
+    "illustrative": false
+  },
+  "extra-20/extra-20-2": {
+    "title": "Pineapple",
+    "topic": "Best Pizza Topping",
+    "subject": "Pineapple",
+    "illustrative": false
+  },
+  "extra-20/extra-20-3": {
+    "title": "Jalapenos",
+    "topic": "Best Pizza Topping",
+    "subject": "Jalapeño",
+    "illustrative": false
+  },
+  "extra-20/extra-20-4": {
+    "title": "Olives",
+    "topic": "Best Pizza Topping",
+    "subject": "Olive",
+    "illustrative": false
+  },
+  "extra-20/extra-20-5": {
+    "title": "Extra Cheese",
+    "topic": "Best Pizza Topping",
+    "subject": "Mozzarella",
+    "illustrative": false
+  },
+  "extra-20/extra-20-6": {
+    "title": "Ham",
+    "topic": "Best Pizza Topping",
+    "subject": "Ham",
+    "illustrative": false
+  },
+  "extra-20/extra-20-7": {
+    "title": "Chicken",
+    "topic": "Best Pizza Topping",
+    "subject": "Chicken as food",
+    "illustrative": false
+  },
+  "extra-20/extra-20-8": {
+    "title": "Sweetcorn",
+    "topic": "Best Pizza Topping",
+    "subject": "Sweet corn",
+    "illustrative": false
+  },
+  "extra-20/extra-20-9": {
+    "title": "Anchovies",
+    "topic": "Best Pizza Topping",
+    "subject": "Anchovy",
+    "illustrative": false
+  },
+  "extra-21/extra-21-0": {
+    "title": "Ketchup",
+    "topic": "Best Sauce",
+    "subject": "Ketchup",
+    "illustrative": false
+  },
+  "extra-21/extra-21-1": {
+    "title": "Brown Sauce",
+    "topic": "Best Sauce",
+    "subject": "Brown sauce",
+    "illustrative": false
+  },
+  "extra-21/extra-21-2": {
+    "title": "Mayonnaise",
+    "topic": "Best Sauce",
+    "subject": "Mayonnaise",
+    "illustrative": false
+  },
+  "extra-21/extra-21-3": {
+    "title": "Garlic Mayo",
+    "topic": "Best Sauce",
+    "subject": "Aioli",
+    "illustrative": false
+  },
+  "extra-21/extra-21-4": {
+    "title": "Sweet Chilli",
+    "topic": "Best Sauce",
+    "subject": "Sweet chili sauce",
+    "illustrative": false
+  },
+  "extra-21/extra-21-5": {
+    "title": "Barbecue",
+    "topic": "Best Sauce",
+    "subject": "Barbecue sauce",
+    "illustrative": false
+  },
+  "extra-21/extra-21-6": {
+    "title": "Sriracha",
+    "topic": "Best Sauce",
+    "subject": "Sriracha",
+    "illustrative": false
+  },
+  "extra-21/extra-21-7": {
+    "title": "Mustard",
+    "topic": "Best Sauce",
+    "subject": "Mustard (condiment)",
+    "illustrative": false
+  },
+  "extra-21/extra-21-8": {
+    "title": "Peri-Peri",
+    "topic": "Best Sauce",
+    "subject": "Peri-peri",
+    "illustrative": false
+  },
+  "extra-21/extra-21-9": {
+    "title": "Burger Sauce",
+    "topic": "Best Sauce",
+    "subject": "Thousand Island dressing",
+    "illustrative": false
+  },
+  "extra-22/extra-22-0": {
+    "title": "Cheese and Pickle",
+    "topic": "Best Sandwich Filling",
+    "subject": "Cheese and pickle sandwich",
+    "illustrative": false
+  },
+  "extra-22/extra-22-1": {
+    "title": "BLT",
+    "topic": "Best Sandwich Filling",
+    "subject": "BLT",
+    "illustrative": false
+  },
+  "extra-22/extra-22-2": {
+    "title": "Tuna Mayo",
+    "topic": "Best Sandwich Filling",
+    "subject": "Tuna fish sandwich",
+    "illustrative": false
+  },
+  "extra-22/extra-22-3": {
+    "title": "Egg Mayo",
+    "topic": "Best Sandwich Filling",
+    "subject": "Egg salad",
+    "illustrative": false
+  },
+  "extra-22/extra-22-4": {
+    "title": "Ham and Cheese",
+    "topic": "Best Sandwich Filling",
+    "subject": "Ham and cheese sandwich",
+    "illustrative": false
+  },
+  "extra-22/extra-22-5": {
+    "title": "Coronation Chicken",
+    "topic": "Best Sandwich Filling",
+    "subject": "Coronation chicken",
+    "illustrative": false
+  },
+  "extra-22/extra-22-6": {
+    "title": "Fish Fingers",
+    "topic": "Best Sandwich Filling",
+    "subject": "Fish finger sandwich",
+    "illustrative": false
+  },
+  "extra-22/extra-22-7": {
+    "title": "Sausage",
+    "topic": "Best Sandwich Filling",
+    "subject": "Sausage sandwich",
+    "illustrative": false
+  },
+  "extra-22/extra-22-8": {
+    "title": "Cucumber",
+    "topic": "Best Sandwich Filling",
+    "subject": "Cucumber sandwich",
+    "illustrative": false
+  },
+  "extra-22/extra-22-9": {
+    "title": "Roast Beef",
+    "topic": "Best Sandwich Filling",
+    "subject": "Roast beef sandwich",
+    "illustrative": false
+  },
+  "extra-23/extra-23-0": {
+    "title": "Roast Potatoes",
+    "topic": "Best Potato Form",
+    "subject": "Roast potatoes",
+    "illustrative": false
+  },
+  "extra-23/extra-23-1": {
+    "title": "Chips",
+    "topic": "Best Potato Form",
+    "subject": "French fries",
+    "illustrative": false
+  },
+  "extra-23/extra-23-2": {
+    "title": "Mash",
+    "topic": "Best Potato Form",
+    "subject": "Mashed potato",
+    "illustrative": false
+  },
+  "extra-23/extra-23-3": {
+    "title": "Hash Browns",
+    "topic": "Best Potato Form",
+    "subject": "Hash browns",
+    "illustrative": false
+  },
+  "extra-23/extra-23-4": {
+    "title": "Jacket Potato",
+    "topic": "Best Potato Form",
+    "subject": "Baked potato",
+    "illustrative": false
+  },
+  "extra-23/extra-23-5": {
+    "title": "Dauphinoise",
+    "topic": "Best Potato Form",
+    "subject": "Gratin dauphinois",
+    "illustrative": false
+  },
+  "extra-23/extra-23-6": {
+    "title": "Potato Wedges",
+    "topic": "Best Potato Form",
+    "subject": "Potato wedges",
+    "illustrative": false
+  },
+  "extra-23/extra-23-7": {
+    "title": "Crisps",
+    "topic": "Best Potato Form",
+    "subject": "Potato chip",
+    "illustrative": false
+  },
+  "extra-23/extra-23-8": {
+    "title": "Potato Salad",
+    "topic": "Best Potato Form",
+    "subject": "Potato salad",
+    "illustrative": false
+  },
+  "extra-23/extra-23-9": {
+    "title": "Croquettes",
+    "topic": "Best Potato Form",
+    "subject": "Croquette",
+    "illustrative": false
+  },
+  "extra-24/extra-24-0": {
+    "title": "Cola Bottles",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Haribo",
+    "illustrative": false
+  },
+  "extra-24/extra-24-1": {
+    "title": "Jelly Babies",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Jelly Babies",
+    "illustrative": false
+  },
+  "extra-24/extra-24-2": {
+    "title": "Wine Gums",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Wine gum",
+    "illustrative": false
+  },
+  "extra-24/extra-24-3": {
+    "title": "Pear Drops",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Pear drop",
+    "illustrative": false
+  },
+  "extra-24/extra-24-4": {
+    "title": "Sherbet Lemons",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Sherbet lemon",
+    "illustrative": false
+  },
+  "extra-24/extra-24-5": {
+    "title": "Fudge",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Fudge",
+    "illustrative": false
+  },
+  "extra-24/extra-24-6": {
+    "title": "Liquorice Allsorts",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Liquorice allsorts",
+    "illustrative": false
+  },
+  "extra-24/extra-24-7": {
+    "title": "Foam Bananas",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Foam banana",
+    "illustrative": false
+  },
+  "extra-24/extra-24-8": {
+    "title": "Flying Saucers",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Flying saucer (confectionery)",
+    "illustrative": false
+  },
+  "extra-24/extra-24-9": {
+    "title": "Sour Cherries",
+    "topic": "Best Sweet Shop Pick",
+    "subject": "Sour cherry",
+    "illustrative": false
+  },
+  "extra-25/extra-25-0": {
+    "title": "Bugs Bunny",
+    "topic": "Best Cartoon Character",
+    "subject": "Bugs Bunny",
+    "illustrative": false
+  },
+  "extra-25/extra-25-1": {
+    "title": "Scooby-Doo",
+    "topic": "Best Cartoon Character",
+    "subject": "Scooby-Doo (character)",
+    "illustrative": false
+  },
+  "extra-25/extra-25-2": {
+    "title": "SpongeBob",
+    "topic": "Best Cartoon Character",
+    "subject": "SpongeBob SquarePants (character)",
+    "illustrative": false
+  },
+  "extra-25/extra-25-3": {
+    "title": "Homer Simpson",
+    "topic": "Best Cartoon Character",
+    "subject": "Homer Simpson",
+    "illustrative": false
+  },
+  "extra-25/extra-25-4": {
+    "title": "Tom",
+    "topic": "Best Cartoon Character",
+    "subject": "Tom Cat",
+    "illustrative": false
+  },
+  "extra-25/extra-25-5": {
+    "title": "Jerry",
+    "topic": "Best Cartoon Character",
+    "subject": "Jerry Mouse",
+    "illustrative": false
+  },
+  "extra-25/extra-25-6": {
+    "title": "Daffy Duck",
+    "topic": "Best Cartoon Character",
+    "subject": "Daffy Duck",
+    "illustrative": false
+  },
+  "extra-25/extra-25-7": {
+    "title": "Garfield",
+    "topic": "Best Cartoon Character",
+    "subject": "Garfield",
+    "illustrative": false
+  },
+  "extra-25/extra-25-8": {
+    "title": "Donald Duck",
+    "topic": "Best Cartoon Character",
+    "subject": "Donald Duck",
+    "illustrative": false
+  },
+  "extra-25/extra-25-9": {
+    "title": "Popeye",
+    "topic": "Best Cartoon Character",
+    "subject": "Popeye",
+    "illustrative": false
+  },
+  "extra-26/extra-26-0": {
+    "title": "Friends",
+    "topic": "Best Sitcom",
+    "subject": "Friends",
+    "illustrative": false
+  },
+  "extra-26/extra-26-1": {
+    "title": "The Office",
+    "topic": "Best Sitcom",
+    "subject": "The Office (British TV series)",
+    "illustrative": false
+  },
+  "extra-26/extra-26-2": {
+    "title": "Brooklyn Nine-Nine",
+    "topic": "Best Sitcom",
+    "subject": "Brooklyn Nine-Nine",
+    "illustrative": false
+  },
+  "extra-26/extra-26-3": {
+    "title": "Frasier",
+    "topic": "Best Sitcom",
+    "subject": "Frasier",
+    "illustrative": false
+  },
+  "extra-26/extra-26-4": {
+    "title": "The IT Crowd",
+    "topic": "Best Sitcom",
+    "subject": "The IT Crowd",
+    "illustrative": false
+  },
+  "extra-26/extra-26-5": {
+    "title": "Blackadder",
+    "topic": "Best Sitcom",
+    "subject": "Blackadder",
+    "illustrative": false
+  },
+  "extra-26/extra-26-6": {
+    "title": "Red Dwarf",
+    "topic": "Best Sitcom",
+    "subject": "Red Dwarf",
+    "illustrative": false
+  },
+  "extra-26/extra-26-7": {
+    "title": "Parks and Recreation",
+    "topic": "Best Sitcom",
+    "subject": "Parks and Recreation",
+    "illustrative": false
+  },
+  "extra-26/extra-26-8": {
+    "title": "Derry Girls",
+    "topic": "Best Sitcom",
+    "subject": "Derry Girls",
+    "illustrative": false
+  },
+  "extra-26/extra-26-9": {
+    "title": "The Good Place",
+    "topic": "Best Sitcom",
+    "subject": "The Good Place",
+    "illustrative": false
+  },
+  "extra-27/extra-27-0": {
+    "title": "Star Wars",
+    "topic": "Best Movie Franchise",
+    "subject": "Star Wars",
+    "illustrative": false
+  },
+  "extra-27/extra-27-1": {
+    "title": "Lord of the Rings",
+    "topic": "Best Movie Franchise",
+    "subject": "The Lord of the Rings (film series)",
+    "illustrative": false
+  },
+  "extra-27/extra-27-2": {
+    "title": "Jurassic Park",
+    "topic": "Best Movie Franchise",
+    "subject": "Jurassic Park",
+    "illustrative": false
+  },
+  "extra-27/extra-27-3": {
+    "title": "Indiana Jones",
+    "topic": "Best Movie Franchise",
+    "subject": "Indiana Jones",
+    "illustrative": false
+  },
+  "extra-27/extra-27-4": {
+    "title": "Back to the Future",
+    "topic": "Best Movie Franchise",
+    "subject": "Back to the Future",
+    "illustrative": false
+  },
+  "extra-27/extra-27-5": {
+    "title": "Alien",
+    "topic": "Best Movie Franchise",
+    "subject": "Alien (franchise)",
+    "illustrative": false
+  },
+  "extra-27/extra-27-6": {
+    "title": "Terminator",
+    "topic": "Best Movie Franchise",
+    "subject": "Terminator (franchise)",
+    "illustrative": false
+  },
+  "extra-27/extra-27-7": {
+    "title": "Toy Story",
+    "topic": "Best Movie Franchise",
+    "subject": "Toy Story",
+    "illustrative": false
+  },
+  "extra-27/extra-27-8": {
+    "title": "Shrek",
+    "topic": "Best Movie Franchise",
+    "subject": "Shrek",
+    "illustrative": false
+  },
+  "extra-27/extra-27-9": {
+    "title": "Mission Impossible",
+    "topic": "Best Movie Franchise",
+    "subject": "Mission: Impossible (film series)",
+    "illustrative": false
+  },
+  "extra-28/extra-28-0": {
+    "title": "DeLorean",
+    "topic": "Best Fictional Vehicle",
+    "subject": "DeLorean time machine",
+    "illustrative": false
+  },
+  "extra-28/extra-28-1": {
+    "title": "Batmobile",
+    "topic": "Best Fictional Vehicle",
+    "subject": "Batmobile",
+    "illustrative": false
+  },
+  "extra-28/extra-28-2": {
+    "title": "Millennium Falcon",
+    "topic": "Best Fictional Vehicle",
+    "subject": "Millennium Falcon",
+    "illustrative": false
+  },
+  "extra-28/extra-28-3": {
+    "title": "TARDIS",
+    "topic": "Best Fictional Vehicle",
+    "subject": "TARDIS",
+    "illustrative": false
+  },
+  "extra-28/extra-28-4": {
+    "title": "Ecto-1",
+    "topic": "Best Fictional Vehicle",
+    "subject": "Ectomobile",
+    "illustrative": false
+  },
+  "extra-28/extra-28-5": {
+    "title": "KITT",
+    "topic": "Best Fictional Vehicle",
+    "subject": "KITT",
+    "illustrative": false
+  },
+  "extra-28/extra-28-6": {
+    "title": "Mystery Machine",
+    "topic": "Best Fictional Vehicle",
+    "subject": "Scooby-Doo",
+    "illustrative": false
+  },
+  "extra-28/extra-28-7": {
+    "title": "Hogwarts Express",
+    "topic": "Best Fictional Vehicle",
+    "subject": "Hogwarts Express",
+    "illustrative": false
+  },
+  "extra-28/extra-28-8": {
+    "title": "USS Enterprise",
+    "topic": "Best Fictional Vehicle",
+    "subject": "USS Enterprise (NCC-1701)",
+    "illustrative": false
+  },
+  "extra-28/extra-28-9": {
+    "title": "Light Cycle",
+    "topic": "Best Fictional Vehicle",
+    "subject": "Tron",
+    "illustrative": false
+  },
+  "extra-29/extra-29-0": {
+    "title": "Shrek",
+    "topic": "Best Animated Film",
+    "subject": "Shrek",
+    "illustrative": false
+  },
+  "extra-29/extra-29-1": {
+    "title": "Toy Story",
+    "topic": "Best Animated Film",
+    "subject": "Toy Story",
+    "illustrative": false
+  },
+  "extra-29/extra-29-2": {
+    "title": "The Lion King",
+    "topic": "Best Animated Film",
+    "subject": "The Lion King",
+    "illustrative": false
+  },
+  "extra-29/extra-29-3": {
+    "title": "Spirited Away",
+    "topic": "Best Animated Film",
+    "subject": "Spirited Away",
+    "illustrative": false
+  },
+  "extra-29/extra-29-4": {
+    "title": "Finding Nemo",
+    "topic": "Best Animated Film",
+    "subject": "Finding Nemo",
+    "illustrative": false
+  },
+  "extra-29/extra-29-5": {
+    "title": "The Incredibles",
+    "topic": "Best Animated Film",
+    "subject": "The Incredibles",
+    "illustrative": false
+  },
+  "extra-29/extra-29-6": {
+    "title": "WALL-E",
+    "topic": "Best Animated Film",
+    "subject": "WALL-E",
+    "illustrative": false
+  },
+  "extra-29/extra-29-7": {
+    "title": "How to Train Your Dragon",
+    "topic": "Best Animated Film",
+    "subject": "How to Train Your Dragon (2010 film)",
+    "illustrative": false
+  },
+  "extra-29/extra-29-8": {
+    "title": "Into the Spider-Verse",
+    "topic": "Best Animated Film",
+    "subject": "Spider-Man: Into the Spider-Verse",
+    "illustrative": false
+  },
+  "extra-29/extra-29-9": {
+    "title": "Ratatouille",
+    "topic": "Best Animated Film",
+    "subject": "Ratatouille (film)",
+    "illustrative": false
+  },
+  "extra-30/extra-30-0": {
+    "title": "R2-D2",
+    "topic": "Best Screen Robot",
+    "subject": "R2-D2",
+    "illustrative": false
+  },
+  "extra-30/extra-30-1": {
+    "title": "C-3PO",
+    "topic": "Best Screen Robot",
+    "subject": "C-3PO",
+    "illustrative": false
+  },
+  "extra-30/extra-30-2": {
+    "title": "WALL-E",
+    "topic": "Best Screen Robot",
+    "subject": "WALL-E",
+    "illustrative": false
+  },
+  "extra-30/extra-30-3": {
+    "title": "The Iron Giant",
+    "topic": "Best Screen Robot",
+    "subject": "The Iron Giant",
+    "illustrative": false
+  },
+  "extra-30/extra-30-4": {
+    "title": "T-800",
+    "topic": "Best Screen Robot",
+    "subject": "Terminator (character)",
+    "illustrative": false
+  },
+  "extra-30/extra-30-5": {
+    "title": "Baymax",
+    "topic": "Best Screen Robot",
+    "subject": "Baymax",
+    "illustrative": false
+  },
+  "extra-30/extra-30-6": {
+    "title": "RoboCop",
+    "topic": "Best Screen Robot",
+    "subject": "RoboCop (character)",
+    "illustrative": false
+  },
+  "extra-30/extra-30-7": {
+    "title": "Marvin",
+    "topic": "Best Screen Robot",
+    "subject": "Marvin the Paranoid Android",
+    "illustrative": false
+  },
+  "extra-30/extra-30-8": {
+    "title": "Johnny 5",
+    "topic": "Best Screen Robot",
+    "subject": "Short Circuit (1986 film)",
+    "illustrative": false
+  },
+  "extra-30/extra-30-9": {
+    "title": "Bender",
+    "topic": "Best Screen Robot",
+    "subject": "Bender (Futurama)",
+    "illustrative": false
+  },
+  "extra-31/extra-31-0": {
+    "title": "Sherlock Holmes",
+    "topic": "Best Screen Detective",
+    "subject": "Sherlock Holmes",
+    "illustrative": false
+  },
+  "extra-31/extra-31-1": {
+    "title": "Columbo",
+    "topic": "Best Screen Detective",
+    "subject": "Columbo",
+    "illustrative": false
+  },
+  "extra-31/extra-31-2": {
+    "title": "Poirot",
+    "topic": "Best Screen Detective",
+    "subject": "Hercule Poirot",
+    "illustrative": false
+  },
+  "extra-31/extra-31-3": {
+    "title": "Jessica Fletcher",
+    "topic": "Best Screen Detective",
+    "subject": "Jessica Fletcher",
+    "illustrative": false
+  },
+  "extra-31/extra-31-4": {
+    "title": "Luther",
+    "topic": "Best Screen Detective",
+    "subject": "John Luther",
+    "illustrative": false
+  },
+  "extra-31/extra-31-5": {
+    "title": "Adrian Monk",
+    "topic": "Best Screen Detective",
+    "subject": "Adrian Monk",
+    "illustrative": false
+  },
+  "extra-31/extra-31-6": {
+    "title": "Veronica Mars",
+    "topic": "Best Screen Detective",
+    "subject": "Veronica Mars (character)",
+    "illustrative": false
+  },
+  "extra-31/extra-31-7": {
+    "title": "Benoit Blanc",
+    "topic": "Best Screen Detective",
+    "subject": "Benoit Blanc",
+    "illustrative": false
+  },
+  "extra-31/extra-31-8": {
+    "title": "Miss Marple",
+    "topic": "Best Screen Detective",
+    "subject": "Miss Marple",
+    "illustrative": false
+  },
+  "extra-31/extra-31-9": {
+    "title": "Jake Peralta",
+    "topic": "Best Screen Detective",
+    "subject": "Jake Peralta",
+    "illustrative": false
+  },
+  "extra-32/extra-32-0": {
+    "title": "Gandalf",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Gandalf",
+    "illustrative": false
+  },
+  "extra-32/extra-32-1": {
+    "title": "Frodo",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Frodo Baggins",
+    "illustrative": false
+  },
+  "extra-32/extra-32-2": {
+    "title": "Aragorn",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Aragorn",
+    "illustrative": false
+  },
+  "extra-32/extra-32-3": {
+    "title": "Legolas",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Legolas",
+    "illustrative": false
+  },
+  "extra-32/extra-32-4": {
+    "title": "Gimli",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Gimli",
+    "illustrative": false
+  },
+  "extra-32/extra-32-5": {
+    "title": "Gollum",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Gollum",
+    "illustrative": false
+  },
+  "extra-32/extra-32-6": {
+    "title": "Aslan",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Aslan",
+    "illustrative": false
+  },
+  "extra-32/extra-32-7": {
+    "title": "Dumbledore",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Albus Dumbledore",
+    "illustrative": false
+  },
+  "extra-32/extra-32-8": {
+    "title": "Hermione",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Hermione Granger",
+    "illustrative": false
+  },
+  "extra-32/extra-32-9": {
+    "title": "Hagrid",
+    "topic": "Best Fantasy Film Character",
+    "subject": "Rubeus Hagrid",
+    "illustrative": false
+  },
+  "extra-33/extra-33-0": {
+    "title": "Torch",
+    "topic": "Best Survival Item",
+    "subject": "Flashlight",
+    "illustrative": false
+  },
+  "extra-33/extra-33-1": {
+    "title": "Rope",
+    "topic": "Best Survival Item",
+    "subject": "Rope",
+    "illustrative": false
+  },
+  "extra-33/extra-33-2": {
+    "title": "Water Filter",
+    "topic": "Best Survival Item",
+    "subject": "Portable water purification",
+    "illustrative": false
+  },
+  "extra-33/extra-33-3": {
+    "title": "First Aid Kit",
+    "topic": "Best Survival Item",
+    "subject": "First aid kit",
+    "illustrative": false
+  },
+  "extra-33/extra-33-4": {
+    "title": "Map",
+    "topic": "Best Survival Item",
+    "subject": "Map",
+    "illustrative": false
+  },
+  "extra-33/extra-33-5": {
+    "title": "Compass",
+    "topic": "Best Survival Item",
+    "subject": "Compass",
+    "illustrative": false
+  },
+  "extra-33/extra-33-6": {
+    "title": "Fire Starter",
+    "topic": "Best Survival Item",
+    "subject": "Ferrocerium",
+    "illustrative": false
+  },
+  "extra-33/extra-33-7": {
+    "title": "Tent",
+    "topic": "Best Survival Item",
+    "subject": "Tent",
+    "illustrative": false
+  },
+  "extra-33/extra-33-8": {
+    "title": "Multi-tool",
+    "topic": "Best Survival Item",
+    "subject": "Multi-tool",
+    "illustrative": false
+  },
+  "extra-33/extra-33-9": {
+    "title": "Emergency Radio",
+    "topic": "Best Survival Item",
+    "subject": "Emergency radio",
+    "illustrative": false
+  },
+  "extra-34/extra-34-0": {
+    "title": "Wet Socks",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Sock",
+    "illustrative": true
+  },
+  "extra-34/extra-34-1": {
+    "title": "Low Battery",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Battery (electricity)",
+    "illustrative": true
+  },
+  "extra-34/extra-34-2": {
+    "title": "Slow Wi-Fi",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Wireless router",
+    "illustrative": true
+  },
+  "extra-34/extra-34-3": {
+    "title": "Cold Tea",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Tea",
+    "illustrative": true
+  },
+  "extra-34/extra-34-4": {
+    "title": "Missing Remote",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Remote control",
+    "illustrative": true
+  },
+  "extra-34/extra-34-5": {
+    "title": "Tangled Cables",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Cable",
+    "illustrative": true
+  },
+  "extra-34/extra-34-6": {
+    "title": "Squeaky Chair",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Chair",
+    "illustrative": true
+  },
+  "extra-34/extra-34-7": {
+    "title": "Paper Cut",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Paper cut",
+    "illustrative": true
+  },
+  "extra-34/extra-34-8": {
+    "title": "Stuck Zip",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Zipper",
+    "illustrative": true
+  },
+  "extra-34/extra-34-9": {
+    "title": "Empty Milk Carton",
+    "topic": "Worst Everyday Annoyance",
+    "subject": "Milk carton",
+    "illustrative": true
+  },
+  "extra-35/extra-35-0": {
+    "title": "Toothless",
+    "topic": "Best Fictional Pet",
+    "subject": "Toothless",
+    "illustrative": false
+  },
+  "extra-35/extra-35-1": {
+    "title": "Pikachu",
+    "topic": "Best Fictional Pet",
+    "subject": "Pikachu",
+    "illustrative": false
+  },
+  "extra-35/extra-35-2": {
+    "title": "Scooby-Doo",
+    "topic": "Best Fictional Pet",
+    "subject": "Scooby-Doo (character)",
+    "illustrative": false
+  },
+  "extra-35/extra-35-3": {
+    "title": "Stitch",
+    "topic": "Best Fictional Pet",
+    "subject": "Stitch (Lilo & Stitch)",
+    "illustrative": false
+  },
+  "extra-35/extra-35-4": {
+    "title": "Hedwig",
+    "topic": "Best Fictional Pet",
+    "subject": "Hedwig (Harry Potter)",
+    "illustrative": false
+  },
+  "extra-35/extra-35-5": {
+    "title": "Appa",
+    "topic": "Best Fictional Pet",
+    "subject": "Appa (Avatar: The Last Airbender)",
+    "illustrative": false
+  },
+  "extra-35/extra-35-6": {
+    "title": "Totoro",
+    "topic": "Best Fictional Pet",
+    "subject": "My Neighbor Totoro",
+    "illustrative": false
+  },
+  "extra-35/extra-35-7": {
+    "title": "Gizmo",
+    "topic": "Best Fictional Pet",
+    "subject": "Gremlins",
+    "illustrative": false
+  },
+  "extra-35/extra-35-8": {
+    "title": "Snoopy",
+    "topic": "Best Fictional Pet",
+    "subject": "Snoopy",
+    "illustrative": false
+  },
+  "extra-35/extra-35-9": {
+    "title": "Salem",
+    "topic": "Best Fictional Pet",
+    "subject": "Salem Saberhagen",
+    "illustrative": false
+  },
+  "extra-36/extra-36-0": {
+    "title": "Gaming",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Video game",
+    "illustrative": true
+  },
+  "extra-36/extra-36-1": {
+    "title": "Reading",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Reading",
+    "illustrative": true
+  },
+  "extra-36/extra-36-2": {
+    "title": "Baking",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Baking",
+    "illustrative": true
+  },
+  "extra-36/extra-36-3": {
+    "title": "Movie Marathon",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Home cinema",
+    "illustrative": true
+  },
+  "extra-36/extra-36-4": {
+    "title": "Board Games",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Board game",
+    "illustrative": true
+  },
+  "extra-36/extra-36-5": {
+    "title": "Drawing",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Drawing",
+    "illustrative": true
+  },
+  "extra-36/extra-36-6": {
+    "title": "Jigsaw Puzzle",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Jigsaw puzzle",
+    "illustrative": true
+  },
+  "extra-36/extra-36-7": {
+    "title": "Napping",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Sleep",
+    "illustrative": true
+  },
+  "extra-36/extra-36-8": {
+    "title": "Building Lego",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Lego",
+    "illustrative": true
+  },
+  "extra-36/extra-36-9": {
+    "title": "Listening to Music",
+    "topic": "Best Rainy Day Activity",
+    "subject": "Headphones",
+    "illustrative": true
+  },
+  "extra-37/extra-37-0": {
+    "title": "Cinema Room",
+    "topic": "Best Dream Home Feature",
+    "subject": "Home cinema",
+    "illustrative": true
+  },
+  "extra-37/extra-37-1": {
+    "title": "Indoor Pool",
+    "topic": "Best Dream Home Feature",
+    "subject": "Swimming pool",
+    "illustrative": true
+  },
+  "extra-37/extra-37-2": {
+    "title": "Secret Door",
+    "topic": "Best Dream Home Feature",
+    "subject": "Secret passage",
+    "illustrative": true
+  },
+  "extra-37/extra-37-3": {
+    "title": "Library",
+    "topic": "Best Dream Home Feature",
+    "subject": "Library",
+    "illustrative": true
+  },
+  "extra-37/extra-37-4": {
+    "title": "Games Room",
+    "topic": "Best Dream Home Feature",
+    "subject": "Game room",
+    "illustrative": true
+  },
+  "extra-37/extra-37-5": {
+    "title": "Roof Garden",
+    "topic": "Best Dream Home Feature",
+    "subject": "Roof garden",
+    "illustrative": true
+  },
+  "extra-37/extra-37-6": {
+    "title": "Huge Kitchen",
+    "topic": "Best Dream Home Feature",
+    "subject": "Kitchen",
+    "illustrative": true
+  },
+  "extra-37/extra-37-7": {
+    "title": "Treehouse",
+    "topic": "Best Dream Home Feature",
+    "subject": "Tree house",
+    "illustrative": true
+  },
+  "extra-37/extra-37-8": {
+    "title": "Music Studio",
+    "topic": "Best Dream Home Feature",
+    "subject": "Recording studio",
+    "illustrative": true
+  },
+  "extra-37/extra-37-9": {
+    "title": "Walk-in Wardrobe",
+    "topic": "Best Dream Home Feature",
+    "subject": "Walk-in closet",
+    "illustrative": true
+  },
+  "extra-38/extra-38-0": {
+    "title": "Ancient Egypt",
+    "topic": "Best Time Travel Destination",
+    "subject": "Ancient Egypt",
+    "illustrative": true
+  },
+  "extra-38/extra-38-1": {
+    "title": "Ancient Rome",
+    "topic": "Best Time Travel Destination",
+    "subject": "Ancient Rome",
+    "illustrative": true
+  },
+  "extra-38/extra-38-2": {
+    "title": "Medieval Castle",
+    "topic": "Best Time Travel Destination",
+    "subject": "Castle",
+    "illustrative": true
+  },
+  "extra-38/extra-38-3": {
+    "title": "Victorian London",
+    "topic": "Best Time Travel Destination",
+    "subject": "Victorian London",
+    "illustrative": true
+  },
+  "extra-38/extra-38-4": {
+    "title": "Roaring Twenties",
+    "topic": "Best Time Travel Destination",
+    "subject": "Roaring Twenties",
+    "illustrative": true
+  },
+  "extra-38/extra-38-5": {
+    "title": "1950s Diner",
+    "topic": "Best Time Travel Destination",
+    "subject": "Diner",
+    "illustrative": true
+  },
+  "extra-38/extra-38-6": {
+    "title": "1960s Concert",
+    "topic": "Best Time Travel Destination",
+    "subject": "Woodstock",
+    "illustrative": true
+  },
+  "extra-38/extra-38-7": {
+    "title": "1980s Arcade",
+    "topic": "Best Time Travel Destination",
+    "subject": "Amusement arcade",
+    "illustrative": true
+  },
+  "extra-38/extra-38-8": {
+    "title": "1990s High Street",
+    "topic": "Best Time Travel Destination",
+    "subject": "High Street",
+    "illustrative": true
+  },
+  "extra-38/extra-38-9": {
+    "title": "Distant Future",
+    "topic": "Best Time Travel Destination",
+    "subject": "Futuristic architecture",
+    "illustrative": true
+  },
+  "extra-39/extra-39-0": {
+    "title": "Coffee Machine",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Coffeemaker",
+    "illustrative": true
+  },
+  "extra-39/extra-39-1": {
+    "title": "Comfy Bed",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Bed",
+    "illustrative": true
+  },
+  "extra-39/extra-39-2": {
+    "title": "Solar Charger",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Solar charger",
+    "illustrative": true
+  },
+  "extra-39/extra-39-3": {
+    "title": "Guitar",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Guitar",
+    "illustrative": true
+  },
+  "extra-39/extra-39-4": {
+    "title": "Hammock",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Hammock",
+    "illustrative": true
+  },
+  "extra-39/extra-39-5": {
+    "title": "Book Collection",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Bookcase",
+    "illustrative": true
+  },
+  "extra-39/extra-39-6": {
+    "title": "Chocolate Supply",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Chocolate",
+    "illustrative": true
+  },
+  "extra-39/extra-39-7": {
+    "title": "Fishing Rod",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Fishing rod",
+    "illustrative": true
+  },
+  "extra-39/extra-39-8": {
+    "title": "Sketchbook",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Sketchbook",
+    "illustrative": true
+  },
+  "extra-39/extra-39-9": {
+    "title": "Board Games",
+    "topic": "Best Desert Island Luxury",
+    "subject": "Board game",
+    "illustrative": true
+  },
+  "extra-40/extra-40-0": {
+    "title": "Tiny Crown",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Crown (headgear)",
+    "illustrative": true
+  },
+  "extra-40/extra-40-1": {
+    "title": "Wizard Hat",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Pointed hat",
+    "illustrative": true
+  },
+  "extra-40/extra-40-2": {
+    "title": "Sunglasses",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Sunglasses",
+    "illustrative": true
+  },
+  "extra-40/extra-40-3": {
+    "title": "Cape",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Cape",
+    "illustrative": true
+  },
+  "extra-40/extra-40-4": {
+    "title": "Bow Tie",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Bow tie",
+    "illustrative": true
+  },
+  "extra-40/extra-40-5": {
+    "title": "Headphones",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Headphones",
+    "illustrative": true
+  },
+  "extra-40/extra-40-6": {
+    "title": "Pirate Hat",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Tricorne",
+    "illustrative": true
+  },
+  "extra-40/extra-40-7": {
+    "title": "Monocle",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Monocle",
+    "illustrative": true
+  },
+  "extra-40/extra-40-8": {
+    "title": "Space Helmet",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Space helmet",
+    "illustrative": true
+  },
+  "extra-40/extra-40-9": {
+    "title": "Pumpkin Hat",
+    "topic": "Best Stream Mascot Accessory",
+    "subject": "Jack-o'-lantern",
+    "illustrative": true
+  }
+}
