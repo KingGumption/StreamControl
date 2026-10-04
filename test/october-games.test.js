@@ -29,7 +29,7 @@ test('number hunt bounds shrink correctly, exact guesses win together, target re
 });
 test('escape has a achievable cooperative win and failure, boss can be beaten with coordinated attacks',()=>{
  const f=fixture();f.game.start('escape',{rounds:3});for(let i=0;i<3;i++){f.game.handleChatEvent(chat('a',String(f.game.effects.indexOf(2)+1)));f.game.resolve();if(i<2)f.game.next();}assert.equal(f.game.result.success,true);
- f.game.start('boss',{rounds:5});for(let i=0;i<3;i++){f.game.handleChatEvent(chat('a','attack'));f.game.resolve();if(i<2)f.game.next();}assert.equal(f.game.phase,'completed');assert.equal(f.game.bossHp,0);assert.equal(f.game.result.success,true);
+ f.game.start('boss',{rounds:5});let turns=0;while(f.game.phase!=='completed'&&turns++<5){const intent=f.game.bossIntent;const moves=intent.type==='opening'?['attack','attack','attack','attack','attack']:intent.type==='heavy'?['attack','defend','defend','defend','heal']:['attack','attack','attack','defend','heal'];moves.forEach((move,i)=>f.game.handleChatEvent(chat('p'+i,move)));f.game.resolve();if(f.game.phase!=='completed')f.game.next();}assert.equal(f.game.phase,'completed');assert.equal(f.game.bossHp,0);assert.equal(f.game.result.success,true);
 });
 test('one-step quiz waits for joining, starts once, closes empty lobbies and manual start cancels countdown',()=>{
  const f=fixture(QuizGame);const initial=f.game.launch({questionCount:1,answerSeconds:5,lobbySeconds:5});assert.equal(initial.phase,'lobby');assert.equal(initial.lobbyEndsAt,6000);f.game.handleChatEvent(chat('a','!join'));f.tick();assert.equal(f.game.phase,'question');f.game.stop();f.game.launch({lobbySeconds:5});f.tick();assert.equal(f.game.phase,'idle');assert.match(f.game.lobbyNotice,/nobody joined/);f.game.stop();

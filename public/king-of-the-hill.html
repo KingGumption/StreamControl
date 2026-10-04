@@ -134,7 +134,7 @@
       </section>
     </main>
     </div></div><script src="/assets/game-canvas.js"></script>
-    <link rel="stylesheet" href="/assets/broadcast-fx.css"><script src="/assets/game-sound.js"></script><script src="/assets/broadcast-fx.js"></script>
+    <link rel="stylesheet" href="/assets/broadcast-fx.css"><link rel="stylesheet" href="/assets/premium-show.css"><script src="/assets/game-sound.js"></script><script src="/assets/broadcast-fx.js"></script>
     <script>
       const game = document.getElementById('game');
       const kicker = document.getElementById('kicker');
@@ -166,7 +166,14 @@
           title.textContent = `${state.topic?.title || 'King of the Hill'} Champion`;
         }
 
-        choices.replaceChildren(...state.options.map((option) => choiceCard(option, state.phase)));
+        const identity=JSON.stringify([state.gameId,state.phase,state.round,state.kingStreak,state.options.map(o=>[o.number,o.title,o.imageUrl,o.isKing])]);
+        if(choices.dataset.identity!==identity){
+          choices.replaceChildren(...state.options.map((option) => choiceCard(option, state.phase)));
+          choices.dataset.identity=identity;
+        }else state.options.forEach((option,i)=>{
+          const card=choices.children[i],fresh=choiceCard(option,state.phase);
+          for(const selector of ['.vote-row','.bar','.platform-breakdown'])card.querySelector(selector)?.replaceWith(fresh.querySelector(selector));
+        });
         window.GameSound?.observe(state,'hill');window.BroadcastFX?.observe(state,'hill');
         updateTimer();
       }
@@ -234,7 +241,9 @@
           stat.append(dot, `${style.label} ${count}`);
           breakdown.appendChild(stat);
         });
-        copy.append(name, voteRow, bar, breakdown);
+        const role=document.createElement('div');role.className='contender-role';
+        role.textContent=phase==='topic'?'':option.isKing||phase==='champion'?(current.kingStreak?`${current.kingStreak} WIN STREAK`:'REIGNING CHAMPION'):'THE CHALLENGER';
+        copy.append(role, name, voteRow, bar, breakdown);
         card.append(artWrap, copy);
         return card;
       }

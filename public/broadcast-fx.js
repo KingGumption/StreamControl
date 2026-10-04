@@ -8,7 +8,8 @@
   if(g.phase==='idle'||reduced||type==='boss')return;
   // Animate only phase changes, never individual votes or reconnect snapshots.
   canvas.getAnimations?.().forEach(a=>a.cancel());
-  if(!first&&['reveal','completed','champion'].includes(g.phase)){
+  const celebrate=type==='quiz'?(g.phase==='completed'&&g.winners?.length>0):type==='hill'?g.phase==='champion':g.result?.success===true||(!['boss','escape','number'].includes(type)&&(g.phase==='completed'?(type==='snacks'?g.teamScores?.[0]!==g.teamScores?.[1]:(g.leaderboard?.[0]?.score||0)>0):g.result?.winner>=0));
+  if(!first&&celebrate&&['reveal','completed','champion'].includes(g.phase)){
    const burst=document.createElement('div');burst.className='fx-burst';burst.setAttribute('aria-hidden','true');
    for(let i=0;i<22;i++){const spark=document.createElement('i');spark.style.setProperty('--x',`${(i*47)%100}%`);spark.style.setProperty('--delay',`${(i%7)*.08}s`);spark.style.setProperty('--spin',`${i*53}deg`);burst.append(spark);}
    canvas.append(burst);timeout=setTimeout(()=>burst.remove(),2500);

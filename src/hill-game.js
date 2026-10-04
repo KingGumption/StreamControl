@@ -343,7 +343,9 @@ class HillGame {
       this.trackPhaseCompleted(winner);
       this.beginBattle(this.topics.find((entry) => entry.id === winner.id));
     } else if (this.phase === 'battle') {
-      this.king = this.options[this.winningIndex()];
+      const winner=this.options[this.winningIndex()];
+      this.kingStreak=winner.id===this.king?.id?(this.kingStreak||0)+1:1;
+      this.king = winner;
       this.trackPhaseCompleted(this.king);
       if (this.round >= this.activeRoundCount) {
         this.track('game_completed', {
@@ -362,6 +364,7 @@ class HillGame {
   }
 
   beginGame() {
+    this.kingStreak=0;
     this.gameId = crypto.randomUUID();
     this.gameStartedAt = this.now();
     this.track('game_started', { rounds: this.configuredRoundCount });
@@ -481,6 +484,7 @@ class HillGame {
       roundCount: this.configuredRoundCount,
       endsAt: this.endsAt ? new Date(this.endsAt).toISOString() : null,
       totalVotes,
+      kingStreak:this.kingStreak||0,
       timings: {
         topicSeconds: this.topicDurationMs / 1000,
         roundSeconds: this.roundDurationMs / 1000,

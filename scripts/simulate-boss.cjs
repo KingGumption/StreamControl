@@ -1,0 +1,4 @@
+const {ArcadeGames,BOSSES}=require('../src/arcade-games');
+function run(boss,strategy,rounds=5){const g=new ArcadeGames({random:()=>(boss+.1)/3,schedule:()=>1,cancel:()=>{}});g.start('boss',{rounds});const turns=[];while(g.phase!=='completed'){const split=strategy(g);for(let i=0,k=0;i<3;i++)for(let j=0;j<split[i];j++,k++)g.handleChatEvent({platform:'twitch',text:['attack','defend','heal'][i],user:{id:String(k),username:'P'+k}});g.resolve();turns.push([g.round,g.bossIntent.type,g.partyHp,g.bossHp]);if(g.phase!=='completed')g.next();}return{success:g.result.success,turns};}
+for(let b=0;b<3;b++)for(const [name,strategy]of Object.entries({attack:()=>[10,0,0],equal:()=>[3,3,3],adaptive:g=>g.bossIntent.type==='opening'?[10,0,0]:g.bossIntent.type==='heavy'?[2,6,2]:[5,2,3]}))console.log(BOSSES[b].id,name,JSON.stringify(run(b,strategy)));
+module.exports={run};

@@ -28,9 +28,15 @@ class ArcadeGames {
   if(this.phase!=='idle'&&this.phase!=='completed')throw Error('A game is already running.');
   if(!Number.isInteger(rounds)||rounds<3||rounds>10||!Number.isInteger(seconds)||seconds<10||seconds>60)throw Error('Use 3–10 rounds and 10–60 seconds.');
   this.cancel(this.timer);Object.assign(this,{id,rounds,seconds,round:0,gameId:crypto.randomUUID(),players:new Map(),health:5,progress:0,bossHp:100,partyHp:100,teamScores:[0,0],currentCard:1+Math.floor(this.random()*100),target:1+Math.floor(this.random()*100),low:1,high:100,result:null});
-  this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;
+  this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;this.bossMaxHp=rounds===3?65:rounds===4?85:100;this.bossHp=this.bossMaxHp;
   this.british=this.shuffle(snacks.filter(s=>s.team==='britain'));this.world=this.shuffle(snacks.filter(s=>s.team==='world'));this.rooms=this.shuffle(ROOMS);this.splits=this.shuffle(SPLITS);
   return this.nextRound();
+ }
+ intent(){
+  const step=this.rounds<5?[0,2,1,1][this.round-1]:(this.round-1)%3;
+  const exposure={pumpkin:[.45,1.6,.55],frost:[.5,1.5,.6],golem:[.4,1.7,.5]}[this.boss.id];
+  const rage=this.bossHp<=30;
+  return {style:step,type:['heavy','opening','guard'][step],label:(rage?'ENRAGED · ':'')+['HEAVY ATTACK','EXPOSED','GUARDING'][step],hint:['Defend the team','Attack while vulnerable','Heal and prepare'][step],power:[60,12,40][step]+(rage?8:0),exposure:exposure[step],enraged:rage};
  }
  nextRound(){
   this.round++;this.phase='question';this.votes=new Map();this.endsAt=this.now()+this.seconds*1000;this.result=null;
@@ -38,7 +44,7 @@ class ArcadeGames {
   if(this.id==='escape'){const room=this.rooms[(this.round-1)%this.rooms.length];this.prompt=room[0];this.options=room[1].map(name=>({name}));this.effects=room[2];}
   if(this.id==='higher'){this.prompt=`Current card: ${this.currentCard}. Will the next card be higher or lower?`;this.options=[{name:'Higher'},{name:'Lower'}];this.nextCard=1+Math.floor(this.random()*99);if(this.nextCard>=this.currentCard)this.nextCard++;}
   if(this.id==='split'){this.prompt='Be in the smaller group to score!';this.options=this.splits[(this.round-1)%this.splits.length].map(name=>({name}));}
-  if(this.id==='boss'){this.bossMove=this.boss.moves[(this.round-1)%this.boss.moves.length];this.combat=null;this.prompt=`${this.boss.name} is charging ${this.bossMove}. Choose your move.`;this.options=[{name:'Attack',command:'attack'},{name:'Defend',command:'defend'},{name:'Heal',command:'heal'}];}
+  if(this.id==='boss'){this.bossIntent=this.intent();this.bossMove=this.boss.moves[this.bossIntent.style];this.combat=null;this.prompt=`${this.boss.name} is charging ${this.bossMove}. Choose your move.`;this.options=[{name:'Attack',command:'attack'},{name:'Defend',command:'defend'},{name:'Heal',command:'heal'}];}
   if(this.id==='number'){this.prompt=`Find the secret number: ${this.low}–${this.high}. One guess each this round.`;this.options=[];}
   this.arm(this.seconds*1000,()=>this.resolve());return this.publish();
  }
@@ -74,7 +80,18 @@ class ArcadeGames {
    done=done||this.health<=0;success=this.health>0&&this.progress>=this.rounds;if(done)text+=success?' You escape together!':' The house keeps its secrets. Try another run!';
   }
   if(this.id==='boss'){
-   const n=this.votes.size;this.combat={damage:0,shield:0,heal:0,hit:25,move:this.bossMove,style:(this.round-1)%3};if(n){const damage=Math.round(40*counts[0]/n),shield=Math.round(30*counts[1]/n),heal=Math.round(25*counts[2]/n);this.bossHp=Math.max(0,this.bossHp-damage);const hit=this.bossHp?Math.max(0,25-shield):0;this.partyHp=Math.max(0,Math.min(100,this.partyHp+heal)-hit);this.combat={damage,shield:Math.min(25,shield),heal,hit,move:this.bossMove,style:(this.round-1)%3};text=`Dealt ${damage} damage, blocked ${Math.min(25,shield)}, healed up to ${heal}. The boss dealt ${hit}.`;}else{this.partyHp=Math.max(0,this.partyHp-25);text='No moves received. The boss hits for 25.';}
+   const n=this.votes.size,intent=this.bossIntent;
+   const damage=n?Math.round(35*intent.exposure*counts[0]/n):0;
+   const shield=n?Math.min(intent.power,Math.round(70*counts[1]/n)):0;
+   const healing=n?Math.round(35*counts[2]/n):0;
+   this.bossHp=Math.max(0,this.bossHp-damage);
+   const hit=this.bossHp?Math.max(0,intent.power-shield):0;
+   const afterHit=Math.max(0,this.partyHp-hit);
+   const heal=afterHit>0?Math.min(100-afterHit,healing):0;
+   this.partyHp=afterHit+heal;
+   this.combat={damage,shield,heal,hit,move:this.bossMove,style:intent.style};
+   text=`Dealt ${damage} damage, blocked ${shield}, restored ${heal}. The boss dealt ${hit}.`;
+   if(!n)text=`No moves received. The boss hits for ${hit}.`;
    done=done||this.partyHp<=0||this.bossHp<=0;success=this.bossHp<=0;if(done)text+=success?` ${this.boss.name} is defeated!`:` ${this.boss.name} wins this battle.`;
   }
   if(this.id==='number'){
@@ -82,13 +99,15 @@ class ArcadeGames {
    else{const guesses=[...this.votes.values()];for(const v of guesses){if(v<this.target)this.low=Math.max(this.low,v+1);if(v>this.target)this.high=Math.min(this.high,v-1);}text=guesses.length?`Higher than ${this.low-1}; lower than ${this.high+1}.`:'No guesses received.';if(done)text+=` The number was ${this.target}.`;}
   }
   if(winner>=0)for(const [key,v] of this.votes)if(v===winner)this.players.get(key).score++;
-  this.result={text,counts,winner,success};this.phase=done?'completed':'reveal';this.endsAt=done?null:this.now()+5000;
+  this.result={text,counts,winner,success};
+  if(this.id==='escape')this.result.route=majority;
+  if(this.id==='number')this.result.guesses=[...new Set(this.votes.values())].sort((a,b)=>a-b);this.phase=done?'completed':'reveal';this.endsAt=done?null:this.now()+5000;
   try{this.recordEvent({tool:'chat_games',eventType:done?'game_completed':'round_completed',correlationId:this.gameId,metadata:{game:this.id,round:this.round,votes:this.votes.size,result:text}});}catch{}
   if(!done)this.arm(5000,()=>this.nextRound());return this.publish();
  }
  next(){if(this.phase==='question')return this.resolve();if(this.phase==='reveal'){this.cancel(this.timer);return this.nextRound();}throw Error('No active round.');}
  stop(){this.cancel(this.timer);this.phase='idle';this.endsAt=null;return this.publish();}
- getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,card:this.id==='higher'?this.currentCard:undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.values()].slice(0,5).map(({username,platform})=>({username,platform})):undefined,bossMove:this.id==='boss'?this.bossMove:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
+ getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.values()].slice(0,5).map(({username,platform})=>({username,platform})):undefined,bossIntent:this.id==='boss'?this.bossIntent:undefined,bossMove:this.id==='boss'?this.bossMove:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
  publish(){this.serial++;const state=this.getState();this.events.emit('state',state);return state;}
  subscribe(fn){this.events.on('state',fn);return()=>this.events.off('state',fn);}
 }
