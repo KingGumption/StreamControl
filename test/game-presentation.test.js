@@ -1,20 +1,11 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const {ArcadeGames,BOSSES}=require('../src/arcade-games');
 const read=file=>fs.readFileSync(path.join(__dirname,'../public',file),'utf8');
-test('bosses telegraph distinct phases and coordinated teams outperform all-attack',()=>{
- const play=(b,adaptive,rounds)=>{const g=new ArcadeGames({random:()=>(b+.1)/3,schedule:()=>1,cancel:()=>{}});g.start('boss',{rounds});
-  while(g.phase!=='completed'){
-   const intent=g.getState().bossIntent;assert.ok(intent.hint);assert.ok(intent.power>0);
-   const counts=!adaptive?[10,0,0]:intent.type==='opening'?[10,0,0]:intent.type==='heavy'?[2,6,2]:[5,2,3];
-   for(let i=0,k=0;i<3;i++)for(let j=0;j<counts[i];j++,k++)g.handleChatEvent({platform:'twitch',text:['attack','defend','heal'][i],user:{id:String(k),username:'P'+k}});
-   g.resolve();assert.ok(g.partyHp>=0&&g.partyHp<=100);assert.ok(g.bossHp>=0&&g.bossHp<=g.bossMaxHp);
-   if(g.phase!=='completed')g.next();
-  }return g;
- };
- for(let b=0;b<BOSSES.length;b++){
-  assert.equal(play(b,false,5).result.success,false);
-  for(const rounds of [3,4,5])assert.equal(play(b,true,rounds).result.success,true,`${BOSSES[b].id}: ${rounds} rounds`);
- }
+test('boss decisions are hidden and planned party actions beat all-attack',()=>{
+ const play=(b,actions,rounds)=>{const g=new ArcadeGames({random:()=>(b+.1)/3,schedule:()=>1,cancel:()=>{}});g.start('boss',{rounds});
+ while(g.phase!=='completed'){const state=g.getState();assert.equal(state.bossIntent,undefined);assert.equal(state.bossMove,undefined);assert.equal(state.combat,null);assert.ok(!state.prompt.includes(g.bossMove));
+ g.handleChatEvent({platform:'twitch',text:actions[g.round-1]||'attack',user:{id:'a',username:'a'}});g.resolve();if(g.phase!=='completed')g.next();}return g;};
+ for(let b=0;b<3;b++)for(const rounds of [3,4,5]){assert.equal(play(b,[],rounds).result.success,false);assert.equal(play(b,rounds===3?['defend','attack','attack']:rounds===4?['defend','attack','attack','attack']:['defend','attack','defend','attack','attack'],rounds).result.success,true);}
 });
 test('locked reveals expose guesses and selected route, never secret targets or votes early',()=>{
  const g=new ArcadeGames({random:()=>.5,schedule:()=>1,cancel:()=>{}});g.start('number');
@@ -24,9 +15,9 @@ test('locked reveals expose guesses and selected route, never secret targets or 
  g.next();g.handleChatEvent({platform:'twitch',text:String(g.target),user:{id:'a',username:'A'}});g.resolve();assert.equal(g.getState().revealedNumber,g.target);
  g.stop();g.start('escape');g.handleChatEvent({platform:'twitch',text:'2',user:{id:'a',username:'A'}});assert.equal(g.getState().result,null);g.resolve();assert.equal(g.getState().result.route,1);
 });
-test('healing cannot resurrect a team defeated by an incoming hit',()=>{
+test('a potion resolves before the boss attack and cannot exceed max HP',()=>{
  const g=new ArcadeGames({random:()=>.1,schedule:()=>1,cancel:()=>{}});g.start('boss');g.partyHp=10;
- g.handleChatEvent({platform:'twitch',text:'heal',user:{id:'a',username:'A'}});g.resolve();assert.equal(g.partyHp,0);assert.equal(g.combat.heal,0);assert.equal(g.result.success,false);
+ g.handleChatEvent({platform:'twitch',text:'heal',user:{id:'a',username:'A'}});g.resolve();assert.equal(g.combat.heal,40);assert.equal(g.partyHp,50-g.combat.hit);assert.equal(g.potions,1);
 });
 test('presentation fields expose current card and range but never future card or hidden target',()=>{
  const g=new ArcadeGames({random:()=>.3,schedule:()=>1,cancel:()=>{}});g.start('higher');assert.equal(g.getState().card,g.currentCard);assert.equal(g.getState().nextCard,undefined);g.stop();g.start('number');assert.deepEqual(g.getState().range,{low:1,high:100});assert.equal(g.getState().target,undefined);

@@ -1,7 +1,7 @@
 const {EventEmitter}=require('node:events');
 const crypto=require('node:crypto');
 const snacks=require('./snack-bank.json');
-const CATALOG=[['escape','Haunted House Escape','Vote 1–3. Collect the required clues before courage runs out.'],['higher','Higher or Lower','Vote 1 for higher, 2 for lower. Ace is low, King is high. Equal ranks are redrawn.'],['split','Split the Crowd','Vote 1 or 2. The smaller group scores; a tie or empty side scores nothing.'],['boss','Crowd Boss Battle','Type attack, defend or heal each turn.'],['number','Secret Number Hunt','Guess 1–100. Follow the clues and find the number.'],['snacks','Snack Wars','Vote 1 for Britain or 2 for the world. Every snack shows its origin.']].map(([id,name,help])=>({id,name,help}));
+const CATALOG=[['escape','Haunted House Escape','Vote 1–3. Collect the required clues before courage runs out.'],['higher','Higher or Lower','Vote 1 for higher, 2 for lower. Ace is low, King is high. Equal ranks are redrawn.'],['split','Split the Crowd','Vote 1 or 2. The smaller group scores; a tie or empty side scores nothing.'],['boss','Crowd Boss Battle','Vote 1/attack, 2/defend or 3/heal. Most votes choose ONE party action. Ties are random.'],['number','Secret Number Hunt','Guess 1–100. Follow the clues and find the number.'],['snacks','Snack Wars','Vote 1 for Britain or 2 for the world. Every snack shows its origin.']].map(([id,name,help])=>({id,name,help}));
 const BOSSES=[
  {id:'pumpkin',name:'The Pumpkin King',title:'LORD OF THE LANTERNS',moves:['Thorn Slam','Phantom Flame','Royal Shockwave'],tint:'#ffad55'},
  {id:'frost',name:'The Frost Wyrm',title:'GUARDIAN OF THE FROZEN CROWN',moves:['Ice Claw','Glacial Breath','Blizzard Wing'],tint:'#7deaff'},
@@ -23,20 +23,21 @@ const SPLITS=[['Tea','Coffee'],['Sweet','Savoury'],['Ghosts','Zombies'],['Cats',
 class ArcadeGames {
  constructor({now=Date.now,random=Math.random,schedule=setTimeout,cancel=clearTimeout,recordEvent=()=>{}}={}){Object.assign(this,{now,random,schedule,cancel,recordEvent});this.events=new EventEmitter();this.events.setMaxListeners(100);this.phase='idle';this.players=new Map();this.serial=0;}
  shuffle(items){return items.map(v=>({v,r:this.random()})).sort((a,b)=>a.r-b.r).map(x=>x.v);}
- start(id,{rounds=id==='number'?7:5,seconds=20}={}){
+ start(id,{rounds=id==='number'?7:id==='boss'?8:5,seconds=20}={}){
   if(!CATALOG.some(g=>g.id===id))throw Error('Unknown game.');
   if(this.phase!=='idle'&&this.phase!=='completed')throw Error('A game is already running.');
   if(!Number.isInteger(rounds)||rounds<3||rounds>10||!Number.isInteger(seconds)||seconds<10||seconds>60)throw Error('Use 3–10 rounds and 10–60 seconds.');
   this.cancel(this.timer);Object.assign(this,{id,rounds,seconds,round:0,gameId:crypto.randomUUID(),players:new Map(),health:5,progress:0,bossHp:100,partyHp:100,teamScores:[0,0],currentCard:1+Math.floor(this.random()*13),previousCard:null,cardHistory:[],target:1+Math.floor(this.random()*100),low:1,high:100,result:null});
-  this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;this.bossMaxHp=rounds===3?65:rounds===4?85:100;this.bossHp=this.bossMaxHp;
+  this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;this.bossMaxHp=({3:76,4:104,5:128,6:150,7:170,8:180,9:200,10:220})[rounds];this.bossHp=this.bossMaxHp;this.focus=false;this.potions=2;this.lastBossMove=null;
   this.british=this.shuffle(snacks.filter(s=>s.team==='britain'));this.world=this.shuffle(snacks.filter(s=>s.team==='world'));this.rooms=this.shuffle(ROOMS);this.splits=this.shuffle(SPLITS);
   return this.nextRound();
  }
  intent(){
-  const step=this.rounds<5?[0,2,1,1][this.round-1]:(this.round-1)%3;
-  const exposure={pumpkin:[.45,1.6,.55],frost:[.5,1.5,.6],golem:[.4,1.7,.5]}[this.boss.id];
-  const rage=this.bossHp<=30;
-  return {style:step,type:['heavy','opening','guard'][step],label:(rage?'ENRAGED · ':'')+['HEAVY ATTACK','EXPOSED','GUARDING'][step],hint:['Defend the team','Attack while vulnerable','Heal and prepare'][step],power:[60,12,40][step]+(rage?8:0),exposure:exposure[step],enraged:rage};
+  const step=Math.floor(this.random()*3),rage=this.bossHp<=this.bossMaxHp*.3;
+  const powers={pumpkin:[24,30,26],frost:[26,28,24],golem:[24,32,24]}[this.boss.id];
+  const scale=this.rounds===3?2.2:this.rounds===4?1.5:this.rounds===5?1.1:1;
+  const cap=this.rounds===3?64:this.rounds===4?42:this.rounds===5?36:28;
+  return {style:step,power:Math.min(cap,Math.round(powers[step]*scale))+(rage?6:0)};
  }
  nextRound(){
   this.round++;this.phase='question';this.votes=new Map();this.endsAt=this.now()+this.seconds*1000;this.acceptUntil=this.endsAt+2000;this.result=null;
@@ -44,7 +45,7 @@ class ArcadeGames {
   if(this.id==='escape'){const room=this.rooms[(this.round-1)%this.rooms.length];this.prompt=room[0];const routes=this.shuffle(room[1].map((name,i)=>({name,effect:room[2][i]})));this.options=routes.map(({name})=>({name}));this.effects=routes.map(({effect})=>effect);}
   if(this.id==='higher'){this.previousCard=this.currentCard;this.cardHistory.push(this.currentCard);this.prompt=`${rank(this.currentCard)} on the table. Will the next rank be higher or lower?`;this.options=[{name:'Higher'},{name:'Lower'}];this.nextCard=1+Math.floor(this.random()*12);if(this.nextCard>=this.currentCard)this.nextCard++;}
   if(this.id==='split'){this.prompt='Be in the smaller group to score!';this.options=this.splits[(this.round-1)%this.splits.length].map(name=>({name}));}
-  if(this.id==='boss'){this.bossIntent=this.intent();this.bossMove=this.boss.moves[this.bossIntent.style];this.combat=null;this.prompt=`${this.boss.name} is charging ${this.bossMove}. Choose your move.`;this.options=[{name:'Attack',command:'attack'},{name:'Defend',command:'defend'},{name:'Heal',command:'heal'}];}
+  if(this.id==='boss'){this.bossIntent=this.intent();this.bossMove=this.boss.moves[this.bossIntent.style];this.combat=null;this.prompt='Choose one party action. The boss move is hidden until the turn resolves.';this.options=[{name:'Attack',command:'attack'},{name:'Defend',command:'defend'},{name:'Heal',command:'heal'}];}
   if(this.id==='number'){this.prompt=`Find the secret number: ${this.low}–${this.high}. One guess each this round.`;this.options=[];}
   this.arm(this.seconds*1000+2000,()=>this.resolve());return this.publish();
  }
@@ -52,7 +53,7 @@ class ArcadeGames {
  handleChatEvent(event){
   if(this.phase!=='question')return false;
   const text=String(event.text||'').trim().toLowerCase();let value;
-  if(this.id==='boss')value=['attack','defend','heal'].indexOf(text);
+  if(this.id==='boss')value=/^[1-3]$/.test(text)?Number(text)-1:['attack','defend','heal'].indexOf(text);
   else if(this.id==='number')value=/^\d{1,3}$/.test(text)?Number(text):-1;
   else value=/^[1-3]$/.test(text)?Number(text)-1:-1;
   if(value<0||(this.id==='number'?(value<this.low||value>this.high):value>=this.options.length))return false;
@@ -80,19 +81,24 @@ class ArcadeGames {
    success=this.health>0&&this.progress>=this.rounds;done=done||this.health<=0||success;if(done)text+=success?' You escape together!':' The house keeps its secrets. Try another run!';
   }
   if(this.id==='boss'){
-   const n=this.votes.size,intent=this.bossIntent;
-   const damage=n?Math.round(35*intent.exposure*counts[0]/n):0;
-   const shield=n?Math.min(intent.power,Math.round(70*counts[1]/n)):0;
-   const healing=n?Math.round(35*counts[2]/n):0;
+   const intent=this.bossIntent,action=majority<0?'wait':['attack','defend','heal'][majority];
+   const focused=this.focus,damage=action==='attack'?(focused?56:28):0;
+   if(action==='attack')this.focus=false;
+   if(action==='defend')this.focus=true;
+   const heal=action==='heal'&&this.potions>0&&this.partyHp>0?Math.min(40,100-this.partyHp):0;
+   const usedPotion=action==='heal'&&this.potions>0&&this.partyHp>0;
+   if(usedPotion)this.potions--;
+   this.partyHp=Math.min(100,this.partyHp+heal);
    this.bossHp=Math.max(0,this.bossHp-damage);
+   const shield=this.bossHp&&action==='defend'?Math.round(intent.power*.75):0;
    const hit=this.bossHp?Math.max(0,intent.power-shield):0;
-   const afterHit=Math.max(0,this.partyHp-hit);
-   const heal=afterHit>0?Math.min(100-afterHit,healing):0;
-   this.partyHp=afterHit+heal;
-   this.combat={damage,shield,heal,hit,move:this.bossMove,style:intent.style};
-   text=`Dealt ${damage} damage, blocked ${shield}, restored ${heal}. The boss dealt ${hit}.`;
-   if(!n)text=`No moves received. The boss hits for ${hit}.`;
-   done=done||this.partyHp<=0||this.bossHp<=0;success=this.bossHp<=0;if(done)text+=success?` ${this.boss.name} is defeated!`:` ${this.boss.name} wins this battle.`;
+   this.partyHp=Math.max(0,this.partyHp-hit);
+   this.lastBossMove=this.bossHp?this.bossMove:this.lastBossMove;
+   this.combat={action,damage,shield,heal,hit,move:this.bossHp?this.bossMove:null,style:this.bossHp?intent.style:null,focused:action==='attack'&&focused,tied:max>0&&leaders.length>1,usedPotion};
+   text=action==='attack'?'Party attacks for '+damage+'.':action==='defend'?'Party defends: blocked '+shield+'. Next attack powered up.':action==='heal'?(usedPotion?'Party uses a potion: restored '+heal+'.':'No potions left — the heal fails.'):'No votes — the party waits.';
+   if(this.combat.tied)text='Tied vote: '+action+' selected. '+text;
+   if(this.bossHp)text+=' '+this.bossMove+' hits for '+hit+'.';
+   done=done||this.partyHp<=0||this.bossHp<=0;success=this.bossHp<=0;if(done)text+=success?' Boss defeated!':this.partyHp<=0?' Party defeated!':' Out of turns — the boss wins.';
   }
   if(this.id==='number'){
    const found=[...this.votes].filter(([,v])=>v===this.target);if(found.length){found.forEach(([key])=>this.players.get(key).score++);text=found.slice(0,3).map(([key])=>this.players.get(key).username).join(', ')+(found.length>3?` and ${found.length-3} more`:'')+` found ${this.target}!`;done=true;success=true;}
@@ -100,6 +106,7 @@ class ArcadeGames {
   }
   if(winner>=0)for(const [key,v] of this.votes)if(v===winner)this.players.get(key).score++;
   this.result={text,counts,winner,success};
+  if(this.id==='boss')this.result.action=majority;
   if(this.id==='higher')this.result.previousCard=this.previousCard;
   if(this.id==='escape')this.result.route=majority;
   if(this.id==='split')this.result.groups=[0,1].map(side=>[...this.votes].filter(([,v])=>v===side).slice(0,18).map(([key])=>this.players.get(key).username));
@@ -109,7 +116,7 @@ class ArcadeGames {
  }
  next(){if(this.phase==='question')return this.resolve();if(this.phase==='reveal'){this.cancel(this.timer);return this.nextRound();}throw Error('No active round.');}
  stop(){this.cancel(this.timer);this.phase='idle';this.endsAt=null;return this.publish();}
- getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,acceptUntil:this.phase==='question'?this.acceptUntil:null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,previousCard:this.id==='higher'?this.previousCard:undefined,cardHistory:this.id==='higher'?[...this.cardHistory]:undefined,cardLabel:this.id==='higher'?rank(this.currentCard):undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.values()].slice(0,5).map(({username,platform})=>({username,platform})):undefined,bossIntent:this.id==='boss'?this.bossIntent:undefined,bossMove:this.id==='boss'?this.bossMove:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
+ getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,acceptUntil:this.phase==='question'?this.acceptUntil:null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,previousCard:this.id==='higher'?this.previousCard:undefined,cardHistory:this.id==='higher'?[...this.cardHistory]:undefined,cardLabel:this.id==='higher'?rank(this.currentCard):undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.values()].slice(0,5).map(({username,platform})=>({username,platform})):undefined,bossIntent:undefined,bossMove:this.id==='boss'&&this.phase!=='question'?this.combat?.move:undefined,battle:this.id==='boss'?{focus:this.focus,potions:this.potions,lastMove:this.lastBossMove,enraged:this.bossHp<=this.bossMaxHp*.3}:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
  publish(){this.serial++;const state=this.getState();this.events.emit('state',state);return state;}
  subscribe(fn){this.events.on('state',fn);return()=>this.events.off('state',fn);}
 }

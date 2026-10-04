@@ -9,19 +9,18 @@
    const next=`${g.gameId}:${g.round}:${g.phase}`;if(next===key)return;
    const first=lastGame!==g.gameId;lastGame=g.gameId;key=next;clear();
    const sprite=stage.querySelector('.boss-sprite'),callout=stage.querySelector('.combat-callout');
-   const id=['pumpkin','frost','golem'].includes(g.boss?.id)?g.boss.id:'pumpkin';stage.dataset.boss=id;stage.dataset.hit=String(Boolean(g.combat?.hit));stage.dataset.move=String(g.combat?.style??(g.round-1)%3);
+   const id=['pumpkin','frost','golem'].includes(g.boss?.id)?g.boss.id:'pumpkin';stage.dataset.boss=id;stage.dataset.hit=String(Boolean(g.combat?.hit));stage.dataset.move=String(g.combat?.style??0);
    if(sprite.dataset.boss!==id){sprite.style.backgroundImage=`url("${window.BossArt[id]}")`;sprite.dataset.boss=id;}
    const pose=(name,message='')=>{stage.dataset.pose=name;callout.textContent=message;const effect=name==='attack'?['slam','breath','sweep'][Number(stage.dataset.move)]:name==='blocked'?'block':name==='healing'?'heal':null;if(effect)window.GameSound?.effect(effect,`${next}:${name}`);};
-   if(g.phase==='question'){pose(g.bossIntent?.type==='guard'?'guard':'idle','');stage.dataset.enraged=String(Boolean(g.bossIntent?.enraged));return;}
+   if(g.phase==='question'){pose('idle','');stage.dataset.enraged=String(Boolean(g.battle?.enraged));return;}
    if(first){pose(g.phase==='completed'?(g.result?.success?'defeat':'victory'):'idle',g.phase==='completed'?(g.result?.success?'BOSS DEFEATED':'THE BOSS WINS'):'');return;}
    // The sequence visualises the authoritative totals; it does not change damage.
    const combat=g.combat||{};
-   pose(combat.damage?'hit':'guard',combat.damage?`−${combat.damage} BOSS HP`:'NO DAMAGE');
+   pose(combat.damage?'hit':combat.heal?'healing':combat.action==='defend'?'blocked':'idle',combat.damage?`−${combat.damage} BOSS HP`:combat.heal?`+${combat.heal} TEAM HP`:combat.action==='defend'?'PARTY DEFENDS':'PARTY WAITS');
    if(g.phase==='completed'&&g.result?.success){later(()=>pose('defeat','BOSS DEFEATED'),950);return;}
    later(()=>pose('windup',combat.move||g.bossMove),1000);
    later(()=>pose('attack',combat.hit?`−${combat.hit} TEAM HP`:'ATTACK BLOCKED'),1700);
    if(combat.shield)later(()=>pose('blocked',`${combat.shield} DAMAGE BLOCKED`),2450);
-   if(combat.heal)later(()=>pose('healing',`+${combat.heal} TEAM HP`),3150);
    later(()=>pose(g.phase==='completed'?'victory':'idle',g.phase==='completed'?'THE BOSS WINS':'READY FOR THE NEXT TURN'),4000);
   }
  };

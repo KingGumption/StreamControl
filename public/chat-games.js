@@ -2,12 +2,12 @@ const $=id=>document.getElementById(id);let game,viewKey='';
 const node=(tag,cls,text)=>{const el=document.createElement(tag);el.className=cls||'';if(text!==undefined)el.textContent=text;return el;};
 function stat(label,value,max,cls=''){const box=node('div','stat '+cls),caption=node('span','',label),number=node('b','',`${value} / ${max}`),track=node('div','stat-track'),fill=node('i');caption.append(number);fill.style.width=`${Math.max(0,Math.min(100,value/max*100))}%`;track.append(fill);box.append(caption,track);return box;}
 function card(option,i,g){
- const el=node('article','choice'+(g.result?.winner===i?' winner':''));el.append(node('b','',option.command||String(i+1)));
+ const el=node('article','choice'+((g.id==='boss'?g.result?.action:g.result?.winner)===i?' winner':''));el.append(node('b','',g.id==='boss'?String(i+1)+' · '+option.command:option.command||String(i+1)));
  if(g.id==='snacks'){
   const art=node('img','snack-art');art.src=option.image||'/assets/game-art/snacks.svg';art.alt=option.name;art.onerror=()=>{art.onerror=null;art.src='/assets/game-art/snacks.svg';};el.append(art,node('span','team-name',option.team==='britain'?'BRITAIN':'THE WORLD'));
  }else el.append(node('span','symbol',g.id==='boss'?['⚔','⬡','✚'][i]:g.id==='higher'?['↗','↘'][i]:g.id==='escape'?['⌁','✦','◈'][i]:['◒','◓'][i]));
  el.append(node('strong','',option.name));if(option.origin)el.append(node('small','',`Origin: ${option.origin}`));
- if(g.id==='boss')el.append(node('small','boss-tally','0 moves'),node('span','move-explanation',['DAMAGE THE BOSS','REDUCE ITS HIT','RESTORE TEAM HP'][i]));
+ if(g.id==='boss')el.append(node('small','boss-tally','0 votes'),node('span','move-explanation',[g.battle?.focus?'56 DAMAGE · FOCUSED':'28 DAMAGE','75% BLOCK · NEXT ATTACK ×2',g.battle?.potions?`+40 HP · ${g.battle.potions} POTIONS`:'NO POTIONS LEFT'][i]));
  if(g.id!=='boss'&&g.result?.counts){const total=g.result.counts.reduce((a,b)=>a+b,0),votes=g.result.counts[i]||0;el.append(node('small','vote-label',`${votes} votes · ${total?Math.round(votes/total*100):0}%`));const track=node('div','vote-meter'),fill=node('i');fill.style.width=`${total?votes/total*100:0}%`;track.append(fill);el.append(track);}
  return el;
 }
@@ -39,9 +39,9 @@ function render(g){
  }
  window.GameSound?.observe(g,g.id);
  if(g.id==='boss'){
-  $('prompt').textContent=g.phase==='question'?`${g.bossIntent?.label||'INCOMING'} · ${g.bossMove}${g.bossIntent?.hint?' — '+g.bossIntent.hint:''}`:g.phase==='completed'?(g.result?.success?'BOSS DEFEATED':'PARTY DEFEATED'):'RESOLVING THE TURN';
+  $('prompt').textContent=g.phase==='question'?`${g.battle?.enraged?'ENRAGED · ':''}MAJORITY CHOOSES ONE ACTION${g.battle?.lastMove?' · Last: '+g.battle.lastMove:''}`:g.phase==='completed'?(g.result?.success?'BOSS DEFEATED':'PARTY DEFEATED'):'RESOLVING THE TURN';
   $('game').dataset.boss=g.boss?.id||'pumpkin';
-  $('options').querySelectorAll('.boss-tally').forEach((el,i)=>{const n=(g.moveCounts||g.result?.counts||[])[i]||0;el.textContent=`${n} ${n===1?'move':'moves'}`;});
+  $('options').querySelectorAll('.boss-tally').forEach((el,i)=>{const n=(g.moveCounts||g.result?.counts||[])[i]||0;el.textContent=`${n} ${n===1?'vote':'votes'}`;});
   const roster=$('battleRoster'),players=g.party||[],rosterKey=JSON.stringify(players);
   if(roster.dataset.players!==rosterKey){roster.dataset.players=rosterKey;roster.replaceChildren(...players.map(p=>{const badge=node('span','party-badge',p.username.slice(0,2).toUpperCase());badge.title=p.username;return badge;}));}
   window.BossStage?.observe(g);

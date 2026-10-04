@@ -17,17 +17,7 @@ Per-game synthesised melodies and percussion use the existing volume/mute URL co
 
 ## Boss rules
 
-All votes contribute proportionally. Each viewer still locks one `attack`, `defend` or `heal` action per turn.
-
-- Heavy attack: 60 incoming damage; the boss resists attacks. Defend is valuable.
-- Opening: 12 incoming damage; attacks receive a vulnerability multiplier.
-- Guarding: 40 incoming damage; reduced attack effectiveness. Healing/defending helps prepare for the next opening.
-- Boss health at or below 30 when a turn starts adds 8 incoming damage (enrage).
-- Full-team defence can block up to 70 damage; full-team healing restores up to 35 health **after** the hit. Healing cannot revive a defeated team.
-- A killing blow prevents retaliation. Each boss has a different exposure multiplier profile.
-- Three/four-turn games have 65/85 boss HP and a shorter phase sequence. Five-plus-turn games use 100 HP.
-
-Regression simulations cover each boss at three, four and five rounds. Coordinated teams can win; all-attack loses the default five-round battle. This is deterministic balance coverage, not a claim of a measured live win rate.
+Boss combat now uses majority voting for one party action, hidden enemy moves, defensive focus and two shared potions. See [the current combat rules](boss-majority-combat.md). The earlier proportional-vote and telegraphed-phase design has been replaced.
 
 ## Verification
 

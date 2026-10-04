@@ -1,5 +1,7 @@
 # Game review — 4 October 2026
 
+**Later boss update:** Section 6 records the earlier review. Boss combat has since been replaced with [majority-vote party actions and hidden enemy moves](boss-majority-combat.md).
+
 This review covered all eight games, their chat input and timing, presentation, scoring, reconnect behaviour, asset coverage and sound-event handling. The changes below are implemented. The screenshots show the actual browser overlays using isolated deterministic game fixtures, not design mockups. Timers were frozen for capture and sample player names were used. No production round or viewer message was created for this review.
 
 The shared 1080 × 640 OBS overlay remains the delivery format. Unity and a 3D modelling plugin are not required for these games. Browser rendering, carefully composed illustration, existing layered boss sprites and Web Audio fit the current controls and deployment much better than introducing a separate engine.
