@@ -21,7 +21,7 @@ const ROOMS=[
 ];
 const SPLITS=[['Tea','Coffee'],['Sweet','Savoury'],['Ghosts','Zombies'],['Cats','Dogs'],['Night owl','Early bird'],['Teleport','Fly'],['Pizza','Curry'],['Beach','Mountains'],['Biscuits','Cake'],['Co-op','Competitive'],['Invisible','Read minds'],['Past','Future'],['Film night','Games night'],['Dragons','Dinosaurs'],['Vampires','Werewolves'],['Haunted castle','Ghost ship'],['Chocolate','Crisps'],['Ketchup','Brown sauce'],['Chips','Roast potatoes'],['Summer','Winter'],['Books','Podcasts'],['Controller','Keyboard'],['Single-player','Multiplayer'],['Space station','Underwater city'],['Sword','Magic'],['Detective','Master thief'],['Explore','Build'],['Save the boss','Take the loot'],['Trick','Treat'],['Sharks','Crocodiles'],['Camping','Hotel'],['Train','Plane'],['Robot helper','Dragon pet'],['Tiny mansion','Huge treehouse'],['One superpower','Three wishes'],['Always lucky','Always clever'],['Tidy desk','Creative chaos'],['Breakfast','Midnight snack'],['Comedy','Horror'],['Museum','Theme park']];
 class ArcadeGames {
- constructor({now=Date.now,random=Math.random,schedule=setTimeout,cancel=clearTimeout,recordEvent=()=>{}}={}){Object.assign(this,{now,random,schedule,cancel,recordEvent});this.events=new EventEmitter();this.events.setMaxListeners(100);this.phase='idle';this.players=new Map();this.serial=0;}
+ constructor({now=Date.now,random=Math.random,schedule=setTimeout,cancel=clearTimeout,recordEvent=()=>{},resolveAvatar=null}={}){Object.assign(this,{now,random,schedule,cancel,recordEvent,resolveAvatar});this.events=new EventEmitter();this.events.setMaxListeners(100);this.phase='idle';this.players=new Map();this.serial=0;}
  shuffle(items){return items.map(v=>({v,r:this.random()})).sort((a,b)=>a.r-b.r).map(x=>x.v);}
  start(id,{rounds=id==='number'?7:id==='boss'?8:5,seconds=20}={}){
   if(!CATALOG.some(g=>g.id===id))throw Error('Unknown game.');
@@ -53,14 +53,22 @@ class ArcadeGames {
  handleChatEvent(event){
   if(this.phase!=='question')return false;
   const text=String(event.text||'').trim().toLowerCase();let value;
-  if(this.id==='boss')value=/^[1-3]$/.test(text)?Number(text)-1:['attack','defend','heal'].indexOf(text);
+  if(this.id==='boss')value=/^[1-3]$/.test(text)?Number(text)-1:({attack:0,one:0,defend:1,two:1,heal:2,three:2}[text]??-1);
   else if(this.id==='number')value=/^\d{1,3}$/.test(text)?Number(text):-1;
   else value=/^[1-3]$/.test(text)?Number(text)-1:-1;
   if(value<0||(this.id==='number'?(value<this.low||value>this.high):value>=this.options.length))return false;
   if(this.now()>=this.acceptUntil){this.resolve();return true;}
   const identity=event.user?.id||event.user?.username;if(!identity||!event.platform)return false;
   const key=event.platform+':'+identity;if(this.votes.has(key))return true;
-  if(!this.players.has(key)){if(this.players.size>=2000)return true;this.players.set(key,{username:String(event.user.displayName||event.user.username||identity).slice(0,100),platform:event.platform,score:0});}
+  if(!this.players.has(key)){if(this.players.size>=2000)return true;this.players.set(key,{username:String(event.user.displayName||event.user.username||identity).slice(0,100),platform:event.platform,score:0,profileImageUrl:safeProfileImage(event.user.profileImageUrl)});
+   const player=this.players.get(key),gameId=this.gameId;
+   if(!player.profileImageUrl&&event.platform==='twitch'&&this.resolveAvatar){
+    Promise.resolve().then(()=>this.resolveAvatar(event.user.username)).then(url=>{
+     if(this.gameId!==gameId||this.players.get(key)!==player)return;
+     player.profileImageUrl=safeProfileImage(url);if(player.profileImageUrl)this.publish();
+    }).catch(()=>{});
+   }
+  }
   this.votes.set(key,value);this.publish();return true;
  }
  resolve(){
@@ -116,10 +124,11 @@ class ArcadeGames {
  }
  next(){if(this.phase==='question')return this.resolve();if(this.phase==='reveal'){this.cancel(this.timer);return this.nextRound();}throw Error('No active round.');}
  stop(){this.cancel(this.timer);this.phase='idle';this.endsAt=null;return this.publish();}
- getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,acceptUntil:this.phase==='question'?this.acceptUntil:null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,previousCard:this.id==='higher'?this.previousCard:undefined,cardHistory:this.id==='higher'?[...this.cardHistory]:undefined,cardLabel:this.id==='higher'?rank(this.currentCard):undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.values()].slice(0,5).map(({username,platform})=>({username,platform})):undefined,bossIntent:undefined,bossMove:this.id==='boss'&&this.phase!=='question'?this.combat?.move:undefined,battle:this.id==='boss'?{focus:this.focus,potions:this.potions,lastMove:this.lastBossMove,enraged:this.bossHp<=this.bossMaxHp*.3}:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
+ getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,acceptUntil:this.phase==='question'?this.acceptUntil:null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,previousCard:this.id==='higher'?this.previousCard:undefined,cardHistory:this.id==='higher'?[...this.cardHistory]:undefined,cardLabel:this.id==='higher'?rank(this.currentCard):undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.entries()].sort(([a],[b])=>Number(this.votes.has(b))-Number(this.votes.has(a))).slice(0,5).map(([key,{username,platform,profileImageUrl}])=>({username,platform,profileImageUrl,voted:this.votes.has(key),action:this.votes.has(key)?this.votes.get(key)+1:null})):undefined,bossIntent:undefined,bossMove:this.id==='boss'&&this.phase!=='question'?this.combat?.move:undefined,battle:this.id==='boss'?{focus:this.focus,potions:this.potions,lastMove:this.lastBossMove,enraged:this.bossHp<=this.bossMaxHp*.3}:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
  publish(){this.serial++;const state=this.getState();this.events.emit('state',state);return state;}
  subscribe(fn){this.events.on('state',fn);return()=>this.events.off('state',fn);}
 }
-const arcadeGames=new ArcadeGames({recordEvent:event=>require('./db').addEngagementEvent(event)});
+function safeProfileImage(value){try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';}catch{return '';}}
+const arcadeGames=new ArcadeGames({resolveAvatar:require('./avatar-resolver').resolveTwitchAvatar,recordEvent:event=>require('./db').addEngagementEvent(event)});
 function rank(n){return ({1:'Ace',11:'Jack',12:'Queen',13:'King'})[n]||String(n);}
 module.exports={ArcadeGames,arcadeGames,CATALOG,BOSSES};

@@ -43,7 +43,9 @@ function render(g){
   $('game').dataset.boss=g.boss?.id||'pumpkin';
   $('options').querySelectorAll('.boss-tally').forEach((el,i)=>{const n=(g.moveCounts||g.result?.counts||[])[i]||0;el.textContent=`${n} ${n===1?'vote':'votes'}`;});
   const roster=$('battleRoster'),players=g.party||[],rosterKey=JSON.stringify(players);
-  if(roster.dataset.players!==rosterKey){roster.dataset.players=rosterKey;roster.replaceChildren(...players.map(p=>{const badge=node('span','party-badge',p.username.slice(0,2).toUpperCase());badge.title=p.username;return badge;}));}
+  if(roster.dataset.players!==rosterKey){roster.dataset.players=rosterKey;roster.replaceChildren(...players.map(p=>{const badge=node('span','party-badge',p.username.slice(0,2).toUpperCase());badge.title=p.username+(p.voted?' · Voted '+p.action:' · Waiting');badge.classList.toggle('voted',Boolean(p.voted));
+   if(p.profileImageUrl){try{const url=new URL(p.profileImageUrl);if(url.protocol==='https:'){const img=document.createElement('img');img.src=url.href;img.alt=p.username;img.referrerPolicy='no-referrer';img.addEventListener('error',()=>img.remove(),{once:true});badge.append(img);}}catch{}}
+   if(p.voted){const mark=node('small','vote-mark',String(p.action));badge.append(mark);}return badge;}));}
   window.BossStage?.observe(g);
  }
  tick();

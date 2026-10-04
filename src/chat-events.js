@@ -11,7 +11,7 @@ function parseJson(value) {
 // Streamer.bot also marks the broadcaster's own chat as isMe. Permit game
 // inputs while still suppressing application replies and unrelated self commands.
 function isGameInput(text) {
-  return /^(?:!join|(?:[1-9]\d?|100)|pass|attack|defend|heal|!quiz\s+(?:join|[a-d1-4])|!(?:launch|start|next|stop|games)(?:\s+[\w-]+)?)$/i.test(text.trim());
+  return /^(?:!join|(?:[1-9]\d?|100)|one|two|three|pass|attack|defend|heal|!quiz\s+(?:join|[a-d1-4])|!(?:launch|start|next|stop|games)(?:\s+[\w-]+)?)$/i.test(text.trim());
 }
 
 function normalizeStreamerBotEvent(value) {
