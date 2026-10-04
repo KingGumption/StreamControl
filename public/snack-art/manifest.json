@@ -1,0 +1,159 @@
+{
+  "usage": "Product pack images retained with source attribution. Brand packaging belongs to its respective owners.",
+  "assets": {
+    "Cadbury Dairy Milk": {
+      "file": "snack-0.webp",
+      "source": "https://world.openfoodfacts.org/product/7622202334009",
+      "image": "https://images.openfoodfacts.org/images/products/762/220/233/4009/front_en.9.400.jpg",
+      "title": "dairy milk",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Tunnock’s Teacake": {
+      "file": "snack-3.webp",
+      "source": "https://www.tunnock.co.uk/about-us/",
+      "image": "https://www.tunnock.co.uk/media/1061/teacake-large-new.png?width=480",
+      "title": "Tunnock’s Teacake",
+      "attribution": "Manufacturer product image"
+    },
+    "Tunnock’s Caramel Wafer": {
+      "file": "snack-4.webp",
+      "source": "https://www.tunnock.co.uk/about-us/",
+      "image": "https://www.tunnock.co.uk/media/1161/Caramel_Wafer_Family.png?width=480",
+      "title": "Tunnock’s Caramel Wafer",
+      "attribution": "Manufacturer product image"
+    },
+    "Tunnock’s Caramel Log": {
+      "file": "snack-5.webp",
+      "source": "https://www.tunnock.co.uk/about-us/",
+      "image": "https://www.tunnock.co.uk/media/1160/Caramel_log.png?width=480",
+      "title": "Tunnock’s Caramel Log",
+      "attribution": "Manufacturer product image"
+    },
+    "Swizzels Love Hearts": {
+      "file": "snack-6.webp",
+      "source": "https://swizzels.com/about/our-history/",
+      "image": "https://cdn.shopify.com/s/files/1/0914/9523/5931/files/Re-cropped_Image_6a.jpg?v=1751029339",
+      "title": "Swizzels Love Hearts",
+      "attribution": "Manufacturer product image"
+    },
+    "Swizzels Drumsticks": {
+      "file": "snack-7.webp",
+      "source": "https://swizzels.com/about/our-history/",
+      "image": "https://cdn.shopify.com/s/files/1/0914/9523/5931/files/2kgoriginaldrumsticklolly_3_3for2_2_1_1.jpg?v=1736506116",
+      "title": "Swizzels Drumsticks",
+      "attribution": "Manufacturer product image"
+    },
+    "Swizzels Parma Violets": {
+      "file": "snack-8.webp",
+      "source": "https://swizzels.com/about/our-history/",
+      "image": "https://cdn.shopify.com/s/files/1/0914/9523/5931/files/2kgparmaviolets_6_2_1.jpg?v=1737977631",
+      "title": "Swizzels Parma Violets",
+      "attribution": "Manufacturer product image"
+    },
+    "Swizzels Refreshers": {
+      "file": "snack-9.webp",
+      "source": "https://swizzels.com/about/our-history/",
+      "image": "https://cdn.shopify.com/s/files/1/0914/9523/5931/files/2kgrefresherchews_7_1.jpg?v=1737977678",
+      "title": "Swizzels Refreshers",
+      "attribution": "Manufacturer product image"
+    },
+    "Pocky": {
+      "file": "snack-12.webp",
+      "source": "https://world.openfoodfacts.org/product/8851019010007",
+      "image": "https://images.openfoodfacts.org/images/products/885/101/901/0007/front_en.89.400.jpg",
+      "title": "Pocky Chocolate",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Lotus Biscoff": {
+      "file": "snack-15.webp",
+      "source": "https://world.openfoodfacts.org/product/5410126806069",
+      "image": "https://images.openfoodfacts.org/images/products/541/012/680/6069/front_en.57.400.jpg",
+      "title": "LOTUS BISCOFF Original - 250g (2x125g)",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Oreo": {
+      "file": "snack-17.webp",
+      "source": "https://world.openfoodfacts.org/product/7622300336738",
+      "image": "https://images.openfoodfacts.org/images/products/762/230/033/6738/front_en.407.400.jpg",
+      "title": "OREO ORIGINAL",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Toblerone": {
+      "file": "snack-18.webp",
+      "source": "https://world.openfoodfacts.org/product/7614500010013",
+      "image": "https://images.openfoodfacts.org/images/products/761/450/001/0013/front_en.362.400.jpg",
+      "title": "Milk Chocolate Almond Nougat",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Calbee Jagarico": {
+      "file": "snack-21.webp",
+      "source": "https://world.openfoodfacts.org/product/4901330578961",
+      "image": "https://images.openfoodfacts.org/images/products/490/133/057/8961/front_en.3.400.jpg",
+      "title": "Jagarico Cod roe Cheese Monja",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Cadbury Flake": {
+      "file": "snack-1.webp",
+      "source": "https://www.cadbury.co.uk/products/brands/flake/",
+      "image": "https://images.ctfassets.net/pmzhtobns06n/3Ws3lz8r9CxkdQ83X8Ry8j/c0d46204aa24d9dc1e870c77acd41a8f/Cameos__2_.png?fm=webp&q=80",
+      "title": "Cadbury Flake",
+      "attribution": "Manufacturer promotional image"
+    },
+    "Loacker Wafers": {
+      "file": "snack-14.webp",
+      "source": "https://world.openfoodfacts.org/product/8000380153442",
+      "image": "https://images.openfoodfacts.org/images/products/800/038/015/3442/front_en.133.400.jpg",
+      "title": "Loacker",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Reese’s Peanut Butter Cups": {
+      "file": "snack-19.webp",
+      "source": "https://world.openfoodfacts.org/product/0034000470693",
+      "image": "https://images.openfoodfacts.org/images/products/003/400/047/0693/front_en.25.400.jpg",
+      "title": "Peanut Butter Cups minis unwrapped",
+      "attribution": "Open Food Facts contributors, CC BY-SA 3.0"
+    },
+    "Cadbury Crunchie": {
+      "file": "snack-2.webp",
+      "source": "https://www.cadbury.co.uk/products/brands/crunchie/",
+      "image": "https://images.ctfassets.net/pmzhtobns06n/55wAkkhXVKb60r44xd53y6/933477bc0850277c908299db273389a7/Cameo.png?fm=webp&q=80",
+      "title": "Cadbury Crunchie",
+      "attribution": "Manufacturer promotional image"
+    },
+    "Haribo Goldbears": {
+      "file": "snack-13.webp",
+      "source": "https://www.haribo.com/en-gb/products/haribo/goldbears",
+      "image": "https://assets.haribo.com/image/upload/s--YALfpdUG--/ar_2700:3542,c_fill,f_auto,q_60/w_715/v1/consumer-sites/en-gb/Products/goldbears-uk.png",
+      "title": "Haribo Goldbears",
+      "attribution": "Manufacturer promotional image"
+    },
+    "Tim Tam": {
+      "file": "snack-16.webp",
+      "source": "https://www.arnotts.com/brands/tim-tam",
+      "image": "https://images.ctfassets.net/qifm0zg3y057/7qC8wb0yTFNzxrJsAKSJ3p/a5cb2ac2f4394a1f1474b8359667068f/Tim_Tam_Original.jpg?fm=webp&fit=scale&w=640&q=85",
+      "title": "Tim Tam",
+      "attribution": "Manufacturer promotional image"
+    },
+    "Taylors Sea Salt Crisps": {
+      "file": "snack-10.webp",
+      "source": "https://taylorssnacks.com/crisps-2/",
+      "image": "https://taylorssnacks.com/wp-content/uploads/2023/08/Taylors-Straight-Cut-Sea-Salt-Crisps-150g-1000px-690x964.png",
+      "title": "Taylors Sea Salt Crisps",
+      "attribution": "Manufacturer product image"
+    },
+    "Taylors Haggis & Cracked Black Pepper Crisps": {
+      "file": "snack-11.webp",
+      "source": "https://taylorssnacks.com/products/haggis-flavour-potato-crisps/",
+      "image": "https://taylorssnacks.com/wp-content/uploads/2023/08/Taylors-Straight-Cut-Haggis-Cracked-Black-Pepper-Crisps-150g-1000px-600x830.png",
+      "title": "Taylors Haggis & Cracked Black Pepper Crisps",
+      "attribution": "Manufacturer product image"
+    },
+    "Calbee Kappa Ebisen Shrimp Chips": {
+      "file": "snack-20.webp",
+      "source": "https://www.calbee.co.jp/en/products/select/?cid=1",
+      "image": "https://www.calbee.co.jp/common/utility/binout.php?db=products&f=5460",
+      "title": "Calbee Kappa Ebisen Shrimp Chips",
+      "attribution": "Manufacturer product image"
+    }
+  }
+}

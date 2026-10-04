@@ -2,6 +2,11 @@ const {EventEmitter}=require('node:events');
 const crypto=require('node:crypto');
 const snacks=require('./snack-bank.json');
 const CATALOG=[['escape','Haunted House Escape','Vote 1–3 to escape together.'],['higher','Higher or Lower','Vote 1 for higher, 2 for lower. Cards run from 1 to 100.'],['split','Split the Crowd','Vote 1 or 2. The smaller non-empty group scores.'],['boss','Crowd Boss Battle','Type attack, defend or heal each turn.'],['number','Secret Number Hunt','Guess 1–100. Follow the clues and find the number.'],['snacks','Snack Wars','Vote 1 for Britain or 2 for the world. Every snack shows its origin.']].map(([id,name,help])=>({id,name,help}));
+const BOSSES=[
+ {id:'pumpkin',name:'The Pumpkin King',title:'LORD OF THE LANTERNS',moves:['Thorn Slam','Phantom Flame','Royal Shockwave'],tint:'#ffad55'},
+ {id:'frost',name:'The Frost Wyrm',title:'GUARDIAN OF THE FROZEN CROWN',moves:['Ice Claw','Glacial Breath','Blizzard Wing'],tint:'#7deaff'},
+ {id:'golem',name:'The Candy Golem',title:'SOVEREIGN OF THE SUGAR VAULT',moves:['Chocolate Crush','Sugar Shards','Candyquake'],tint:'#e39dff'}
+];
 const ROOMS=[
  ['The front hall: a cold draught comes from beneath the door.',['Follow the draught','Ring the rusty bell','Read the visitor book'],[2,-1,1]],
  ['The library: one shelf has no dust.',['Pull a dusty book','Push the clean shelf','Call for the librarian'],[0,2,-1]],
@@ -23,6 +28,7 @@ class ArcadeGames {
   if(this.phase!=='idle'&&this.phase!=='completed')throw Error('A game is already running.');
   if(!Number.isInteger(rounds)||rounds<3||rounds>10||!Number.isInteger(seconds)||seconds<10||seconds>60)throw Error('Use 3–10 rounds and 10–60 seconds.');
   this.cancel(this.timer);Object.assign(this,{id,rounds,seconds,round:0,gameId:crypto.randomUUID(),players:new Map(),health:5,progress:0,bossHp:100,partyHp:100,teamScores:[0,0],currentCard:1+Math.floor(this.random()*100),target:1+Math.floor(this.random()*100),low:1,high:100,result:null});
+  this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;
   this.british=this.shuffle(snacks.filter(s=>s.team==='britain'));this.world=this.shuffle(snacks.filter(s=>s.team==='world'));this.rooms=this.shuffle(ROOMS);this.splits=this.shuffle(SPLITS);
   return this.nextRound();
  }
@@ -32,7 +38,7 @@ class ArcadeGames {
   if(this.id==='escape'){const room=this.rooms[(this.round-1)%this.rooms.length];this.prompt=room[0];this.options=room[1].map(name=>({name}));this.effects=room[2];}
   if(this.id==='higher'){this.prompt=`Current card: ${this.currentCard}. Will the next card be higher or lower?`;this.options=[{name:'Higher'},{name:'Lower'}];this.nextCard=1+Math.floor(this.random()*99);if(this.nextCard>=this.currentCard)this.nextCard++;}
   if(this.id==='split'){this.prompt='Be in the smaller group to score!';this.options=this.splits[(this.round-1)%this.splits.length].map(name=>({name}));}
-  if(this.id==='boss'){this.prompt='The Pumpkin King prepares to strike. Choose your move.';this.options=[{name:'Attack',command:'attack'},{name:'Defend',command:'defend'},{name:'Heal',command:'heal'}];}
+  if(this.id==='boss'){this.bossMove=this.boss.moves[(this.round-1)%this.boss.moves.length];this.combat=null;this.prompt=`${this.boss.name} is charging ${this.bossMove}. Choose your move.`;this.options=[{name:'Attack',command:'attack'},{name:'Defend',command:'defend'},{name:'Heal',command:'heal'}];}
   if(this.id==='number'){this.prompt=`Find the secret number: ${this.low}–${this.high}. One guess each this round.`;this.options=[];}
   this.arm(this.seconds*1000,()=>this.resolve());return this.publish();
  }
@@ -68,8 +74,8 @@ class ArcadeGames {
    done=done||this.health<=0;success=this.health>0&&this.progress>=this.rounds;if(done)text+=success?' You escape together!':' The house keeps its secrets. Try another run!';
   }
   if(this.id==='boss'){
-   const n=this.votes.size;if(n){const damage=Math.round(40*counts[0]/n),shield=Math.round(30*counts[1]/n),heal=Math.round(25*counts[2]/n);this.bossHp=Math.max(0,this.bossHp-damage);const hit=this.bossHp?Math.max(0,25-shield):0;this.partyHp=Math.max(0,Math.min(100,this.partyHp+heal)-hit);text=`Dealt ${damage} damage, blocked ${Math.min(25,shield)}, healed up to ${heal}. The boss dealt ${hit}.`;}else{this.partyHp=Math.max(0,this.partyHp-25);text='No moves received. The boss hits for 25.';}
-   done=done||this.partyHp<=0||this.bossHp<=0;success=this.bossHp<=0;if(done)text+=success?' The Pumpkin King is defeated!':' The Pumpkin King wins this battle.';
+   const n=this.votes.size;this.combat={damage:0,shield:0,heal:0,hit:25,move:this.bossMove,style:(this.round-1)%3};if(n){const damage=Math.round(40*counts[0]/n),shield=Math.round(30*counts[1]/n),heal=Math.round(25*counts[2]/n);this.bossHp=Math.max(0,this.bossHp-damage);const hit=this.bossHp?Math.max(0,25-shield):0;this.partyHp=Math.max(0,Math.min(100,this.partyHp+heal)-hit);this.combat={damage,shield:Math.min(25,shield),heal,hit,move:this.bossMove,style:(this.round-1)%3};text=`Dealt ${damage} damage, blocked ${Math.min(25,shield)}, healed up to ${heal}. The boss dealt ${hit}.`;}else{this.partyHp=Math.max(0,this.partyHp-25);text='No moves received. The boss hits for 25.';}
+   done=done||this.partyHp<=0||this.bossHp<=0;success=this.bossHp<=0;if(done)text+=success?` ${this.boss.name} is defeated!`:` ${this.boss.name} wins this battle.`;
   }
   if(this.id==='number'){
    const found=[...this.votes].filter(([,v])=>v===this.target);if(found.length){found.forEach(([key])=>this.players.get(key).score++);text=found.map(([key])=>this.players.get(key).username).join(', ')+` found ${this.target}!`;done=true;success=true;}
@@ -82,9 +88,9 @@ class ArcadeGames {
  }
  next(){if(this.phase==='question')return this.resolve();if(this.phase==='reveal'){this.cancel(this.timer);return this.nextRound();}throw Error('No active round.');}
  stop(){this.cancel(this.timer);this.phase='idle';this.endsAt=null;return this.publish();}
- getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command})=>({name,origin,team,command})),endsAt:this.endsAt||null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,teamScores:this.teamScores,health:this.health,progress:this.progress,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
+ getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,card:this.id==='higher'?this.currentCard:undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,bossMove:this.id==='boss'?this.bossMove:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
  publish(){this.serial++;const state=this.getState();this.events.emit('state',state);return state;}
  subscribe(fn){this.events.on('state',fn);return()=>this.events.off('state',fn);}
 }
 const arcadeGames=new ArcadeGames({recordEvent:event=>require('./db').addEngagementEvent(event)});
-module.exports={ArcadeGames,arcadeGames,CATALOG};
+module.exports={ArcadeGames,arcadeGames,CATALOG,BOSSES};

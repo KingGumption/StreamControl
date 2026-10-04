@@ -134,6 +134,7 @@
       </section>
     </main>
     </div></div><script src="/assets/game-canvas.js"></script>
+    <link rel="stylesheet" href="/assets/broadcast-fx.css"><script src="/assets/game-sound.js"></script><script src="/assets/broadcast-fx.js"></script>
     <script>
       const game = document.getElementById('game');
       const kicker = document.getElementById('kicker');
@@ -166,6 +167,7 @@
         }
 
         choices.replaceChildren(...state.options.map((option) => choiceCard(option, state.phase)));
+        window.GameSound?.observe(state,'hill');window.BroadcastFX?.observe(state,'hill');
         updateTimer();
       }
 
@@ -248,7 +250,7 @@
           return;
         }
         const remaining = Math.max(0, Math.ceil((new Date(current.endsAt).getTime() - Date.now()) / 1000));
-        timer.textContent = remaining;
+        timer.textContent = remaining;window.GameSound?.tick(current,'hill');
       }
 
       const events = new EventSource('/king-of-the-hill/events');

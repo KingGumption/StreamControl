@@ -3,132 +3,154 @@
     "name": "Cadbury Dairy Milk",
     "team": "britain",
     "origin": "England, United Kingdom",
-    "source": "https://www.cadbury.co.uk/about/history/timeline/"
+    "source": "https://www.cadbury.co.uk/about/history/timeline/",
+    "image": "/assets/snack-art/snack-0.webp"
   },
   {
     "name": "Cadbury Flake",
     "team": "britain",
     "origin": "England, United Kingdom",
-    "source": "https://www.cadbury.co.uk/about/history/timeline/"
+    "source": "https://www.cadbury.co.uk/about/history/timeline/",
+    "image": "/assets/snack-art/snack-1.webp"
   },
   {
     "name": "Cadbury Crunchie",
     "team": "britain",
     "origin": "England, United Kingdom",
-    "source": "https://www.cadbury.co.uk/about/history/timeline/"
+    "source": "https://www.cadbury.co.uk/about/history/timeline/",
+    "image": "/assets/snack-art/snack-2.webp"
   },
   {
     "name": "Tunnock’s Teacake",
     "team": "britain",
     "origin": "Scotland, United Kingdom",
-    "source": "https://www.tunnock.co.uk/about-us/"
+    "source": "https://www.tunnock.co.uk/about-us/",
+    "image": "/assets/snack-art/snack-3.webp"
   },
   {
     "name": "Tunnock’s Caramel Wafer",
     "team": "britain",
     "origin": "Scotland, United Kingdom",
-    "source": "https://www.tunnock.co.uk/about-us/"
+    "source": "https://www.tunnock.co.uk/about-us/",
+    "image": "/assets/snack-art/snack-4.webp"
   },
   {
     "name": "Tunnock’s Caramel Log",
     "team": "britain",
     "origin": "Scotland, United Kingdom",
-    "source": "https://www.tunnock.co.uk/about-us/"
+    "source": "https://www.tunnock.co.uk/about-us/",
+    "image": "/assets/snack-art/snack-5.webp"
   },
   {
     "name": "Swizzels Love Hearts",
     "team": "britain",
     "origin": "England, United Kingdom",
-    "source": "https://swizzels.com/about/our-history/"
+    "source": "https://swizzels.com/about/our-history/",
+    "image": "/assets/snack-art/snack-6.webp"
   },
   {
     "name": "Swizzels Drumsticks",
     "team": "britain",
     "origin": "England, United Kingdom",
-    "source": "https://swizzels.com/about/our-history/"
+    "source": "https://swizzels.com/about/our-history/",
+    "image": "/assets/snack-art/snack-7.webp"
   },
   {
     "name": "Swizzels Parma Violets",
     "team": "britain",
     "origin": "England, United Kingdom",
-    "source": "https://swizzels.com/about/our-history/"
+    "source": "https://swizzels.com/about/our-history/",
+    "image": "/assets/snack-art/snack-8.webp"
   },
   {
     "name": "Swizzels Refreshers",
     "team": "britain",
     "origin": "England, United Kingdom",
-    "source": "https://swizzels.com/about/our-history/"
+    "source": "https://swizzels.com/about/our-history/",
+    "image": "/assets/snack-art/snack-9.webp"
   },
   {
     "name": "Taylors Sea Salt Crisps",
     "team": "britain",
     "origin": "Scotland, United Kingdom",
-    "source": "https://taylorssnacks.com/about/our-origins/"
+    "source": "https://taylorssnacks.com/about/our-origins/",
+    "image": "/assets/snack-art/snack-10.webp"
   },
   {
     "name": "Taylors Haggis & Cracked Black Pepper Crisps",
     "team": "britain",
     "origin": "Scotland, United Kingdom",
-    "source": "https://taylorssnacks.com/about/our-origins/"
+    "source": "https://taylorssnacks.com/about/our-origins/",
+    "image": "/assets/snack-art/snack-11.webp"
   },
   {
     "name": "Pocky",
     "team": "world",
     "origin": "Japan",
-    "source": "https://www.pocky.com/about/"
+    "source": "https://www.pocky.com/about/",
+    "image": "/assets/snack-art/snack-12.webp"
   },
   {
     "name": "Haribo Goldbears",
     "team": "world",
     "origin": "Germany",
-    "source": "https://www.haribo.com/en/about-us/history"
+    "source": "https://www.haribo.com/en/about-us/history",
+    "image": "/assets/snack-art/snack-13.webp"
   },
   {
     "name": "Loacker Wafers",
     "team": "world",
     "origin": "Italy",
-    "source": "https://www.loacker.com/int/en/about-us/the-story-of-a-family/our-history.html"
+    "source": "https://www.loacker.com/int/en/about-us/the-story-of-a-family/our-history.html",
+    "image": "/assets/snack-art/snack-14.webp"
   },
   {
     "name": "Lotus Biscoff",
     "team": "world",
     "origin": "Belgium",
-    "source": "https://www.lotusbakeries.be/fr/domu-0"
+    "source": "https://www.lotusbakeries.be/fr/domu-0",
+    "image": "/assets/snack-art/snack-15.webp"
   },
   {
     "name": "Tim Tam",
     "team": "world",
     "origin": "Australia",
-    "source": "https://www.arnotts.com/brands/tim-tam"
+    "source": "https://www.arnotts.com/brands/tim-tam",
+    "image": "/assets/snack-art/snack-16.webp"
   },
   {
     "name": "Oreo",
     "team": "world",
     "origin": "United States",
-    "source": "https://www.mondelezinternational.com/our-brands/oreo/index.html"
+    "source": "https://www.mondelezinternational.com/our-brands/oreo/index.html",
+    "image": "/assets/snack-art/snack-17.webp"
   },
   {
     "name": "Toblerone",
     "team": "world",
     "origin": "Switzerland",
-    "source": "https://www.mondelezinternational.com/our-brands/toblerone/"
+    "source": "https://www.mondelezinternational.com/our-brands/toblerone/",
+    "image": "/assets/snack-art/snack-18.webp"
   },
   {
     "name": "Reese’s Peanut Butter Cups",
     "team": "world",
     "origin": "United States",
-    "source": "https://www.hersheys.com/reeses"
+    "source": "https://www.hersheys.com/reeses",
+    "image": "/assets/snack-art/snack-19.webp"
   },
   {
     "name": "Calbee Kappa Ebisen Shrimp Chips",
     "team": "world",
     "origin": "Japan",
-    "source": "https://www.calbee.co.jp/en/corporate/history/product.php"
+    "source": "https://www.calbee.co.jp/en/corporate/history/product.php",
+    "image": "/assets/snack-art/snack-20.webp"
   },
   {
     "name": "Calbee Jagarico",
     "team": "world",
     "origin": "Japan",
-    "source": "https://www.calbee.co.jp/en/corporate/history/product.php"
+    "source": "https://www.calbee.co.jp/en/corporate/history/product.php",
+    "image": "/assets/snack-art/snack-21.webp"
   }
 ]

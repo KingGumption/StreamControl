@@ -1,5 +1,7 @@
 // Original arcade tones, generated locally: no downloads or third-party audio.
 (() => {
+  const params=typeof URLSearchParams!=='undefined'?new URLSearchParams(window.location?.search||''):null;
+  function settings(g){const value=params?.has('volume')?Number(params.get('volume')):null;return {...g,audio:{muted:g.audio?.muted||params?.get('muted')==='1',volume:value!==null&&Number.isFinite(value)?Math.max(0,Math.min(100,value))/100:g.audio?.volume??.35}};}
   let context, master, previous, current, activeKey='';
   const played = new Set();
   const motifs = {question:[523,784],tick:[880],reveal:[392,523,659],podium:[659,784,1047],sudden:[220,330,220,660],victory:[523,659,784,1047],defeat:[392,330,262,131]};
@@ -20,7 +22,7 @@
   }
   window.QuizAudio = {
     observe(g) {
-      current=g;sync();const key=`${g.gameId}:${g.round}:${g.phase}`;
+      current=settings(g);sync();const key=`${g.gameId}:${g.round}:${g.phase}`;
       if(key===activeKey)return;
       const old=previous;previous={gameId:g.gameId,round:g.round,phase:g.phase};activeKey=key;
       if(g.gameId!==old?.gameId)played.clear();

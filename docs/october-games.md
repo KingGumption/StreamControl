@@ -58,3 +58,14 @@ The helper also supports `node scripts/game-control.cjs launch snacks` and `stop
 Normal redeems require OBS streaming output to be active and not reconnecting. Recording or virtual camera alone is insufficient. Unknown status blocks capture. Checks occur before accepting the request, after any queue delay, and at the local connector immediately before taking the screenshot. Queued jobs are invalidated when OBS disconnects or the stream ends. They are not saved for the next broadcast.
 
 Only the authenticated owner’s test route can bypass live status. Sending `isTest`, changing a username, or using a moderator account cannot bypass it. Both cloud and PC connector need this release. Test photos remain marked as tests in the existing capture pipeline.
+
+
+## Arcade presentation and audio
+
+The shared `/games` source still uses a 1080 x 640 canvas. Arcade games now have illustrated stages, animated choices, countdown cues and result reveals. Boss Battle randomly selects the Pumpkin King, Frost Wyrm or Candy Golem. Each articulated vector character has idle, hit, guard, defeat and victory poses, plus three attack animations. Combat animations show the server's existing damage totals; game balance is unchanged.
+
+Snack Wars serves real product photographs from local WebP files, with origin labels. Sources and credits are recorded in `public/snack-art/manifest.json`. Open Food Facts contributor photos retain their CC BY-SA 3.0 attribution; manufacturer images and packaging belong to their respective owners. Images were resized/compressed, not generated. The illustrated game scenes and boss characters are original vector artwork; arcade audio is synthesised locally.
+
+In Quick Games, select the overlay theme and audio volume, then copy the Games overlay link into the OBS browser source. Volume defaults to 30%. Use `/games?volume=20` for 20% or `/games?muted=1` for silence; these options also work alongside `theme=halloween`. The settings travel with the copied URL. They do not change an OBS source until its URL is updated. The Hill admin preview is muted to avoid duplicate audio.
+
+Effects run only on game phase changes, not each vote. Reconnect snapshots do not replay past sound cues. Reduced-motion preferences disable decorative motion, and stopping or replacing a boss round cancels pending attacks. Browsers may require an interaction before allowing audio; OBS browser sources use their normal audio routing.

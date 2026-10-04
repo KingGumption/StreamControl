@@ -212,6 +212,7 @@ function render(g) {
   $('questionPanel').className = g.phase === 'lobby' ? 'panel quiz-lobby' : g.question?.image ? 'panel has-media' : 'panel';
   $('counts').textContent = g.phase === 'lobby' ? `${g.players} ${g.players === 1 ? 'player' : 'players'} joined` : `${g.players} joined - ${g.survivors} remaining`;
   updateLobby(g);
+  if(globalThis.BroadcastFX)setTimeout(()=>globalThis.BroadcastFX.observe(g,'quiz'),0);
   const key = `${g.gameId}:${g.phase}:${g.round}`;
   if (key !== viewKey) {
     viewKey = key;
