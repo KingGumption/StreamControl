@@ -16,6 +16,7 @@ test('bounded delivery work never requires capture to wait and rejects excess ba
 test('Polaroid starts screenshot while avatar is unresolved and limits avatar wait',async()=>{
  const config={obs:{},discord:{enabled:false},streamerBot:{avatarResolverEnabled:true},polaroid:{showProfilePicture:true},avatarBudgetMs:10};
  const runtime=new PolaroidRuntime({config,obs:new EventEmitter()});
+ runtime.state.obsConnected=true;runtime.obs.call=async()=>({outputActive:true});
  runtime.resolveTwitchProfileImage=()=>new Promise(()=>{});
  let captureStarted=false;
  runtime.captureCameraSource=async()=>{captureStarted=true;throw Error('fixture end');};

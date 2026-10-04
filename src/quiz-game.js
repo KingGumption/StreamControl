@@ -53,7 +53,12 @@ class QuizGame {
     this.reserve = shuffle(available).sort((a,b)=>this.historyRank(a)-this.historyRank(b)||b.difficulty-a.difficulty);
     this.id = crypto.randomUUID(); this.count = questionCount; this.answerSeconds = answerSeconds;
     this.deck = chosen.map(shuffleOptions);
-    this.speedChampion = null; this.submissionSequence = 0; this.acceptUntil = null; this.nextQuestionAt = null; this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
+    this.lobbyEndsAt=null; this.speedChampion = null; this.submissionSequence = 0; this.acceptUntil = null; this.nextQuestionAt = null; this.roundResult = null; this.outcome = null; this.players.clear(); this.round = 0; this.phase = 'lobby'; this.deadline = null; this.track('lobby_opened'); return this.getState();
+  }
+  launch({lobbySeconds=30,...options}={}) {
+    if(!Number.isInteger(lobbySeconds)||lobbySeconds<5||lobbySeconds>300)throw Error('Joining time must be 5–300 seconds.');
+    this.lobbyNotice=null;this.open(options);this.lobbySeconds=lobbySeconds;this.lobbyEndsAt=this.now()+lobbySeconds*1000;
+    this.timer=this.schedule(()=>{if(this.phase!=='lobby')return;if(!this.players.size){this.stop();this.lobbyNotice='Quiz cancelled: nobody joined.';this.publish();return;}this.next();},lobbySeconds*1000);this.timer?.unref?.();this.publish();return this.getState();
   }
   next() {
     if (this.phase === 'question') { this.resolve(); return this.getState(); }
@@ -62,7 +67,7 @@ class QuizGame {
     if (this.phase === 'lobby') this.track('game_started', null, { players: this.players.size, questionCount: this.count, answerSeconds:this.answerSeconds, categories:this.selectedCategories });
     this.cancel(this.timer); this.nextQuestionAt = null;
     if (this.round >= this.count) this.deck.push(this.suddenDeathQuestion());
-    this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; p.passed = false; p.responseMs = null; p.answerOrder = null; });
+    this.lobbyEndsAt=null; this.roundResult = null; this.round++; this.phase = 'question'; this.players.forEach(p => { p.answer = null; p.passed = false; p.responseMs = null; p.answerOrder = null; });
     const shown = this.deck[this.round-1];
     const questionId = shown.id || shown.text;
     this.history = this.history.filter(id=>id!==questionId); this.history.push(questionId);
@@ -137,7 +142,7 @@ class QuizGame {
       this.track('game_completed', null, { winners: this.survivors().length, players: this.players.size, outcome: this.outcome });
     }
   }
-  stop() { this.cancel(this.timer); this.nextQuestionAt = null; if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; this.acceptUntil = null; return this.getState(); }
+  stop() { this.lobbyEndsAt=null; this.cancel(this.timer); this.nextQuestionAt = null; if (['lobby','question','reveal'].includes(this.phase)) this.track('game_stopped'); this.phase = 'idle'; this.deadline = null; this.acceptUntil = null; return this.getState(); }
   survivors() { return [...this.players.values()].filter(p => p.alive); }
   handleChatEvent(event) {
     const match = String(event.text || '').trim().match(/^(?:!(join)|(pass|[1-4])|!quiz\s+(join|[a-d1-4]))$/i);
@@ -185,7 +190,7 @@ class QuizGame {
   }
   getState() {
     const q = this.round ? this.deck?.[this.round - 1] : null;
-    const state = { audio:this.audio, graceMs:2000, acceptUntil:this.acceptUntil || null, speedChampion:this.phase==='completed'?this.speedChampion:null, revision: this.revision, answerSeconds: this.answerSeconds, answered: this.phase === 'question' ? this.survivors().filter(p=>p.answer!==null || p.passed).length : null, categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl, freePass, bonusPass, alive}) => ({username, platform, profileImageUrl, passes:freePass+bonusPass,alive})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
+    const state = { lobbyNotice:this.lobbyNotice||null,lobbyEndsAt:this.lobbyEndsAt||null, audio:this.audio, graceMs:2000, acceptUntil:this.acceptUntil || null, speedChampion:this.phase==='completed'?this.speedChampion:null, revision: this.revision, answerSeconds: this.answerSeconds, answered: this.phase === 'question' ? this.survivors().filter(p=>p.answer!==null || p.passed).length : null, categories: this.getCatalog(), selectedCategories: this.selectedCategories || this.getCatalog().map(c=>c.id), nextQuestionAt: this.nextQuestionAt || null, suddenDeath: this.round > this.count, solo: this.players.size === 1, roster: [...this.players.values()].map(({username, platform, profileImageUrl, freePass, bonusPass, alive}) => ({username, platform, profileImageUrl, passes:freePass+bonusPass,alive})), gameId: this.id || null, outcome: this.phase === 'completed' ? this.outcome : null, roundResult: ['reveal', 'completed'].includes(this.phase) ? this.roundResult : null, phase: this.phase, round: this.round, questionCount: this.count, maxQuestions: Math.min(15,this.questions.length), deadline: this.deadline, players: this.players.size, survivors: this.survivors().length,
       question: q && this.phase !== 'idle' ? { text: q.text, options: q.options, difficulty: q.difficulty, category: q.category || 'general', ...(q.image ? { image: { url: `/assets/quiz-media/${q.image.file}`, crop: q.image.crop || [0,0,1,1], aspect: q.image.aspect } } : {}), ...(['reveal','completed'].includes(this.phase) ? { answer: q.answer } : {}) } : null,
       winners: this.phase === 'completed' ? this.survivors().map(({ username, platform, profileImageUrl, correctAnswers, totalWins }) => ({ username, platform, profileImageUrl, correctAnswers, totalWins })) : [] };
     state.controlVersion = controlVersion(state);

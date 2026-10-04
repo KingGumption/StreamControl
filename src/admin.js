@@ -2,6 +2,8 @@ const express = require('express');
 const { registerCreditsFeed, creditsToken } = require('./polaroid/credits-feed');
 const { streamEvents } = require('./sse');
 const access = require('./moderator-access');
+const {gameLauncher,issueDeviceToken,validDeviceToken,revokeDeviceToken}=require('./game-launcher');
+const {arcadeGames}=require('./arcade-games');
 const metrics = require('./performance');
 const path = require('node:path');
 const { getLiveConfig, saveConfig } = require('./config');
@@ -85,6 +87,20 @@ app.post('/admin/logout', adminAuth.requireAuthentication, adminAuth.requireSame
 app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, adminAuth.requireCapability);
 
 
+app.get('/chat-games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','chat-games.html')));
+app.get('/chat-games/state',(req,res)=>res.json({ok:true,game:arcadeGames.getState()}));
+app.get('/chat-games/events',(req,res)=>streamEvents(req,res,{name:'arcade-state',subscribe:fn=>arcadeGames.subscribe(fn),initial:()=>arcadeGames.getState()}));
+app.post('/api/games/action',adminAuth.requireSameOrigin,(req,res)=>{
+  const token=String(req.get('authorization')||'').replace(/^Bearer /,'');
+  if(!validDeviceToken(token))return res.status(401).json({ok:false,error:'Game device token required.'});
+  try{res.json({ok:true,...gameLauncher.action(req.body.action,req.body.game,{role:'device',id:'stream-deck'})});}catch(e){res.status(409).json({ok:false,error:e.message});}
+});
+router.get('/games/quick',(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-quick.html')));
+router.get('/games/state',(req,res)=>res.json({ok:true,...gameLauncher.state(),user:req.identity,controlEnabled:access.handoff().enabled}));
+router.post('/games/action',(req,res)=>{try{res.json({ok:true,...gameLauncher.action(req.body.action,req.body.game,req.identity)});}catch(e){res.status(409).json({ok:false,error:e.message});}});
+router.post('/games/preset',(req,res)=>{try{res.json({ok:true,preset:gameLauncher.savePreset(req.body.game,req.body.values||{})});}catch(e){res.status(400).json({ok:false,error:e.message});}});
+router.post('/games/device-token',(req,res)=>res.json({ok:true,token:issueDeviceToken()}));
+router.post('/games/device-token/revoke',(req,res)=>{revokeDeviceToken();res.json({ok:true});});
 router.get('/games/session', (req,res) => res.json({ok:true,user:req.identity,handoff:access.handoff()}));
 router.get('/games/connections', (req,res) => {
   const connections = getConnectionStatuses();
@@ -253,15 +269,8 @@ router.get('/polaroid/latest', (req, res) => {
 router.post('/polaroid/redeem', async (req, res) => {
   try {
     const deliverToDiscord = req.body.deliverToDiscord !== false;
-    const photo = await polaroidRuntime.enqueueRedemption(
-      req.body.redeemerName || req.body.userName || req.body.username,
-      'Admin',
-      '',
-      req.body.profileImageUrl || req.body.avatarUrl || '',
-      '',
-      [],
-      { deliverToDiscord, isTest: true },
-    );
+    if(req.identity?.role!=='owner')return res.status(403).json({ok:false,error:'Owner only.'});
+    const photo = await polaroidRuntime.enqueueOwnerTest(req.body.redeemerName || req.body.userName || req.body.username,req.body.profileImageUrl || req.body.avatarUrl || '',deliverToDiscord);
     res.status(201).json({ ok: true, ...photo, deliverToDiscord });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
@@ -443,7 +452,7 @@ router.post('/quiz/audio', (req,res) => { try { res.json({ok:true,game:quizGame.
 router.get('/quiz/state', (req, res) => res.json({ ok: true, game: quizGame.getState() }));
 for (const action of ['open', 'next', 'stop']) {
   router.post(`/quiz/${action}`, (req, res) => {
-    try { res.json({ ok: true, game: quizGame[action](req.body) }); }
+    try { if(action==='open'&&gameLauncher.active())throw Error('A game is already running. Stop it first.');res.json({ ok: true, game: quizGame[action](req.body) }); }
     catch (error) { res.status(400).json({ ok: false, error: error.message }); }
   });
 }
@@ -456,6 +465,7 @@ router.get('/king-of-the-hill/state', (req, res) => {
 });
 
 router.post('/king-of-the-hill/start', (req, res) => {
+  if(gameLauncher.active()&&gameLauncher.active()!=='hill')return res.status(409).json({ok:false,error:'A game is already running. Stop it first.'});
   res.json({ ok: true, game: hillGame.start() });
 });
 

@@ -1,0 +1,13 @@
+html[data-theme=halloween]{--accent:#ffad55;--secondary:#d1a0ff;--panel:#24182f;--border:#9260b7;--gold:#ffd26c;--theme-deep:#120c1c}
+html[data-theme=ghost]{--accent:#9ceaff;--secondary:#c5d1f7;--panel:#182633;--border:#7296ad;--gold:#e5f4ff;--theme-deep:#0a1520}
+html[data-theme=slime]{--accent:#b5f75a;--secondary:#d6a3ff;--panel:#1d2720;--border:#6c9750;--gold:#e1ff87;--theme-deep:#10190e}
+html[data-theme]{--cyan:var(--accent);--pink:var(--secondary);--violet:var(--secondary);--glass:var(--panel);--glass-deep:var(--theme-deep);--line:var(--border);--text:#f7f8ff;--muted:#d3dce8}
+html[data-theme] .quiz-overlay .panel,html[data-theme] .quiz-stage{background:var(--panel);border-color:var(--border)}
+html[data-theme] .quiz-overlay #status,html[data-theme] .stage-label,html[data-theme] .pass-balance{color:var(--gold)}
+html[data-theme] .quiz-overlay .option:not(.correct):not(.incorrect){background:var(--theme-deep);border-color:var(--border)}
+html[data-theme] .quiz-overlay .lobby-player,html[data-theme] .speed-podium,html[data-theme] .speed-place{background:var(--theme-deep);border-color:var(--secondary)}
+html[data-theme] .quiz-overlay .answer-number,html[data-theme] .quiz-time-fill{background:var(--accent);color:#101418}
+html[data-theme] .quiz-overlay .quiz-lobby h2,html[data-theme] .speed-champion h3{color:var(--accent)}
+html[data-theme] .photo-shell{outline:4px solid var(--accent);box-shadow:0 0 38px var(--secondary);border-radius:2px}
+html[data-theme] .photo-glint::before{background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+/* Preserve green correct, red incorrect and platform identity colours. */

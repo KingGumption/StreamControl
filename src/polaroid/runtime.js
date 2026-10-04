@@ -20,6 +20,7 @@ const { RemoteObsClient } = require('../remote-obs');
 const { addEngagementEvent } = require('../db');
 const { engagementTelemetry } = require('../engagement-telemetry');
 
+const OWNER_TEST=Symbol('owner-authorized-polaroid-test');
 class PolaroidRuntime {
   constructor({
     config = loadPolaroidConfig(),
@@ -48,6 +49,7 @@ class PolaroidRuntime {
     this.events = new EventEmitter();
     this.events.setMaxListeners(50);
     this.queue = [];
+    this.streamGeneration=0;
     this.deliveries = new WorkQueue({ limit: 32 });
     this.pruneTimer = null;
     this.recentEventIds = new Map();
@@ -62,11 +64,11 @@ class PolaroidRuntime {
     this.telemetry = telemetry;
 
     this.obs.on('ConnectionClosed', () => {
-      this.state.obsConnected = false;
+      this.state.obsConnected = false;this.streamGeneration++;
       this.publishStatus();
       this.scheduleObsReconnect();
     });
-    this.obs.on('StreamStateChanged', (state) => this.telemetry?.handleObsStreamState(state));
+    this.obs.on('StreamStateChanged', (state) => {if(state.outputActive!==true||state.outputState==='OBS_WEBSOCKET_OUTPUT_STOPPING')this.streamGeneration++;this.telemetry?.handleObsStreamState(state);});
   }
 
   start({ streamerBot, port = 8787 } = {}) {
@@ -167,16 +169,17 @@ class PolaroidRuntime {
     this.obsReconnectTimer = null;
   }
 
-  async captureCameraSource() {
+  async captureCameraSource(ownerTest=false) {
     await this.ensureObsConnected();
     try {
-      const response = await this.obs.call('GetSourceScreenshot', {
+      if(!this.obs.capturePolaroid)await this.assertCaptureAllowed(ownerTest);
+      const response = await (this.obs.capturePolaroid ? this.obs.capturePolaroid.bind(this.obs) : args=>this.obs.call('GetSourceScreenshot',args))({
         sourceName: this.config.obs.cameraSource,
         imageFormat: this.config.obs.captureFormat === 'png' ? 'png' : 'jpg',
         imageWidth: Number(this.config.obs.captureWidth) || 1920,
         imageHeight: Number(this.config.obs.captureHeight) || 1080,
         imageCompressionQuality: 92,
-      });
+      },ownerTest);
       const encoded = String(response.imageData || '').replace(/^data:image\/\w+;base64,/, '');
       if (!encoded) throw new Error('OBS returned an empty image');
       return Buffer.from(encoded, 'base64');
@@ -189,6 +192,15 @@ class PolaroidRuntime {
     }
   }
 
+  async assertCaptureAllowed(ownerTest=false) {
+    if(ownerTest)return;
+    await this.ensureObsConnected();
+    const status=await this.obs.call('GetStreamStatus');
+    if(status?.outputActive!==true||status.outputReconnecting===true)throw new Error('Polaroid blocked: OBS must be live. Only the owner can run an offline test.');
+  }
+  enqueueOwnerTest(name,profileImageUrl='',deliverToDiscord=false) {
+    return this.enqueueRedemption(name,'Admin','',''+profileImageUrl,'',[],{deliverToDiscord,isTest:true,[OWNER_TEST]:true});
+  }
   enqueueRedemption(
     redeemerName,
     source = 'API',
@@ -196,18 +208,22 @@ class PolaroidRuntime {
     profileImageUrl = '',
     userId = '',
     roles = [],
-    { deliverToDiscord = true, isTest = false, avatar = null, receivedAt = performance.now() } = {},
+    { deliverToDiscord = true, isTest = false, avatar = null, receivedAt = performance.now(), [OWNER_TEST]: ownerTest = false } = {},
   ) {
     const safeName = safeRedeemerName(redeemerName);
     if (!safeName) throw new Error('A redeemer name is required.');
     if (eventId && this.isDuplicateEvent(eventId)) return null;
 
     if (this.queue.length >= 32) throw new Error('Polaroid capture queue is full');
+    const generation=this.streamGeneration;
+    return this.assertCaptureAllowed(ownerTest).then(()=>{
+    if(!ownerTest&&generation!==this.streamGeneration)throw Error('Polaroid cancelled: stream state changed.');
+    if(this.queue.length>=32)throw new Error('Polaroid capture queue is full');
     const id = eventId || crypto.randomUUID();
     const job = {
       id, redeemerName: safeName, profileImageUrl, source, userId, roles, avatar, receivedAt,
       deliverToDiscord: deliverToDiscord !== false,
-      isTest: isTest === true,
+      isTest: isTest === true, [OWNER_TEST]:ownerTest, generation,
     };
     const promise = new Promise((resolve, reject) => {
       this.queue.push(Object.assign(job, { resolve, reject }));
@@ -218,6 +234,7 @@ class PolaroidRuntime {
     this.publishStatus();
     void this.runQueue();
     return promise;
+    });
   }
 
   async runQueue() {
@@ -249,7 +266,9 @@ class PolaroidRuntime {
     const avatar = this.boundedAvatar(job.avatar || this.downloadProfileImage(job.profileImageUrl));
     if (this.config.captureDelayMs > 0) await delay(this.config.captureDelayMs);
     const captureStart = performance.now();
-    const screenshot = await this.captureCameraSource();
+    if(!job[OWNER_TEST]&&job.generation!==this.streamGeneration)throw Error('Polaroid cancelled: stream ended or disconnected.');
+    await this.assertCaptureAllowed(job[OWNER_TEST]);
+    const screenshot = await this.captureCameraSource(job[OWNER_TEST]);
     observe('polaroid.capture', performance.now() - captureStart);
     const profileImage = await avatar;
     const renderStart = performance.now();

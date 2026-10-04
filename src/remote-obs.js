@@ -11,6 +11,7 @@ class RemoteObsClient extends EventEmitter {
   }
 
   connect() { return this.bridge.requestObs('connect'); }
+  capturePolaroid(args,ownerTest=false) { return this.bridge.requestObs('CapturePolaroid',{screenshot:args,ownerTest:ownerTest===true}); }
   call(method, args = {}) { return this.bridge.requestObs(method, args); }
   disconnect() { return this.bridge.connected ? this.bridge.requestObs('disconnect').catch(() => {}) : Promise.resolve(); }
 }

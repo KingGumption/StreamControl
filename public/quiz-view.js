@@ -89,10 +89,11 @@ function roundLabel(g) {
 }
 function updateStatus(g) {
   let label = g.phase === 'lobby' ? 'Join the quiz' : g.phase === 'question' ? roundLabel(g) : g.phase === 'reveal' ? 'Answer revealed' : g.phase === 'completed' ? (g.winners.length ? 'Quiz complete - victory' : 'Quiz complete - defeat') : 'Waiting for a quiz';
-  const deadline = g.phase === 'question' ? g.deadline : g.phase === 'reveal' ? g.nextQuestionAt : null;
+  const deadline = g.phase === 'question' ? g.deadline : g.phase === 'reveal' ? g.nextQuestionAt : g.phase === 'lobby' ? g.lobbyEndsAt : null;
   if (g.phase === 'question' && Date.now() >= g.deadline) label = 'Accepting final answers…';
   globalThis.QuizAudio?.tick(g);
   if (g.phase === 'reveal' && deadline) label = 'Next question in';
+  if(g.phase==='lobby'&&g.lobbyEndsAt)label='Join now — starts in';
   const parts = [node('span', 'status-label', label)];
   if (deadline) parts.push(node('span', 'quiz-countdown', `${String(Math.max(0, Math.ceil((deadline - Date.now()) / 1000))).padStart(2, '0')}s`));
   $('status').replaceChildren(...parts);

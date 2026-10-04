@@ -14,9 +14,9 @@
       previous = signature;
       if (user.role === 'games') {
         document.querySelectorAll('a[href^="/admin"]').forEach(link => {
-          if (!['/admin/games','/admin/quiz','/admin/king-of-the-hill'].includes(link.getAttribute('href'))) link.hidden = true;
+          if (!['/admin/games/quick','/admin/games','/admin/quiz','/admin/king-of-the-hill'].includes(link.getAttribute('href'))) link.hidden = true;
         });
-        banner.textContent = handoff.enabled ? `Signed in as ${user.username}. Game control available until ${new Date(handoff.expiresAt).toLocaleTimeString()}.` : `Signed in as ${user.username}. Waiting for the owner to hand over game control.`;
+        banner.textContent = handoff.enabled ? `Signed in as ${user.username}. Game controls enabled.` : `Signed in as ${user.username}. Moderator game controls are disabled.`;
         // Server permissions remain authoritative, including after expiry.
         document.querySelectorAll('button').forEach(button => {
           if (button.hasAttribute('data-admin-logout') || ['openOverlay','copyUrl'].includes(button.id)) return;
@@ -25,7 +25,7 @@
           else button.removeAttribute('aria-disabled');
         });
       } else {
-        banner.replaceChildren(document.createTextNode(handoff.enabled ? 'Moderator game control is enabled. ' : 'You have control. Moderator handoff is off. '));
+        banner.replaceChildren(document.createTextNode(handoff.enabled ? 'Moderator game control is enabled. ' : 'You have control. Moderator game controls are off. '));
         const link = document.createElement('a'); link.href='/admin/moderators'; link.textContent='Manage moderators'; banner.append(link);
       }
     } catch { banner.textContent = 'Unable to check game access. Reconnecting…'; }

@@ -111,6 +111,11 @@ class ConnectorRuntime {
     try {
       let data;
       if (message.method === 'connect') data = await this.ensureObsConnected();
+      else if (message.method === 'CapturePolaroid') {
+        await this.ensureObsConnected();
+        if(message.args?.ownerTest!==true){const status=await this.obs.call('GetStreamStatus');if(status?.outputActive!==true||status.outputReconnecting===true)throw Error('Polaroid blocked: OBS is not live.');}
+        data=await this.obs.call('GetSourceScreenshot',message.args?.screenshot||{});
+      }
       else if (message.method === 'disconnect') {
         await this.obs.disconnect();
         this.obsConnected = false;

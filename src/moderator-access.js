@@ -60,12 +60,13 @@ function session(token, now = Date.now()) {
 }
 function logout(token) { if(token)db.prepare('DELETE FROM admin_sessions WHERE id_hash=?').run(digest(token)); }
 function handoff(now = Date.now()) {
-  const setting = getConfigValue('games_handoff',{enabled:false,expiresAt:null});
+  const persistent = getConfigValue('games_control_persistent',null);
+  const setting = persistent || getConfigValue('games_handoff',{enabled:false,expiresAt:null});
   return {...setting,enabled:setting.enabled===true && (!setting.expiresAt || setting.expiresAt>now)};
 }
-function setHandoff(enabled, minutes = 60) {
-  if (typeof enabled !== 'boolean' || !Number.isInteger(minutes) || minutes<1 || minutes>720) throw Error('Choose an expiry from 1 to 720 minutes.');
-  const setting={enabled,expiresAt:enabled ? Date.now()+minutes*60000 : null};
-  setConfigValue('games_handoff',setting);return setting;
+function setHandoff(enabled, minutes) {
+  if (typeof enabled !== 'boolean') throw Error('Choose enabled or disabled.');
+  const setting={enabled,expiresAt:null};
+  setConfigValue('games_control_persistent',setting);return setting;
 }
 module.exports={list,create,revoke,authenticate,issue,session,logout,handoff,setHandoff};

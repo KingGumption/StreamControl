@@ -218,6 +218,10 @@ const TOPICS = [
   ]),
 ];
 
+for (const row of require('./hill-topics-extra.json')) {
+  const icons={halloween:'🎃',gaming:'🎮',food:'🍬',screen:'🎬',debates:'💬'};
+  TOPICS.push({...topic(row.id,row.title,row.entries.map((name,i)=>[row.id+'-'+i,name,icons[row.category],'#382555','#d88537'])),category:row.category});
+}
 class HillGame {
   constructor({
     topics = TOPICS,
@@ -231,7 +235,7 @@ class HillGame {
     cancel = clearTimeout,
     recordEvent = null,
   } = {}) {
-    this.topics = topics;
+    this.topics = topics; this.recentTopics=[]; this.categoryFilter='all';
     this.topicDurationMs = topicDurationMs;
     this.roundDurationMs = roundDurationMs;
     this.championDurationMs = championDurationMs;
@@ -398,7 +402,12 @@ class HillGame {
   }
 
   beginTopicVote() {
-    const choices = sample(this.topics, 2, this.random);
+    const pool=this.topics.filter(t=>this.categoryFilter==='all'||(t.category||'general')===this.categoryFilter);
+    if(pool.length<2)throw Error('Choose a category with at least two topics.');
+    let fresh=pool.filter(t=>!this.recentTopics.includes(t.id));
+    if(fresh.length<2){this.recentTopics=[];fresh=pool;}
+    const choices = sample(fresh, 2, this.random);
+    this.recentTopics.push(...choices.map(t=>t.id));this.recentTopics=this.recentTopics.slice(-12);
     this.topic = null;
     this.king = null;
     this.entrants = [];

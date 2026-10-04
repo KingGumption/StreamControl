@@ -9,10 +9,10 @@ function voter(id, text, platform = 'twitch') {
   return { platform, text, user: { id, username: `viewer-${id}` } };
 }
 
-test('provides seventeen topics with ten answers each', () => {
-  assert.equal(TOPICS.length, 17);
+test('provides 57 topics with ten answers each', () => {
+  assert.equal(TOPICS.length, 57);
   TOPICS.forEach((topic) => assert.equal(topic.entries.length, 10, topic.title));
-  assert.deepEqual(TOPICS.slice(-10).map((topic) => topic.id), [
+  assert.deepEqual(TOPICS.slice(7,17).map((topic) => topic.id), [
     'dessert', 'animal', 'music', 'holiday', 'transport',
     'breakfast', 'creature', 'sport', 'landmark', 'crisps',
   ]);
@@ -24,6 +24,7 @@ test('every answer has a locally cached attributed image', () => {
   const artDirectory = path.join(__dirname, '..', 'public', 'hill-art-official');
   const manifest = JSON.parse(fs.readFileSync(path.join(artDirectory, 'manifest.json'), 'utf8'));
   TOPICS.forEach((topic) => topic.entries.forEach((entry) => {
+    if(topic.id.startsWith('extra-')){const generated=new HillGame().artwork(topic.id,entry.id);assert.match(generated,/<svg/);return;}
     const asset = manifest.assets[`${topic.id}/${entry.id}`];
     assert.ok(asset, `${topic.title}: ${entry.title} is missing artwork metadata`);
     assert.ok(fs.existsSync(path.join(artDirectory, asset.file)), `${entry.title} artwork file is missing`);

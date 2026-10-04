@@ -1,3 +1,5 @@
+const {gameLauncher}=require('./game-launcher');
+const {arcadeGames}=require('./arcade-games');
 const crypto = require('node:crypto');
 const { avatarWarmer } = require('./avatar-warmer');
 const { appConfig } = require('./app-config');
@@ -340,6 +342,9 @@ class IntegrationRuntime {
       roles: event.user?.roles,
     });
 
+    const gameReply=gameLauncher.chat(event);
+    if(gameReply!==null){if(event.platform==='tiktok')this.streamerBot.sendTikTokReply(gameReply);else this.streamerBot.sendChat(event.platform,gameReply);return;}
+    if (arcadeGames.handleChatEvent(event)) return;
     if (this.quiz?.handleChatEvent(event)) return;
     if (this.game?.handleChatEvent(event)) return;
     const result = await this.commands.handleChatEvent(event);

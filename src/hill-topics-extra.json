@@ -1,0 +1,682 @@
+[
+  {
+    "id": "extra-1",
+    "category": "halloween",
+    "title": "Best Horror Film",
+    "entries": [
+      "Alien",
+      "The Thing",
+      "Halloween",
+      "Scream",
+      "The Conjuring",
+      "The Exorcist",
+      "The Shining",
+      "Get Out",
+      "The Descent",
+      "The Babadook"
+    ]
+  },
+  {
+    "id": "extra-2",
+    "category": "halloween",
+    "title": "Best Horror Villain",
+    "entries": [
+      "Michael Myers",
+      "Freddy Krueger",
+      "Jason Voorhees",
+      "Ghostface",
+      "Chucky",
+      "Pinhead",
+      "Pennywise",
+      "Leatherface",
+      "The Xenomorph",
+      "Count Dracula"
+    ]
+  },
+  {
+    "id": "extra-3",
+    "category": "halloween",
+    "title": "Best Spooky Creature",
+    "entries": [
+      "Vampire",
+      "Werewolf",
+      "Ghost",
+      "Zombie",
+      "Witch",
+      "Mummy",
+      "Skeleton",
+      "Banshee",
+      "Gargoyle",
+      "Headless Horseman"
+    ]
+  },
+  {
+    "id": "extra-4",
+    "category": "halloween",
+    "title": "Best Haunted Location",
+    "entries": [
+      "Abandoned Hospital",
+      "Old Castle",
+      "Foggy Graveyard",
+      "Empty School",
+      "Cursed Forest",
+      "Deserted Carnival",
+      "Lonely Lighthouse",
+      "Victorian Mansion",
+      "Underground Crypt",
+      "Ghost Ship"
+    ]
+  },
+  {
+    "id": "extra-5",
+    "category": "halloween",
+    "title": "Best Halloween Treat",
+    "entries": [
+      "Toffee Apple",
+      "Chocolate Pumpkin",
+      "Gummy Worms",
+      "Candy Corn",
+      "Caramel Popcorn",
+      "Ghost Marshmallows",
+      "Bat Biscuits",
+      "Pumpkin Cupcake",
+      "Sour Skulls",
+      "Jelly Fangs"
+    ]
+  },
+  {
+    "id": "extra-6",
+    "category": "halloween",
+    "title": "Best Halloween Costume",
+    "entries": [
+      "Vampire",
+      "Zombie Pirate",
+      "Witch",
+      "Skeleton",
+      "Ghost",
+      "Werewolf",
+      "Mummy",
+      "Scarecrow",
+      "Mad Scientist",
+      "Headless Butler"
+    ]
+  },
+  {
+    "id": "extra-7",
+    "category": "halloween",
+    "title": "Best Spooky Sound",
+    "entries": [
+      "Creaking Door",
+      "Distant Footsteps",
+      "Wolf Howl",
+      "Whispering",
+      "Thunder",
+      "Rattling Chains",
+      "Owl Hoot",
+      "Evil Laugh",
+      "Clock Chime",
+      "Scratching Window"
+    ]
+  },
+  {
+    "id": "extra-8",
+    "category": "halloween",
+    "title": "Best Halloween Activity",
+    "entries": [
+      "Pumpkin Carving",
+      "Horror Marathon",
+      "Ghost Tour",
+      "Costume Party",
+      "Escape Room",
+      "Trick-or-Treating",
+      "Haunted House",
+      "Spooky Baking",
+      "Campfire Stories",
+      "Night Walk"
+    ]
+  },
+  {
+    "id": "extra-9",
+    "category": "gaming",
+    "title": "Best Co-op Game",
+    "entries": [
+      "It Takes Two",
+      "Portal 2",
+      "Overcooked 2",
+      "Deep Rock Galactic",
+      "Left 4 Dead 2",
+      "Phasmophobia",
+      "Sea of Thieves",
+      "Stardew Valley",
+      "Helldivers 2",
+      "A Way Out"
+    ]
+  },
+  {
+    "id": "extra-10",
+    "category": "gaming",
+    "title": "Best Horror Game",
+    "entries": [
+      "Phasmophobia",
+      "Resident Evil 2",
+      "Silent Hill 2",
+      "Alien Isolation",
+      "Dead Space",
+      "Amnesia",
+      "Outlast",
+      "SOMA",
+      "Until Dawn",
+      "The Mortuary Assistant"
+    ]
+  },
+  {
+    "id": "extra-11",
+    "category": "gaming",
+    "title": "Best Game Weapon",
+    "entries": [
+      "Portal Gun",
+      "Gravity Gun",
+      "Master Sword",
+      "Energy Sword",
+      "BFG",
+      "Keyblade",
+      "Blades of Chaos",
+      "Buster Sword",
+      "Hidden Blade",
+      "Blue Shell"
+    ]
+  },
+  {
+    "id": "extra-12",
+    "category": "gaming",
+    "title": "Best Game Boss",
+    "entries": [
+      "Bowser",
+      "GLaDOS",
+      "Sephiroth",
+      "Ganondorf",
+      "Malenia",
+      "Nemesis",
+      "Dracula",
+      "Pyramid Head",
+      "King K Rool",
+      "Shao Kahn"
+    ]
+  },
+  {
+    "id": "extra-13",
+    "category": "gaming",
+    "title": "Best Fictional Game World",
+    "entries": [
+      "Hyrule",
+      "Rapture",
+      "Tamriel",
+      "The Mushroom Kingdom",
+      "Midgar",
+      "Azeroth",
+      "Stardew Valley",
+      "Night City",
+      "Pandora",
+      "The Citadel"
+    ]
+  },
+  {
+    "id": "extra-14",
+    "category": "gaming",
+    "title": "Best Game Companion",
+    "entries": [
+      "Dogmeat",
+      "Elizabeth",
+      "Garrus",
+      "Alyx Vance",
+      "Yoshi",
+      "Tails",
+      "Atreus",
+      "Cortana",
+      "Claptrap",
+      "Daxter"
+    ]
+  },
+  {
+    "id": "extra-15",
+    "category": "gaming",
+    "title": "Best Racing Game",
+    "entries": [
+      "Mario Kart",
+      "Forza Horizon",
+      "Gran Turismo",
+      "Burnout",
+      "Need for Speed",
+      "F-Zero",
+      "Wipeout",
+      "Dirt Rally",
+      "Crash Team Racing",
+      "Trackmania"
+    ]
+  },
+  {
+    "id": "extra-16",
+    "category": "gaming",
+    "title": "Best Game Power-up",
+    "entries": [
+      "Super Star",
+      "Fire Flower",
+      "Mega Mushroom",
+      "Extra Life",
+      "Speed Boost",
+      "Invincibility Shield",
+      "Double Damage",
+      "Invisibility",
+      "Time Freeze",
+      "Health Potion"
+    ]
+  },
+  {
+    "id": "extra-17",
+    "category": "food",
+    "title": "Best British Biscuit",
+    "entries": [
+      "Chocolate Digestive",
+      "Hobnob",
+      "Custard Cream",
+      "Bourbon",
+      "Ginger Nut",
+      "Rich Tea",
+      "Malted Milk",
+      "Shortbread",
+      "Jammy Dodger",
+      "Nice Biscuit"
+    ]
+  },
+  {
+    "id": "extra-18",
+    "category": "food",
+    "title": "Best Chocolate Bar",
+    "entries": [
+      "Dairy Milk",
+      "KitKat",
+      "Twix",
+      "Mars",
+      "Snickers",
+      "Bounty",
+      "Crunchie",
+      "Wispa",
+      "Aero",
+      "Toblerone"
+    ]
+  },
+  {
+    "id": "extra-19",
+    "category": "food",
+    "title": "Best Ice Cream Flavour",
+    "entries": [
+      "Vanilla",
+      "Chocolate",
+      "Strawberry",
+      "Mint Choc Chip",
+      "Salted Caramel",
+      "Cookie Dough",
+      "Pistachio",
+      "Coffee",
+      "Raspberry Ripple",
+      "Rum and Raisin"
+    ]
+  },
+  {
+    "id": "extra-20",
+    "category": "food",
+    "title": "Best Pizza Topping",
+    "entries": [
+      "Pepperoni",
+      "Mushrooms",
+      "Pineapple",
+      "Jalapenos",
+      "Olives",
+      "Extra Cheese",
+      "Ham",
+      "Chicken",
+      "Sweetcorn",
+      "Anchovies"
+    ]
+  },
+  {
+    "id": "extra-21",
+    "category": "food",
+    "title": "Best Sauce",
+    "entries": [
+      "Ketchup",
+      "Brown Sauce",
+      "Mayonnaise",
+      "Garlic Mayo",
+      "Sweet Chilli",
+      "Barbecue",
+      "Sriracha",
+      "Mustard",
+      "Peri-Peri",
+      "Burger Sauce"
+    ]
+  },
+  {
+    "id": "extra-22",
+    "category": "food",
+    "title": "Best Sandwich Filling",
+    "entries": [
+      "Cheese and Pickle",
+      "BLT",
+      "Tuna Mayo",
+      "Egg Mayo",
+      "Ham and Cheese",
+      "Coronation Chicken",
+      "Fish Fingers",
+      "Sausage",
+      "Cucumber",
+      "Roast Beef"
+    ]
+  },
+  {
+    "id": "extra-23",
+    "category": "food",
+    "title": "Best Potato Form",
+    "entries": [
+      "Roast Potatoes",
+      "Chips",
+      "Mash",
+      "Hash Browns",
+      "Jacket Potato",
+      "Dauphinoise",
+      "Potato Wedges",
+      "Crisps",
+      "Potato Salad",
+      "Croquettes"
+    ]
+  },
+  {
+    "id": "extra-24",
+    "category": "food",
+    "title": "Best Sweet Shop Pick",
+    "entries": [
+      "Cola Bottles",
+      "Jelly Babies",
+      "Wine Gums",
+      "Pear Drops",
+      "Sherbet Lemons",
+      "Fudge",
+      "Liquorice Allsorts",
+      "Foam Bananas",
+      "Flying Saucers",
+      "Sour Cherries"
+    ]
+  },
+  {
+    "id": "extra-25",
+    "category": "screen",
+    "title": "Best Cartoon Character",
+    "entries": [
+      "Bugs Bunny",
+      "Scooby-Doo",
+      "SpongeBob",
+      "Homer Simpson",
+      "Tom",
+      "Jerry",
+      "Daffy Duck",
+      "Garfield",
+      "Donald Duck",
+      "Popeye"
+    ]
+  },
+  {
+    "id": "extra-26",
+    "category": "screen",
+    "title": "Best Sitcom",
+    "entries": [
+      "Friends",
+      "The Office",
+      "Brooklyn Nine-Nine",
+      "Frasier",
+      "The IT Crowd",
+      "Blackadder",
+      "Red Dwarf",
+      "Parks and Recreation",
+      "Derry Girls",
+      "The Good Place"
+    ]
+  },
+  {
+    "id": "extra-27",
+    "category": "screen",
+    "title": "Best Movie Franchise",
+    "entries": [
+      "Star Wars",
+      "Lord of the Rings",
+      "Jurassic Park",
+      "Indiana Jones",
+      "Back to the Future",
+      "Alien",
+      "Terminator",
+      "Toy Story",
+      "Shrek",
+      "Mission Impossible"
+    ]
+  },
+  {
+    "id": "extra-28",
+    "category": "screen",
+    "title": "Best Fictional Vehicle",
+    "entries": [
+      "DeLorean",
+      "Batmobile",
+      "Millennium Falcon",
+      "TARDIS",
+      "Ecto-1",
+      "KITT",
+      "Mystery Machine",
+      "Hogwarts Express",
+      "USS Enterprise",
+      "Light Cycle"
+    ]
+  },
+  {
+    "id": "extra-29",
+    "category": "screen",
+    "title": "Best Animated Film",
+    "entries": [
+      "Shrek",
+      "Toy Story",
+      "The Lion King",
+      "Spirited Away",
+      "Finding Nemo",
+      "The Incredibles",
+      "WALL-E",
+      "How to Train Your Dragon",
+      "Into the Spider-Verse",
+      "Ratatouille"
+    ]
+  },
+  {
+    "id": "extra-30",
+    "category": "screen",
+    "title": "Best Movie Robot",
+    "entries": [
+      "R2-D2",
+      "C-3PO",
+      "WALL-E",
+      "The Iron Giant",
+      "T-800",
+      "Baymax",
+      "RoboCop",
+      "Marvin",
+      "Johnny 5",
+      "Bender"
+    ]
+  },
+  {
+    "id": "extra-31",
+    "category": "screen",
+    "title": "Best TV Detective",
+    "entries": [
+      "Sherlock Holmes",
+      "Columbo",
+      "Poirot",
+      "Jessica Fletcher",
+      "Luther",
+      "Adrian Monk",
+      "Veronica Mars",
+      "Benoit Blanc",
+      "Miss Marple",
+      "Jake Peralta"
+    ]
+  },
+  {
+    "id": "extra-32",
+    "category": "screen",
+    "title": "Best Fantasy Film Character",
+    "entries": [
+      "Gandalf",
+      "Frodo",
+      "Aragorn",
+      "Legolas",
+      "Gimli",
+      "Gollum",
+      "Aslan",
+      "Dumbledore",
+      "Hermione",
+      "Hagrid"
+    ]
+  },
+  {
+    "id": "extra-33",
+    "category": "debates",
+    "title": "Best Survival Item",
+    "entries": [
+      "Torch",
+      "Rope",
+      "Water Filter",
+      "First Aid Kit",
+      "Map",
+      "Compass",
+      "Fire Starter",
+      "Tent",
+      "Multi-tool",
+      "Emergency Radio"
+    ]
+  },
+  {
+    "id": "extra-34",
+    "category": "debates",
+    "title": "Best Minor Inconvenience",
+    "entries": [
+      "Wet Socks",
+      "Low Battery",
+      "Slow Wi-Fi",
+      "Cold Tea",
+      "Missing Remote",
+      "Tangled Cables",
+      "Squeaky Chair",
+      "Paper Cut",
+      "Stuck Zip",
+      "Empty Milk Carton"
+    ]
+  },
+  {
+    "id": "extra-35",
+    "category": "debates",
+    "title": "Best Fictional Pet",
+    "entries": [
+      "Toothless",
+      "Pikachu",
+      "Scooby-Doo",
+      "Stitch",
+      "Hedwig",
+      "Appa",
+      "Totoro",
+      "Gizmo",
+      "Snoopy",
+      "Salem"
+    ]
+  },
+  {
+    "id": "extra-36",
+    "category": "debates",
+    "title": "Best Rainy Day Activity",
+    "entries": [
+      "Gaming",
+      "Reading",
+      "Baking",
+      "Movie Marathon",
+      "Board Games",
+      "Drawing",
+      "Jigsaw Puzzle",
+      "Napping",
+      "Building Lego",
+      "Listening to Music"
+    ]
+  },
+  {
+    "id": "extra-37",
+    "category": "debates",
+    "title": "Best Dream Home Feature",
+    "entries": [
+      "Cinema Room",
+      "Indoor Pool",
+      "Secret Door",
+      "Library",
+      "Games Room",
+      "Roof Garden",
+      "Huge Kitchen",
+      "Treehouse",
+      "Music Studio",
+      "Walk-in Wardrobe"
+    ]
+  },
+  {
+    "id": "extra-38",
+    "category": "debates",
+    "title": "Best Time Travel Destination",
+    "entries": [
+      "Ancient Egypt",
+      "Ancient Rome",
+      "Medieval Castle",
+      "Victorian London",
+      "Roaring Twenties",
+      "1950s Diner",
+      "1960s Concert",
+      "1980s Arcade",
+      "1990s High Street",
+      "Distant Future"
+    ]
+  },
+  {
+    "id": "extra-39",
+    "category": "debates",
+    "title": "Best Desert Island Luxury",
+    "entries": [
+      "Coffee Machine",
+      "Comfy Bed",
+      "Solar Charger",
+      "Guitar",
+      "Hammock",
+      "Book Collection",
+      "Chocolate Supply",
+      "Fishing Rod",
+      "Sketchbook",
+      "Board Games"
+    ]
+  },
+  {
+    "id": "extra-40",
+    "category": "debates",
+    "title": "Best Stream Mascot Accessory",
+    "entries": [
+      "Tiny Crown",
+      "Wizard Hat",
+      "Sunglasses",
+      "Cape",
+      "Bow Tie",
+      "Headphones",
+      "Pirate Hat",
+      "Monocle",
+      "Space Helmet",
+      "Pumpkin Hat"
+    ]
+  }
+]

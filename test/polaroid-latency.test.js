@@ -8,6 +8,7 @@ test('two Polaroids reach the overlay before a slow first delivery finishes; cre
  const config={obs:{},streamerBot:{enabled:false},polaroid:{showProfilePicture:false},discord:{enabled:true},twitchChat:{enabled:false},overlay:{showMs:3000,gapMs:0},keepLast:0,captureDelayMs:0};
  let release;const delivered=new Promise(r=>{release=r;});let deliveries=0;
  const runtime=new PolaroidRuntime({config,obs:new EventEmitter(),discordSender:async()=>{deliveries++;await delivered;return {skipped:true};}});
+ runtime.state.obsConnected=true;runtime.obs.call=async()=>({outputActive:true,outputReconnecting:false});
  runtime.capturesDir=dir;
  const frame=await sharp({create:{width:64,height:64,channels:3,background:'#335566'}}).png().toBuffer();
  runtime.captureCameraSource=async()=>frame;
