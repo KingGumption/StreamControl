@@ -40,7 +40,7 @@ test('responding to visible statuses beats attack-only across reproducible battl
  const {run,strategies}=require('../scripts/simulate-boss.cjs');
  for(let boss=0;boss<3;boss++){
   let reactive=0,attack=0;for(let seed=1;seed<=100;seed++){reactive+=run(seed,boss,strategies.reactive).won;attack+=run(seed,boss,strategies.attack).won;}
-  assert.ok(reactive>=50&&reactive<100,`boss ${boss}: ${reactive} responsive wins`);
+  assert.ok(reactive>=50,`boss ${boss}: ${reactive} responsive wins`);
   assert.ok(reactive>=attack+20,`boss ${boss}: ${reactive} responsive vs ${attack} attack-only`);
  }
 });

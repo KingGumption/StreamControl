@@ -14,3 +14,27 @@ html[data-theme] .photo-glint::before{background:linear-gradient(90deg,transpare
 html[data-theme] [data-game-canvas]{--game-cyan:var(--accent);--game-gold:var(--gold);--game-line:var(--border);--game-surface:var(--theme-deep);--game-card:linear-gradient(145deg,var(--panel),var(--theme-deep));--game-panel:linear-gradient(135deg,var(--panel),var(--theme-deep));--game-pink:#ff9db6}
 html[data-theme] .game-canvas-quiz .speed-place,html[data-theme] .game-canvas-quiz #quizMoment{background:var(--panel)}
 html[data-theme] .glass{background:var(--panel)}
+
+/* Shared theme contract for all eight games, including their premium stages.
+   Theme the scenery and interface, not product photos or semantic win/loss colours. */
+html[data-theme] #game[data-game]{--battle-light:var(--gold);--battle-haze:var(--panel);--battle-floor:var(--theme-deep);background:radial-gradient(ellipse at 65% 20%,var(--panel),var(--theme-deep) 75%);border-color:var(--border)}
+html[data-theme] #game .choice:not(.winner),html[data-theme] .crowd-side,html[data-theme] .crowd-side:nth-child(2){background:linear-gradient(135deg,var(--panel),var(--theme-deep));border-color:var(--border)}
+html[data-theme] #game .choice b,html[data-theme] .door-number,html[data-theme] .game-canvas-hill .number{background:var(--accent);color:var(--theme-deep);border-color:var(--border)}
+html[data-theme] #game .choice .action-icon,html[data-theme] #game .choice:nth-child(2) .action-icon,html[data-theme] #game .choice:nth-child(3) .action-icon{stroke:var(--accent)}
+html[data-theme] #game #timer,html[data-theme] .game-canvas-hill .timer{background:var(--theme-deep);border-color:var(--border);color:var(--gold)}
+html[data-theme] .card-table{background:radial-gradient(ellipse at center,var(--panel),var(--theme-deep));border-color:var(--border)}
+html[data-theme] .table-card.card-back{background:repeating-linear-gradient(45deg,#ffffff15 0 2px,transparent 2px 8px),var(--panel);color:var(--gold)}
+html[data-theme] .card-caption,html[data-theme] .table-brand,html[data-theme] .crowd-title,html[data-theme] .room-plaque{color:var(--gold)}
+html[data-theme] .haunted-room,html[data-theme] #premiumScene.vault-scene,html[data-theme] .crowd-arena{background-color:var(--panel);background-blend-mode:normal,luminosity;border-color:var(--border);box-shadow:inset 0 0 70px var(--theme-deep)}
+html[data-theme] .door-label,html[data-theme] .vault-display,html[data-theme] .sealed-votes{background:var(--theme-deep);border-color:var(--border)}
+html[data-theme] .vault-display,html[data-theme] .vault-display strong,html[data-theme] .range-rail{color:var(--accent)}
+html[data-theme] .arena-architecture{background-color:var(--theme-deep);background-blend-mode:luminosity}
+html[data-theme] #game[data-game=boss] #result,html[data-theme] #game[data-game=boss][data-phase=completed] .stat{background:var(--theme-deep)}
+html[data-theme] #game[data-game=boss] #bossStage[data-pose=defeat]:after,html[data-theme] #game[data-game=boss] #bossStage[data-pose=victory]:after{background:color-mix(in srgb,var(--theme-deep) 90%,transparent)}
+html[data-theme] .game-canvas-quiz #questionPanel,html[data-theme] .game-canvas-quiz .quiz-stage{background:linear-gradient(135deg,var(--panel),var(--theme-deep));border-color:var(--border);box-shadow:inset 0 0 0 7px var(--theme-deep),0 12px 25px #0006}
+html[data-theme] .game-canvas-quiz #questionPanel .option:not(.correct):not(.incorrect){background:linear-gradient(110deg,var(--panel),var(--theme-deep));border-color:var(--border)}
+html[data-theme] .game-canvas-quiz .lobby-player,html[data-theme] .game-canvas-quiz .speed-place{background:var(--theme-deep);border-color:var(--border)}
+html[data-theme] .game-canvas-hill .glass{box-shadow:inset 0 0 0 6px var(--theme-deep),0 12px 25px #0006}
+html[data-theme] .game-canvas-hill .choice{background:linear-gradient(var(--panel),var(--theme-deep));border-color:var(--border)}
+html[data-theme] .game-canvas-hill .versus:after{background:var(--theme-deep);color:var(--gold);border-color:var(--border)}
+html[data-theme] .game-canvas-hill .kicker,html[data-theme] .game-canvas-hill .contender-role{color:var(--gold)}

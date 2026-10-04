@@ -6,7 +6,7 @@ const PROFILES={
 };
 function chooseBossTactic(game){
  const p=PROFILES[game.boss.id],roll=game.random();
- if(game.bossCharged||game.round===1||game.round===game.rounds)return 'attack';
+ if(game.bossCharged||game.round===1)return 'attack';
  const history=game.partyActions||[],last=history.at(-1),repeated=last&&last===history.at(-2);
  const wounded=game.bossHp<=game.bossMaxHp*.6,enraged=game.bossHp<=game.bossMaxHp*.3;
  const heal=wounded&&game.bossHeals>0&&game.lastBossAction!=='heal'?.25:0;

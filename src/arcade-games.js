@@ -2,7 +2,7 @@ const {EventEmitter}=require('node:events');
 const crypto=require('node:crypto');
 const snacks=require('./snack-bank.json');
 const {PROFILES,chooseBossTactic}=require('./boss-tactics');
-const CATALOG=[['escape','Haunted House Escape','Vote 1–3. Collect the required clues before courage runs out.'],['higher','Higher or Lower','Vote 1 for higher, 2 for lower. Ace is low, King is high. Equal ranks are redrawn.'],['split','Split the Crowd','Vote 1 or 2. The smaller group scores; a tie or empty side scores nothing.'],['boss','Crowd Boss Battle','Vote 1/attack, 2/defend or 3/heal. Most votes choose ONE party action. Ties are random.'],['number','Secret Number Hunt','Guess 1–100. Follow the clues and find the number.'],['snacks','Snack Wars','Vote 1 for Britain or 2 for the world. Every snack shows its origin.']].map(([id,name,help])=>({id,name,help}));
+const CATALOG=[['escape','Haunted House Escape','Vote 1–3. Collect the required clues before courage runs out.'],['higher','Higher or Lower','Vote 1 for higher, 2 for lower. Ace is low, King is high. Equal ranks are redrawn.'],['split','Split the Crowd','Vote 1 or 2. The smaller group scores; a tie or empty side scores nothing.'],['boss','Crowd Boss Battle','Vote 1/attack, 2/defend or 3/heal. Most votes choose ONE action. Defeat the boss before team HP reaches 0. No turn limit.'],['number','Secret Number Hunt','Guess 1–100. Follow the clues and find the number.'],['snacks','Snack Wars','Vote 1 for Britain or 2 for the world. Every snack shows its origin.']].map(([id,name,help])=>({id,name,help}));
 const BOSSES=[
  {id:'pumpkin',name:'The Pumpkin King',title:'LORD OF THE LANTERNS',moves:['Thorn Slam','Phantom Flame','Royal Shockwave'],tint:'#ffad55'},
  {id:'frost',name:'The Frost Wyrm',title:'GUARDIAN OF THE FROZEN CROWN',moves:['Ice Claw','Glacial Breath','Blizzard Wing'],tint:'#7deaff'},
@@ -27,18 +27,17 @@ class ArcadeGames {
  start(id,{rounds=id==='number'?7:id==='boss'?8:5,seconds=20}={}){
   if(!CATALOG.some(g=>g.id===id))throw Error('Unknown game.');
   if(this.phase!=='idle'&&this.phase!=='completed')throw Error('A game is already running.');
+  if(id==='boss')rounds=8; // Legacy saved round counts no longer impose a boss turn limit.
   if(!Number.isInteger(rounds)||rounds<3||rounds>10||!Number.isInteger(seconds)||seconds<10||seconds>60)throw Error('Use 3–10 rounds and 10–60 seconds.');
   this.cancel(this.timer);Object.assign(this,{id,rounds,seconds,round:0,gameId:crypto.randomUUID(),players:new Map(),health:5,progress:0,bossHp:100,partyHp:100,teamScores:[0,0],currentCard:1+Math.floor(this.random()*13),previousCard:null,cardHistory:[],target:1+Math.floor(this.random()*100),low:1,high:100,result:null});
-  this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;this.bossMaxHp=({3:76,4:104,5:128,6:150,7:170,8:160,9:180,10:200})[rounds];this.bossHp=this.bossMaxHp;this.focus=false;this.potions=2;this.lastBossMove=null;this.lastBossAction=null;this.bossGuard=false;this.bossCharged=false;this.bossHeals=1;this.partyActions=[];
+  this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;this.bossMaxHp=160;this.bossHp=this.bossMaxHp;this.focus=false;this.potions=2;this.lastBossMove=null;this.lastBossAction=null;this.bossGuard=false;this.bossCharged=false;this.bossHeals=1;this.partyActions=[];
   this.british=this.shuffle(snacks.filter(s=>s.team==='britain'));this.world=this.shuffle(snacks.filter(s=>s.team==='world'));this.rooms=this.shuffle(ROOMS);this.splits=this.shuffle(SPLITS);
   return this.nextRound();
  }
  intent(){
   const step=Math.floor(this.random()*3),rage=this.bossHp<=this.bossMaxHp*.3;
   const powers={pumpkin:[24,30,26],frost:[26,28,24],golem:[24,32,24]}[this.boss.id];
-  const scale=this.rounds===3?2.2:this.rounds===4?1.5:this.rounds===5?1.1:1;
-  const cap=this.rounds===3?64:this.rounds===4?42:this.rounds===5?36:28;
-  return {action:chooseBossTactic(this),style:step,power:Math.round((Math.min(cap,Math.round(powers[step]*scale))+(rage?6:0))*(this.bossCharged?1.6:1))};
+  return {action:chooseBossTactic(this),style:step,power:Math.round((Math.min(28,powers[step])+(rage?6:0))*(this.bossCharged?1.6:1))};
  }
  nextRound(){
   this.round++;this.phase='question';this.votes=new Map();this.endsAt=this.now()+this.seconds*1000;this.acceptUntil=this.endsAt+2000;this.result=null;
@@ -74,7 +73,7 @@ class ArcadeGames {
  }
  resolve(){
   if(this.phase!=='question')return this.getState();
-  this.cancel(this.timer);const counts=this.options.map((_,i)=>[...this.votes.values()].filter(v=>v===i).length);let winner=-1,done=this.round>=this.rounds,text='',success=false;
+  this.cancel(this.timer);const counts=this.options.map((_,i)=>[...this.votes.values()].filter(v=>v===i).length);let winner=-1,done=this.id!=='boss'&&this.round>=this.rounds,text='',success=false;
   const max=Math.max(...counts,0),leaders=counts.map((n,i)=>n===max?i:-1).filter(i=>i>=0);
   const majority=max>0?leaders[Math.floor(this.random()*leaders.length)]:-1;
   if(this.id==='snacks'){
@@ -121,7 +120,7 @@ class ArcadeGames {
    if(bossAction==='defend')text+=' '+this.bossMove+': halves the next turn’s normal attack. Focus pierces it.';
    if(bossAction==='charge')text+=' '+this.bossMove+': stores power for a 60% stronger next attack.';
    if(bossAction==='heal')text+=' '+this.bossMove+': boss restores '+bossHeal+' HP. Recovery used up.';
-   done=done||this.partyHp<=0||this.bossHp<=0;success=this.bossHp<=0;if(done)text+=success?' Boss defeated!':this.partyHp<=0?' Party defeated!':' Out of turns — the boss wins.';
+   done=done||this.partyHp<=0||this.bossHp<=0;success=this.bossHp<=0;if(done)text+=success?' Boss defeated!':' Party defeated!';
   }
   if(this.id==='number'){
    const found=[...this.votes].filter(([,v])=>v===this.target);if(found.length){found.forEach(([key])=>this.players.get(key).score++);text=found.slice(0,3).map(([key])=>this.players.get(key).username).join(', ')+(found.length>3?` and ${found.length-3} more`:'')+` found ${this.target}!`;done=true;success=true;}
@@ -139,7 +138,7 @@ class ArcadeGames {
  }
  next(){if(this.phase==='question')return this.resolve();if(this.phase==='reveal'){this.cancel(this.timer);return this.nextRound();}throw Error('No active round.');}
  stop(){this.cancel(this.timer);this.phase='idle';this.endsAt=null;return this.publish();}
- getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,acceptUntil:this.phase==='question'?this.acceptUntil:null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,previousCard:this.id==='higher'?this.previousCard:undefined,cardHistory:this.id==='higher'?[...this.cardHistory]:undefined,cardLabel:this.id==='higher'?rank(this.currentCard):undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.entries()].sort(([a],[b])=>Number(this.votes.has(b))-Number(this.votes.has(a))).slice(0,5).map(([key,{username,platform,profileImageUrl}])=>({username,platform,profileImageUrl,voted:this.votes.has(key),action:this.votes.has(key)?this.votes.get(key)+1:null})):undefined,bossIntent:undefined,bossMove:this.id==='boss'&&this.phase!=='question'?this.combat?.move:undefined,battle:this.id==='boss'?{focus:this.focus,potions:this.potions,lastMove:this.lastBossMove,bossGuard:this.bossGuard,bossCharged:this.bossCharged,bossHeals:this.bossHeals,enraged:this.bossHp<=this.bossMaxHp*.3}:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
+ getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.id==='boss'?null:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,acceptUntil:this.phase==='question'?this.acceptUntil:null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,previousCard:this.id==='higher'?this.previousCard:undefined,cardHistory:this.id==='higher'?[...this.cardHistory]:undefined,cardLabel:this.id==='higher'?rank(this.currentCard):undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.entries()].sort(([a],[b])=>Number(this.votes.has(b))-Number(this.votes.has(a))).slice(0,5).map(([key,{username,platform,profileImageUrl}])=>({username,platform,profileImageUrl,voted:this.votes.has(key),action:this.votes.has(key)?this.votes.get(key)+1:null})):undefined,bossIntent:undefined,bossMove:this.id==='boss'&&this.phase!=='question'?this.combat?.move:undefined,battle:this.id==='boss'?{focus:this.focus,potions:this.potions,lastMove:this.lastBossMove,bossGuard:this.bossGuard,bossCharged:this.bossCharged,bossHeals:this.bossHeals,enraged:this.bossHp<=this.bossMaxHp*.3}:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
  publish(){this.serial++;const state=this.getState();this.events.emit('state',state);return state;}
  subscribe(fn){this.events.on('state',fn);return()=>this.events.off('state',fn);}
 }

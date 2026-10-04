@@ -15,7 +15,7 @@ class GameLauncher {
  allowed(actor){return actor?.role==='owner'||actor?.role==='device'||(actor?.role==='games'&&this.permission());}
  preset(id){return this.load()[id]||{};}
  savePreset(id,values){id=this.canonical(id);if(!this.catalog().some(g=>g.id===id))throw Error('Unknown game.');const next={};
-  const fields=id==='quiz'?{questionCount:[1,15],answerSeconds:[5,120],lobbySeconds:[5,300]}:id==='hill'?{}:{rounds:[3,10],seconds:[10,60]};
+  const fields=id==='quiz'?{questionCount:[1,15],answerSeconds:[5,120],lobbySeconds:[5,300]}:id==='hill'?{}:id==='boss'?{seconds:[10,60]}:{rounds:[3,10],seconds:[10,60]};
   for(const [key,[min,max]]of Object.entries(fields)){if(values[key]===undefined)continue;const v=Number(values[key]);if(!Number.isInteger(v)||v<min||v>max)throw Error(`${key}: use ${min}–${max}.`);next[key]=v;}
   if(id==='hill'){const category=String(values.category||'all');if(!['all',...this.hill.topics.map(t=>t.category||'general')].includes(category))throw Error('Unknown Hill category.');next.category=category;}
   if(id==='quiz'&&Array.isArray(values.categories)){if(values.categories.some(c=>!this.quiz.getCatalog().some(x=>x.id===c)))throw Error('Unknown quiz category.');next.categories=values.categories;}

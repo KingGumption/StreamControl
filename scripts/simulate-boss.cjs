@@ -11,7 +11,7 @@ const strategies={attack:()=> 'attack',reactive:s=>{
  if(b.bossCharged)return 'defend';
  if(s.partyHp<=55&&b.potions)return 'heal';
  if(b.bossGuard&&!b.focus)return 'defend';
- if(!b.focus&&s.partyHp<=65&&s.round<s.rounds-1)return 'defend';
+ if(!b.focus&&s.partyHp<=65&&(s.rounds===null||s.round<s.rounds-1))return 'defend';
  return 'attack';
 }};
 if(require.main===module)for(let b=0;b<3;b++)for(const [name,strategy]of Object.entries(strategies)){let wins=0;const actions={};for(let seed=1;seed<=500;seed++){const r=run(seed,b,strategy);wins+=r.won;for(const t of r.turns)actions[t[2]]=(actions[t[2]]||0)+1;}console.log(BOSSES[b].id,name,wins+'/500',JSON.stringify(actions));}

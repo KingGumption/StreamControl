@@ -23,7 +23,7 @@ function render(g){
  $('game').dataset.game=g.id;$('game').dataset.phase=g.phase;
  $('name').textContent=g.id==='boss'?(g.boss?.name||g.name):g.name;
  $('phase').textContent=g.phase==='question'?'YOUR MOVE':g.phase==='completed'?'FINAL RESULT':'THE REVEAL';
- $('round').textContent=`ROUND ${g.round} / ${g.rounds}`;
+ $('round').textContent=g.id==='boss'?`TURN ${g.round} · NO LIMIT`:`ROUND ${g.round} / ${g.rounds}`;
  $('participation').textContent=`${g.answered||0} LOCKED IN · ${g.players} PLAYERS`;
  const key=`${g.gameId}:${g.round}:${g.phase}`;
  if(key!==viewKey){

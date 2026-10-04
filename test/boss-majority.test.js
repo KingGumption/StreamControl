@@ -22,7 +22,7 @@ test('ties select only tied actions, no votes wait, killing blow prevents retali
  const kill=game();kill.bossHp=20;kill.handleChatEvent(chat('a','1'));kill.resolve();assert.equal(kill.combat.hit,0);assert.equal(kill.combat.move,null);assert.equal(kill.result.success,true);
 });
 test('question snapshots conceal the selected move, power and animation style',()=>{
- const g=game(),s=JSON.parse(JSON.stringify(g.getState()));assert.equal(s.bossIntent,undefined);assert.equal(s.bossMove,undefined);assert.equal(s.combat,null);assert.equal(s.battle.lastMove,null);assert.equal(s.rounds,8);
+ const g=game(),s=JSON.parse(JSON.stringify(g.getState()));assert.equal(s.bossIntent,undefined);assert.equal(s.bossMove,undefined);assert.equal(s.combat,null);assert.equal(s.battle.lastMove,null);assert.equal(s.rounds,null);
  g.handleChatEvent(chat('a','2'));g.resolve();const previous=g.combat.move;g.next();assert.equal(g.getState().battle.lastMove,previous);assert.equal(g.getState().bossMove,undefined);
 });
 test('attack-only enemy baseline still rewards defence and a potion',()=>{

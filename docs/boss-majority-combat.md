@@ -10,19 +10,19 @@ The party acts first, followed by the boss if it is still alive. The next boss m
 | Defend | Blocks 75% of this turn's incoming damage and stores focus for the next attack. Focus cannot stack. |
 | Heal | Uses one of two shared potions to restore up to 40 HP before the boss hits. Health caps at 100. Focus is retained. |
 
-A potion used at full health is still spent. With no potions left the overlay says so; choosing heal then wastes the turn. A killing attack prevents retaliation. Party defeat or reaching the turn limit without defeating the boss loses the battle.
+A potion used at full health is still spent. With no potions left the overlay says so; choosing heal then wastes the turn. A killing attack prevents retaliation. The battle ends only when the boss or party reaches zero HP, or an authorised controller stops it. There is no turn-limit defeat.
 
-New unsaved boss configurations default to eight turns, allowing time for defensive setup and healing. Explicit saved presets remain unchanged. Boss HP scales with the configured 3–10 turns; short encounters use scaled damage. The three existing bosses retain their artwork and attack animations. Their hidden decisions use only completed-turn history, never the current vote.
+Bosses have 160 HP and unlimited turns. Legacy saved round counts are ignored for boss battles, and the Quick Games dock only offers turn duration. Other games keep their existing round limits. The three existing bosses retain their artwork and attack animations. Their hidden decisions use only completed-turn history, never the current vote.
 
 ## Tactical behaviours and presentation
 
 - Guard reduces the following party turn's normal attack by 50%; a focused attack pierces it. Bosses cannot guard on consecutive turns.
 - Charge spends a turn preparing, then makes the next strike 60% stronger. The stored charge is visible; the attack name stays hidden. Defend still blocks 75%.
 - Recovery is limited to once per battle and selected only below 60% health. Pumpkin restores up to 18 HP, Frost 16, Golem 22. A killing blow prevents recovery.
-- Golem favours guard; Frost favours charge; Pumpkin mixes both. Repeated audience attacks encourage guard, repeated defence encourages charge, and low boss health shifts towards aggression. First and final turns attack.
+- Golem favours guard; Frost favours charge; Pumpkin mixes both. Repeated audience attacks encourage guard, repeated defence encourages charge, and low boss health shifts towards aggression. The first turn attacks; there is no predefined final turn.
 
-Standard eight-turn encounters use 160 boss HP; nine/ten turns use 180/200. Recovery and mitigation are included in this rebalance. `scripts/simulate-boss.cjs` bases audience decisions on public state only. Over 500 seeds per boss, responsive play won 362/372/394 games versus 104/106/127 for attack-only. These are simulated outcomes, not measured live audience win rates.
+`scripts/simulate-boss.cjs` bases audience decisions on public state only. With unlimited turns, its responsive strategy won all 500 sampled games per boss, versus 104/106/127 for attack-only. This deliberately removes timeout losses while retaining punishment for poor choices. These are simulated outcomes, not measured live audience win rates.
 
 The party has illustrated ready, attack, defend, heal, front-facing victory and front-facing defeat poses with CSS motion. This is a six-pose 2D atlas, not a skeletal 3D rig. End screens centre the outcome, hide obsolete vote panels and place final HP below the result. Action panels use drawn SVG icons and separate chat-number badges.
 
-Regression coverage includes numeric/name aliases, first-vote locks, majority-only effects, ties, abstention, focus storage/consumption, potion exhaustion, HP limits, hidden question state, lethal attacks preventing retaliation, real broadcaster event routing and planned-vs-all-attack strategies. Balance tests exercise three-, four-, five- and eight-turn encounters; additional search checks covered ten turns. This does not establish a measured live audience win rate.
+Regression coverage includes numeric/name aliases, first-vote locks, majority-only effects, ties, abstention, focus storage/consumption, potion exhaustion, HP limits, hidden question state, lethal attacks preventing retaliation, real broadcaster event routing and planned-vs-all-attack strategies. Regression tests also verify play beyond turn twelve, legacy preset compatibility, unchanged limits for other games, and responsive versus attack-only strategies. This does not establish a measured live audience win rate.
