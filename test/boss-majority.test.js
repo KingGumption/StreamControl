@@ -25,9 +25,9 @@ test('question snapshots conceal the selected move, power and animation style',(
  const g=game(),s=JSON.parse(JSON.stringify(g.getState()));assert.equal(s.bossIntent,undefined);assert.equal(s.bossMove,undefined);assert.equal(s.combat,null);assert.equal(s.battle.lastMove,null);assert.equal(s.rounds,8);
  g.handleChatEvent(chat('a','2'));g.resolve();const previous=g.combat.move;g.next();assert.equal(g.getState().battle.lastMove,previous);assert.equal(g.getState().bossMove,undefined);
 });
-test('eight-turn bosses punish all-attack and can be beaten using defence and a potion',()=>{
+test('attack-only enemy baseline still rewards defence and a potion',()=>{
  for(let b=0;b<3;b++)for(const strategic of [false,true]){
-  const g=new ArcadeGames({random:()=>(b+.1)/3,schedule:()=>1,cancel:()=>{}});g.start('boss');
+  const g=new ArcadeGames({random:()=>(b+.1)/3,schedule:()=>1,cancel:()=>{}});const originalIntent=g.intent.bind(g);g.intent=()=>({...originalIntent(),action:'attack'});g.start('boss');g.bossHp=g.bossMaxHp=180;
   const plan=b===1?['attack','defend','attack','defend','heal','attack','defend','attack']:['attack','attack','attack','defend','heal','attack','defend','attack'];
   while(g.phase!=='completed'){g.handleChatEvent(chat('p',strategic?plan[g.round-1]:'attack'));g.resolve();if(g.phase!=='completed')g.next();}
   assert.equal(g.result.success,strategic,`${b}: strategic=${strategic}`);

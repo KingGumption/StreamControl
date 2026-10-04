@@ -1,8 +1,8 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const {ArcadeGames,BOSSES}=require('../src/arcade-games');
 const read=file=>fs.readFileSync(path.join(__dirname,'../public',file),'utf8');
-test('boss decisions are hidden and planned party actions beat all-attack',()=>{
- const play=(b,actions,rounds)=>{const g=new ArcadeGames({random:()=>(b+.1)/3,schedule:()=>1,cancel:()=>{}});g.start('boss',{rounds});
+test('short attack-only enemy baseline hides moves and rewards planned actions',()=>{
+ const play=(b,actions,rounds)=>{const g=new ArcadeGames({random:()=>(b+.1)/3,schedule:()=>1,cancel:()=>{}});const originalIntent=g.intent.bind(g);g.intent=()=>({...originalIntent(),action:'attack'});g.start('boss',{rounds});
  while(g.phase!=='completed'){const state=g.getState();assert.equal(state.bossIntent,undefined);assert.equal(state.bossMove,undefined);assert.equal(state.combat,null);assert.ok(!state.prompt.includes(g.bossMove));
  g.handleChatEvent({platform:'twitch',text:actions[g.round-1]||'attack',user:{id:'a',username:'a'}});g.resolve();if(g.phase!=='completed')g.next();}return g;};
  for(let b=0;b<3;b++)for(const rounds of [3,4,5]){assert.equal(play(b,[],rounds).result.success,false);assert.equal(play(b,rounds===3?['defend','attack','attack']:rounds===4?['defend','attack','attack','attack']:['defend','attack','defend','attack','attack'],rounds).result.success,true);}

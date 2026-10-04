@@ -19,3 +19,7 @@ Power-up prompt subjects, in order: star, fire flower, mushroom, extra-life hear
 Superpower prompt subjects, in order: flight wings, invisible cloak, linked teleportation portals, bronze strength fist, time-control hourglass, mind-reading eye, fox becoming a bird, speed boots, healing heart with leaves, four elemental emblems. Direction: the same deliberate arcade illustration, equal visual weight, transparent background and no labels.
 
 The pre-existing boss sprites and party art were retained. This release improves their presentation and reconnect outcome state; it does not claim a new 3D rig or Unity implementation.
+
+## October 4 party animation atlas
+
+`boss-sprites/party-poses.webp` is a new generated transparent atlas derived from the existing `party.webp`: blue rogue, ivory-armoured knight with teal cape, and purple wizard. Direction: preserve costumes and hand-inked fantasy style; ready, attack, defend, heal, camera-facing victory and camera-facing exhausted defeat; equal 3-by-2 cells, no scenery or text. The original asset remains available. Runtime pose selection and CSS motion animate the atlas; no Unity or 3D assets are required.

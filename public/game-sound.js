@@ -15,7 +15,7 @@
  const voices={escape:'sine',higher:'triangle',split:'triangle',boss:'triangle',number:'triangle',snacks:'triangle',hill:'triangle'};
  const motifs={round:[392,587,784],tick:[880],reveal:[330,440,659],victory:[523,659,784,1047,1319],defeat:[330,294,220,147],hit:[110,65,49],block:[784,1047],heal:[523,784,1047],slam:[98,65,33],breath:[220,165,110],sweep:[330,220,147],join:[659,784],crown:[392,523,659,784,1047]};
  const palettes={escape:{notes:[196,233,294],speed:.16,decay:.38},higher:{notes:[330,494,659],speed:.06,decay:.12},split:{notes:[392,440,587],speed:.09,decay:.18},snacks:{notes:[523,659,880],speed:.085,decay:.15},number:{notes:[220,330,440],speed:.12,decay:.23},hill:{notes:[392,523,784],speed:.11,decay:.27},boss:{notes:[98,147,196],speed:.12,decay:.25}};
- motifs.draw=[392,392];
+ motifs.draw=[392,392];motifs.charge=[147,196,294,392,587];
  function cue(name,key,id){
   if(played.has(key))return;played.add(key);if(played.size>300)played.delete(played.values().next().value);
   if(muted||!volume)return;

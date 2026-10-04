@@ -67,11 +67,49 @@ html[data-theme] #game:not([data-game=boss]){background:radial-gradient(ellipse 
 .crowd-arena{background:linear-gradient(#07111b99,transparent 55%,#07111b66),url('/assets/stage-art/split-stage.webp') center 60%/cover}.crowd-sides{inset:82px 43px 44px;gap:94px}.crowd-side,.crowd-side:nth-child(2){border:1px solid #b4bccb44;border-radius:12px;background:#08152699;box-shadow:none;padding:15px}.crowd-side:nth-child(2){background:#21102299}.crowd-side.minority{border:2px solid #edcd83;box-shadow:0 0 35px #edcd8355}.sealed-label{color:#e0ddd177}.crowd-option{font-size:32px;text-align:center}.sealed-votes{background:#07111bd9;bottom:8px;padding:5px 0}
 .vault-display{gap:12px;padding:18px 20px}.range-rail{flex-shrink:0}
 
-/* End banner sits in the space above the party HP, never across either bar. */
+/* Keep the result central, with final health clearly below it. */
 #game[data-game=boss] #bossStage[data-pose=defeat]:after,
-#game[data-game=boss] #bossStage[data-pose=victory]:after{inset:auto;top:72px;left:22px;width:390px;height:74px;font-size:32px;letter-spacing:3px}
+#game[data-game=boss] #bossStage[data-pose=victory]:after{inset:auto;top:120px;left:18%;width:64%;height:100px;font-size:48px;letter-spacing:5px}
 #game[data-game=boss] #bossStage[data-pose=defeat] .combat-callout,
 #game[data-game=boss] #bossStage[data-pose=victory] .combat-callout{display:none}
 
 #game[data-game=boss] .boss-sprite{bottom:36px;width:320px;height:320px}
 #game[data-game=boss] #battleRoster{left:330px;right:auto;bottom:55px;flex-direction:column;gap:6px}
+
+#game[data-game=boss][data-phase=completed] .stat{top:350px;padding:8px 10px;background:#0b1426ed;border-radius:5px}
+#game[data-game=boss][data-phase=completed] #battleRoster{left:0;bottom:55px;width:100%;flex-direction:row;justify-content:center}
+
+/* Separate the chat key, drawn icon and readable action label. */
+#game[data-game=boss] .choice{grid-template-columns:26px 25px minmax(0,1fr) auto;grid-template-rows:26px auto;column-gap:8px;row-gap:4px;padding:8px 12px}
+#game[data-game=boss] .choice b{grid-column:1;grid-row:1;display:grid;place-items:center;height:25px;background:#dce8eb;color:#162431;border-radius:4px;font:800 17px/1 Arial,sans-serif;letter-spacing:0}
+#game[data-game=boss] .choice .action-icon{grid-column:2;grid-row:1;width:24px;height:24px;fill:none;stroke:#efce91;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#game[data-game=boss] .choice:nth-child(2) .action-icon{stroke:#cfc2f4}
+#game[data-game=boss] .choice:nth-child(3) .action-icon{stroke:#a9e4c0}
+#game[data-game=boss] .choice strong{display:block;grid-column:3;grid-row:1;font:700 20px/1.1 Arial,sans-serif;letter-spacing:0;text-transform:none}
+#game[data-game=boss] .boss-tally{grid-column:4;grid-row:1;font-size:13px}
+#game[data-game=boss] .move-explanation{grid-column:1/-1;grid-row:2;letter-spacing:.3px}
+
+.party-sprite{position:absolute;bottom:0;left:0;width:325px;height:325px;background:url('/assets/boss-sprites/party-poses.webp') no-repeat 0 0/300% 200%;transform-origin:50% 94%;filter:drop-shadow(3px 6px 2px #080b2066);animation:partyReady 3s ease-in-out infinite}
+#bossStage[data-party-pose=attack] .party-sprite{background-position:50% 0;animation:partyStrike .7s ease-out both}
+#bossStage[data-party-pose=defend] .party-sprite{background-position:100% 0;animation:partyBrace .5s ease-out both}
+#bossStage[data-party-pose=heal] .party-sprite{background-position:0 100%;animation:partyRecover 1.1s ease-in-out both}
+#bossStage[data-party-pose=victory] .party-sprite{background-position:50% 100%;animation:partyCelebrate 1s ease-out both}
+#bossStage[data-party-pose=defeat] .party-sprite{background-position:100% 100%;animation:partyFall .8s ease-out both}
+#bossStage[data-party-pose=hit] .party-sprite{animation:partyHit .5s ease-out both}
+#bossStage[data-pose=charge] .boss-sprite{background-position:50% 0;animation:bossCharge 1s ease-in-out infinite}
+#bossStage[data-pose=boss-heal] .boss-sprite{background-position:50% 100%;animation:bossRecover 1.3s ease-in-out both}
+#bossStage[data-pose=guard] .boss-aura{background:#8cc6ef88;box-shadow:0 0 36px #8cc6ef}
+#bossTactics{position:absolute;top:52px;right:42px;width:355px;text-align:center;font-size:12px;line-height:1.5;font-weight:800;color:#ffe5ab;z-index:8;text-shadow:0 2px 3px #000}
+#bossTactics:empty{display:none}
+@keyframes partyReady{50%{transform:translateY(-2px)}}
+@keyframes partyStrike{0%{transform:translateX(-12px)}45%{transform:translateX(28px)}100%{transform:translateX(6px)}}
+@keyframes partyBrace{40%{transform:translateX(-5px) scale(.98)}100%{transform:none}}
+@keyframes partyRecover{50%{filter:drop-shadow(0 0 12px #80eeb4);transform:translateY(-3px)}}
+@keyframes partyCelebrate{0%{transform:translateY(8px);opacity:.7}45%{transform:translateY(-9px)}100%{transform:none;opacity:1}}
+@keyframes partyFall{from{transform:translateY(-10px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes bossCharge{50%{filter:drop-shadow(0 0 15px var(--boss-color)) brightness(1.15);transform:translateY(-4px)}}
+@keyframes bossRecover{50%{filter:drop-shadow(0 0 20px #7ff0ad) brightness(1.12)}}
+@media(prefers-reduced-motion:reduce){#bossStage .party-sprite,#bossStage .boss-sprite{animation:none!important}}
+#game[data-game=boss][data-phase=completed] #options{display:none}#game[data-game=boss][data-phase=completed] .stat{top:auto;bottom:58px}#game[data-game=boss][data-phase=completed] .battle-party{z-index:11;bottom:32px;width:300px}#game[data-game=boss][data-phase=completed] .party-sprite{width:300px;height:300px}#game[data-game=boss][data-phase=completed] #battleRoster{bottom:-8px}
+#game[data-game=boss][data-phase=completed] #battleRoster{position:fixed;left:385px;bottom:60px;width:250px}#bossStage[data-party-pose=defeat] .party-sprite{clip-path:polygon(4% 0,100% 0,100% 100%,0 100%,0 70%,4% 70%)}
+#game[data-game=boss]:not([data-phase=completed]) .stat:not(.danger){top:220px}
