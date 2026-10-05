@@ -1,6 +1,6 @@
 # Arcade game analytics
 
-Analytics > Games reports the six arcade games. Existing Quiz and King of the Hill drilldowns are linked from the Games tab.
+Analytics > Games now reports all eight games using the common measurements documented in game-analytics.md. This document describes the six arcade games' telemetry and legacy compatibility.
 
 New schemaVersion 2 engagement events use tool `chat_games`: game_started, accepted vote, round_completed, game_completed and game_stopped. The final round uses only game_completed, so it is counted once. Stopping an already completed or idle game does not create a stopped event. Duplicate, invalid and late votes never become accepted-vote telemetry. Gameplay remains functional if telemetry storage fails; failures are logged.
 

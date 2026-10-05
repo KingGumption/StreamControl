@@ -1,3 +1,4 @@
+const {buildGamesAnalytics,gameKey}=require('./game-analytics');
 const {summarizeArcade,gameNames}=require('./arcade-analytics');
 const {buildCoaching}=require('./analytics-coaching');
 const {buildGrowth}=require('./analytics-growth');
@@ -91,9 +92,10 @@ function buildAnalyticsReport({ firstChats = null, growthHistory = null, growthS
   const quizContext = normalizedEvents.filter(e=>e.tool==='elimination_quiz' && e.timeMs>=sinceMs && (safePlatform==='all' || quizIds.has(e.correlationId) || e.platform===safePlatform));
   const arcadeIds=new Set(currentEvents.filter(e=>e.tool==='chat_games').map(e=>e.correlationId).filter(Boolean));
   const arcadeContext=normalizedEvents.filter(e=>e.tool==='chat_games'&&e.timeMs>=sinceMs&&(safePlatform==='all'||arcadeIds.has(e.correlationId)||platformMatches(e)));
+  const fullGameContext=normalizedEvents.filter(e=>gameKey(e)&&e.timeMs>=sinceMs);
   const current = summarizePeriod(currentRequests, currentEvents, currentCaptures, quizContext, hillContext, arcadeContext);
   const previous = summarizePeriod(previousRequests, previousEvents, previousCaptures);
-  const sessions = buildRoundups({sessions:currentSessions,snapshots:currentSnapshots,activity:current.activity,contextEvents:[...quizContext,...hillContext,...arcadeContext].filter(e=>!platformMatches(e)&&['game_started','game_completed','game_stopped'].includes(e.eventType)).map(genericEventActivity),observations:currentEvents.filter(e=>e.tool==='audience'),sinceMs,nowMs,isInteraction});
+  const sessions = buildRoundups({sessions:currentSessions,snapshots:currentSnapshots,activity:current.activity,contextEvents:fullGameContext.filter(e=>!platformMatches(e)&&['game_started','game_completed','game_stopped'].includes(e.eventType)).map(e=>({...genericEventActivity(e),platform:'other'})),observations:currentEvents.filter(e=>e.tool==='audience'),sinceMs,nowMs,isInteraction});
   const confirmedSessions=sessions.filter(s=>s.source==='platform').length;
   const timeline = buildTimeline(current.activity, currentEvents, sinceMs, nowMs);
   const ledgerSearch=String(activitySearch||'').slice(0,200).trim().toLowerCase();
@@ -141,6 +143,7 @@ function buildAnalyticsReport({ firstChats = null, growthHistory = null, growthS
       polaroid: current.polaroid,
       arcade: current.arcade,
     },
+    games:buildGamesAnalytics(fullGameContext,currentEvents,sessions),
     audience: current.audience,
     impact: buildImpactSummary(sessions, currentEvents, current.audience),
     platforms: breakdown(current.activity.filter(isInteraction), 'platform'),
@@ -559,6 +562,7 @@ function genericEventActivity(item) {
     follow: 'New follower', subscription: 'New subscription', raid_received: 'Raid received', share: 'Stream shared',
   };
   return {
+    game:gameKey(item),
     timestamp: item.timestamp, timeMs: item.timeMs, tool: item.tool, eventType: item.eventType,
     platform: item.platform, userId: item.userId, username: item.username,
     roles: item.roles || [], sessionId: item.sessionId || '',

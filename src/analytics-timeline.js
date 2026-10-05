@@ -1,3 +1,4 @@
+const {gameNames,gameKey,enrichGameSegments}=require('./game-analytics');
 const {streamSignals}=require('./analytics-growth');
 // Minute means are estimates of concurrent audience, never a sum of independent peaks.
 const MINUTE = 60000;
@@ -24,7 +25,7 @@ function buildStreamDetail(g, rows, snapshots, observations, isInteraction) {
     const b = bucket(e.timeMs);
     if (isInteraction(e)) b.interactions++;
     if (markerLabels[e.eventType]) {
-      const label = e.eventType.startsWith('game_') ? `${e.tool === 'elimination_quiz' ? 'Quiz' : e.tool==='chat_games'?'Arcade':'Hill'}: ${markerLabels[e.eventType]}` : markerLabels[e.eventType];
+      const label = e.eventType.startsWith('game_') ? `${e.tool === 'elimination_quiz' ? 'Quiz' : e.tool==='chat_games'?(gameNames[e.game]||'Arcade'):'Hill'}: ${markerLabels[e.eventType]}` : markerLabels[e.eventType];
       b.events[label] = (b.events[label] || 0) + 1;
     }
   }
@@ -65,13 +66,13 @@ function buildStreamDetail(g, rows, snapshots, observations, isInteraction) {
       const values=totals.filter(b=>b.minute>=from&&b.minute<to);
       const expected=Math.max(0,to-from);
       const full=expected>0&&values.length===expected;
-      segments.push({tool:e.tool,startedAt:start.timestamp,endedAt:e.timestamp,elapsed:round((start.timeMs-g.startMs)/MINUTE),durationMinutes:round((e.timeMs-start.timeMs)/MINUTE),samples:values.length,coveragePercent:expected?round(values.length/expected*100):null,averageViewers:full?round(values.reduce((n,b)=>n+b.total,0)/values.length):null,change:full&&values.length>=2?round(values.at(-1).total-values[0].total):null});
+      segments.push({game:e.game||gameKey(e),name:gameNames[e.game||gameKey(e)]||'Game',gameId:e.correlationId,tool:e.tool,startedAt:start.timestamp,endedAt:e.timestamp,elapsed:round((start.timeMs-g.startMs)/MINUTE),durationMinutes:round((e.timeMs-start.timeMs)/MINUTE),samples:values.length,coveragePercent:expected?round(values.length/expected*100):null,averageViewers:full?round(values.reduce((n,b)=>n+b.total,0)/values.length):null,change:full&&values.length>=2?round(values.at(-1).total-values[0].total):null});
     }
   }
   const participants=[...new Set([...rows.filter(isInteraction),...observations.filter(e=>e.eventType==='chat_message')].map(account).filter(Boolean))];
   const hours=(g.endMs-g.startMs)/3600000;
   const rate=type => g.source==='platform'&&!g.estimatedEnd&&hours>0 ? round(rows.filter(e=>e.eventType===type).length/hours) : null;
-  return {_coaching:{raw,events:[...rows.filter(isInteraction),...observations.filter(e=>e.eventType==='chat_message')]},growth:streamSignals(g,raw,rows,observations),platforms,bucketMinutes,points,peakConcurrentViewers:totals.length?Math.max(...totals.map(b=>b.total)):null,coveragePercent:round(totals.length/span*100),platformCoverage:platforms.map(platform=>({platform,percent:round(raw.filter(b=>b.viewers[platform]!==undefined).length/span*100)})),segments,followsPerHour:rate('follow'),subscriptionsPerHour:rate('subscription'),observedParticipants:participants.length,_participants:participants};
+  return {_coaching:{raw,events:[...rows.filter(isInteraction),...observations.filter(e=>e.eventType==='chat_message')]},growth:streamSignals(g,raw,rows,observations),platforms,bucketMinutes,points,peakConcurrentViewers:totals.length?Math.max(...totals.map(b=>b.total)):null,coveragePercent:round(totals.length/span*100),platformCoverage:platforms.map(platform=>({platform,percent:round(raw.filter(b=>b.viewers[platform]!==undefined).length/span*100)})),segments:enrichGameSegments(segments,raw,g,rows),followsPerHour:rate('follow'),subscriptionsPerHour:rate('subscription'),observedParticipants:participants.length,_participants:participants};
 }
 function addReturningParticipants(sessions) {
   const seen=new Set();let recorded=0;

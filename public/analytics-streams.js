@@ -1,6 +1,7 @@
 /* Stream explorer: dependency-free SVG, keyboard/touch inspection, no gap filling. */
 (() => {
   const colors={twitch:'#b99aff',tiktok:'#4ecdc4',youtube:'#ff8294',total:'#edf4f7',previous:'#f4c95d',chat:'#67a8ff',interactions:'#4ecdc4'};
+  const gameColors={quiz:'#4ecdc4',hill:'#c4a1ff',escape:'#ffbd70',higher:'#71b8ff',split:'#ff88b5',boss:'#f4d35e',number:'#a9db85',snacks:'#ee9cf2'};
   const names={twitch:'Twitch',tiktok:'TikTok',youtube:'YouTube',total:'Combined',previous:'Comparison combined',chat:'Chat messages',interactions:'Tool interactions'};
   let sessions=[], selected='', comparison='', reportKey='';
   const $=id=>document.getElementById(id);
@@ -15,10 +16,11 @@
     for(const p of series){if(p.value==null){last=null;continue;}d+=`${last!==null&&p.elapsed-last<=step*1.1?'L':'M'}${x(p.elapsed).toFixed(1)},${y(p.value).toFixed(1)} `;last=p.elapsed;}
     return {d,x,y};
   }
-  function chart(id,lines,maxTime,markers=[]) {
+  function chart(id,lines,maxTime,markers=[],segments=[]) {
     const maxValue=Math.max(1,...lines.flatMap(l=>l.points.map(p=>p.value??0)))*1.1;
     const {x,y}=paths([],maxTime,maxValue,1);
     let svg=`<svg viewBox="0 0 960 260" role="img" aria-label="${id==='streamViewers'?'Viewer levels':'Recorded activity per minute'} by elapsed stream time"><title>${id==='streamViewers'?'Viewers throughout the stream':'Recorded activity throughout the stream'}</title>`;
+    for(const g of segments){const x1=x(g.elapsed),x2=x(g.elapsed+g.durationMinutes);svg+=`<rect x="${x1}" y="32" width="${Math.max(1,x2-x1)}" height="188" fill="${gameColors[g.game]||'#4ecdc4'}" opacity=".16"><title>${escape(g.name||'Game')} · ${number(g.elapsed)}–${number(g.elapsed+g.durationMinutes)} min</title></rect>`;}
     for(let i=0;i<=4;i++){const v=maxValue*i/4;svg+=`<line x1="54" x2="934" y1="${y(v)}" y2="${y(v)}" stroke="#34404d"/><text x="46" y="${y(v)+4}" text-anchor="end">${number(v)}</text>`;}
     for(let i=0;i<=4;i++){const t=maxTime*i/4;svg+=`<text x="${x(t)}" y="245" text-anchor="middle">${Math.round(t)} min</text>`;}
     for(const l of lines){const {d}=paths(l.points,maxTime,maxValue,l.step);svg+=`<path d="${d}" fill="none" stroke="${colors[l.key]}" stroke-width="${l.key==='total'?3:2}" ${l.key==='previous'?'stroke-dasharray="7 5"':''}/>`;
@@ -40,13 +42,14 @@
     lines.push({key:'total',step:d.bucketMinutes,points:d.points.map(p=>({elapsed:p.elapsed,value:p.total}))});
     if(prev)lines.push({key:'previous',step:prev.detail.bucketMinutes,points:prev.detail.points.map(p=>({elapsed:p.elapsed,value:p.total}))});
     $('streamViewerLegend').innerHTML=legend(lines.map(l=>l.key));
+    $('streamGameLegend').innerHTML=[...new Map(d.segments.map(g=>[g.game,g])).values()].map(g=>`<span style="--dot:${gameColors[g.game]||'#4ecdc4'}">${escape(g.name)}</span>`).join('');
     const manual=(d.coaching?.segments||[]).map(m=>({elapsed:m.elapsed,events:{['Segment: '+m.label]:1}}));
-    chart('streamViewers',lines,end,[...d.points,...manual]);
+    chart('streamViewers',lines,end,[...d.points,...manual],d.segments);
     chart('streamEngagement',['chat','interactions'].map(key=>({key,step:d.bucketMinutes,points:d.points.map(p=>({elapsed:p.elapsed,value:p[key]}))})),end);
     $('streamActivityLegend').innerHTML=legend(['chat','interactions']);
     $('streamMinute').max=Math.max(0,d.points.length-1);$('streamMinute').value=Math.min(Number($('streamMinute').value),Math.max(0,d.points.length-1));$('streamMinute').disabled=!d.points.length;
     inspect();
-    $('streamSegments').innerHTML=d.segments.length?d.segments.map(g=>`<tr><td>${g.tool==='elimination_quiz'?'Quiz':g.tool==='chat_games'?'Arcade games':'King of the Hill'} at ${number(g.elapsed)} min</td><td>${number(g.durationMinutes)} min</td><td>${number(g.coveragePercent)}${g.coveragePercent==null?'':'%'}</td><td>${number(g.averageViewers)}</td><td>${g.change==null?'Unavailable':`${g.change>0?'+':''}${number(g.change)}`}</td></tr>`).join(''):'<tr><td colspan="5">No games with both a recorded start and end in this selection.</td></tr>';
+    $('streamSegments').innerHTML=d.segments.length?d.segments.map(g=>`<tr><td>${escape(g.name||'Game')} at ${number(g.elapsed)} min</td><td>${number(g.durationMinutes)} min</td><td>${number(g.coveragePercent)}${g.coveragePercent==null?'':'%'}</td><td>${number(g.averageViewers)}</td><td>${g.change==null?'Unavailable':`${g.change>0?'+':''}${number(g.change)}`}</td><td>${number(g.observedPeak)}</td><td>${g.streamPeakDuring===null?'Unavailable':g.streamPeakDuring?'Yes':'No'}</td></tr>`).join(''):'<tr><td colspan="7">No games with both a recorded start and end in this selection.</td></tr>';
     $('streamEvents').innerHTML=d.points.filter(p=>Object.keys(p.events).length).map(p=>`<tr><td>${number(p.elapsed)} min</td><td>${escape(Object.entries(p.events).map(([k,n])=>`${k} × ${n}`).join(' · '))}</td><td>${number(p.total)}</td></tr>`).join('')||'<tr><td colspan="3">No markers recorded.</td></tr>';
   }
   function inspect(){
