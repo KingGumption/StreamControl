@@ -1,0 +1,23 @@
+// Round summaries remain useful for legacy games; never invent missing players or outcomes.
+const gameNames={escape:'Haunted House Escape',higher:'Higher or Lower',split:'Split the Crowd',boss:'Crowd Boss Battle',number:'Secret Number Hunt',snacks:'Snack Wars'};
+const person=e=>(e.userId||e.username)?`${e.platform}:${e.userId?'id:'+e.userId:'name:'+e.username.toLowerCase()}`:null;
+const mean=values=>values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length*10)/10:null;
+function summarizeArcade(events,votes=events.filter(e=>e.eventType==='vote')){
+ const grouped=new Map(),playersByGame=new Map();
+ for(const e of votes){const key=person(e);if(key){if(!playersByGame.has(e.correlationId))playersByGame.set(e.correlationId,new Set());playersByGame.get(e.correlationId).add(key);}}
+ for(const e of events){if(!gameNames[e.metadata.game]||!e.correlationId)continue;if(!grouped.has(e.correlationId))grouped.set(e.correlationId,[]);grouped.get(e.correlationId).push(e);}
+ const histories=[...grouped].map(([id,rows])=>{
+  rows.sort((a,b)=>a.timeMs-b.timeMs);const start=rows.find(e=>e.eventType==='game_started'),end=rows.find(e=>['game_completed','game_stopped'].includes(e.eventType));
+  const rounds=rows.filter(e=>['round_completed','game_completed'].includes(e.eventType));
+  const first=rows[0],last=end||rows.at(-1);const detailed=rows.some(e=>e.metadata.schemaVersion===2);
+  return {id,game:first.metadata.game,name:gameNames[first.metadata.game],boss:last.metadata.boss||first.metadata.boss||null,timestamp:last.timestamp,startedAt:start?.timestamp||null,status:end?.eventType==='game_completed'?'completed':end?'stopped':start?'no_recorded_end':'partial_history',outcome:end?.metadata.outcome||null,rounds:rounds.length,turns:end?.metadata.round??null,recordedVotes:rounds.reduce((n,e)=>n+(Number(e.metadata.votes)||0),0),players:detailed?(playersByGame.get(id)?.size||0):null,durationSeconds:Number.isFinite(end?.metadata.durationMs)?Math.round(end.metadata.durationMs/1000):start&&end?Math.round((end.timeMs-start.timeMs)/1000):null,result:end?.metadata.result||last.metadata.result||'',detailed};
+ });
+ const participants=new Map();for(const e of votes){const key=person(e);if(!key)continue;if(!participants.has(key))participants.set(key,{username:e.username,platform:e.platform,games:new Set(),votes:0});const p=participants.get(key);p.games.add(e.correlationId);p.votes++;}
+ const games=Object.entries(gameNames).map(([id,name])=>{const runs=histories.filter(h=>h.game===id),ev=votes.filter(e=>e.metadata.game===id);const accounts=new Map();for(const e of ev){const key=person(e);if(key){if(!accounts.has(key))accounts.set(key,new Set());accounts.get(key).add(e.correlationId);}}
+  return {id,name,plays:runs.length,started:runs.filter(h=>h.startedAt).length,completed:runs.filter(h=>h.status==='completed').length,stopped:runs.filter(h=>h.status==='stopped').length,uniquePlayers:accounts.size,repeatPlayers:[...accounts.values()].filter(s=>s.size>1).length,acceptedVotes:ev.length,recordedVotes:runs.reduce((n,h)=>n+h.recordedVotes,0),averageSeconds:mean(runs.map(h=>h.durationSeconds).filter(Number.isFinite)),legacyGames:runs.filter(h=>!h.detailed).length};});
+ const bosses=['pumpkin','frost','golem'].map(id=>{const runs=histories.filter(h=>h.game==='boss'&&h.boss===id&&h.status==='completed'),known=runs.filter(h=>['win','loss'].includes(h.outcome));return {id,name:{pumpkin:'The Pumpkin King',frost:'The Frost Wyrm',golem:'The Candy Golem'}[id],completed:runs.length,wins:known.filter(h=>h.outcome==='win').length,losses:known.filter(h=>h.outcome==='loss').length,winRate:known.length?Math.round(known.filter(h=>h.outcome==='win').length/known.length*1000)/10:null,averageTurns:mean(runs.map(h=>h.turns).filter(Number.isFinite))};});
+ const combat=events.filter(e=>e.metadata.game==='boss'&&['round_completed','game_completed'].includes(e.eventType)&&e.metadata.combat);
+ const actions=['attack','defend','heal','wait'].map(action=>({action,votes:votes.filter(e=>e.metadata.game==='boss'&&e.metadata.action===action).length,turns:combat.filter(e=>e.metadata.combat.action===action).length}));
+ return {games,bosses,actions,plays:histories.length,uniquePlayers:participants.size,repeatPlayers:[...participants.values()].filter(p=>p.games.size>1).length,acceptedVotes:votes.length,legacyGames:histories.filter(h=>!h.detailed).length,history:histories.sort((a,b)=>b.timestamp.localeCompare(a.timestamp)).slice(0,50),players:[...participants.values()].sort((a,b)=>b.votes-a.votes).slice(0,25).map(p=>({...p,games:p.games.size})),coverageSince:events.filter(e=>e.metadata.schemaVersion===2).map(e=>e.timestamp).sort()[0]||null};
+}
+module.exports={summarizeArcade,gameNames};

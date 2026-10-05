@@ -528,7 +528,7 @@ function listGrowthHistory() {
       WHERE platform IN ('twitch','youtube','tiktok')
         AND ((tool='audience' AND event_type='chat_message')
           OR (tool='elimination_quiz' AND event_type IN ('player_joined','answer_submitted'))
-          OR (tool='king_of_the_hill' AND event_type='vote')
+          OR (tool IN ('king_of_the_hill','chat_games') AND event_type='vote')
           OR (tool='polaroid' AND event_type='capture_completed')
           OR (tool='song_requests' AND event_type='command'))
         AND COALESCE(json_extract(CASE WHEN json_valid(metadata) THEN metadata ELSE '{}' END,'$.isTest'),0) != 1

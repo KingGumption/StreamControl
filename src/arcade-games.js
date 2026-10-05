@@ -32,6 +32,7 @@ class ArcadeGames {
   this.cancel(this.timer);Object.assign(this,{id,rounds,seconds,round:0,gameId:crypto.randomUUID(),players:new Map(),health:5,progress:0,bossHp:100,partyHp:100,teamScores:[0,0],currentCard:1+Math.floor(this.random()*13),previousCard:null,cardHistory:[],target:1+Math.floor(this.random()*100),low:1,high:100,result:null});
   this.boss=BOSSES[Math.floor(this.random()*BOSSES.length)];this.combat=null;this.bossMaxHp=160;this.bossHp=this.bossMaxHp;this.focus=false;this.potions=2;this.lastBossMove=null;this.lastBossAction=null;this.bossGuard=false;this.bossCharged=false;this.bossHeals=1;this.partyActions=[];
   this.british=this.shuffle(snacks.filter(s=>s.team==='britain'));this.world=this.shuffle(snacks.filter(s=>s.team==='world'));this.rooms=this.shuffle(ROOMS);this.splits=this.shuffle(SPLITS);
+  this.startedAt=this.now();this.track('game_started',{rounds:id==='boss'?null:rounds,seconds});
   return this.nextRound();
  }
  intent(){
@@ -69,7 +70,7 @@ class ArcadeGames {
     }).catch(()=>{});
    }
   }
-  this.votes.set(key,value);this.publish();return true;
+  this.votes.set(key,value);this.track('vote',{value,choice:this.id==='number'?String(value):this.options[value].name,action:this.id==='boss'?['attack','defend','heal'][value]:null},{platform:event.platform,userId:String(identity),username:this.players.get(key).username});this.publish();return true;
  }
  resolve(){
   if(this.phase!=='question')return this.getState();
@@ -133,11 +134,12 @@ class ArcadeGames {
   if(this.id==='escape')this.result.route=majority;
   if(this.id==='split')this.result.groups=[0,1].map(side=>[...this.votes].filter(([,v])=>v===side).slice(0,18).map(([key])=>this.players.get(key).username));
   if(this.id==='number')this.result.guesses=[...new Set(this.votes.values())].sort((a,b)=>a-b);this.phase=done?'completed':'reveal';this.endsAt=done?null:this.now()+5000;
-  try{this.recordEvent({tool:'chat_games',eventType:done?'game_completed':'round_completed',correlationId:this.gameId,metadata:{game:this.id,round:this.round,votes:this.votes.size,result:text}});}catch{}
+  this.track(done?'game_completed':'round_completed',{votes:this.votes.size,result:text,counts,success:['boss','escape','number'].includes(this.id)?success:null,outcome:done?(['boss','escape','number'].includes(this.id)?(success?'win':'loss'):this.id==='snacks'?(this.teamScores[0]===this.teamScores[1]?'draw':this.teamScores[0]>this.teamScores[1]?'britain':'world'):'completed'):null,combat:this.id==='boss'?this.combat:null,partyHp:this.id==='boss'?this.partyHp:null,bossHp:this.id==='boss'?this.bossHp:null,players:this.players.size,durationMs:this.now()-this.startedAt});
   if(!done)this.arm(5000,()=>this.nextRound());return this.publish();
  }
  next(){if(this.phase==='question')return this.resolve();if(this.phase==='reveal'){this.cancel(this.timer);return this.nextRound();}throw Error('No active round.');}
- stop(){this.cancel(this.timer);this.phase='idle';this.endsAt=null;return this.publish();}
+ track(eventType,metadata={},actor={}){try{this.recordEvent({timestamp:new Date(this.now()).toISOString(),tool:'chat_games',eventType,correlationId:this.gameId,...actor,metadata:{schemaVersion:2,game:this.id,round:this.round,boss:this.id==='boss'?this.boss.id:null,...metadata}});}catch(error){console.warn('[Analytics] Game event could not be saved:',error.message);}}
+ stop(){if(['question','reveal'].includes(this.phase))this.track('game_stopped',{players:this.players.size,durationMs:this.now()-this.startedAt});this.cancel(this.timer);this.phase='idle';this.endsAt=null;return this.publish();}
  getState(){return {gameId:this.gameId||null,id:this.id||null,name:CATALOG.find(g=>g.id===this.id)?.name,help:CATALOG.find(g=>g.id===this.id)?.help,phase:this.phase,round:this.round||0,rounds:this.id==='boss'?null:this.rounds,seconds:this.seconds,prompt:this.prompt,options:(this.options||[]).map(({name,origin,team,command,image})=>({name,origin,team,command,image})),endsAt:this.endsAt||null,acceptUntil:this.phase==='question'?this.acceptUntil:null,players:this.players.size,answered:this.votes?.size||0,result:this.phase==='question'?null:this.result,revealedNumber:this.id==='number'&&this.phase==='completed'?this.target:undefined,card:this.id==='higher'?this.currentCard:undefined,previousCard:this.id==='higher'?this.previousCard:undefined,cardHistory:this.id==='higher'?[...this.cardHistory]:undefined,cardLabel:this.id==='higher'?rank(this.currentCard):undefined,range:this.id==='number'?{low:this.low,high:this.high}:undefined,boss:this.id==='boss'?this.boss:undefined,moveCounts:this.id==='boss'?[0,1,2].map(i=>[...this.votes.values()].filter(v=>v===i).length):undefined,party:this.id==='boss'?[...this.players.entries()].sort(([a],[b])=>Number(this.votes.has(b))-Number(this.votes.has(a))).slice(0,5).map(([key,{username,platform,profileImageUrl}])=>({username,platform,profileImageUrl,voted:this.votes.has(key),action:this.votes.has(key)?this.votes.get(key)+1:null})):undefined,bossIntent:undefined,bossMove:this.id==='boss'&&this.phase!=='question'?this.combat?.move:undefined,battle:this.id==='boss'?{focus:this.focus,potions:this.potions,lastMove:this.lastBossMove,bossGuard:this.bossGuard,bossCharged:this.bossCharged,bossHeals:this.bossHeals,enraged:this.bossHp<=this.bossMaxHp*.3}:undefined,combat:this.id==='boss'&&this.phase!=='question'?this.combat:null,teamScores:this.teamScores,health:this.health,progress:this.progress,bossMaxHp:this.bossMaxHp,bossHp:this.bossHp,partyHp:this.partyHp,leaderboard:this.phase==='question'?[]:[...this.players.values()].sort((a,b)=>b.score-a.score).slice(0,5),revision:this.serial};}
  publish(){this.serial++;const state=this.getState();this.events.emit('state',state);return state;}
  subscribe(fn){this.events.on('state',fn);return()=>this.events.off('state',fn);}

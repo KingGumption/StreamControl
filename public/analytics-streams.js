@@ -46,7 +46,7 @@
     $('streamActivityLegend').innerHTML=legend(['chat','interactions']);
     $('streamMinute').max=Math.max(0,d.points.length-1);$('streamMinute').value=Math.min(Number($('streamMinute').value),Math.max(0,d.points.length-1));$('streamMinute').disabled=!d.points.length;
     inspect();
-    $('streamSegments').innerHTML=d.segments.length?d.segments.map(g=>`<tr><td>${g.tool==='elimination_quiz'?'Quiz':'King of the Hill'} at ${number(g.elapsed)} min</td><td>${number(g.durationMinutes)} min</td><td>${number(g.coveragePercent)}${g.coveragePercent==null?'':'%'}</td><td>${number(g.averageViewers)}</td><td>${g.change==null?'Unavailable':`${g.change>0?'+':''}${number(g.change)}`}</td></tr>`).join(''):'<tr><td colspan="5">No games with both a recorded start and end in this selection.</td></tr>';
+    $('streamSegments').innerHTML=d.segments.length?d.segments.map(g=>`<tr><td>${g.tool==='elimination_quiz'?'Quiz':g.tool==='chat_games'?'Arcade games':'King of the Hill'} at ${number(g.elapsed)} min</td><td>${number(g.durationMinutes)} min</td><td>${number(g.coveragePercent)}${g.coveragePercent==null?'':'%'}</td><td>${number(g.averageViewers)}</td><td>${g.change==null?'Unavailable':`${g.change>0?'+':''}${number(g.change)}`}</td></tr>`).join(''):'<tr><td colspan="5">No games with both a recorded start and end in this selection.</td></tr>';
     $('streamEvents').innerHTML=d.points.filter(p=>Object.keys(p.events).length).map(p=>`<tr><td>${number(p.elapsed)} min</td><td>${escape(Object.entries(p.events).map(([k,n])=>`${k} × ${n}`).join(' · '))}</td><td>${number(p.total)}</td></tr>`).join('')||'<tr><td colspan="3">No markers recorded.</td></tr>';
   }
   function inspect(){

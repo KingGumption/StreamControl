@@ -1,3 +1,4 @@
+const {summarizeArcade,gameNames}=require('./arcade-analytics');
 const {buildCoaching}=require('./analytics-coaching');
 const {buildGrowth}=require('./analytics-growth');
 const growthStore=require('./analytics-growth-store');
@@ -88,13 +89,15 @@ function buildAnalyticsReport({ firstChats = null, growthHistory = null, growthS
   const hillIds = new Set(currentEvents.filter(e=>e.tool==='king_of_the_hill').map(e=>e.correlationId).filter(Boolean));
   const hillContext = normalizedEvents.filter(e=>e.tool==='king_of_the_hill' && e.timeMs>=sinceMs && (safePlatform==='all' || hillIds.has(e.correlationId) || e.platform===safePlatform));
   const quizContext = normalizedEvents.filter(e=>e.tool==='elimination_quiz' && e.timeMs>=sinceMs && (safePlatform==='all' || quizIds.has(e.correlationId) || e.platform===safePlatform));
-  const current = summarizePeriod(currentRequests, currentEvents, currentCaptures, quizContext, hillContext);
+  const arcadeIds=new Set(currentEvents.filter(e=>e.tool==='chat_games').map(e=>e.correlationId).filter(Boolean));
+  const arcadeContext=normalizedEvents.filter(e=>e.tool==='chat_games'&&e.timeMs>=sinceMs&&(safePlatform==='all'||arcadeIds.has(e.correlationId)||platformMatches(e)));
+  const current = summarizePeriod(currentRequests, currentEvents, currentCaptures, quizContext, hillContext, arcadeContext);
   const previous = summarizePeriod(previousRequests, previousEvents, previousCaptures);
-  const sessions = buildRoundups({sessions:currentSessions,snapshots:currentSnapshots,activity:current.activity,contextEvents:[...quizContext,...hillContext].filter(e=>!platformMatches(e)&&['game_started','game_completed','game_stopped'].includes(e.eventType)).map(genericEventActivity),observations:currentEvents.filter(e=>e.tool==='audience'),sinceMs,nowMs,isInteraction});
+  const sessions = buildRoundups({sessions:currentSessions,snapshots:currentSnapshots,activity:current.activity,contextEvents:[...quizContext,...hillContext,...arcadeContext].filter(e=>!platformMatches(e)&&['game_started','game_completed','game_stopped'].includes(e.eventType)).map(genericEventActivity),observations:currentEvents.filter(e=>e.tool==='audience'),sinceMs,nowMs,isInteraction});
   const confirmedSessions=sessions.filter(s=>s.source==='platform').length;
   const timeline = buildTimeline(current.activity, currentEvents, sinceMs, nowMs);
   const ledgerSearch=String(activitySearch||'').slice(0,200).trim().toLowerCase();
-  const ledgerTool=['all','elimination_quiz','song_requests','king_of_the_hill','polaroid','stream'].includes(activityTool)?activityTool:'all';
+  const ledgerTool=['all','elimination_quiz','song_requests','king_of_the_hill','polaroid','stream','chat_games'].includes(activityTool)?activityTool:'all';
   const ledger=current.activity.filter(e=>(ledgerTool==='all'||e.tool===ledgerTool) && (!ledgerSearch||[e.username,e.platform,e.eventType,e.title,e.detail,e.status,e.correlationId].join(' ').toLowerCase().includes(ledgerSearch)));
   const pageSize=100, ledgerPages=Math.max(1,Math.ceil(ledger.length/pageSize));
   const ledgerPage=Math.max(0,Math.min(ledgerPages-1,Math.floor(Number(activityPage)||0)));
@@ -136,6 +139,7 @@ function buildAnalyticsReport({ firstChats = null, growthHistory = null, growthS
       kingOfTheHill: current.hill,
       eliminationQuiz: current.quiz,
       polaroid: current.polaroid,
+      arcade: current.arcade,
     },
     audience: current.audience,
     impact: buildImpactSummary(sessions, currentEvents, current.audience),
@@ -171,7 +175,7 @@ function buildAnalyticsReport({ firstChats = null, growthHistory = null, growthS
 
 function pageActivity(report, options={}) {
   const search=String(options.activitySearch||'').slice(0,200).trim().toLowerCase();
-  const tool=['all','elimination_quiz','song_requests','king_of_the_hill','polaroid','stream'].includes(options.activityTool)?options.activityTool:'all';
+  const tool=['all','elimination_quiz','song_requests','king_of_the_hill','polaroid','stream','chat_games'].includes(options.activityTool)?options.activityTool:'all';
   const rows=report.ledger.filter(e=>(tool==='all'||e.tool===tool)&&(!search||[e.username,e.platform,e.eventType,e.title,e.detail,e.status,e.correlationId].join(' ').toLowerCase().includes(search)));
   const pageSize=100,pages=Math.max(1,Math.ceil(rows.length/pageSize)),page=Math.max(0,Math.min(pages-1,Math.floor(Number(options.activityPage)||0)));
   return {activity:rows.slice(page*pageSize,(page+1)*pageSize),activityPagination:{page,pages,total:rows.length,pageSize,tool,search}};
@@ -191,7 +195,7 @@ function loadAnalyticsReport(options={}) {
   return {...entry.report,...pageActivity(entry.report,options)};
 }
 
-function summarizePeriod(requests, events, captures, quizContext = events.filter(e=>e.tool==='elimination_quiz'), hillContext = events.filter(e=>e.tool==='king_of_the_hill')) {
+function summarizePeriod(requests, events, captures, quizContext = events.filter(e=>e.tool==='elimination_quiz'), hillContext = events.filter(e=>e.tool==='king_of_the_hill'), arcadeContext=events.filter(e=>e.tool==='chat_games')) {
   const commandEvents = events.filter((event) => event.tool === 'song_requests' && event.eventType === 'command');
   const missingSongAttempts = commandEvents.filter((event) => {
     const command = event.metadata.command;
@@ -210,14 +214,17 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
   const hillVotes = hillEvents.filter((event) => event.eventType === 'vote');
   const polaroidEvents = events.filter((event) => event.tool === 'polaroid');
   const streamEvents = events.filter((event) => event.tool === 'stream');
+  const arcadeEvents=events.filter(e=>e.tool==='chat_games');
+  const arcadeVotes=arcadeEvents.filter(e=>e.eventType==='vote');
   const captureActivity = captures.map(polaroidCaptureActivity);
-  const toolActivity = [...quizInteractions.map(genericEventActivity), ...songActivity, ...hillVotes.map(hillVoteActivity), ...captureActivity];
+  const toolActivity = [...arcadeVotes.map(genericEventActivity), ...quizInteractions.map(genericEventActivity), ...songActivity, ...hillVotes.map(hillVoteActivity), ...captureActivity];
   const activity = [
     ...toolActivity,
     ...quizEvents.filter(e => !['player_joined', 'answer_submitted'].includes(e.eventType)).map(genericEventActivity),
     ...hillEvents.filter((event) => event.eventType !== 'vote').map(genericEventActivity),
     ...polaroidEvents.filter((event) => event.eventType !== 'capture_completed').map(genericEventActivity),
     ...streamEvents.map(genericEventActivity),
+    ...arcadeEvents.filter(e=>e.eventType!=='vote').map(genericEventActivity),
   ].sort((a, b) => b.timeMs - a.timeMs);
   const chatEvents = events.filter((event) => event.tool === 'audience' && event.eventType === 'chat_message');
 
@@ -260,6 +267,7 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
   addParticipants(participants, hillVotes, 'king_of_the_hill');
   addParticipants(participants, captures, 'polaroid');
   addParticipants(participants, quizInteractions, 'elimination_quiz');
+  addParticipants(participants, arcadeVotes, 'chat_games');
   addParticipantRoles(participants, [...commandEvents, ...chatEvents]);
   const chatters = new Set(chatEvents.map(personKey).filter(Boolean));
   const engaged = new Set(participants.keys());
@@ -275,14 +283,16 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
       songRequests: person.counts.song_requests || 0,
       hillVotes: person.counts.king_of_the_hill || 0,
       quizInteractions: person.counts.elimination_quiz || 0,
+      arcadeVotes: person.counts.chat_games || 0,
       polaroids: person.counts.polaroid || 0,
       toolsUsed: person.tools.size,
       roles: [...person.roles],
     }));
 
   return {
+    arcade:summarizeArcade(arcadeContext,arcadeVotes),
     interactions: toolActivity.length,
-    toolsActive: [songActivity.length, hillVotes.length, captures.length, quizInteractions.length].filter((value) => value > 0).length,
+    toolsActive: [songActivity.length, hillVotes.length, captures.length, quizInteractions.length, arcadeVotes.length].filter((value) => value > 0).length,
     activity,
     songRequests: {
       total: totalSongAttempts,
@@ -365,6 +375,7 @@ function summarizePeriod(requests, events, captures, quizContext = events.filter
       multiToolRate: percent(multiTool, engaged.size),
       singleToolViewers: Math.max(0, engaged.size - multiTool),
       toolReach: [
+        {key:'chat_games',label:'Arcade games',count:distinctPeople(arcadeVotes).size},
         { key: 'song_requests', label: 'Song Requests', count: distinctPeople(songActivity).size },
         { key: 'king_of_the_hill', label: 'King of the Hill', count: hillPeople.size },
         { key: 'elimination_quiz', label: 'Elimination Quiz', count: distinctPeople(quizInteractions).size },
@@ -552,13 +563,13 @@ function genericEventActivity(item) {
     platform: item.platform, userId: item.userId, username: item.username,
     roles: item.roles || [], sessionId: item.sessionId || '',
     status: item.eventType.includes('failed') ? 'error' : 'info', title: labels[item.eventType] || humanize(item.eventType),
-    detail: item.tool === 'elimination_quiz' ? [item.metadata.round ? `Round ${item.metadata.round}` : '', item.metadata.category || '', item.eventType==='answer_result' ? (item.metadata.correct ? 'Correct' : item.metadata.missed ? 'Missed' : 'Wrong') : '', item.metadata.outcome || '', item.metadata.correctAnswers !== undefined ? `${item.metadata.correctAnswers} correct answers` : ''].filter(Boolean).join(' ? ') : item.metadata.error || item.metadata.winner?.title || item.metadata.champion?.title || '',
+    detail: item.tool==='chat_games' ? [gameNames[item.metadata.game]||item.metadata.game,item.metadata.round?`Round ${item.metadata.round}`:'',item.metadata.choice||item.metadata.result||''].filter(Boolean).join(' · ') : item.tool === 'elimination_quiz' ? [item.metadata.round ? `Round ${item.metadata.round}` : '', item.metadata.category || '', item.eventType==='answer_result' ? (item.metadata.correct ? 'Correct' : item.metadata.missed ? 'Missed' : 'Wrong') : '', item.metadata.outcome || '', item.metadata.correctAnswers !== undefined ? `${item.metadata.correctAnswers} correct answers` : ''].filter(Boolean).join(' ? ') : item.metadata.error || item.metadata.winner?.title || item.metadata.champion?.title || '',
     correlationId: item.correlationId,
   };
 }
 
 function isInteraction(item) {
-  return ['song_requests','king_of_the_hill','polaroid','elimination_quiz'].includes(item.tool) && ['song_request','command','vote','capture_completed','player_joined','answer_submitted'].includes(item.eventType);
+  return ['song_requests','king_of_the_hill','polaroid','elimination_quiz','chat_games'].includes(item.tool) && ['song_request','command','vote','capture_completed','player_joined','answer_submitted'].includes(item.eventType);
 }
 function normalizeStreamSession(row) {
   return {
@@ -606,7 +617,7 @@ function buildImpactSummary(sessions, events, audience) {
     raids: outcomes.raid_received || 0,
     shares: outcomes.share || 0,
     outcomeRate: audience.engagedViewers ? percent((outcomes.follow || 0) + (outcomes.subscription || 0), audience.engagedViewers) : 0,
-    toolComparisons: ['songRequests', 'hillVotes', 'polaroids', 'quizInteractions'].map((property) => {
+    toolComparisons: ['songRequests', 'hillVotes', 'polaroids', 'quizInteractions', 'arcadeVotes'].map((property) => {
       const withTool = measuredSessions.filter((session) => session[property] > 0);
       const withoutTool = measuredSessions.filter((session) => session[property] === 0);
       const withAverage = average(withTool.map((session) => session.averageViewers || 0));
@@ -634,10 +645,11 @@ function buildTimeline(activity, events, sinceMs, nowMs) {
   });
   activity.filter(isInteraction).forEach((item) => {
     const date = item.timestamp.slice(0, 10);
-    if (!buckets.has(date)) buckets.set(date, { date, songRequests: 0, hillVotes: 0, polaroids: 0, quiz: 0, participants: new Set() });
+    if (!buckets.has(date)) buckets.set(date, { date, songRequests: 0, hillVotes: 0, polaroids: 0, quiz: 0, arcadeVotes:0, participants: new Set() });
     const bucket = buckets.get(date);
     if (item.tool === 'song_requests') bucket.songRequests += 1;
-    if (item.eventType === 'vote') bucket.hillVotes += 1;
+    if (item.eventType === 'vote'&&item.tool==='king_of_the_hill') bucket.hillVotes += 1;
+    if(item.tool==='chat_games')bucket.arcadeVotes+=1;
     if (item.tool === 'elimination_quiz' && ['player_joined','answer_submitted'].includes(item.eventType)) bucket.quiz += 1;
     if (item.eventType === 'capture_completed') bucket.polaroids += 1;
     const key = personKey(item);
@@ -645,7 +657,7 @@ function buildTimeline(activity, events, sinceMs, nowMs) {
   });
   if(buckets.size){
     const start=Number.isFinite(sinceMs)?sinceMs:Date.parse([...buckets.keys()].sort()[0]);
-    for(let ms=Math.floor(start/86400000)*86400000;ms<=nowMs;ms+=86400000){const date=new Date(ms).toISOString().slice(0,10);if(!buckets.has(date))buckets.set(date,{date,songRequests:0,hillVotes:0,polaroids:0,quiz:0,participants:new Set()});}
+    for(let ms=Math.floor(start/86400000)*86400000;ms<=nowMs;ms+=86400000){const date=new Date(ms).toISOString().slice(0,10);if(!buckets.has(date))buckets.set(date,{date,songRequests:0,hillVotes:0,polaroids:0,quiz:0,arcadeVotes:0,participants:new Set()});}
   }
   return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date)).map((bucket) => ({
     date: bucket.date,
@@ -653,7 +665,8 @@ function buildTimeline(activity, events, sinceMs, nowMs) {
     hillVotes: bucket.hillVotes,
     polaroids: bucket.polaroids,
     quiz: bucket.quiz,
-    total: bucket.songRequests + bucket.hillVotes + bucket.polaroids + bucket.quiz,
+    arcadeVotes:bucket.arcadeVotes,
+    total: bucket.songRequests + bucket.hillVotes + bucket.polaroids + bucket.quiz + bucket.arcadeVotes,
     uniqueParticipants: bucket.participants.size,
     observedChatters: chatByDay.get(bucket.date)?.size || 0,
   }));
@@ -712,7 +725,7 @@ function buildRoleEngagement(chatEvents, participants) {
 }
 
 function buildOverlap(participants) {
-  const keys = ['song_requests', 'king_of_the_hill', 'polaroid', 'elimination_quiz'];
+  const keys = ['song_requests', 'king_of_the_hill', 'polaroid', 'elimination_quiz','chat_games'];
   const result = [];
   for (let left = 0; left < keys.length; left += 1) {
     for (let right = left + 1; right < keys.length; right += 1) {

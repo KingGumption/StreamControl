@@ -24,7 +24,7 @@ function buildStreamDetail(g, rows, snapshots, observations, isInteraction) {
     const b = bucket(e.timeMs);
     if (isInteraction(e)) b.interactions++;
     if (markerLabels[e.eventType]) {
-      const label = e.eventType.startsWith('game_') ? `${e.tool === 'elimination_quiz' ? 'Quiz' : 'Hill'}: ${markerLabels[e.eventType]}` : markerLabels[e.eventType];
+      const label = e.eventType.startsWith('game_') ? `${e.tool === 'elimination_quiz' ? 'Quiz' : e.tool==='chat_games'?'Arcade':'Hill'}: ${markerLabels[e.eventType]}` : markerLabels[e.eventType];
       b.events[label] = (b.events[label] || 0) + 1;
     }
   }
@@ -56,7 +56,7 @@ function buildStreamDetail(g, rows, snapshots, observations, isInteraction) {
   });
   const segments=[];
   const games=new Map();
-  for(const e of rows.filter(e=>['elimination_quiz','king_of_the_hill'].includes(e.tool)&&e.correlationId).sort((a,b)=>a.timeMs-b.timeMs)){
+  for(const e of rows.filter(e=>['elimination_quiz','king_of_the_hill','chat_games'].includes(e.tool)&&e.correlationId).sort((a,b)=>a.timeMs-b.timeMs)){
     const key=`${e.tool}:${e.correlationId}`;
     if(e.eventType==='game_started')games.set(key,e);
     if(['game_completed','game_stopped'].includes(e.eventType)&&games.has(key)){
