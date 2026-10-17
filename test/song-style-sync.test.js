@@ -1,0 +1,24 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'song-style-'));
+process.env.APP_MODE='cloud';process.env.PUBLIC_BASE_URL='https://stream.example.test';process.env.ADMIN_PASSWORD='test-owner-long-password';
+const {app}=require('../src/admin'),{db,getConfigValue}=require('../src/db');
+test('owner saves style, open overlays receive it, reconnect restores it, anonymous writes denied',async t=>{
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ t.after(()=>{server.closeAllConnections();server.close();db.close();});
+ const base=`http://127.0.0.1:${server.address().port}`;
+ const post=(route,body,cookie)=>fetch(base+route,{method:'POST',redirect:'manual',headers:{Origin:'https://stream.example.test','Content-Type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify(body)});
+ assert.equal((await post('/admin/settings/song-overlay',{style:'halloween'})).status,401);
+ const login=await post('/admin/login',{username:'owner',password:process.env.ADMIN_PASSWORD});assert.equal(login.status,302);const cookie=login.headers.get('set-cookie').split(';')[0];
+ const controller=new AbortController();t.after(()=>controller.abort());
+ const feed=await fetch(base+'/overlay/style/events',{signal:controller.signal});const reader=feed.body.getReader();
+ assert.match(new TextDecoder().decode((await reader.read()).value),/"style":null/);
+ assert.equal((await post('/admin/settings/song-overlay',{style:'halloween'},cookie)).status,200);
+ assert.match(new TextDecoder().decode((await reader.read()).value),/"style":"halloween"/);
+ assert.equal(getConfigValue('song_overlay_style'),'halloween');
+ assert.equal((await post('/admin/settings/song-overlay',{style:'bad'},cookie)).status,400);
+ const reconnect=await fetch(base+'/overlay/style/events',{signal:controller.signal});
+ assert.match(new TextDecoder().decode((await reconnect.body.getReader().read()).value),/"style":"halloween"/);
+ assert.equal((await post('/admin/settings/song-overlay',{style:'classic'},cookie)).status,200);
+ assert.match(new TextDecoder().decode((await reader.read()).value),/"style":"classic"/);
+ controller.abort();
+});

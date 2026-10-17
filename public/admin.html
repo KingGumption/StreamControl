@@ -489,6 +489,7 @@
         state.presets = json.presets || {};
         state.roles = json.roles || {};
         state.settings = json.settings || { allowExplicitTracks: false };
+        if (overlayVariants.some(v => v.id === state.settings.songOverlayStyle)) { variantSelect.value = state.settings.songOverlayStyle; updateOverlayVariant(); }
         state.overrides = (state.config.overrides || []).slice();
         render();
       }
@@ -739,16 +740,33 @@
       function updateOverlayVariant() {
         const variant = overlayVariants.find(v => v.id === variantSelect.value) || overlayVariants[0];
         const url = new URL('/overlay', location.origin);
-        if (variant.theme) url.searchParams.set('theme', variant.theme);
         overlayUrl = url.href;
+        if (variant.theme) url.searchParams.set('theme', variant.theme);
         document.getElementById('overlayUrl').value = overlayUrl;
-        document.getElementById('songOverlayDescription').textContent = variant.description + ' Copy the URL into OBS when changing styles. Your selection is remembered in this browser.';
+        document.getElementById('songOverlayDescription').textContent = variant.description + ' Changes save automatically and update open OBS overlays. Use this permanent URL in OBS; no URL changes are needed after setup.';
         url.searchParams.set('preview', '1');
         url.searchParams.set('duration', '20000');
         document.getElementById('overlayPreview').src = url.href;
         try { localStorage.setItem('song-overlay-variant', variant.id); } catch {}
       }
-      variantSelect.addEventListener('change', updateOverlayVariant);
+      variantSelect.addEventListener('change', async () => {
+        const previous = state.settings.songOverlayStyle;
+        variantSelect.disabled = true;
+        const message = document.getElementById('overlayMessage');
+        message.textContent = 'Updating OBS overlays…';
+        try {
+          const response = await fetch('/admin/settings/song-overlay', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({style:variantSelect.value})});
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save overlay style');
+          state.settings.songOverlayStyle = result.style;
+          updateOverlayVariant();
+          message.textContent = 'Saved. Connected OBS overlays update automatically.';
+        } catch(error) {
+          variantSelect.value = previous || 'classic';
+          updateOverlayVariant();
+          message.textContent = error.message;
+        } finally { variantSelect.disabled = false; }
+      });
       document.getElementById('replayOverlay').addEventListener('click', updateOverlayVariant);
       updateOverlayVariant();
       new ResizeObserver(([entry]) => {

@@ -37,6 +37,7 @@ const { appConfig } = require('./app-config');
 const { createAdminAuth } = require('./admin-auth');
 const {
   getRuntimeSettings,
+  getSongOverlayStyle, setSongOverlayStyle, subscribeSongOverlayStyle,
   setAllowExplicitTracks,
   setSongRequestsEnabled,
   getHillGameTimings,
@@ -389,6 +390,10 @@ router.get('/config', (req, res) => {
   });
 });
 
+router.post('/settings/song-overlay', (req,res) => {
+  try { res.json({ok:true,style:setSongOverlayStyle(req.body.style)}); }
+  catch(error) { res.status(400).json({ok:false,message:error.message}); }
+});
 router.post('/settings/explicit-tracks', (req, res) => {
   if (typeof req.body?.allowExplicitTracks !== 'boolean') {
     res.status(400).json({ ok: false, message: 'allowExplicitTracks must be true or false' });
@@ -647,6 +652,7 @@ app.get('/king-of-the-hill/art/:group/:entry.svg', (req, res) => {
   }
   res.type('image/svg+xml').set('Cache-Control', 'public, max-age=86400').send(svg);
 });
+app.get('/overlay/style/events', (req,res) => streamEvents(req,res,{name:'song-style',subscribe:subscribeSongOverlayStyle,initial:()=>({style:getSongOverlayStyle()})}));
 app.get('/overlay/events', (req,res) => streamEvents(req,res,{name:'song-added',subscribe:fn=>overlayEvents.subscribe(fn)}));
 app.get('/overlay/avatar/twitch/:username', async (req, res) => {
   const avatarUrl = await resolveTwitchAvatar(req.params.username);

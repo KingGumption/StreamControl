@@ -432,6 +432,15 @@
       if (params.get('preview') === '1') {
         enqueue({username:'SampleViewer', platform:'preview', profileImageUrl:'', track:{name:document.documentElement.dataset.theme === 'halloween' ? 'Somebody’s Watching Me' : 'Your favourite song', artists:['Sample artist']}});
       } else {
+        const styles = new EventSource('/overlay/style/events');
+        styles.addEventListener('song-style', event => {
+          try {
+            const {style} = JSON.parse(event.data);
+            if (!['classic','halloween','ghost','slime'].includes(style)) return;
+            if (style === 'classic') delete document.documentElement.dataset.theme;
+            else document.documentElement.dataset.theme = style;
+          } catch { /* Keep the current style if a settings event is malformed. */ }
+        });
         const events = new EventSource('/overlay/events');
         events.addEventListener('song-added', (event) => {
           try { enqueue(JSON.parse(event.data)); } catch { /* Ignore malformed events. */ }

@@ -1,6 +1,18 @@
 const { appConfig } = require('./app-config');
 const { getConfigValue, setConfigValue } = require('./db');
 
+const songStyleEvents = new (require('node:events').EventEmitter)();
+songStyleEvents.setMaxListeners(100);
+const SONG_OVERLAY_STYLES = ['classic', 'halloween', 'ghost', 'slime'];
+function getSongOverlayStyle() { const value = getConfigValue('song_overlay_style', null); return SONG_OVERLAY_STYLES.includes(value) ? value : null; }
+function setSongOverlayStyle(value) {
+  if (!SONG_OVERLAY_STYLES.includes(value)) throw new TypeError('Unknown overlay style');
+  setConfigValue('song_overlay_style', value);
+  songStyleEvents.emit('style', {style:value});
+  return value;
+}
+function subscribeSongOverlayStyle(fn) { songStyleEvents.on('style', fn); return () => songStyleEvents.off('style', fn); }
+
 const ALLOW_EXPLICIT_KEY = 'spotify_allow_explicit_tracks';
 const SONG_REQUESTS_ENABLED_KEY = 'song_requests_enabled';
 const HILL_GAME_TIMINGS_KEY = 'hill_game_timings';
@@ -99,12 +111,14 @@ function requiredTiming(value, minimum, maximum, name) {
 
 function getRuntimeSettings() {
   return {
+    songOverlayStyle: getSongOverlayStyle(),
     allowExplicitTracks: allowExplicitTracks(),
     songRequestsEnabled: songRequestsEnabled(),
   };
 }
 
 module.exports = {
+  getSongOverlayStyle, setSongOverlayStyle, subscribeSongOverlayStyle,
   ALLOW_EXPLICIT_KEY,
   SONG_REQUESTS_ENABLED_KEY,
   HILL_GAME_TIMINGS_KEY,
