@@ -8,9 +8,11 @@ const {
   addSongRequest,
   getLastAcceptedSongRequest,
   hasAcceptedTrack,
+  getSongRequest,
+  deleteSongRequest,
 } = require('./db');
 
-const SUPPORTED_COMMANDS = new Set(['song', 'playlist', 'songlast']);
+const SUPPORTED_COMMANDS = new Set(['song', 'playlist', 'songlast', 'skip', 'songremove']);
 
 class CooldownManager {
   constructor({ userSeconds = 5, globalSeconds = 1, now = () => Date.now() } = {}) {
@@ -41,7 +43,7 @@ class CommandService {
     config = appConfig,
     spotify = spotifyApi,
     loadPermissions = getLiveConfig,
-    history = { addSongRequest, getLastAcceptedSongRequest, hasAcceptedTrack },
+    history = { addSongRequest, getLastAcceptedSongRequest, hasAcceptedTrack, getSongRequest, deleteSongRequest },
     cooldowns = new CooldownManager({
       userSeconds: config.cooldowns.userSeconds,
       globalSeconds: config.cooldowns.globalSeconds,
@@ -49,6 +51,7 @@ class CommandService {
     notifications = overlayEvents,
     areSongRequestsEnabled = songRequestsEnabled,
   } = {}) {
+    this.controlBusy = false;
     this.config = config;
     this.spotify = spotify;
     this.loadPermissions = loadPermissions;
@@ -74,9 +77,39 @@ class CommandService {
       return handled(`@${event.user.username}, you don't have access to !${parsed.command}.`, 'denied');
     }
 
+    if (['skip', 'songremove'].includes(parsed.command)) return this.control(event, parsed);
     if (parsed.command === 'playlist') return this.playlist(event);
     if (parsed.command === 'songlast') return this.songLast(event);
     return this.song(event, parsed.args);
+  }
+
+  async control(event, { command, args }) {
+    if ((command === 'skip' && args.trim()) || (command === 'songremove' && args.trim() && !/^[1-9]\d*$/.test(args.trim()))) {
+      return handled(command === 'skip' ? 'Use !skip to skip the current song.' : 'Use !songremove for the latest request, or !songremove REQUEST_ID.', 'usage');
+    }
+    if (this.controlBusy) return handled('A song control is already in progress. Please try again shortly.', 'busy');
+    const wait = this.cooldowns.consume(event);
+    if (wait) return handled('@' + event.user.username + ', please wait ' + wait + 's before another song command.', 'cooldown');
+    this.controlBusy = true;
+    try {
+      if (command === 'skip') {
+        if (this.config.dryRun) return handled('Dry run: would skip the currently playing song.', 'dry-run');
+        const device = await this.spotify.getActivePlaybackDevice();
+        await this.spotify.skipTrack(device.id);
+        return handled('@' + event.user.username + ', skipped to the next song.', 'ok');
+      }
+      const request = args.trim() ? this.history.getSongRequest(args.trim()) : this.history.getLastAcceptedSongRequest();
+      if (!request) return handled('No matching song request was found.', 'not-found');
+      if (this.config.dryRun) return handled('Dry run: would remove request #' + request.id + ' (' + request.track_name + ').', 'dry-run');
+      const added = ['accepted', 'partial'].includes(request.status);
+      if (added) await this.spotify.removeTrackFromPlaylist(request.spotify_uri);
+      this.history.deleteSongRequest(request.id);
+      return handled('Removed request #' + request.id + ' (' + request.track_name + ') from ' + (added ? 'the playlist and request history. If already queued, it remains in Spotify’s playback queue; use !skip when it plays.' : 'request history.'), 'ok');
+    } catch (error) {
+      return handled(userSafeError(event.user.username, error.code || (error.name === 'SpotifyAuthError' ? 'spotify-not-connected' : 'request-failed'), error.retryAfter), 'error');
+    } finally {
+      this.controlBusy = false;
+    }
   }
 
   playlist(event) {

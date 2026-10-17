@@ -145,6 +145,16 @@ class SpotifyApiClient {
     return device;
   }
 
+  async skipTrack(deviceId) {
+    this.assertQueuePermission();
+    const params = new URLSearchParams();
+    if (deviceId) params.set('device_id', deviceId);
+    return this.request('/me/player/next' + (params.size ? '?' + params : ''), {
+      method: 'POST',
+      errorCodes: { 403: 'queue-forbidden', 404: 'queue-no-active-device' },
+    });
+  }
+
   async addTrackToQueue(trackUri, deviceId) {
     this.assertQueuePermission();
     const params = new URLSearchParams({ uri: trackUri });

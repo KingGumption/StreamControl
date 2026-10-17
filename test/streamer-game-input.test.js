@@ -6,7 +6,7 @@ const payload=(text,source='Twitch',meta={isMe:true})=>({event:{source,type:sour
 test('self messages accept the entire game input vocabulary without granting roles',()=>{
  for(const source of ['Twitch','YouTube']){
   for(const text of ['1','3','4','5','50','99','100','one','two','three',' pass ','ATTACK','defend','heal'])assert.equal(normalizeStreamerBotEvent(payload(text,source)).text,text.trim());
-  for(const text of ['0','101','1000','hello','!song loop','Britain wins!'])assert.equal(normalizeStreamerBotEvent(payload(text,source)),null);
+  for(const text of ['0','101','1000','hello','Britain wins!'])assert.equal(normalizeStreamerBotEvent(payload(text,source)),null);
   assert.equal(normalizeStreamerBotEvent(payload('50',source,{isMe:true,internal:true})),null);
   const p=payload('50',source);delete p.data.user.isBroadcaster;assert.equal(normalizeStreamerBotEvent(p).user.roles.includes('broadcaster'),false);
  }

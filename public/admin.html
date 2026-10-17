@@ -276,6 +276,7 @@
       <div class="grid">
         <section class="panel" id="permissionsSection">
           <h2>Permissions</h2>
+          <p class="muted"><strong>!skip</strong> skips the current song. <strong>!songremove</strong> removes the latest request; add a request ID to choose one. Removal affects the playlist and history, not songs already in Spotify’s playback queue. Both commands default to owner and moderators.</p>
           <div id="commandList"></div>
           <div class="toolbar">
             <button class="primary" id="savePermissions">Save</button>
@@ -442,7 +443,7 @@
           requests.forEach((request) => {
             const row = document.createElement('tr');
             const values = [
-              formatTime(request.timestamp),
+              `#${request.id} · ${formatTime(request.timestamp)}`,
               request.platform,
               request.username,
               request.track_name

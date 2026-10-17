@@ -9,7 +9,11 @@ function parseJson(value) {
 }
 
 // Streamer.bot also marks the broadcaster's own chat as isMe. Permit game
-// inputs while still suppressing application replies and unrelated self commands.
+// inputs and recognised broadcaster song commands while suppressing application replies.
+function isSongCommand(text) {
+  return /^!(?:song|playlist|songlast|skip|songremove)(?:\s|$)/i.test(text.trim());
+}
+
 function isGameInput(text) {
   return /^(?:!join|(?:[1-9]\d?|100)|one|two|three|pass|attack|defend|heal|!quiz\s+(?:join|[a-d1-4])|!(?:launch|start|next|stop|games)(?:\s+[\w-]+)?)$/i.test(text.trim());
 }
@@ -29,7 +33,7 @@ function normalizeStreamerBotEvent(value) {
 
 function normalizeTwitch(data) {
   if (data.meta?.internal === true) return null;
-  if (data.meta?.isMe === true && !isGameInput(messageText(data))) return null;
+
   const user = data.user || {};
   const broadcaster = data.broadcaster || {};
   const id = stringFirst(user.id, data.userId);
@@ -59,12 +63,13 @@ function normalizeTwitch(data) {
   if (badgeNames.has('subscriber') || user.subscribed === true || user.isSubscriber === true) roles.push('subscriber');
   // Twitch ChatMessage does not reliably include follower status, so it is not inferred.
 
+  if (data.meta?.isMe === true && !isGameInput(text) && !(roles.includes('broadcaster') && isSongCommand(text))) return null;
   return chatEvent('twitch', id, username, roles, text, data.messageId, profileImageUrl, stringFirst(user.displayName, user.name, data.displayName, data.userName, username));
 }
 
 function normalizeYouTube(data) {
   if (data.meta?.internal === true) return null;
-  if (data.meta?.isMe === true && !isGameInput(messageText(data))) return null;
+
   const user = data.user || data.author || {};
   const broadcaster = data.broadcaster || {};
   const id = stringFirst(user.id, user.userId, user.channelId, data.userId);
@@ -90,6 +95,7 @@ function normalizeYouTube(data) {
   if (explicitTrue(data, user, ['isSubscriber'])) roles.push('subscriber');
   if (explicitTrue(data, user, ['isViewer'])) roles.push('viewer');
 
+  if (data.meta?.isMe === true && !isGameInput(text) && !(roles.includes('broadcaster') && isSongCommand(text))) return null;
   return chatEvent('youtube', id, username, roles, text, data.messageId || data.id, profileImageUrl);
 }
 
