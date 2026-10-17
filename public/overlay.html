@@ -429,10 +429,14 @@
         timer = setTimeout(showNext, 850);
       }
 
-      const events = new EventSource('/overlay/events');
-      events.addEventListener('song-added', (event) => {
-        try { enqueue(JSON.parse(event.data)); } catch { /* Ignore malformed events. */ }
-      });
+      if (params.get('preview') === '1') {
+        enqueue({username:'SampleViewer', platform:'preview', profileImageUrl:'', track:{name:document.documentElement.dataset.theme === 'halloween' ? 'Somebody’s Watching Me' : 'Your favourite song', artists:['Sample artist']}});
+      } else {
+        const events = new EventSource('/overlay/events');
+        events.addEventListener('song-added', (event) => {
+          try { enqueue(JSON.parse(event.data)); } catch { /* Ignore malformed events. */ }
+        });
+      }
     </script>
   </body>
 </html>

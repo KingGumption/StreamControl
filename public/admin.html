@@ -149,6 +149,8 @@
         background-image: linear-gradient(45deg, #303b44 25%, transparent 25%), linear-gradient(-45deg, #303b44 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #303b44 75%), linear-gradient(-45deg, transparent 75%, #303b44 75%);
         background-size: 24px 24px; background-position: 0 0, 0 12px, 12px -12px, -12px 0;
       }
+      .overlay-preview-stage { position:relative; aspect-ratio:16/9; overflow:hidden; border-radius:9px; }
+      .overlay-preview-stage .overlay-preview { position:absolute; inset:0; width:1920px; height:1080px; transform-origin:top left; }
       .requests-scroll { max-height: 360px; overflow: auto; margin-top: 12px; }
       .requests-scroll table { margin-top: 0; }
       .requests-scroll thead th {
@@ -341,18 +343,22 @@
         <div class="overlay-layout">
           <div>
             <h2>Song Added Overlay</h2>
+            <label for="songOverlayVariant">Overlay style</label>
+            <select id="songOverlayVariant"></select>
+            <p class="muted" id="songOverlayDescription"></p>
             <p class="muted">Add this URL to OBS as a 1920 × 1080 Browser Source. It slides in whenever a request is added to Spotify.</p>
             <div class="overlay-url">
               <input id="overlayUrl" type="text" readonly aria-label="OBS overlay URL" />
               <button type="button" class="secondary" id="copyOverlayUrl">Copy</button>
             </div>
             <div class="toolbar">
-              <button type="button" class="primary" id="previewOverlay">Send preview</button>
+              <button type="button" class="primary" id="replayOverlay">Replay preview</button>
+              <button type="button" class="secondary" id="previewOverlay">Send live test</button>
               <button type="button" class="secondary" id="openOverlay">Open full size</button>
             </div>
             <div class="request-message" id="overlayMessage" role="status" aria-live="polite"></div>
           </div>
-          <iframe class="overlay-preview" id="overlayPreview" title="Song added overlay preview" src="/overlay?duration=5000"></iframe>
+          <div class="overlay-preview-stage" id="overlayPreviewStage"><iframe class="overlay-preview" id="overlayPreview" title="Song added overlay preview"></iframe></div>
         </div>
       </section>
 
@@ -720,8 +726,34 @@
         }
       });
 
-      const overlayUrl = `${window.location.origin}/overlay`;
-      document.getElementById('overlayUrl').value = overlayUrl;
+      let overlayUrl = `${window.location.origin}/overlay`;
+      const overlayVariants = [
+        {id:'classic', name:'Classic · KingGumption', description:'Original cyan and pink lighting with your crowned pig.', theme:''},
+        {id:'halloween', name:'Halloween · Midnight Request', description:'Pumpkin-orange glow, plum panels, cobwebs and bats.', theme:'halloween'},
+        {id:'ghost', name:'Ghost · Icy Blue', description:'Cool blue lighting and pale spectral accents.', theme:'ghost'},
+        {id:'slime', name:'Slime · Toxic Green', description:'Lime-green lighting with purple accents.', theme:'slime'},
+      ];
+      const variantSelect = document.getElementById('songOverlayVariant');
+      for (const variant of overlayVariants) variantSelect.add(new Option(variant.name, variant.id));
+      try { const saved = localStorage.getItem('song-overlay-variant'); if (overlayVariants.some(v => v.id === saved)) variantSelect.value = saved; } catch {}
+      function updateOverlayVariant() {
+        const variant = overlayVariants.find(v => v.id === variantSelect.value) || overlayVariants[0];
+        const url = new URL('/overlay', location.origin);
+        if (variant.theme) url.searchParams.set('theme', variant.theme);
+        overlayUrl = url.href;
+        document.getElementById('overlayUrl').value = overlayUrl;
+        document.getElementById('songOverlayDescription').textContent = variant.description + ' Copy the URL into OBS when changing styles. Your selection is remembered in this browser.';
+        url.searchParams.set('preview', '1');
+        url.searchParams.set('duration', '20000');
+        document.getElementById('overlayPreview').src = url.href;
+        try { localStorage.setItem('song-overlay-variant', variant.id); } catch {}
+      }
+      variantSelect.addEventListener('change', updateOverlayVariant);
+      document.getElementById('replayOverlay').addEventListener('click', updateOverlayVariant);
+      updateOverlayVariant();
+      new ResizeObserver(([entry]) => {
+        document.getElementById('overlayPreview').style.transform = `scale(${entry.contentRect.width / 1920})`;
+      }).observe(document.getElementById('overlayPreviewStage'));
 
       async function copyOverlayAddress(value, inputId, successMessage, messageId = 'overlayMessage') {
         const message = document.getElementById(messageId);
@@ -750,7 +782,7 @@
       });
 
       document.getElementById('openOverlay').addEventListener('click', () => {
-        window.open('/overlay', '_blank', 'noopener');
+        window.open(overlayUrl, '_blank', 'noopener');
       });
 
       loadConfig();
