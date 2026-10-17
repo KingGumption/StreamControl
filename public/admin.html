@@ -515,6 +515,7 @@
               row.className = 'check-row';
               const input = document.createElement('input');
               input.type = 'checkbox';
+              input.id = `${command}-${platform}-${role}`;
               input.checked = allowed.includes(role);
               input.dataset.command = command;
               input.dataset.platform = platform;
