@@ -44,7 +44,7 @@ illustrative source cover; the live integration uses the actual Spotify URL.
 - Requests received while off do not replay when re-enabled.
 - Actual playback returns after request confirmations; helper appears full-size.
 - Isolated admin preview does not call Spotify and continues to support theme design.
-- Compact layout changes the copied setup URL; style changes preserve that URL.
+- The plain /overlay URL uses the compact 570 x 125 canvas; no scene layout selector or layout parameter is needed. Theme switching preserves the plain URL.
 - Broken/missing cover collapses cleanly. Titles truncate rather than overlap.
 - 353 regression tests passed, including toggle/SSE reconnection, in-flight
   cancellation, shared polling, read-scope behavior and rate-limit backoff.

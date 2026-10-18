@@ -13,12 +13,10 @@ Partial requests are labelled **Added to playlist**, not **Added to queue**.
 
 ## OBS setup
 
-Select a style and scene layout under **Music Overlay** in the dashboard, then
-copy the URL. Existing `/overlay` sources work after one Browser Source refresh.
-
-- Camera: `/overlay`, 1920 × 1080 landscape or 1080 × 1920 portrait, upper right.
-- Gaming: `/overlay?layout=gaming`, lower left in landscape, upper right in portrait.
-- Compact: `/overlay?layout=compact`, 570 × 125; position/scale freely in OBS.
+Select a style under **Music Overlay** in the dashboard, then copy the plain
+`/overlay` URL. Use a **570 × 125 Browser Source** and position or scale it
+freely in OBS. Every source uses the compact, top-left layout; no URL layout
+parameters are needed. Existing URLs with `?layout=compact` continue to work.
 
 Style changes are saved on the server and update all connected sources without
 changing their URLs. Classic uses the original cyan/pink and dark navy, Halloween orange/plum, Ghost icy

@@ -3,8 +3,6 @@
   const params = new URLSearchParams(location.search), preview = params.get('preview') === '1';
   const root = document.getElementById('music'), content = document.getElementById('content'), effects = document.getElementById('printEffects');
   const themes = ['classic','halloween','ghost','slime'];
-  const layout = ['camera','gaming','compact'].includes(params.get('layout')) ? params.get('layout') : 'camera';
-  document.documentElement.dataset.layout = layout;
   function applyTheme(style) { if (themes.includes(style)) document.documentElement.dataset.theme = style; }
   applyTheme(params.get('theme') || 'classic');
   let enabled = false, playback = null, activeRequest = null, hint = false, currentKey = '', transitioning = false;
@@ -130,9 +128,8 @@
     hintTimer = later(() => { hint = false; hintTimer = null; nextHintAt = Date.now()+60000; reconcile(); },6620);
   }
   function resize() {
-    const scale = layout === 'compact' ? Math.min(1,innerWidth/570,innerHeight/125) : Math.min(1,(innerWidth-24)/570);
+    const scale = Math.min(1,innerWidth/570,innerHeight/125);
     root.style.transform = `scale(${scale})`;
-    root.style.marginRight = layout === 'compact' || (layout === 'gaming' && innerWidth/innerHeight >= .75) ? '' : `${570*(scale-1)}px`;
   }
   addEventListener('resize',resize); resize();
   setInterval(() => {

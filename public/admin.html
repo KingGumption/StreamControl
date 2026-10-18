@@ -344,9 +344,9 @@
           <div>
             <h2>Music Overlay</h2>
             <label for="songOverlayVariant">Overlay style</label>
-            <select id="songOverlayVariant"></select><label for="musicOverlayLayout">Scene layout</label><select id="musicOverlayLayout"><option value="camera">Camera · upper right</option><option value="gaming">Gaming · lower left (upper right in portrait)</option><option value="compact">Compact · position freely in OBS</option></select>
+            <select id="songOverlayVariant"></select>
             <p class="muted" id="songOverlayDescription"></p>
-            <p class="muted">Shows Now Playing, request confirmations and a full-size !song reminder. The entire overlay hides when Song Requests is off. Use 1920 × 1080 for landscape or 1080 × 1920 for portrait; the compact option uses 570 × 125.</p>
+            <p class="muted">Shows Now Playing, request confirmations and a full-size !song reminder. The entire overlay hides when Song Requests is off. Add a 570 × 125 Browser Source and position or scale it freely in OBS.</p>
             <div class="overlay-url">
               <input id="overlayUrl" type="text" readonly aria-label="OBS overlay URL" />
               <button type="button" class="secondary" id="copyOverlayUrl">Copy</button>
@@ -737,23 +737,16 @@
         {id:'slime', name:'Slime · Toxic Green', description:'Acid green accents, purple interference and deep forest ink.', theme:'slime'},
       ];
       const variantSelect = document.getElementById('songOverlayVariant');
-      const musicLayout = document.getElementById('musicOverlayLayout');
-      try { const savedLayout = localStorage.getItem('music-overlay-layout'); if (['camera','gaming','compact'].includes(savedLayout)) musicLayout.value = savedLayout; } catch {}
-      musicLayout.addEventListener('change',updateOverlayVariant);
       for (const variant of overlayVariants) variantSelect.add(new Option(variant.name, variant.id));
       try { const saved = localStorage.getItem('song-overlay-variant'); if (overlayVariants.some(v => v.id === saved)) variantSelect.value = saved; } catch {}
       function updateOverlayVariant() {
         const variant = overlayVariants.find(v => v.id === variantSelect.value) || overlayVariants[0];
         const url = new URL('/overlay', location.origin);
-        if (musicLayout.value !== 'camera') url.searchParams.set('layout',musicLayout.value);
         overlayUrl = url.href;
-        try { localStorage.setItem('music-overlay-layout',musicLayout.value); } catch {}
         if (variant.theme) url.searchParams.set('theme', variant.theme);
         document.getElementById('overlayUrl').value = overlayUrl;
         document.getElementById('songOverlayDescription').textContent = variant.description + ' Changes save automatically and update open OBS overlays. Use this permanent URL in OBS; no URL changes are needed after setup.';
         url.searchParams.set('preview', '1');
-        url.searchParams.set('layout', 'compact');
-        url.searchParams.set('duration', '20000');
         document.getElementById('overlayPreview').src = url.href;
         document.getElementById('previewOverlay').disabled = !state.settings.songRequestsEnabled;
         try { localStorage.setItem('song-overlay-variant', variant.id); } catch {}
