@@ -21,7 +21,7 @@ copy the URL. Existing `/overlay` sources work after one Browser Source refresh.
 - Compact: `/overlay?layout=compact`, 570 × 125; position/scale freely in OBS.
 
 Style changes are saved on the server and update all connected sources without
-changing their URLs. Classic uses olive/ivory, Halloween orange/plum, Ghost icy
+changing their URLs. Classic uses the original cyan/pink and dark navy, Halloween orange/plum, Ghost icy
 blue, and Slime acid green/purple. These are restrained colour variants of the
 same print transition. Artwork retains its original colours outside transitions.
 

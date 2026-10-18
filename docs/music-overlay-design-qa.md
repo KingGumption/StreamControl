@@ -21,7 +21,7 @@ illustrative source cover; the live integration uses the actual Spotify URL.
   and truncation. Full-size request prompt uses the approved 36px command.
 - Spacing: 570 x 125 footprint, 88px cover, 18px gap, slim divider and consistent
   padding. No extra persistent panel was added to the scene.
-- Tokens: classic olive/ivory retained. Halloween orange/plum, Ghost ice blue,
+- Tokens: Classic restored to the original cyan/pink/navy at the explicit user request. Halloween orange/plum, Ghost ice blue,
   Slime acid green/purple use the same restrained geometry and transition.
 - Images: real Spotify artwork for live events; supplied stinger texture reused.
   Preview art is a local sample image. No mascot or fabricated live album art.
