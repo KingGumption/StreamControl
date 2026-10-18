@@ -4,7 +4,7 @@ const artManifest = require('../public/hill-art-official/manifest.json');
 
 const { app } = require('../src/admin');
 
-test('serves the transparent overlay, mascot asset, and preview trigger', async (t) => {
+test('serves the transparent music overlay, assets, and preview trigger', async (t) => {
   const server = app.listen(0, '127.0.0.1');
   await new Promise((resolve, reject) => {
     server.once('listening', resolve);
@@ -20,7 +20,12 @@ test('serves the transparent overlay, mascot asset, and preview trigger', async 
 
   const overlay = await fetch(`${base}/overlay`);
   assert.equal(overlay.status, 200);
-  assert.match(await overlay.text(), /new EventSource\('\/overlay\/events'\)/);
+  assert.match(await overlay.text(), /\/assets\/music-overlay.js/);
+  const musicScript = await fetch(`${base}/assets/music-overlay.js`);
+  assert.equal(musicScript.status, 200);
+  const musicSource = await musicScript.text();
+  assert.match(musicSource, /new EventSource\('\/overlay\/events'\)/);
+  assert.match(musicSource, /new EventSource\('\/overlay\/music\/events'\)/);
 
   const mascot = await fetch(`${base}/assets/pig-frame-crowned-v2.png`);
   assert.equal(mascot.status, 200);

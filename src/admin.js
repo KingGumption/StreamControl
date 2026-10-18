@@ -27,6 +27,7 @@ const { getConnectionStatuses } = require('./connection-status');
 const { spotifyAuth } = require('./spotify-auth');
 const { spotifyApi } = require('./spotify-api');
 const { overlayEvents } = require('./overlay-events');
+const { musicOverlay } = require('./music-overlay');
 const { resolveTwitchAvatar } = require('./avatar-resolver');
 const { hillGame } = require('./hill-game');
 const { quizGame } = require('./quiz-game');
@@ -282,6 +283,7 @@ router.post('/polaroid/redeem', async (req, res) => {
 });
 
 router.post('/overlay/preview', (req, res) => {
+  if (!getRuntimeSettings().songRequestsEnabled) return res.status(409).json({ok:false,message:'Turn on Song Requests before sending a live overlay test.'});
   const last = getLastAcceptedSongRequest();
   const payload = overlayEvents.publishSongAdded({
     requestId: last?.id,
@@ -653,7 +655,10 @@ app.get('/king-of-the-hill/art/:group/:entry.svg', (req, res) => {
   res.type('image/svg+xml').set('Cache-Control', 'public, max-age=86400').send(svg);
 });
 app.get('/overlay/style/events', (req,res) => streamEvents(req,res,{name:'song-style',subscribe:subscribeSongOverlayStyle,initial:()=>({style:getSongOverlayStyle()})}));
-app.get('/overlay/events', (req,res) => streamEvents(req,res,{name:'song-added',subscribe:fn=>overlayEvents.subscribe(fn)}));
+app.get('/overlay/music/events', (req,res) => streamEvents(req,res,{name:'music-state',subscribe:fn=>musicOverlay.subscribe(fn),initial:()=>musicOverlay.state()}));
+app.get('/overlay/events', (req,res) => streamEvents(req,res,{name:'song-added',subscribe:fn=>overlayEvents.subscribe(payload=>{
+  if (getRuntimeSettings().songRequestsEnabled) fn({...payload,queueEnabled:appConfig.spotify.queueEnabled});
+})}));
 app.get('/overlay/avatar/twitch/:username', async (req, res) => {
   const avatarUrl = await resolveTwitchAvatar(req.params.username);
   if (!avatarUrl) {

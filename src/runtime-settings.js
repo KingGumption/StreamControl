@@ -42,6 +42,8 @@ function setAllowExplicitTracks(value) {
   return value;
 }
 
+function subscribeSongRequestsEnabled(fn) { songStyleEvents.on('enabled', fn); return () => songStyleEvents.off('enabled', fn); }
+
 function songRequestsEnabled() {
   const stored = getConfigValue(SONG_REQUESTS_ENABLED_KEY, true);
   return typeof stored === 'boolean' ? stored : true;
@@ -52,6 +54,7 @@ function setSongRequestsEnabled(value) {
     throw new TypeError('songRequestsEnabled must be a boolean');
   }
   setConfigValue(SONG_REQUESTS_ENABLED_KEY, value);
+  songStyleEvents.emit('enabled', value);
   return value;
 }
 
@@ -128,7 +131,7 @@ module.exports = {
   allowExplicitTracks,
   spotifyCleanOnly,
   setAllowExplicitTracks,
-  songRequestsEnabled,
+  songRequestsEnabled, subscribeSongRequestsEnabled,
   setSongRequestsEnabled,
   getHillGameTimings,
   setHillGameTimings,

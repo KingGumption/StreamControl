@@ -129,6 +129,13 @@ class SpotifyApiClient {
     }
   }
 
+  async getPlaybackState() {
+    if (typeof this.auth.hasScope === 'function' && !this.auth.hasScope('user-read-playback-state')) {
+      throw new SpotifyApiError('Spotify playback permission has not been approved', { code: 'queue-permission-missing' });
+    }
+    return this.request('/me/player', { errorCodes: { 403: 'queue-forbidden' } });
+  }
+
   async getActivePlaybackDevice() {
     this.assertQueuePermission();
     const data = await this.request('/me/player/devices', {

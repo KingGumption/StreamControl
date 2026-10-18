@@ -1,0 +1,20 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'music-routes-'));process.env.APP_MODE='cloud';process.env.PUBLIC_BASE_URL='https://stream.example.test';process.env.ADMIN_PASSWORD='music-owner-test-password';
+const {spotifyApi}=require('../src/spotify-api');spotifyApi.getPlaybackState=async()=>null;
+const {app}=require('../src/admin'),{db}=require('../src/db');
+test('live music state follows toggle, reconnect preserves off, and disabled live tests are rejected',async t=>{
+ const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const base=`http://127.0.0.1:${server.address().port}`;
+ const controller=new AbortController();t.after(()=>{controller.abort();server.closeAllConnections();server.close();db.close();});
+ const post=(route,body,cookie)=>fetch(base+route,{method:'POST',redirect:'manual',headers:{Origin:'https://stream.example.test','Content-Type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify(body)});
+ const login=await post('/admin/login',{username:'owner',password:process.env.ADMIN_PASSWORD});assert.equal(login.status,302);const cookie=login.headers.get('set-cookie').split(';')[0];
+ const readState=async(reader,match)=>{let output='';for(let i=0;i<12;i++){output+=new TextDecoder().decode((await reader.read()).value);if(match.test(output))return output;}throw Error('State missing: '+output);};
+ const feed=await fetch(base+'/overlay/music/events',{signal:controller.signal});const reader=feed.body.getReader();await readState(reader,/"enabled":true/);
+ assert.equal((await post('/admin/settings/song-requests',{songRequestsEnabled:false},cookie)).status,200);
+ assert.match(await readState(reader,/"enabled":false/),/"playback":null/);
+ const reconnect=await fetch(base+'/overlay/music/events',{signal:controller.signal});await readState(reconnect.body.getReader(),/"enabled":false/);
+ assert.equal((await post('/admin/overlay/preview',{},cookie)).status,409);
+ assert.equal((await post('/admin/settings/song-overlay',{style:'ghost'},cookie)).status,200);await readState(reader,/"style":"ghost"/);
+ assert.equal((await post('/admin/settings/song-requests',{songRequestsEnabled:true},cookie)).status,200);await readState(reader,/"enabled":true/);
+ assert.equal((await post('/admin/overlay/preview',{},cookie)).status,200);
+ const overlay=await fetch(base+'/overlay');assert.match(await overlay.text(),/music-overlay.js/);
+});
