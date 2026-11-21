@@ -155,8 +155,11 @@ router.use((req,res,next) => {
 router.get('/dashboard',(_,res)=>res.set('Cache-Control','no-store').sendFile(path.join(__dirname,'../public/home.html')));
 router.get('/dashboard/state',(_,res)=>{
   const settings=getRuntimeSettings(), theme=require('./db').getConfigValue('graphics_settings',{}).theme||null;
-  const requests=listSongRequests(5).map(r=>({platform:r.platform,username:r.username,track:r.track_name||r.query,artist:r.artists,status:r.status,at:r.timestamp}));
-  res.set('Cache-Control','no-store').json({connections:getConnectionStatuses(),requests,theme,songRequestsEnabled:settings.songRequestsEnabled,
+  const requests=listSongRequests(5).map(r=>({platform:r.platform,username:r.username,track:r.track_name||r.query,artist:r.artists,status:r.status,
+    at:/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(r.timestamp)?r.timestamp.replace(' ','T')+'Z':r.timestamp}));
+  const statuses=getConnectionStatuses();
+  const connections=Object.fromEntries(['spotify','streamerbot','tikfinity','connector'].flatMap(k=>statuses[k]?[[k,{state:statuses[k].state,detail:statuses[k].detail}]]:[]));
+  res.set('Cache-Control','no-store').json({connections,requests,theme,songRequestsEnabled:settings.songRequestsEnabled,
     queueEnabled:appConfig.spotify.queueEnabled,duplicateSongCooldownMinutes:settings.duplicateSongCooldownMinutes??null,game:gameLauncher.active()});
 });
 router.get('/status', (req, res) => {

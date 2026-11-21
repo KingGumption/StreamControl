@@ -4,7 +4,9 @@
   const root = document.getElementById('music'), content = document.getElementById('content'), effects = document.getElementById('printEffects');
   let graphicTheme=null;
   const applyGraphics=state=>{
-    graphicTheme=({vicecity:'vicecity',classic:'classic',spooktober:'spooktober'})[state.theme]||null;
+    const style=state.spotifyStyle && state.spotifyStyle!=='stream' ? state.spotifyStyle : state.theme;
+    // Explicitly choosing “Follow stream” clears an old Spotify-only override.
+    graphicTheme=['classic','halloween','ghost','slime','spooktober','vicecity'].includes(style) ? style : state.spotifyStyle==='stream' ? 'classic' : null;
     if(graphicTheme) document.documentElement.dataset.theme=graphicTheme;
     if(Number.isInteger(state.transparency))root.style.opacity=String(1-state.transparency/100);
   };

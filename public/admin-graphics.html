@@ -11,7 +11,7 @@
 .gfx-heading p,.gfx-library>p{margin-top:.45rem;color:var(--muted,#b4bdca)}
 .gfx-controls{margin:1.8rem 0 2.5rem;padding:clamp(16px,2.5vw,26px);border:1px solid var(--border,#394251);border-radius:16px;background:var(--panel,#191e27)}
 .gfx-controls h2,.gfx-library h2{font-size:1.35rem;line-height:1.2;letter-spacing:-.03em}
-.gfx-form{display:grid;grid-template-columns:minmax(140px,1fr) minmax(210px,1.4fr) auto;gap:clamp(18px,3vw,40px);align-items:center;border:0;margin:18px 0 0;padding:0;min-width:0}
+.gfx-form{display:grid;grid-template-columns:minmax(140px,420px) auto;justify-content:start;gap:clamp(18px,3vw,40px);align-items:center;border:0;margin:18px 0 0;padding:0;min-width:0}
 .gfx-field{min-width:0;display:grid;gap:5px}.gfx-field label{font-weight:650;font-size:.91rem}.gfx-field output{float:right;color:var(--accent,#f7c894);font-variant-numeric:tabular-nums}
 .gfx-field select{width:100%;font:inherit;min-height:42px}
 .gfx-field input[type=range]{width:100%;min-height:22px;margin:0;padding:0;accent-color:var(--accent,#f7c894);cursor:pointer}
@@ -36,6 +36,7 @@
 .gfx-workspace :focus-visible{outline:3px solid var(--accent,#f7c894);outline-offset:3px}
 @media(max-width:720px){.gfx-form{grid-template-columns:1fr 1fr;gap:16px}.gfx-grid{grid-template-columns:1fr}.gfx-btn.gfx-primary{grid-column:1/-1}.gfx-stage{height:180px}}
 @media(max-width:440px){.gfx-form{grid-template-columns:1fr}.gfx-card{padding:12px}.gfx-heading p{font-size:.94rem}.gfx-card-top{align-items:flex-start}}
+.spotify-layout{display:grid;grid-template-columns:minmax(190px,0.86fr) minmax(0,1.14fr);gap:24px;margin:18px 0}.spotify-fields{border:0;padding:0;margin:0 0 8px;display:grid;gap:12px}.spotify-stage{width:100%;max-width:570px;aspect-ratio:570/125;overflow:hidden;border-radius:8px;background:repeating-conic-gradient(#303440 0 25%,#252933 0 50%) 0/20px 20px}.spotify-stage iframe{width:100%;height:100%;border:0;display:block;background:transparent}.spotify-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}.spotify-actions input{flex:1;min-width:150px}.gfx-workspace #spotify>label{font-weight:650}.gfx-workspace #spotify p{margin-top:6px}@media(max-width:720px){.spotify-layout{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script></head>
 <body class="engagement-site">
@@ -45,7 +46,6 @@
 <h2 id="settings-heading">Stream appearance</h2>
 <fieldset id="controls" class="gfx-form" aria-labelledby="settings-heading" disabled>
 <div class="gfx-field"><label for="theme">Overall theme</label><select id="theme"><option value="classic">Classic</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></select></div>
-<div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Opaque</span></div></div>
 <button class="gfx-btn gfx-primary" id="save" type="button" disabled>Apply to stream</button>
 </fieldset>
 <div class="gfx-footer"><output id="status" role="status">Loading settings…</output><button type="button" id="discard" class="gfx-link" hidden>Discard changes</button><button id="reload" class="gfx-link" type="button" hidden>Reload settings</button></div>
@@ -53,22 +53,43 @@
 <section class="gfx-library" aria-labelledby="library-heading"><div class="gfx-library-heading"><h2 id="library-heading">Source previews</h2><span id="count" class="gfx-count" hidden></span></div>
 <p>Samples use the selected theme. Current URLs include the alert details supplied by OBS.</p>
 <div class="gfx-grid" id="gallery"></div></section>
+<section id="spotify" class="gfx-controls" aria-labelledby="spotify-heading">
+<h2 id="spotify-heading">Spotify overlay</h2><p class="gfx-state">Now playing, viewer requests and the !song reminder. Use a 570 × 125 browser source in OBS.</p>
+<div class="spotify-layout"><div>
+<fieldset id="spotify-controls" class="spotify-fields" disabled aria-labelledby="spotify-heading">
+<div class="gfx-field"><label for="spotify-style">Spotify palette</label><select id="spotify-style"><option value="stream">Follow stream theme</option><optgroup label="Spotify-only override"><option value="classic">Classic · KingGumption</option><option value="halloween">Halloween · Midnight Request</option><option value="ghost">Ghost · Icy Blue</option><option value="slime">Slime · Toxic Green</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></optgroup></select></div>
+<div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Opaque</span></div></div>
+<div><button type="button" id="spotify-save" class="gfx-btn gfx-primary">Save Spotify settings</button> <button id="spotify-discard" type="button" class="gfx-link" hidden>Discard</button></div>
+</fieldset><output class="gfx-state" id="spotify-status" role="status"></output>
+</div><div>
+<div class="spotify-stage"><iframe title="Private Spotify overlay preview" id="spotify-frame" src="/overlay?preview=1"></iframe></div>
+<div class="spotify-actions"><button class="gfx-btn" type="button" id="spotify-replay">Replay sample</button> <button class="gfx-btn" type="button" id="spotify-test" disabled>Send live test</button></div>
+<p class="gfx-state" id="spotify-test-help">A live test appears in all connected OBS overlays.</p>
+</div></div>
+<label for="spotify-url">OBS browser source URL</label>
+<div class="spotify-actions"><input id="spotify-url" type="text" readonly><button class="gfx-btn" type="button" id="spotify-copy">Copy URL</button><a href="/overlay" target="_blank" rel="noopener">Open full size ↗</a></div>
+<output class="gfx-state" id="spotify-message" role="status"></output>
+</section>
 </main>
 <script>
 (() => {
  const el = id => document.getElementById(id);
- const draft = () => ({theme:el('theme').value,transparency:100-Number(el('slider').value)});
+ const draft = () => ({theme:el('theme').value});
+ const spotifyDraft = () => ({spotifyStyle:el('spotify-style').value,transparency:100-Number(el('slider').value)});
+ const spotifyDirty = () => saved && (spotifyDraft().spotifyStyle!==(saved.spotifyStyle||'stream') || spotifyDraft().transparency!==saved.transparency);
  const themeLabel = v => Array.from(el('theme').options).find(o=>o.value===v)?.textContent || v;
  const stateMessage = (text,type='') => {el('status').dataset.state=type;el('status').textContent=text;};
  let saved=null, busy=false, uncertain=false;
- const dirty = () => saved && (draft().theme!==(saved.theme||'classic') || draft().transparency!==saved.transparency);
+ const dirty = () => saved && (draft().theme!==(saved.theme||'classic'));
  function updateControls(){
-   el('controls').disabled=busy||!saved||uncertain;
+   el('spotify-controls').disabled=el('controls').disabled=busy||!saved||uncertain;
+   el('spotify-save').disabled=!spotifyDirty()||busy||uncertain;el('spotify-discard').hidden=!spotifyDirty()||busy||uncertain;
    el('save').disabled=busy||uncertain||!saved||(!dirty()&&Boolean(saved.theme));
    el('discard').hidden=!dirty()||busy||uncertain;
  }
  function paintPreview(){
-   const {theme,transparency}=draft();
+   const {theme}=draft(),{transparency,spotifyStyle}=spotifyDraft();
+   el('spotify-frame').contentWindow?.postMessage({type:'graphics-preview',theme,spotifyStyle,transparency},location.origin);
    el('pct').value=(100-transparency)+'%';
    el('slider').setAttribute('aria-valuetext',(100-transparency)+'% opacity');
    for(const img of document.querySelectorAll('img[data-sample]')){
@@ -120,18 +141,35 @@
    busy=true;uncertain=false;el('reload').hidden=true;updateControls();stateMessage('Loading settings…');
    try{
      const [s,items]=await Promise.all([json('/graphics/state'),json('/admin/graphics/catalog')]);
-     saved=s;el('theme').value=s.theme||'classic';el('slider').value=100-s.transparency;
+     saved=s;el('theme').value=s.theme||'classic';el('slider').value=100-s.transparency;el('spotify-style').value=s.spotifyStyle||'stream';el('spotify-status').textContent='';
      el('gallery').replaceChildren();items.forEach(showSource);el('count').textContent=items.length+' sources';el('count').hidden=false;
      paintPreview();savedNote();
    }catch{uncertain=true;el('reload').hidden=false;stateMessage('Could not load the graphics workspace.','error');}
    finally{busy=false;updateControls();}
  }
- el('theme').onchange=onEdit;el('slider').oninput=onEdit;el('reload').onclick=load;
- el('discard').onclick=()=>{el('theme').value=saved.theme||'classic';el('slider').value=100-saved.transparency;paintPreview();savedNote();updateControls();el('theme').focus();};
+ el('theme').onchange=onEdit;el('reload').onclick=load;
+ const spotifyEdit=()=>{paintPreview();updateControls();el('spotify-status').textContent=spotifyDirty()?'Preview only. Save Spotify settings to update OBS.':'';};
+ el('slider').oninput=spotifyEdit;el('spotify-style').onchange=spotifyEdit;el('spotify-frame').onload=paintPreview;
+ el('spotify-discard').onclick=()=>{el('spotify-style').value=saved.spotifyStyle||'stream';el('slider').value=100-saved.transparency;spotifyEdit();};
+ el('spotify-save').onclick=async()=>{
+  busy=true;updateControls();el('spotify-status').textContent='Saving…';
+  try{const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scope:'spotify',...spotifyDraft()})});
+   saved=r.state;el('spotify-status').textContent='Spotify settings saved.';}
+  catch{uncertain=true;el('reload').hidden=false;el('spotify-status').textContent='Could not confirm the save. Reload settings to check.';}
+  finally{busy=false;updateControls()}
+ };
+ el('spotify-url').value=new URL('/overlay',location.origin).href;
+ el('spotify-copy').onclick=async()=>{try{await navigator.clipboard.writeText(el('spotify-url').value);el('spotify-message').textContent='OBS URL copied.';}catch{el('spotify-url').focus();el('spotify-url').select();el('spotify-message').textContent='URL selected. Copy it with your keyboard.';}};
+ el('spotify-replay').onclick=()=>{el('spotify-frame').src='/overlay?preview=1';};
+ let requestsEnabled=false;
+ async function refreshAvailability(){try{const s=await json('/admin/graphics/spotify-availability');requestsEnabled=s.enabled;el('spotify-test-help').textContent=requestsEnabled?'A live test appears in all connected OBS overlays.':'Live tests are unavailable while song requests are closed.';}catch{requestsEnabled=false;el('spotify-test-help').textContent='Could not check whether live tests are enabled.';}el('spotify-test').disabled=!requestsEnabled;}
+ el('spotify-test').onclick=async()=>{el('spotify-test').disabled=true;el('spotify-message').textContent='Sending live test…';try{await json('/admin/overlay/preview',{method:'POST'});el('spotify-message').textContent='Live test sent to connected overlays.';}catch(e){el('spotify-message').textContent=e.status===409?'Song requests are closed. No test was sent.':'Live test could not be confirmed.';}await refreshAvailability();};
+ refreshAvailability();addEventListener('focus',refreshAvailability);
+ el('discard').onclick=()=>{el('theme').value=saved.theme||'classic';paintPreview();savedNote();updateControls();el('theme').focus();};
  el('save').onclick=async()=>{
    const next=draft();busy=true;updateControls();stateMessage('Applying to stream…');
    try{
-     const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(next)});
+     const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scope:'theme',...next})});
      saved=r.state||next;
      stateMessage(r.pending.length?'Settings saved. Waiting for OBS or an idle source to finish updating '+r.pending.length+' '+(r.pending.length===1?'source.':'sources.'):'Applied to stream: '+themeLabel(saved.theme)+'.');
    }catch{uncertain=true;el('reload').hidden=false;stateMessage('Could not confirm whether the update was saved. Reload settings to check.','error');}

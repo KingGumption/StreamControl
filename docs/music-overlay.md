@@ -9,16 +9,16 @@ The **Song Requests** switch hides the entire live overlay immediately. Turning
 it off discards pending confirmations, cancels animations, and stops Spotify
 polling. Reopening starts fresh. Paused/unavailable Spotify playback is hidden;
 newly accepted requests can still be acknowledged while playback is unavailable.
-Partial requests are labelled **Added to playlist**, not **Added to queue**.
+A request confirmation is shown only after Spotify accepts the enqueue. A track already in the request playlist can be requested again after the per-track cooldown. Change **Song Requests → Repeat track cooldown** to adjust the wait.
 
 ## OBS setup
 
-Select a style under **Music Overlay** in the dashboard, then copy the plain
+Open **Graphics → Spotify** to preview the overlay, adjust opacity, or copy the permanent
 `/overlay` URL. Use a **570 × 125 Browser Source** and position or scale it
 freely in OBS. Every source uses the compact, top-left layout; no URL layout
 parameters are needed. Existing URLs with `?layout=compact` continue to work.
 
-Style changes are saved on the server and update all connected sources without
+Leave Spotify set to follow the stream theme for coordinated colours. Choose a Spotify-specific palette only when you want it to differ. Style changes are saved on the server and update all connected sources without
 changing their URLs. Classic uses the original cyan/pink and dark navy, Halloween orange/plum, Ghost icy
 blue, and Slime acid green/purple. These are restrained colour variants of the
 same print transition. Artwork retains its original colours outside transitions.

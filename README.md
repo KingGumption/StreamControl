@@ -1,5 +1,12 @@
 # KingGumption Stream Control
 
+
+Open the site root to enter the private dashboard. Owners see connection health, recent song requests, and the active graphics theme; moderators are directed to their game controls. Use **Graphics** for visual previews, Spotify appearance and OBS setup, and **Song Requests** for playback and repeat limits.
+
+The Render configuration in this repository describes one web service and one persistent disk shared by the site. Analytics and Content Coach do not require separate Render services. An analytics report and a Content Coach backup can be downloaded to a local device. These are data exports, not a full deployment backup. The existing local mode can store the app database on the streaming PC without a hosting subscription; moving a live deployment also requires migrating the database, OAuth callbacks, and clients. Optional Content Coach AI requests use the configured provider independently of hosting.
+
+Run `npm run check:privacy` before sharing source. Keep actual secrets in deployment settings or a private local environment file. Only redacted templates belong in Git. The check detects common credentials and machine-specific paths, not every possible private value.
+
 This Node.js application provides song requests, stream games, the Polaroid channel-point redeem, overlays, and shared analytics/admin controls. It supports both the original all-local workflow and a hybrid deployment with a hosted web service plus a tiny streaming-PC connector. Runtime settings are loaded from the project-root `.env` file by `src/app-config.js`.
 
 Copy `.env.example` to `.env` when setting up another machine. The local `.env` file is deliberately ignored by Git and must never be committed.

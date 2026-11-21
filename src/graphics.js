@@ -4,7 +4,13 @@ const {bridgeHub}=require('./bridge-hub');
 const {streamEvents}=require('./sse');
 const listeners=new Set();
 const defaults={theme:null,transparency:0};
-const read=()=>getConfigValue('graphics_settings',defaults);
+const spotifyStyles=['stream','classic','halloween','ghost','slime','spooktober','vicecity'];
+function read(){
+ const state=getConfigValue('graphics_settings',defaults);
+ // Match the visual precedence of existing installs until the owner makes a choice.
+ const legacy=state.theme ? null : getConfigValue('song_overlay_style',null);
+ return {...state,spotifyStyle:state.spotifyStyle || (spotifyStyles.includes(legacy)?legacy:null)};
+}
 const names={
  banner:'follow=new',bannerPlain:'follow=new-no-char',card:'PlayingCardTwitch-3D',cardVertical:'PlayingCard-3d-Tiktok',
  counter:'DeathCounter',credits:'StreamCredits',creditsVertical:'StreamCredits-Vertical',divider:'GlassOverlays',
@@ -82,6 +88,7 @@ function install(app,router){
  bridgeHub.on('connector-connected',()=>{if(read().theme)void queue();});
  app.get('/graphics/state',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).json(read()));
  app.get('/graphics/events',(req,res,next)=>{res.set('Access-Control-Allow-Origin','*');next();},(req,res)=>streamEvents(req,res,{name:'graphics',initial:read,subscribe:f=>{listeners.add(f);return()=>listeners.delete(f);}}));
+ router.get('/graphics/spotify-availability',(_,res)=>res.set('Cache-Control','no-store').json({enabled:require('./runtime-settings').songRequestsEnabled()}));
  router.get('/graphics',(_,res)=>res.sendFile(path.join(__dirname,'../public/admin-graphics.html')));
  const gallery=['banner','bannerPlain','card','cardVertical','counter'];
  // Discover machine-specific paths from this owner's OBS. Persist only the base, never follower event fields.
@@ -110,10 +117,21 @@ function install(app,router){
  });
  router.post('/graphics',async(req,res)=>{
   if(req.identity?.role!=='owner')return res.sendStatus(403);
-  const {theme,transparency}=req.body||{};
-  if(!themes.includes(theme)||!Number.isInteger(transparency)||transparency<0||transparency>100)return res.sendStatus(400);
-  const state={theme,transparency};setConfigValue('graphics_settings',state);for(const f of listeners)f(state);
-  const pending=await queue();res.json({state,pending});
+  const {scope,theme,transparency,spotifyStyle}=req.body||{};
+  const previous=read(); let state;
+  if(scope==='spotify'){
+   if(!spotifyStyles.includes(spotifyStyle)||!Number.isInteger(transparency)||transparency<0||transparency>100)return res.sendStatus(400);
+   state={...previous,spotifyStyle,transparency};
+  }else if(scope==='theme'){
+   if(!themes.includes(theme))return res.sendStatus(400);
+   state={...previous,theme};
+  }else if(scope===undefined){
+   // Older dashboards submit both theme and opacity; preserve a separately saved palette.
+   if(!themes.includes(theme)||!Number.isInteger(transparency)||transparency<0||transparency>100)return res.sendStatus(400);
+   state={...previous,theme,transparency};
+  }else return res.sendStatus(400);
+  setConfigValue('graphics_settings',state);for(const f of listeners)f(state);
+  const pending=scope==='spotify'?[]:await queue();res.json({state,pending});
  });
 }
 module.exports={install};
