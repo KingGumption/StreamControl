@@ -4,18 +4,20 @@
   const make=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const settings={quiz:['/admin/quiz','Quiz settings'],hill:['/admin/king-of-the-hill','Hill settings']};
   const copy={
+    word:['Word puzzle · Corner play','Type a five-letter word in chat. The most popular guess goes on the board. Crack the vault in fewer tries for more points.'],
     heist:['Crew vote','Chat picks the rules for three GTA jobs. If a job goes wrong, Chat Court hears the defence and delivers a verdict.'],
     rival:['Seasonal challenge','Every in-game death gives the rival one item. Win chat challenges to recover the loot and choose the finale. Christmas brings out the Grinch.'],
     quiz:['Elimination','Players join with !join and answer 1–4. Use a pass to skip a question or answer correctly to stay in.'],
     hill:['Head to head','Chat votes between two challengers. The winner stays to face the next one.'],
     escape:['Co-operative','Vote on the next move and collect clues before the group runs out of courage.'],
-    higher:['Card game','Predict whether the next card will be higher or lower.'],
-    split:['Minority vote','Vote for one of two options. Players on the smaller side score.'],
+    higher:['Card game · Corner play','Predict whether the next card will be higher or lower.'],
+    split:['Minority vote · Corner play','Vote for one of two options. Players on the smaller side score.'],
     boss:['Co-operative','Chat chooses an attack, defence or heal each turn to defeat the boss.'],
-    number:['Guessing game','Guess the secret number from 1 to 100 using the clues.'],
+    number:['Guessing game · Corner play','Guess the secret number from 1 to 100 using the clues.'],
     snacks:['Head to head','Vote in a snack showdown: Britain versus the world.']
   };
   const route=id=>'/admin/games/quick?game='+encodeURIComponent(id);
+  const art={heist:'stage-art/heist-keyart.webp',rival:'stage-art/rival-keyart.webp',quiz:'stage-art/quiz-keyart.webp',hill:'stage-art/hill-keyart.webp',escape:'stage-art/haunted-hall.webp',higher:'stage-art/higher-keyart.webp',split:'stage-art/split-stage.webp',boss:'stage-art/boss-keyart.webp',number:'game-art/number.svg',snacks:'stage-art/snacks-keyart.webp',word:'stage-art/vault-room.webp'};
   function label(tile,game,current,writable){
     tile.card.dataset.current=String(current);tile.badge.hidden=!current;
     tile.open.textContent=!writable?'View settings':current?'Open game controls':'Prepare game';
@@ -31,7 +33,13 @@
       open.href=route(game.id);open.setAttribute('aria-label','Prepare '+game.name);actions.append(open);
       const extra=settings[game.id];
       if(extra){const a=make('a',extra[1],'game-settings');a.href=extra[0];actions.append(a);}
-      card.append(type,make('h3',game.name),make('p',copy[game.id]?.[1]||game.help||'','game-description'),actions);
+      const head=make('div','','game-card-head'),titles=make('div');
+      titles.append(type,make('h3',game.name));
+      head.append(titles);
+      if(art[game.id]){
+        const image=make('img','','game-thumbnail');image.loading='lazy';image.alt='';image.src='/assets/'+art[game.id];head.append(image);
+      }
+      card.append(head,make('p',copy[game.id]?.[1]||game.help||'','game-description'),actions);
       tiles.set(game.id,{card,open,badge,name:game.name});cards.push(card);
     }
     get('games').replaceChildren(...cards);get('catalogCount').textContent=catalog.length+' games';

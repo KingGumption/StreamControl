@@ -22,19 +22,11 @@
 #clock{min-width:69px;text-align:center;padding:7px;border:1px solid var(--trim);border-radius:7px;background:var(--ink);color:var(--foil);font:800 28px/1.1 Consolas,monospace}
 .score-scene{position:relative;isolation:isolate;overflow:hidden;border-block:1px solid var(--trim);background:var(--ink)}
 .scene-art{position:absolute;inset:0;z-index:-1;overflow:hidden}
-[data-active=heist] .scene-art{transform:scaleX(-1);background:linear-gradient(270deg,var(--ink) 12%,transparent 80%),url('/assets/stage-art/vault-room.webp') center 49% / cover no-repeat}
 .score-content{padding:16px 23px}.scores{gap:36px;margin-top:8px}.score{min-width:110px}
 .score+.score{padding-left:34px;border-left:1px solid var(--trim)}
 #stage{color:var(--foil)}.score-label{display:block;color:var(--sub);letter-spacing:.06em}
 .score-value{display:block;font-size:57px;line-height:1.07;font-weight:800;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
 .long-score{font-size:37px;line-height:1.65}
-[data-active=rival] .scene-art{background:repeating-linear-gradient(135deg,transparent 0 30px,color-mix(in srgb,var(--trim) 10%,transparent) 30px 31px),radial-gradient(ellipse at 83% 93%,var(--enamel),var(--ink) 66%)}
-.gift{display:none;position:absolute;right:93px;top:53px;width:111px;height:78px;transform:rotate(-8deg);border:2px solid var(--foil);background:linear-gradient(90deg,transparent 40%,var(--foil) 40% 55%,transparent 55%),linear-gradient(135deg,var(--ribbon),var(--enamel));box-shadow:9px 13px 0 #0003}
-[data-active=rival] .gift{display:block}
-.gift i{position:absolute;inset:-7px -7px auto;height:17px;background:var(--ribbon);border:2px solid var(--foil)}
-.gift::before,.gift::after{content:"";position:absolute;width:34px;height:21px;border:4px solid var(--foil);bottom:100%;margin-bottom:3px}
-.gift::before{right:49%;border-radius:90% 90% 0 90%;transform:rotate(16deg)}
-.gift::after{left:49%;border-radius:90% 90% 90% 0;transform:rotate(-16deg)}
 html[data-theme=christmas] .mast{background:url('/assets/christmas-sprig.svg') right 190px top / 96px auto no-repeat}
 .play{display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:0}
 #prompt{font-size:34px;line-height:1.12;letter-spacing:-.035em;text-wrap:pretty;overflow-wrap:anywhere}

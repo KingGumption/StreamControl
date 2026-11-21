@@ -1,22 +1,28 @@
 (() => {
   const host=document.getElementById('gameHost');
-  const routes={heist:'/audience-games',rival:'/audience-games',quiz:'/quiz',hill:'/king-of-the-hill',snacks:'/chat-games',escape:'/chat-games',higher:'/chat-games',split:'/chat-games',boss:'/chat-games',number:'/chat-games'};
+  const routes={word:'/word-vault',heist:'/audience-games',rival:'/audience-games',quiz:'/quiz',hill:'/king-of-the-hill',snacks:'/chat-games',escape:'/chat-games',higher:'/chat-games',split:'/chat-games',boss:'/chat-games',number:'/chat-games'};
   const params=new URLSearchParams(location.search),theme=params.get('theme'),forward=new URLSearchParams();
   if(['classic','spooktober','vicecity','christmas','halloween','ghost','slime'].includes(theme))forward.set('theme',theme);
   if(params.get('muted')==='1')forward.set('muted','1');
   if(params.has('volume')&&Number.isFinite(Number(params.get('volume'))))forward.set('volume',String(Math.max(0,Math.min(100,Number(params.get('volume'))))));
-  const suffix=forward.size?'?'+forward.toString():'';
+
   let selected=null;
-  function render({active}) {
+  function render({active,layout}) {
     const next=Object.hasOwn(routes,active)?active:null;
-    if(next===selected)return;
-    selected=next;
+    const compact=layout==='compact'&&['higher','number','split','word'].includes(next);
+    const key=next?next+'-'+compact:null;
+    if(key===selected)return;
+    selected=key;
+    host.classList.toggle('corner',compact);
     // Removing the previous frame also closes its event stream and audio.
     host.replaceChildren();
     if(!next)return;
     const frame=document.createElement('iframe');
     frame.id='gameFrame';frame.title='Live game';frame.allow='autoplay';
-    frame.src=routes[next]+suffix;
+    const options=new URLSearchParams(forward);
+    if(compact)options.set('layout','compact');
+    const route=compact&&next!=='word'?'/arcade-corner':routes[next];
+    frame.src=route+(options.size?'?'+options:'');
     host.append(frame);
   }
   const events=new EventSource('/games/events');

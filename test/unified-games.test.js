@@ -13,6 +13,48 @@ function fixture(){
 }
 const actor={role:'owner'};
 const chat=(text,role='moderator')=>({platform:'twitch',text,user:{id:'user',roles:[role]}});
+test('compact layouts are sent on the first overlay update and are scoped to the current launch',t=>{
+ const {launcher}=fixture(),updates=[];
+ let presets={};
+ launcher.load=()=>presets;launcher.save=value=>{presets=value;};
+ const unsubscribe=launcher.subscribeOverlay(state=>updates.push(state));
+ t.after(()=>{unsubscribe();if(launcher.active())launcher.action('stop',undefined,actor);});
+ for(const id of ['word','higher','number','split']){
+  launcher.savePreset(id,{layout:'compact'});
+  updates.length=0;
+  launcher.action('launch',id,actor);
+  assert.deepEqual(updates[0],{active:id,layout:'compact'});
+  launcher.action('stop',id,actor);
+  assert.deepEqual(updates.at(-1),{active:null});
+  launcher.action('launch',id,actor,{layout:'full'});
+  assert.deepEqual(launcher.overlayState(),{active:id});
+  assert.equal(launcher.preset(id).layout,'compact');
+  launcher.action('stop',id,actor);
+ }
+ assert.throws(()=>launcher.savePreset('boss',{layout:'compact'}),/layout/);
+ assert.throws(()=>launcher.action('launch','word',actor,{layout:'tiny'}),/layout/);
+ assert.deepEqual(launcher.overlayState(),{active:null});
+});
+test('Word Vault renews host controls on every ballot and counts one vote per platform identity',t=>{
+ const {launcher}=fixture(),audience=launcher.audience,events=[];
+ audience.games.word.random=()=>0;
+ audience.record=event=>events.push(event);
+ launcher.action('launch','word-vault',actor,{rounds:1,seconds:10});
+ t.after(()=>launcher.action('stop','word',actor));
+ const original=audience.snapshot(true).game.turn;
+ launcher.action('next','word',actor,{turn:original});
+ const current=audience.snapshot(true).game.turn;
+ assert.notEqual(current,original,'an empty ballot must invalidate its controls');
+ assert.throws(()=>launcher.action('next','word',actor,{turn:original}),/stage has finished/);
+ for(const platform of ['twitch','twitch','youtube','tiktok']){
+  audience.chat({platform,text:'CRANE',user:{id:'same',username:'Player'}});
+ }
+ assert.equal(audience.snapshot(true).game.turn,current);
+ assert.deepEqual(events.filter(e=>e.eventType==='vote').map(e=>e.platform),['twitch','youtube','tiktok']);
+ launcher.action('next','word',actor,{turn:current});
+ assert.deepEqual(audience.snapshot().game.rows.map(row=>[row.word,row.votes]),[['CRANE',3]]);
+ assert.throws(()=>launcher.action('next','word',actor,{turn:current}),/stage has finished/);
+});
 test('all games reserve the overlay until explicitly stopped, including completed results',()=>{
  const {launcher:l,quiz:q,arcade:a}=fixture();
  for(const {id} of l.catalog()){

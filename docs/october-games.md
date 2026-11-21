@@ -33,7 +33,9 @@ Only one game can occupy the overlay at a time, including its final results. Sto
 
 ## New games
 
-All ten games, including Quiz and King of the Hill, use one transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/games`. Set Width 1080 and Height 640. Replace the separate game sources with this one; the active game appears automatically. The round-based arcade games use 3–10 rounds, with five by default or seven for Secret Number Hunt. Arcade turns allow 10–60 seconds and start at 20 seconds by default. Crowd Boss Battle continues until either side loses all health. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop.
+Word Vault, Higher or Lower, Split the Crowd and Secret Number Hunt offer **Gameplay corner** under **On-stream layout**. It occupies the bottom-right 480 x 220 pixels of the shared 1080 x 640 source. Choose **Save as default** to reuse this placement for later launches, including chat launches. Start Word Vault with `!launch word`. Viewers nominate or back a word by sending five letters on their own, such as `CRANE`.
+
+All games, including Quiz and King of the Hill, use one transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/games`. Set Width 1080 and Height 640. Replace the separate game sources with this one; the active game appears automatically. The round-based arcade games use 3–10 rounds, with five by default or seven for Secret Number Hunt. Arcade turns allow 10–60 seconds and start at 20 seconds by default. Crowd Boss Battle continues until either side loses all health. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop.
 
 | ID | Rules |
 |---|---|

@@ -1,0 +1,141 @@
+/* The live canvases have fixed broadcast dimensions. Put the illustration in
+   the scenery and keep live instructions, portraits and timers on top. */
+.game-canvas-quiz #overlayRoot #questionPanel.quiz-lobby {
+  background:
+    linear-gradient(90deg,var(--theme-deep,#15152a) 0%,color-mix(in srgb,var(--theme-deep,#15152a) 82%,transparent) 34%,transparent 82%),
+    url('/assets/stage-art/quiz-keyart.webp') right center / cover no-repeat;
+}
+.game-canvas-quiz #questionPanel.quiz-lobby #question {
+  color:var(--gold,#f5d593);
+  text-shadow:0 3px 1px #171121,0 7px 20px #13101c;
+}
+.game-canvas-quiz #overlayRoot #questionPanel.quiz-lobby:not(:has(.lobby-player)) {padding-right:34%}
+.game-canvas-quiz #overlayRoot #questionPanel:not(.quiz-lobby)::before {
+  inset:0 0 auto auto;width:45%;height:140px;opacity:.20;
+  background:url('/assets/stage-art/quiz-keyart.webp') right 45% / cover;
+  mask-image:linear-gradient(0deg,transparent,#000 60%);
+}
+.game-canvas-quiz .quiz-lobby :is(#question,#counts,#result,#quizLobbyPlayers) {
+  position:relative;
+  text-shadow:0 2px 6px #07101d;
+}
+.game-canvas-quiz #overlayRoot .quiz-stage.victory {
+  background:linear-gradient(90deg,#111729f0,#111729b8 63%,#11172950),url('/assets/stage-art/quiz-keyart.webp') center / cover;
+}
+.game-canvas-hill #game .glass {
+  background:linear-gradient(110deg,var(--panel,#282034),var(--theme-deep,#16182a));
+}
+.game-canvas-hill #game:not(.champion) .glass::before {
+  inset:0 13% auto auto;width:42%;height:160px;
+  background:url('/assets/stage-art/hill-keyart.webp') right -55px / cover;
+  mask-image:linear-gradient(90deg,transparent,#000 25% 84%,transparent);
+}
+.game-canvas-hill #game.champion .glass {
+  background:
+    linear-gradient(0deg,var(--theme-deep,#16182a),transparent 88%),
+    url('/assets/stage-art/hill-keyart.webp') right center / cover;
+}
+.game-canvas-hill #game .timer {background:var(--theme-deep,#171b2d)}
+
+#audience[data-active] .scene-art {
+  transform:none;
+  background:var(--ink);
+}
+#audience[data-active] .scene-art::after {
+  content:'';position:absolute;inset:0 0 0 auto;width:380px;
+  background:var(--scene-image) right 37% / cover no-repeat;
+  mask-image:linear-gradient(90deg,transparent,#000 45%);
+}
+#audience[data-active=heist] {--scene-image:url('/assets/stage-art/heist-keyart.webp')}
+#audience[data-active=heist]:is([data-phase=defence],[data-phase=verdict]) {--scene-image:url('/assets/stage-art/court-keyart.webp')}
+#audience[data-active=rival] {--scene-image:url('/assets/stage-art/rival-keyart.webp')}
+html[data-theme=christmas] #audience[data-active=rival] {--scene-image:url('/assets/stage-art/grinch-keyart.webp')}
+#audience .score-scene {
+  border-inline-start:5px solid var(--foil);
+  box-shadow:inset 0 -8px 24px #0002;
+}
+#audience .score-value {font-family:Georgia,'Times New Roman',serif;font-weight:700}
+#audience .vote-fill {height:6px}
+
+/* Distinct materials for the individual arcade games. Theme colours carry
+   through the trim, while the photography and illustrated rooms stay legible. */
+.game-canvas-arcade #game header h1 {font-weight:850;letter-spacing:-.035em}
+#game:is([data-game=escape],[data-game=higher]) header h1 {
+  font-family:Georgia,'Times New Roman',serif;
+  font-style:italic;
+}
+#game[data-game=escape] .room-door.chosen {
+  outline:2px solid var(--gold,#f8d397);
+  box-shadow:0 0 36px #ffd18c52,inset 0 0 28px #f8ce9433;
+}
+#game[data-game=escape] .door-number {
+  width:46px;height:46px;left:calc(50% - 23px);font:700 26px/1 Georgia,serif;
+  border:3px double #715539;background:#f3deb5;color:#291f1c;
+}
+#game[data-game=escape] .door-label {
+  border-radius:2px;background:#201b1cec;border:3px double #ab9473;
+  color:#fcf1d9;font-family:Georgia,serif;
+}
+#game[data-game=higher] .card-table {
+  background:linear-gradient(0deg,#06171299,transparent 43%,#06171266),
+    url('/assets/stage-art/higher-keyart.webp') center / 100% 100%;
+}
+#game[data-game=higher] .card-table::before {
+  content:'';position:absolute;inset:11px;border:3px double color-mix(in srgb,var(--gold,#ebd099) 50%,transparent);
+  border-radius:48% / 37%;pointer-events:none;
+}
+#game[data-game=higher] .table-card.card-back {
+  background:
+    repeating-conic-gradient(from 45deg,#ffffff10 0 25%,transparent 0 50%) center / 12px 12px,
+    var(--panel,#593951);
+  outline:2px solid var(--gold,#e9cb98);outline-offset:-8px;
+}
+#game[data-game=number] .vault-display {
+  border-top:3px solid var(--gold,#b6f0da);
+  border-bottom:3px double var(--border,#658d89);
+}
+#game[data-game=number] .vault-display>strong {
+  font-family:Consolas,'Courier New',monospace;letter-spacing:.025em;
+  text-shadow:0 0 16px color-mix(in srgb,var(--gold,#a7ede0) 25%,transparent);
+}
+#game[data-game=number] .range-rail {
+  background:repeating-linear-gradient(90deg,transparent 0 9%,#ffffff5e 9% 10%),var(--theme-deep,#182a32);
+}
+#game[data-game=split] .crowd-side.minority {
+  outline:3px double var(--gold,#ffc983);outline-offset:-7px;
+}
+.game-canvas-arcade #game[data-game=split] .crowd-side {
+  --side-light:var(--cyan,#82d9df);
+  border-radius:6px 6px 24px 24px;
+  border-top:4px solid var(--side-light);
+  background:linear-gradient(180deg,var(--theme-deep,#141b2e) 0%,color-mix(in srgb,var(--theme-deep,#141b2e) 66%,transparent) 75%);
+}
+.game-canvas-arcade #game[data-game=split] .crowd-side:nth-child(2) {--side-light:var(--secondary,#ecabc2)}
+#game[data-game=split] .sealed-label {
+  display:grid;place-items:center;width:76px;height:76px;
+  border-radius:50%;border:3px double var(--side-light);
+  background:var(--theme-deep,#191e31);color:var(--side-light);
+  font:italic 700 54px/1 Georgia,serif;
+}
+#game[data-game=split] .crowd-count {font-variant-numeric:tabular-nums}
+#game[data-game=snacks] .choice {
+  border:2px solid var(--border,#a98f7e);
+  box-shadow:inset 0 0 0 4px var(--theme-deep,#17253a),inset 0 0 0 5px color-mix(in srgb,var(--gold,#c09b81) 50%,transparent);
+}
+.game-canvas-arcade #game[data-game=snacks] .choice:not(.winner) {
+  background:linear-gradient(0deg,var(--theme-deep,#1c202b) 3%,transparent 55%),
+    url('/assets/stage-art/snacks-keyart.webp') left center / 200% 100%;
+}
+.game-canvas-arcade #game[data-game=snacks] .choice:nth-child(2):not(.winner) {background-position:right center}
+#game[data-game=snacks] .choice .team-name {
+  padding:4px 14px;background:var(--gold,#f4d09a);color:var(--theme-deep,#151a2c);
+  transform:rotate(-3deg);font-weight:850;
+}
+#game[data-game=snacks] .choice:nth-child(2) .team-name {transform:rotate(3deg)}
+#game[data-game=boss] .party-badge.voted {outline:2px solid var(--gold,#ffd18a);outline-offset:1px}
+#game[data-game=boss] #bossStage {
+  background:linear-gradient(0deg,transparent 48%,#100b22a8),
+    url('/assets/stage-art/boss-keyart.webp') center bottom / cover;
+}
+#game[data-game=boss] :is(.arena-architecture,.arena-floor) {display:none}
+#game .vote-meter {min-height:6px}

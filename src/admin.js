@@ -99,6 +99,8 @@ app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, 
 app.get('/games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-overlay.html')));
 app.get('/games/state',(req,res)=>res.json(gameLauncher.overlayState()));
 app.get('/games/events',(req,res)=>streamEvents(req,res,{name:'game-selection',subscribe:fn=>gameLauncher.subscribeOverlay(fn),initial:()=>gameLauncher.overlayState()}));
+app.get('/word-vault',(_,res)=>res.sendFile(path.join(__dirname,'../public/word-vault.html')));
+app.get('/arcade-corner',(_,res)=>res.sendFile(path.join(__dirname,'../public/arcade-corner.html')));
 app.get('/audience-games',(_,res)=>res.sendFile(path.join(__dirname,'../public/audience-games.html')));
 app.get('/audience-games/events',(req,res)=>streamEvents(req,res,{name:'audience-state',initial:()=>gameLauncher.audience.snapshot(),subscribe:fn=>gameLauncher.audience.subscribe(()=>fn(gameLauncher.audience.snapshot()))}));
 app.get('/chat-games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','chat-games.html')));
@@ -119,6 +121,7 @@ function quickGameState(s,canOperate=false) {
   const presets={};
   for(const {id} of catalog) {
     const keys=id==='quiz'?['questionCount','answerSeconds','lobbySeconds']:id==='hill'?['category']:id==='rival'?['rounds','seconds','deaths','pacing']:['rounds','seconds'];
+    if(['word','higher','number','split'].includes(id))keys.push('layout');
     if(Object.hasOwn(s.presets,id)) presets[id]=pick(s.presets[id],keys);
   }
   const audience=s.audience?{...s.audience}:null;

@@ -92,7 +92,16 @@ function fields() {
   const id=$('presetGame').value, preset=state.presets[id]||{}, holder=$('fields');
   holder.replaceChildren();
   if(!id)return;
-  if(id==='quiz'){
+  if(['word','higher','number','split'].includes(id)){
+    const label=document.createElement('label'),mode=document.createElement('select');
+    label.textContent='On-stream layout';mode.name='layout';
+    mode.add(new Option('Full game board','full'));mode.add(new Option('Gameplay corner','compact'));
+    mode.value=preset.layout||'full';label.append(mode);holder.append(label);
+  }
+  if(id==='word'){
+    holder.append(field('rounds','Vaults to crack',preset.rounds??3,1,10),
+      field('seconds','Seconds per guess vote',preset.seconds??25,10,60));
+  }else if(id==='quiz'){
     holder.append(
       field('questionCount','Questions',preset.questionCount??10,1,15),
       field('answerSeconds','Seconds to answer',preset.answerSeconds??20,5,120),
@@ -165,7 +174,16 @@ function renderLive(){
   const id=state.active;
   if(state.audience){
     const g=state.audience; $('liveHeading').textContent=g.title;
-    $('status').textContent=[g.prompt,g.consequence||g.result,g.options?.map((v,i)=>(i+1)+'. '+v+' ('+(g.votes[i]||0)+')').join(' / '),g.pot!=null?'Crew pot: '+g.pot:null,g.sack!=null?g.rivalName+': '+g.sack+' · Chat: '+g.recovered:null,g.counterStatus,g.endsAt?Math.max(0,Math.ceil((g.endsAt-Date.now())/1000))+'s remaining':'',canControl()?'':'View only'].filter(Boolean).join(' · ');
+    const seconds=g.endsAt?Math.max(0,Math.ceil((g.endsAt-Date.now())/1000))+'s remaining':'';
+    if(id==='word'){
+      const lead=g.candidates?.[0];
+      $('status').textContent=['Vault '+g.round+' / '+g.rounds,
+        g.phase==='guessing'?'Try '+(g.rows.length+1)+' / '+g.attemptLimit:(g.solved?'Cracked':'Sealed'),
+        lead?'Leading guess: '+lead.word+' ('+lead.votes+')':null,
+        'Crew score: '+g.score,seconds,canControl()?'':'View only'].filter(Boolean).join(' Â· ');
+    }else{
+      $('status').textContent=[g.prompt,g.consequence||g.result,g.options?.map((v,i)=>(i+1)+'. '+v+' ('+(g.votes[i]||0)+')').join(' / '),g.pot!=null?'Crew pot: '+g.pot:null,g.sack!=null?g.rivalName+': '+g.sack+' Â· Chat: '+g.recovered:null,g.counterStatus,seconds,canControl()?'':'View only'].filter(Boolean).join(' Â· ');
+    }
     return;
   }
   const g=id==='quiz'?state.quiz:id==='hill'?state.hill:state.arcade;

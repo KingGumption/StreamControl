@@ -15,6 +15,10 @@
 .game-library .game-type{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600}
 .game-library .on-air{padding:2px 8px;border-radius:5px;background:#19332f;color:var(--teal)}
 .game-library .game-card h3{margin:0;font-size:1.24rem}
+.game-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.game-card-head .game-type{margin-bottom:5px;flex-wrap:wrap}
+.game-thumbnail{width:88px;height:64px;object-fit:cover;border-radius:6px;background:#13151b;flex:none}
+.game-thumbnail[src$=".svg"],.game-thumbnail[src*="boss-sprites"]{object-fit:contain}
 .game-library .game-description{margin:0 0 10px;font-size:.94rem}
 .game-library .game-actions{margin-top:auto;gap:8px 14px}
 .game-library .prepare{display:inline-flex;align-items:center;min-height:40px;box-sizing:border-box;border-radius:7px;background:#322d26;border:1px solid #73604b;color:var(--accent);padding:6px 13px;font-weight:650;text-decoration:none}

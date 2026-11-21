@@ -3,7 +3,8 @@ const {randomUUID}=require('node:crypto');
 const {HeistNight}=require('./heist-night');
 const {SeasonalRival}=require('./seasonal-rival');
 
-const audienceNames={heist:'Heist Night',rival:'Seasonal Rival'};
+const {WordVault}=require('./word-vault');
+const audienceNames={heist:'Heist Night',rival:'Seasonal Rival',word:'Word Vault'};
 
 class AudienceGames {
  constructor({theme=()=>null,readDeaths,record=()=>{}}={}){
@@ -13,7 +14,7 @@ class AudienceGames {
   this.readDeaths=readDeaths;
   this.record=record;
   const publish=()=>this.changed();
-  this.games={heist:new HeistNight({publish}),rival:new SeasonalRival({publish,theme:()=>this.currentTheme})};
+  this.games={heist:new HeistNight({publish}),rival:new SeasonalRival({publish,theme:()=>this.currentTheme}),word:new WordVault({publish})};
   this.active=null;
  }
  subscribe(fn){this.events.on('update',fn);return ()=>this.events.off('update',fn);}
@@ -29,7 +30,9 @@ class AudienceGames {
  changed(){
   if(!this.active)return;
   const {game}=this.snapshot();
-  if(game.phase!==this.phase){
+  const turnKey=this.active==='word'?`${game.round}:${game.phase}:${game.ballotId}`:game.phase;
+  if(turnKey!==this.turnKey){
+   this.turnKey=turnKey;
    this.phase=game.phase;this.turn=randomUUID();
    if(game.phase==='completed')this.track('game_completed');
   }
@@ -37,7 +40,7 @@ class AudienceGames {
  }
  start(id,settings={}){
   this.currentTheme=this.theme();
-  this.active=id;this.phase=null;this.run=randomUUID();
+  this.active=id;this.phase=null;this.turnKey=null;this.run=randomUUID();
   this.counterStatus=null;this.previousDeaths=null;
   try{this.games[id].start(settings);}
   catch(error){this.stop(false);throw error;}
