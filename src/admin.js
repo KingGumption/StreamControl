@@ -124,7 +124,7 @@ function quickGameState(s) {
     hill:pick(s.hill,['phase','round','endsAt']),arcade:pick(s.arcade,['phase','round','endsAt','players'])};
 }
 router.get('/games/state',(req,res)=>res.json({ok:true,...quickGameState(gameLauncher.state()),user:gameUser(req.identity),controlEnabled:access.controls(req.identity)}));
-router.post('/games/action',(req,res)=>{try{res.json({ok:true,...quickGameState(gameLauncher.action(req.body.action,req.body.game,req.identity))});}catch(e){res.status(409).json({ok:false,error:e.message});}});
+router.post('/games/action',(req,res)=>{try{res.json({ok:true,...quickGameState(gameLauncher.action(req.body.action,req.body.game,req.identity,req.body.values))});}catch(e){res.status(409).json({ok:false,error:e.message});}});
 router.post('/games/preset',(req,res)=>{try{res.json({ok:true,preset:gameLauncher.savePreset(req.body.game,req.body.values||{})});}catch(e){res.status(400).json({ok:false,error:e.message});}});
 router.post('/games/device-token',(req,res)=>res.json({ok:true,token:issueDeviceToken()}));
 router.post('/games/device-token/revoke',(req,res)=>{revokeDeviceToken();res.json({ok:true});});
@@ -615,8 +615,11 @@ router.get('/king-of-the-hill/state', (req, res) => {
 });
 
 router.post('/king-of-the-hill/start', (req, res) => {
-  if(gameLauncher.active()&&gameLauncher.active()!=='hill')return res.status(409).json({ok:false,error:'A game is already running. Stop it first.'});
-  res.json({ ok: true, game: hillGame.start() });
+  if(hillGame.running)return res.json({ok:true,game:hillGame.getState()});
+  try {
+    const {hill}=gameLauncher.action('launch','hill',req.identity);
+    res.json({ok:true,game:hill});
+  }catch(error){res.status(409).json({ok:false,error:error.message});}
 });
 
 router.post('/king-of-the-hill/stop', (req, res) => {

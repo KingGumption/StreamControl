@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>King of the Hill Admin</title>
+    <title>KingGumption King of the Hill · Game settings</title>
     <style>
       :root {
         --bg: #101418;
@@ -93,24 +93,24 @@
       }
 
 .admin-nav .admin-logout{margin:0;display:flex}.admin-logout button{width:auto;margin:0;padding:9px 13px;font:inherit;font-weight:bold;color:var(--muted,#a2b5c3);background:var(--panel-alt,#1e2430);border:1px solid var(--border,#27313d);border-radius:7px;cursor:pointer}.admin-logout button:hover{color:var(--text,#edf4f7);border-color:var(--accent,#4ecdc4)}.admin-logout button:focus-visible{outline:3px solid #4ecdc4;outline-offset:2px}
-</style>
+.setup-path{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin:12px 0 20px;font-size:.9rem}.setup-path a{color:inherit;text-decoration:underline;text-underline-offset:.23em}.setup-path [aria-current]{font-weight:700}.setup-path a:focus-visible{outline:2px solid currentColor;outline-offset:4px}</style>
   <script src="/assets/game-access.js" defer></script><link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script></head>
   <body class="engagement-site">
     <div class="shell">
       <header>
-        <h1>KingGumption King of the Hill</h1>
+        <h1>King of the Hill</h1>
         <nav class="admin-nav" aria-label="Admin pages">
           <a href="/admin">Song Requests</a>
           <a class="active" href="/admin/games" aria-current="page">Games</a>
           <a href="/admin/analytics">Analytics</a><a href="/admin/content-coach" data-owner-only>Content Coach</a>
           <a href="/admin/polaroid">Polaroid Redeem</a>
         <form class="admin-logout" method="post" action="/admin/logout"><button type="submit" data-admin-logout>Log out</button></form></nav>
-      </header>
+      </header><nav class="setup-path" aria-label="King of the Hill navigation"><a href="/admin/games">All games</a><a href="/admin/games/quick?game=hill">Game controls</a><span aria-current="page">Advanced setup</span></nav>
 
       <section class="panel">
         <div class="control-grid">
           <div>
-            <h2>Game Controls</h2>
+            <h2>Live controls</h2>
             <p class="muted">Start with a two-topic chat vote, then run your chosen number of King of the Hill matchups. Every viewer can vote once per stage by typing <strong>1</strong> or <strong>2</strong>.</p>
             <div class="status-line">
               <span class="status" id="gameStatus">Stopped</span>
@@ -138,27 +138,27 @@
       </section>
 
       <section class="panel">
-        <h2>Game Setup</h2>
+        <h2>Rounds and timing</h2>
         <p class="muted">Choose the number of battles and set each duration in seconds. Timing changes apply at the next stage; round-count changes apply with the next selected topic.</p>
         <div class="timing-grid">
           <div class="timing-field">
             <label for="roundCount">Number of rounds</label>
-            <input id="roundCount" type="number" min="1" max="9" step="1" inputmode="numeric" />
+            <input id="roundCount" required type="number" min="1" max="9" step="1" inputmode="numeric" />
             <small>1–9 rounds</small>
           </div>
           <div class="timing-field">
             <label for="topicSeconds">Topic vote</label>
-            <input id="topicSeconds" type="number" min="5" max="300" step="1" inputmode="numeric" />
+            <input id="topicSeconds" required type="number" min="5" max="300" step="1" inputmode="numeric" />
             <small>5–300 seconds</small>
           </div>
           <div class="timing-field">
             <label for="roundSeconds">Each battle round</label>
-            <input id="roundSeconds" type="number" min="5" max="300" step="1" inputmode="numeric" />
+            <input id="roundSeconds" required type="number" min="5" max="300" step="1" inputmode="numeric" />
             <small>5–300 seconds</small>
           </div>
           <div class="timing-field">
             <label for="championSeconds">Champion screen</label>
-            <input id="championSeconds" type="number" min="3" max="60" step="1" inputmode="numeric" />
+            <input id="championSeconds" required type="number" min="3" max="60" step="1" inputmode="numeric" />
             <small>3–60 seconds</small>
           </div>
         </div>
@@ -171,9 +171,9 @@
       <section class="panel">
         <h2>How a game runs</h2>
         <div class="how-grid">
-          <article class="how-card"><span class="how-number">1</span><h3>Choose a topic</h3><p class="muted">Chat gets 30 seconds to choose between two randomly selected topics.</p></article>
+          <article class="how-card"><span class="how-number">1</span><h3>Choose a topic</h3><p class="muted">Chat votes between two topics for the duration set above.</p></article>
           <article class="how-card"><span class="how-number">2</span><h3>Defend the hill</h3><p class="muted">The winner stays and faces a fresh challenger for your configured number of rounds.</p></article>
-          <article class="how-card"><span class="how-number">3</span><h3>Crown the winner</h3><p class="muted">The champion appears for eight seconds before the next topic vote starts.</p></article>
+          <article class="how-card"><span class="how-number">3</span><h3>Crown the winner</h3><p class="muted">The champion stays on screen for the configured duration before the next topic vote.</p></article>
         </div>
         <details>
           <summary id="creditSummary">Image sources</summary>
@@ -200,7 +200,9 @@
           ? `Round ${state.game.round} of ${state.game.totalRounds} · ${state.game.totalVotes} votes`
           : ['topic', 'champion'].includes(state.game.phase) ? `${state.game.totalVotes || 0} votes` : '';
         document.getElementById('startGame').disabled = Boolean(state.game.running);
-        document.getElementById('nextGame').disabled = !state.game.running;
+        const next = document.getElementById('nextGame');
+        next.disabled = !state.game.running;
+        next.textContent = state.game.phase === 'champion' ? 'Start next topic vote' : 'End vote now';
         document.getElementById('stopGame').disabled = !state.game.running;
         if (!timingsLoaded && state.game.timings) {
           setTimingInputs(state.game.timings);
@@ -269,6 +271,8 @@
       document.getElementById('saveTimings').addEventListener('click', async (event) => {
         const button = event.currentTarget;
         const message = document.getElementById('timingMessage');
+        const invalidField = Array.from(document.querySelectorAll('.timing-field input')).find(input => !input.reportValidity());
+        if (invalidField) { invalidField.focus(); return; }
         const timings = {
           roundCount: Number(document.getElementById('roundCount').value),
           topicSeconds: Number(document.getElementById('topicSeconds').value),

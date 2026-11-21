@@ -39,6 +39,20 @@ test('launcher requires roles and toggle, shares active-game checks and supports
  assert.match(l.chat(chat('viewer','!launch quiz')),/disabled/);assert.match(l.chat(chat('mod','!launch quiz',['moderator'])),/disabled/);enabled=true;assert.match(l.chat(chat('mod','!launch quiz',['moderator'])),/joining/);assert.throws(()=>l.action('launch','hill',{role:'owner'}),/already running/);enabled=false;assert.throws(()=>l.action('stop','quiz',{role:'games'}),/disabled/);l.action('stop','quiz',{role:'owner'});l.action('launch','snackwars',{role:'owner'});assert.equal(a.id,'snacks');l.action('stop','snacks',{role:'owner'});assert.throws(()=>l.savePreset('quiz',{lobbySeconds:0}),/5–300/);l.savePreset('hill',{category:'halloween'});assert.equal(settings.hill.category,'halloween');
 });
 test('Hill filters categories and avoids recently offered topics',()=>{const f=fixture(HillGame);f.game.categoryFilter='halloween';f.game.start();const first=f.game.options.map(x=>x.id);assert.ok(f.game.options.every(t=>t.category==='halloween'));f.game.stop();f.game.start();assert.ok(f.game.options.every(t=>!first.includes(t.id)));assert.equal(TOPICS.length,57);f.game.stop();});
+test('taking a game to air uses its draft settings once and never overwrites its defaults',()=>{
+ let presets={number:{rounds:7,seconds:20}};
+ const arcade=fixture().game,owner={role:'owner'};
+ const launcher=new GameLauncher({quiz:fixture(QuizGame).game,hill:fixture(HillGame).game,arcade,load:()=>presets,save:s=>presets=s,audit:()=>{}});
+ assert.throws(()=>launcher.action('launch','number',owner,{seconds:9}),/10–60/);
+ assert.equal(launcher.active(),null);
+ launcher.action('launch','number',owner,{rounds:'4',seconds:'12'});
+ assert.deepEqual([arcade.rounds,arcade.seconds],[4,12]);
+ assert.throws(()=>launcher.action('launch','number',owner,{seconds:30}),/already running/);
+ assert.deepEqual(presets.number,{rounds:7,seconds:20});
+ launcher.action('stop','number',owner);
+ launcher.action('launch','number',owner);
+ assert.deepEqual([arcade.rounds,arcade.seconds],[7,20]);
+});
 test('Polaroid rejects offline, unknown and forged test flags before enqueue; owner test alone bypasses',async()=>{
  const obs=new EventEmitter();obs.call=async()=>({outputActive:false});const r=new PolaroidRuntime({config:{obs:{},streamerBot:{},discord:{},polaroid:{}},obs});r.state.obsConnected=true;let captures=0;r.processRedemption=async()=>{captures++;return{};};
  await assert.rejects(r.enqueueRedemption('Viewer'),/must be live/);await assert.rejects(r.enqueueRedemption('Viewer','Admin','','','',[],{isTest:true,ownerTest:true}),/must be live/);assert.equal(captures,0);

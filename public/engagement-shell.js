@@ -5,7 +5,7 @@
   const links = {
     empty: ['/admin/workspace','Workspace'], home: ['/admin/dashboard', 'Dashboard'], terms: ['/terms', 'Terms'], privacy: ['/privacy', 'Privacy'],
     quizPreview: ['/admin/quiz/preview', 'Quiz preview'], login: ['/admin/login', 'Sign in'], songs: ['/admin', 'Song requests'],
-    games: ['/admin/games', 'Games'], quick: ['/admin/games/quick', 'Quick controls'],
+    games: ['/admin/games', 'Games'], quick: ['/admin/games/quick', 'Game controls'],
     quiz: ['/admin/quiz', 'Quiz'], hill: ['/admin/king-of-the-hill', 'King of the Hill'],
     graphics: ['/admin/graphics', 'Graphics'], analytics: ['/admin/analytics', 'Analytics'],
     coach: ['/admin/content-coach', 'Content Coach'], polaroid: ['/admin/polaroid', 'Polaroid'],

@@ -2,7 +2,9 @@
 
 ## Quick Games in OBS
 
-Add an OBS Custom Browser Dock with URL `https://streamengagement.onrender.com/admin/games/quick` and sign in. The dock provides all eight games, launch presets, current state, Start quiz now, Next/reveal and Stop. Owner accounts also see the persistent moderator switch and device-key setup. A width of around 320 pixels is suitable. Launch, start and stop act immediately without confirmation pop-ups, so they also work in OBS browser interactions.
+Open **Games**, choose **Prepare game**, and adjust its settings. Launching uses the values on screen for that run. Choose **Save as default** to reuse them for future launches, including chat and Stream Deck. Launching the quiz opens its timed joining lobby. Once someone joins, you can start the first question early. Stop the active game to clear its overlay before launching another.
+
+For the same controls inside OBS, add a Custom Browser Dock pointing to `https://streamengagement.onrender.com/admin/games/quick` and sign in. A width of around 320 pixels works for the dock. The separate browser source that viewers see is `https://streamengagement.onrender.com/games`, at 1080 × 640.
 
 The owner always retains control. Moderator dashboard accounts and verified platform moderators can operate games while **Allow moderator game controls** is enabled. It persists through restarts until switched off. Switching it off immediately blocks all moderator control commands in chat and the dashboard, including stop and next. Viewers can still join, answer and vote. Switching it off does not stop an active game. Existing timed permissions retain their old expiry until the owner first uses the new switch.
 
@@ -10,7 +12,7 @@ The owner always retains control. Moderator dashboard accounts and verified plat
 
 Broadcasters always have access; moderators require the switch. Viewer chat cannot launch or stop games. Roles come from the connected platform event, not names typed in chat.
 
-- `!launch quiz`: open joining and automatically start after 30 seconds (configurable 5–300 in Launch presets).
+- `!launch quiz`: open joining and automatically start after 30 seconds (configurable 5–300 in game controls).
 - `!start quiz`: start an open lobby early after at least one player joins.
 - `!launch hill`, `!launch snacks`, `!launch escape`, `!launch higher`, `!launch split`, `!launch boss`, `!launch number`.
 - `!stop`: stop the current game (or use `!stop gamename`).
@@ -21,15 +23,15 @@ Only one game can occupy the overlay at a time, including its final results. Sto
 
 ## New games
 
-All eight games, including Quiz and King of the Hill, use one transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/games`. Set Width 1080 and Height 640. Replace the separate game sources with this one; the active game appears automatically. Each game has 3–10 rounds (default 5), 10–60 seconds per turn (default 20), and a five-second reveal. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop.
+All eight games, including Quiz and King of the Hill, use one transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/games`. Set Width 1080 and Height 640. Replace the separate game sources with this one; the active game appears automatically. The round-based arcade games use 3–10 rounds, with five by default or seven for Secret Number Hunt. Arcade turns allow 10–60 seconds and start at 20 seconds by default. Crowd Boss Battle continues until either side loses all health. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop.
 
 | ID | Rules |
 |---|---|
 | snacks | British snacks and sweets versus world snacks and sweets. Vote 1 or 2. Each unique matchup displays country of origin. A round win adds one team point; ties and empty rounds score neither side. Highest team score wins the match; equal scores draw. |
 | escape | Vote 1–3 on an authored haunted-house scenario. Majority selects the route; ties are randomly resolved. Collect at least one escape clue per configured round while retaining courage to escape together. |
-| higher | A random card from 1–100 is shown. Vote 1 for higher or 2 for lower. The next card cannot be equal. Each correct player earns one point. |
+| higher | A playing card is shown. Ace is low and king is high. Vote 1 for higher or 2 for lower. The next card cannot be equal. Each correct player earns one point. |
 | split | Choose 1 or 2. The smaller non-empty group earns one point each. Equal groups or everyone picking one side gives no points. Scores decide the leaderboard. |
-| boss | Type attack, defend or heal. The mix of actions determines damage, protection and healing, scaled by participation so small streams can play. Defeat the boss before team health or rounds run out. |
+| boss | Type attack, defend or heal. The highest vote selects the team action. Defeat the boss before the team runs out of health. |
 | number | One guess from 1–100 per player per round. Reveal tightens the range around the secret number. All exact guesses in the winning round share the win. |
 
 Snack origins describe product origins, not current factory locations or company ownership. The initial bank has 12 British entries and 10 international entries, enough for a maximum-length match without repeating either side. Sources are recorded for each entry in `src/snack-bank.json`, using manufacturer histories including [Tunnock’s](https://www.tunnock.co.uk/about-us/), [Swizzels](https://swizzels.com/about/our-history/), [Pocky](https://www.pocky.com/about/), [Haribo](https://www.haribo.com/en/about-us/history) and [Calbee](https://www.calbee.co.jp/en/corporate/history/product.php).

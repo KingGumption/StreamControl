@@ -14,20 +14,34 @@ class GameLauncher {
  subscribeOverlay(fn){const notify=()=>fn(this.overlayState());const off=[this.quiz,this.hill,this.arcade].map(game=>game.subscribe(notify));return ()=>off.forEach(unsubscribe=>unsubscribe());}
  allowed(actor){return actor?.role==='owner'||actor?.role==='device'||(actor?.role==='games'&&this.permission());}
  preset(id){return this.load()[id]||{};}
- savePreset(id,values){id=this.canonical(id);if(!this.catalog().some(g=>g.id===id))throw Error('Unknown game.');const next={};
+ settings(id,values){
+  if(!this.catalog().some(g=>g.id===id))throw Error('Unknown game.');
+  if(!values||typeof values!=='object'||Array.isArray(values))throw Error('Game settings must be an object.');
+  const next={};
   const fields=id==='quiz'?{questionCount:[1,15],answerSeconds:[5,120],lobbySeconds:[5,300]}:id==='hill'?{}:id==='boss'?{seconds:[10,60]}:{rounds:[3,10],seconds:[10,60]};
   for(const [key,[min,max]]of Object.entries(fields)){if(values[key]===undefined)continue;const v=Number(values[key]);if(!Number.isInteger(v)||v<min||v>max)throw Error(`${key}: use ${min}–${max}.`);next[key]=v;}
-  if(id==='hill'){const category=String(values.category||'all');if(!['all',...this.hill.topics.map(t=>t.category||'general')].includes(category))throw Error('Unknown Hill category.');next.category=category;}
+  if(id==='hill'&&values.category!==undefined){const category=String(values.category||'all');if(!['all',...this.hill.topics.map(t=>t.category||'general')].includes(category))throw Error('Unknown Hill category.');next.category=category;}
   if(id==='quiz'&&Array.isArray(values.categories)){if(values.categories.some(c=>!this.quiz.getCatalog().some(x=>x.id===c)))throw Error('Unknown quiz category.');next.categories=values.categories;}
+  return next;
+ }
+ savePreset(id,values){
+  id=this.canonical(id);
+  const next={...this.preset(id),...this.settings(id,values)};
   this.save({...this.load(),[id]:next});return next;
  }
- action(action,id,actor){
+ action(action,id,actor,values){
   if(!this.allowed(actor))throw Error('Moderator game controls are disabled.');
   id=this.canonical(id)||(action==='stop'?this.active():null);if(!this.catalog().some(g=>g.id===id))throw Error(action==='stop'&&!id?'No game is active.':'Unknown game. Type !games for the list.');
   const active=this.active();if(action==='launch'&&active)throw Error(`${active} is already running. Stop it first.`);
   const game=id==='quiz'?this.quiz:id==='hill'?this.hill:this.arcade;
   if(action!=='launch'&&active!==id)throw Error('That game is not active.');
-  if(action==='launch'){const preset=this.preset(id);if(id==='quiz')this.quiz.launch(preset);else if(id==='hill'){this.hill.categoryFilter=preset.category||'all';this.hill.start();}else this.arcade.start(id,preset);}
+  if(action==='launch'){
+   const defaults=this.preset(id);
+   const preset=values===undefined?defaults:{...defaults,...this.settings(id,values)};
+   if(id==='quiz')this.quiz.launch(preset);
+   else if(id==='hill'){this.hill.categoryFilter=preset.category||'all';this.hill.start();}
+   else this.arcade.start(id,preset);
+  }
   else if(action==='stop')game.stop();
   else if(action==='start'){if(id!=='quiz'||this.quiz.phase!=='lobby')throw Error('There is no quiz lobby to start.');this.quiz.next();}
   else if(action==='next'){if(id==='hill')game.finishPhase();else game.next();}
