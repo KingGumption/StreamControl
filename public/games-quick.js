@@ -31,7 +31,7 @@ function buttons() {
   $('launchHint').hidden=!hint;
   $('savePreset').disabled=!enabled || !game;
   const live=state?.active;
-  const phase=live==='quiz'?state.quiz.phase:live==='hill'?state.hill.phase:state?.arcade.phase;
+  const phase=state?.audience?.phase || (live==='quiz'?state.quiz.phase:live==='hill'?state.hill.phase:state?.arcade.phase);
   const lobby=live==='quiz' && phase==='lobby';
   $('start').hidden=!lobby;
   $('start').disabled=!enabled || !lobby || !state.quiz.players;
@@ -42,10 +42,34 @@ function buttons() {
   const nextLabel=live==='hill'?{topic:'Close topic vote',battle:'Close battle vote',champion:'Start next game'}[phase]:
     live==='quiz'?{question:'Close answers and reveal',reveal:'Start next question'}[phase]:
     {question:'Reveal round result',reveal:'Start next round'}[phase];
-  $('next').hidden=!live || !nextLabel;
+  $('next').hidden=Boolean(state?.audience) || !live || !nextLabel;
   $('next').disabled=!enabled || !live || !nextLabel;
   if(nextLabel) $('next').textContent=nextLabel;
+  audienceControls(enabled);
   for(const id of ['mods','createToken','revokeToken']) $(id).disabled=busy || state?.user.role!=='owner';
+}
+let controlSignature='';
+function audienceControls(enabled){
+  const game=state?.audience, holder=$('audienceControls');
+  const signature=JSON.stringify([state?.active,game?.turn,game?.actions,game?.defenceCandidates,Boolean(enabled)]);
+  if(signature===controlSignature)return;
+  controlSignature=signature;holder.replaceChildren();
+  if(!game)return;
+  const gameId=state.active;
+  const issue=(id,values={})=>run(()=>api('games/action',{action:id,game:gameId,values:{...values,turn:game.turn}}),'Game updated.');
+  const group=document.createElement('div');group.className='actions';
+  for(const {id,label} of game.actions){
+    const button=document.createElement('button');button.type='button';button.textContent=label;
+    button.disabled=!enabled;button.onclick=()=>issue(id);group.append(button);
+  }
+  holder.append(group);
+  if(game.phase==='defence'&&game.defenceCandidates?.length){
+    const heading=document.createElement('h3');heading.textContent='Choose a defence to show on stream';holder.append(heading);
+    for(const candidate of game.defenceCandidates){
+      const button=document.createElement('button');button.type='button';button.disabled=!enabled;
+      button.textContent=candidate.text;button.onclick=()=>issue('select-defence',{defenceId:candidate.id});holder.append(button);
+    }
+  }
 }
 function offline(error) {
   state=null;
@@ -83,6 +107,20 @@ function fields() {
     select.value=preset.category||'all';
     label.append(select);
     holder.append(label);
+  }else if(id==='heist'||id==='rival'){
+    holder.append(field('seconds','Seconds for chat to respond',preset.seconds??20,10,60));
+    if(id==='rival'){
+      holder.append(field('rounds','Challenges before the finale',preset.rounds??3,1,10));
+      const label=document.createElement('label'), select=document.createElement('select');
+      const pacing=document.createElement('label'), pace=document.createElement('select');pacing.textContent='Between challenges';pace.name='pacing';
+      pace.add(new Option('Wait for me between missions','host'));pace.add(new Option('Start the next challenge automatically','auto'));
+      pace.value=preset.pacing||'host';pacing.append(pace);holder.append(pacing);
+      label.textContent='Count in-game deaths';select.name='deaths';
+      select.add(new Option('From the PC death counter','auto'));select.add(new Option('Manually in game controls','manual'));
+      select.value=preset.deaths||'auto';label.append(select);holder.append(label);
+    }else{
+      const note=document.createElement('p');note.textContent='After each of the three jobs, mark the outcome here. A failed job opens Chat Court.';holder.append(note);
+    }
   }else if(id==='boss'){
     const note=document.createElement('p');
     note.textContent='The battle ends when the boss or the party runs out of health.';
@@ -125,6 +163,11 @@ function renderLive(){
     return;
   }
   const id=state.active;
+  if(state.audience){
+    const g=state.audience; $('liveHeading').textContent=g.title;
+    $('status').textContent=[g.prompt,g.consequence||g.result,g.options?.map((v,i)=>(i+1)+'. '+v+' ('+(g.votes[i]||0)+')').join(' / '),g.pot!=null?'Crew pot: '+g.pot:null,g.sack!=null?g.rivalName+': '+g.sack+' · Chat: '+g.recovered:null,g.counterStatus,g.endsAt?Math.max(0,Math.ceil((g.endsAt-Date.now())/1000))+'s remaining':'',canControl()?'':'View only'].filter(Boolean).join(' · ');
+    return;
+  }
   const g=id==='quiz'?state.quiz:id==='hill'?state.hill:state.arcade;
   const labels={lobby:'Lobby open',question:id==='quiz'?'Accepting answers':'Round in progress',reveal:'Showing results',completed:'Final results',topic:'Choosing a topic',battle:'Battle vote open',champion:'Champion on screen'};
   const parts=[labels[g.phase] || 'On the overlay'];

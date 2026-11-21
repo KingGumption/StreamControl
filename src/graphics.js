@@ -153,7 +153,9 @@ function install(app,router){
    if(!themes.includes(theme)||!Number.isInteger(transparency)||transparency<0||transparency>100)return res.sendStatus(400);
    state={...previous,theme,transparency};
   }else return res.sendStatus(400);
-  setConfigValue('graphics_settings',state);for(const f of listeners)f(state);
+  setConfigValue('graphics_settings',state);
+  if(previous.theme!==state.theme){const {audience}=require('./game-launcher').gameLauncher;if(audience.active==='rival'){audience.currentTheme=state.theme;audience.changed();}}
+  for(const f of listeners)f(state);
   const pending=['spotify','spotify-default'].includes(scope)?[]:await queue();res.json({state,pending});
  });
 }

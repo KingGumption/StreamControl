@@ -13,13 +13,13 @@ function fixture(){
 }
 const actor={role:'owner'};
 const chat=(text,role='moderator')=>({platform:'twitch',text,user:{id:'user',roles:[role]}});
-test('all eight games reserve the overlay until explicitly stopped, including completed results',()=>{
+test('all games reserve the overlay until explicitly stopped, including completed results',()=>{
  const {launcher:l,quiz:q,arcade:a}=fixture();
  for(const {id} of l.catalog()){
   l.action('launch',id,actor);
   assert.deepEqual(l.overlayState(),{active:id});
   if(id==='quiz')q.phase='completed';
-  else if(id!=='hill'){while(a.phase!=='completed')a.next();}
+  else if(l.audience.active===null&&id!=='hill'){while(a.phase!=='completed')a.next();}
   for(const next of l.catalog())assert.throws(()=>l.action('launch',next.id,actor),/Stop it first/);
   assert.equal(l.active(),id);
   l.action('stop',undefined,actor);assert.deepEqual(l.overlayState(),{active:null});

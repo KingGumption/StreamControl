@@ -99,6 +99,8 @@ app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, 
 app.get('/games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-overlay.html')));
 app.get('/games/state',(req,res)=>res.json(gameLauncher.overlayState()));
 app.get('/games/events',(req,res)=>streamEvents(req,res,{name:'game-selection',subscribe:fn=>gameLauncher.subscribeOverlay(fn),initial:()=>gameLauncher.overlayState()}));
+app.get('/audience-games',(_,res)=>res.sendFile(path.join(__dirname,'../public/audience-games.html')));
+app.get('/audience-games/events',(req,res)=>streamEvents(req,res,{name:'audience-state',initial:()=>gameLauncher.audience.snapshot(),subscribe:fn=>gameLauncher.audience.subscribe(()=>fn(gameLauncher.audience.snapshot()))}));
 app.get('/chat-games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','chat-games.html')));
 app.get('/chat-games/state',(req,res)=>res.json({ok:true,game:arcadeGames.getState()}));
 app.get('/chat-games/events',(req,res)=>streamEvents(req,res,{name:'arcade-state',subscribe:fn=>arcadeGames.subscribe(fn),initial:()=>arcadeGames.getState()}));
@@ -109,21 +111,23 @@ app.post('/api/games/action',adminAuth.requireSameOrigin,(req,res)=>{
 });
 router.get('/games/quick',(req,res)=>workspacePage(res,'games-quick.html'));
 function gameUser({username,role}) { return {username,role}; }
-function quickGameState(s) {
+function quickGameState(s,canOperate=false) {
   // This dock operates games; it does not need contestant profiles, personal IDs,
   // the full roster, or arbitrary extra fields from persisted configuration.
   const pick=(object,keys)=>Object.fromEntries(keys.filter(k=>Object.hasOwn(object||{},k)).map(k=>[k,object[k]]));
-  const catalog=s.catalog.map(g=>pick(g,['id','name','help']));
+  const catalog=s.catalog.map(g=>pick(g,['id','name','help','variant']));
   const presets={};
   for(const {id} of catalog) {
-    const keys=id==='quiz'?['questionCount','answerSeconds','lobbySeconds']:id==='hill'?['category']:['rounds','seconds'];
+    const keys=id==='quiz'?['questionCount','answerSeconds','lobbySeconds']:id==='hill'?['category']:id==='rival'?['rounds','seconds','deaths','pacing']:['rounds','seconds'];
     if(Object.hasOwn(s.presets,id)) presets[id]=pick(s.presets[id],keys);
   }
-  return {active:s.active,catalog,presets,hillCategories:s.hillCategories,
+  const audience=s.audience?{...s.audience}:null;
+  if(audience&&!canOperate)delete audience.defenceCandidates;
+  return {active:s.active,audience,catalog,presets,hillCategories:s.hillCategories,
     quiz:pick(s.quiz,['phase','round','players','lobbyEndsAt','acceptUntil','nextQuestionAt','lobbyNotice']),
     hill:pick(s.hill,['phase','round','endsAt']),arcade:pick(s.arcade,['phase','round','endsAt','players'])};
 }
-router.get('/games/state',(req,res)=>res.json({ok:true,...quickGameState(gameLauncher.state()),user:gameUser(req.identity),controlEnabled:access.controls(req.identity)}));
+router.get('/games/state',(req,res)=>res.json({ok:true,...quickGameState(gameLauncher.state(),req.identity.role==='owner'||access.controls(req.identity)),user:gameUser(req.identity),controlEnabled:access.controls(req.identity)}));
 router.post('/games/action',(req,res)=>{try{res.json({ok:true,...quickGameState(gameLauncher.action(req.body.action,req.body.game,req.identity,req.body.values))});}catch(e){res.status(409).json({ok:false,error:e.message});}});
 router.post('/games/preset',(req,res)=>{try{res.json({ok:true,preset:gameLauncher.savePreset(req.body.game,req.body.values||{})});}catch(e){res.status(400).json({ok:false,error:e.message});}});
 router.post('/games/device-token',(req,res)=>res.json({ok:true,token:issueDeviceToken()}));

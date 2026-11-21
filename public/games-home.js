@@ -4,6 +4,8 @@
   const make=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
   const settings={quiz:['/admin/quiz','Quiz settings'],hill:['/admin/king-of-the-hill','Hill settings']};
   const copy={
+    heist:['Crew vote','Chat picks the rules for three GTA jobs. If a job goes wrong, Chat Court hears the defence and delivers a verdict.'],
+    rival:['Seasonal challenge','Every in-game death gives the rival one item. Win chat challenges to recover the loot and choose the finale. Christmas brings out the Grinch.'],
     quiz:['Elimination','Players join with !join and answer 1–4. Use a pass to skip a question or answer correctly to stay in.'],
     hill:['Head to head','Chat votes between two challengers. The winner stays to face the next one.'],
     escape:['Co-operative','Vote on the next move and collect clues before the group runs out of courage.'],
@@ -23,7 +25,7 @@
   function rebuild(catalog){
     const cards=[];tiles=new Map();
     for(const game of catalog){
-      const card=make('article','','game-card'),type=make('div',copy[game.id]?.[0]||'Chat game','game-type'),badge=make('span','On overlay','on-air');
+      const card=make('article','','game-card'),type=make('div',game.variant||copy[game.id]?.[0]||'Chat game','game-type'),badge=make('span','On overlay','on-air');
       badge.hidden=true;type.append(badge);
       const actions=make('div','','game-actions'),open=make('a','Prepare game','prepare');
       open.href=route(game.id);open.setAttribute('aria-label','Prepare '+game.name);actions.append(open);

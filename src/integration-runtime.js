@@ -371,6 +371,7 @@ class IntegrationRuntime {
 
     const gameReply=gameLauncher.chat(event);
     if(gameReply!==null){if(event.platform==='tiktok')this.streamerBot.sendTikTokReply(gameReply);else this.streamerBot.sendChat(event.platform,gameReply);return;}
+    if (gameLauncher.audience.chat(event)) return;
     if (arcadeGames.handleChatEvent(event)) return;
     if (this.quiz?.handleChatEvent(event)) return;
     if (this.game?.handleChatEvent(event)) return;

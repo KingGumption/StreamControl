@@ -206,6 +206,13 @@ class ConnectorRuntime {
     try {
       let data;
       if (message.method === 'connect') data = await this.ensureObsConnected();
+      else if (message.method === 'ReadGameDeathCounter') {
+        const response=await fetch('http://127.0.0.1:18765/count',{signal:AbortSignal.timeout(1800),redirect:'error'});
+        if(!response.ok)throw Error('Death counter unavailable');
+        const {count}=await response.json();
+        if(!Number.isSafeInteger(count)||count<0)throw Error('Invalid death count');
+        data={count};
+      }
       else if (message.method === 'CapturePolaroid') {
         await this.ensureObsConnected();
         if(message.args?.ownerTest!==true){const status=await this.obs.call('GetStreamStatus');if(status?.outputActive!==true||status.outputReconnecting===true)throw Error('Polaroid blocked: OBS is not live.');}

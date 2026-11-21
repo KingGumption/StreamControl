@@ -1,5 +1,5 @@
-const {buildGamesAnalytics,gameKey}=require('./game-analytics');
-const {summarizeArcade,gameNames}=require('./arcade-analytics');
+const {buildGamesAnalytics,gameKey,gameNames}=require('./game-analytics');
+const {summarizeArcade}=require('./arcade-analytics');
 const {buildCoaching}=require('./analytics-coaching');
 const {buildGrowth}=require('./analytics-growth');
 const growthStore=require('./analytics-growth-store');

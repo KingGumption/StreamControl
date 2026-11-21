@@ -3,6 +3,9 @@ const gameNames={escape:'Haunted House Escape',higher:'Higher or Lower',split:'S
 const person=e=>(e.userId||e.username)?`${e.platform}:${e.userId?'id:'+e.userId:'name:'+e.username.toLowerCase()}`:null;
 const mean=values=>values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length*10)/10:null;
 function summarizeArcade(events,votes=events.filter(e=>e.eventType==='vote')){
+ // Keep this legacy six-game breakdown separate from other chat-games telemetry.
+ events=events.filter(e=>Object.hasOwn(gameNames,e.metadata.game));
+ votes=votes.filter(e=>Object.hasOwn(gameNames,e.metadata.game));
  const grouped=new Map(),playersByGame=new Map();
  for(const e of votes){const key=person(e);if(key){if(!playersByGame.has(e.correlationId))playersByGame.set(e.correlationId,new Set());playersByGame.get(e.correlationId).add(key);}}
  for(const e of events){if(!gameNames[e.metadata.game]||!e.correlationId)continue;if(!grouped.has(e.correlationId))grouped.set(e.correlationId,[]);grouped.get(e.correlationId).push(e);}

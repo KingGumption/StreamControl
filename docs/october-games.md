@@ -8,6 +8,16 @@ For the same controls inside OBS, add a Custom Browser Dock pointing to `https:/
 
 The owner always retains control. Moderator dashboard accounts and verified platform moderators can operate games while **Allow moderator game controls** is enabled. It persists through restarts until switched off. Switching it off immediately blocks all moderator control commands in chat and the dashboard, including stop and next. Viewers can still join, answer and vote. Switching it off does not stop an active game. Existing timed permissions retain their old expiry until the owner first uses the new switch.
 
+## Heist Night and Seasonal Rival
+
+Open either game in Games and launch it on the shared OBS source. Twitch, YouTube and TikTok messages enter the same vote. Each platform account gets one ballot per voting stage.
+
+**Heist Night.** The crew starts with 100 points. Vote 1�3 to set a GTA rule for each of three jobs. The operator marks success or sends a failed job to Chat Court. Viewers submit one short line with `!defend`. Only the operator can select a submission for broadcast. Chat votes 1 for a pardon or 2 for a fine and a commentary challenge. After the third job, chat banks the pot or risks it for double. Ties favour a pardon and banking.
+
+**Seasonal Rival.** The active Graphics theme picks the opponent: the Grinch at Christmas, the Neon Bandit in Vice City, the Candy Phantom at Spooktober, and the Prize Bandit in Classic. Each death adds one item to the rival�s stash. Chat recovers one for each puzzle won. By default the host opens the next challenge between missions. Auto pacing is also available. The side with the winning haul picks the final on-stream challenge.
+
+Automatic death scoring uses the streaming PC connector and its local counter. The first reading establishes a baseline. A reset does not add deaths. Select manual entry before launch or switch to manual from the live controls if the counter becomes unavailable. Completing either game holds its final score until the operator clears the overlay.
+
 ## Chat commands
 
 Broadcasters always have access; moderators require the switch. Viewer chat cannot launch or stop games. Roles come from the connected platform event, not names typed in chat.
@@ -23,7 +33,7 @@ Only one game can occupy the overlay at a time, including its final results. Sto
 
 ## New games
 
-All eight games, including Quiz and King of the Hill, use one transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/games`. Set Width 1080 and Height 640. Replace the separate game sources with this one; the active game appears automatically. The round-based arcade games use 3–10 rounds, with five by default or seven for Secret Number Hunt. Arcade turns allow 10–60 seconds and start at 20 seconds by default. Crowd Boss Battle continues until either side loses all health. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop.
+All ten games, including Quiz and King of the Hill, use one transparent-when-idle OBS browser source: `https://streamengagement.onrender.com/games`. Set Width 1080 and Height 640. Replace the separate game sources with this one; the active game appears automatically. The round-based arcade games use 3–10 rounds, with five by default or seven for Secret Number Hunt. Arcade turns allow 10–60 seconds and start at 20 seconds by default. Crowd Boss Battle continues until either side loses all health. First valid vote per platform account per round locks; vote totals stay hidden until reveal. Results remain visible until Stop.
 
 | ID | Rules |
 |---|---|

@@ -1,6 +1,6 @@
 (() => {
   const host=document.getElementById('gameHost');
-  const routes={quiz:'/quiz',hill:'/king-of-the-hill',snacks:'/chat-games',escape:'/chat-games',higher:'/chat-games',split:'/chat-games',boss:'/chat-games',number:'/chat-games'};
+  const routes={heist:'/audience-games',rival:'/audience-games',quiz:'/quiz',hill:'/king-of-the-hill',snacks:'/chat-games',escape:'/chat-games',higher:'/chat-games',split:'/chat-games',boss:'/chat-games',number:'/chat-games'};
   const params=new URLSearchParams(location.search),theme=params.get('theme'),forward=new URLSearchParams();
   if(['classic','spooktober','vicecity','christmas','halloween','ghost','slime'].includes(theme))forward.set('theme',theme);
   if(params.get('muted')==='1')forward.set('muted','1');

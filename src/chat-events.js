@@ -15,7 +15,7 @@ function isSongCommand(text) {
 }
 
 function isGameInput(text) {
-  return /^(?:!join|(?:[1-9]\d?|100)|one|two|three|pass|attack|defend|heal|!quiz\s+(?:join|[a-d1-4])|!(?:launch|start|next|stop|games)(?:\s+[\w-]+)?)$/i.test(text.trim());
+  return /^(?:!join|!defend\s+.{1,300}|!vote\s+[1-3]|(?:[1-9]\d?|100)|one|two|three|pass|attack|defend|heal|!quiz\s+(?:join|[a-d1-4])|!(?:launch|start|next|stop|games)(?:\s+[\w-]+)?)$/i.test(text.trim());
 }
 
 function normalizeStreamerBotEvent(value) {

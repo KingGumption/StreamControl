@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" class="game-overlay-document">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KingGumption Live Arcade</title>
+  <link rel="stylesheet" href="/assets/game-canvas.css">
+  <link rel="stylesheet" href="/assets/audience-games.css">
+  <link rel="stylesheet" href="/assets/seasonal-theme.css">
+  <script src="/assets/seasonal-theme.js" data-follow-graphics></script>
+</head>
+<body class="game-overlay">
+  <div class="game-viewport"><div data-game-canvas>
+    <main id="audience" hidden>
+      <header class="mast">
+        <div><div class="brand">KingGumption <span>Live Arcade</span></div><h1 id="title"></h1></div>
+        <div class="time"><span id="round"></span><strong id="clock" hidden></strong></div>
+      </header>
+      <div class="score-scene">
+        <div class="scene-art" aria-hidden="true"><div class="gift"><i></i></div></div>
+        <div class="score-content"><p id="stage"></p><div class="scores" id="scores"></div></div>
+      </div>
+      <section class="play"><h2 id="prompt"></h2><ol id="options"></ol><p id="detail" hidden></p></section>
+      <footer><strong id="help"></strong><span id="total"></span></footer>
+    </main>
+  </div></div>
+  <script src="/assets/game-canvas.js"></script>
+  <script src="/assets/audience-games.js"></script>
+</body></html>
