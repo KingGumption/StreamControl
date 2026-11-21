@@ -82,6 +82,7 @@
     }
 
 .admin-nav .admin-logout{margin:0;display:flex}.admin-logout button{width:auto;margin:0;padding:9px 13px;font:inherit;font-weight:bold;color:var(--muted,#a2b5c3);background:var(--panel-alt,#1e2430);border:1px solid var(--border,#27313d);border-radius:7px;cursor:pointer}.admin-logout button:hover{color:var(--text,#edf4f7);border-color:var(--accent,#4ecdc4)}.admin-logout button:focus-visible{outline:3px solid #4ecdc4;outline-offset:2px}
+.photo-address{display:flex;gap:.65rem;flex-wrap:wrap;margin:.5rem 0}.photo-address input{min-width:0;max-width:100%;flex:1 1 16rem}.photo-address button{min-height:44px}.latest[hidden]{display:none!important}
 </style>
 <link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script><link rel="stylesheet" href="/assets/moderator-sections.css"></head>
 <body class="engagement-site">
@@ -108,7 +109,7 @@
       <form id="test-form">
         <div class="test-fields">
           <input id="name" value="Test Viewer" maxlength="50" aria-label="Redeemer name" required>
-          <button id="submit" type="submit">Take photo</button>
+          <button id="submit" type="submit">Take test photo</button>
         </div>
         <label class="delivery-option">
           <input id="deliver-discord" type="checkbox" checked>
@@ -121,7 +122,8 @@
 
     <section class="panel">
       <h2>OBS Browser Source</h2>
-      <p>Add <code id="overlay-url"></code> at <strong>1920 × 1080</strong> and enable “Control audio via OBS”.</p>
+      <p>Use a <strong>1920 × 1080</strong> browser source and enable “Control audio via OBS”.</p>
+      <label for="overlay-url">Browser source URL</label><div class="photo-address"><input readonly id="overlay-url" placeholder="Waiting for service…" type="url"><button id="copy-photo-url" type="button" disabled>Copy URL</button></div><output id="photo-copy-status" role="status"></output>
     </section>
   </div>
 

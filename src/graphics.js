@@ -7,9 +7,11 @@ const defaults={theme:null,transparency:0};
 const spotifyStyles=['stream','classic','halloween','ghost','slime','spooktober','vicecity'];
 function read(){
  const state=getConfigValue('graphics_settings',defaults);
+ // The earlier feathered panel stored a solid backing. Start the restored layout with its original fade.
+ const backgroundOpacity=state.spotifyLayout==='original' ? state.backgroundOpacity??0 : 0;
  // Match the visual precedence of existing installs until the owner makes a choice.
  const legacy=state.theme ? null : getConfigValue('song_overlay_style',null);
- return {...state,backgroundOpacity:state.backgroundOpacity??65,defaultTransparency:state.defaultTransparency??state.transparency??0,spotifyStyle:state.spotifyStyle || (spotifyStyles.includes(legacy)?legacy:null)};
+ return {...state,backgroundOpacity,defaultTransparency:state.defaultTransparency??state.transparency??0,spotifyStyle:state.spotifyStyle || (spotifyStyles.includes(legacy)?legacy:null)};
 }
 const names={
  banner:'follow=new',bannerPlain:'follow=new-no-char',card:'PlayingCardTwitch-3D',cardVertical:'PlayingCard-3d-Tiktok',
@@ -118,7 +120,7 @@ function install(app,router){
   }else if(scope==='spotify'){
    if(!spotifyStyles.includes(spotifyStyle)||!Number.isInteger(transparency)||transparency<0||transparency>100)return res.sendStatus(400);
    if(backgroundOpacity!==undefined && (!Number.isInteger(backgroundOpacity)||backgroundOpacity<0||backgroundOpacity>100))return res.sendStatus(400);
-   state={...previous,spotifyStyle,transparency,backgroundOpacity:backgroundOpacity??previous.backgroundOpacity};
+   state={...previous,spotifyStyle,transparency,backgroundOpacity:backgroundOpacity??previous.backgroundOpacity,spotifyLayout:'original'};
   }else if(scope==='theme'){
    if(!themes.includes(theme))return res.sendStatus(400);
    state={...previous,theme};

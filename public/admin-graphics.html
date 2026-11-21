@@ -37,13 +37,15 @@
 @media(max-width:720px){.gfx-form{grid-template-columns:1fr 1fr;gap:16px}.gfx-grid{grid-template-columns:1fr}.gfx-btn.gfx-primary{grid-column:1/-1}.gfx-stage{height:180px}}
 @media(max-width:440px){.gfx-form{grid-template-columns:1fr}.gfx-card{padding:12px}.gfx-heading p{font-size:.94rem}.gfx-card-top{align-items:flex-start}}
 .spotify-layout{display:grid;grid-template-columns:minmax(190px,0.86fr) minmax(0,1.14fr);gap:24px;margin:18px 0}.spotify-fields{border:0;padding:0;margin:0 0 8px;display:grid;gap:12px}.spotify-stage{width:100%;max-width:570px;aspect-ratio:570/125;overflow:hidden;border-radius:8px;background:repeating-conic-gradient(#303440 0 25%,#252933 0 50%) 0/20px 20px}.spotify-stage iframe{width:100%;height:100%;border:0;display:block;background:transparent}.spotify-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}.spotify-actions input{flex:1;min-width:150px}.gfx-workspace #spotify>label{font-weight:650}.gfx-workspace #spotify p{margin-top:6px}@media(max-width:720px){.spotify-layout{grid-template-columns:1fr}}
+.gfx-jump{display:flex;gap:6px 18px;flex-wrap:wrap;margin:0 0 1rem}.gfx-jump a{display:inline-flex;align-items:center;min-height:40px;text-underline-offset:.22em}.gfx-workspace section[id]{scroll-margin-top:14px}.spotify-actions>input{min-width:0}.gfx-workspace .spotify-stage iframe{max-width:100%}
 </style>
 <link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script><link rel="stylesheet" href="/assets/moderator-sections.css"></head>
-<body class="engagement-site engagement-site">
+<body class="engagement-site">
 <main class="gfx-workspace">
 <div class="gfx-heading"><h1>Graphics</h1><p>Preview overlays and copy their OBS URLs.</p></div>
+<nav class="gfx-jump" aria-label="On this page"><a href="#appearance">Stream appearance</a><a href="#sources">Source previews</a><a href="#spotify">Spotify overlay</a></nav>
 <p class="mod-reading-note">Read-only graphics. Preview themes and Spotify opacity locally. Only the owner can change what appears on stream.</p>
-<section class="gfx-controls" aria-labelledby="settings-heading">
+<section id="appearance" class="gfx-controls" aria-labelledby="settings-heading">
 <h2 id="settings-heading">Stream appearance</h2>
 <fieldset id="controls" class="gfx-form" aria-labelledby="settings-heading" disabled>
 <div class="gfx-field"><label for="theme">Overall theme</label><select id="theme"><option value="classic">Classic</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></select></div>
@@ -51,8 +53,8 @@
 </fieldset>
 <div class="gfx-footer"><output id="status" role="status">Loading settings…</output><button type="button" id="discard" class="gfx-link" hidden>Discard changes</button><button id="reload" class="gfx-link" type="button" hidden>Reload settings</button></div>
 </section>
-<section class="gfx-library" aria-labelledby="library-heading"><div class="gfx-library-heading"><h2 id="library-heading">Source previews</h2><span id="count" class="gfx-count" hidden></span></div>
-<p>Samples use the selected theme. Current URLs include the alert details supplied by OBS.</p>
+<section id="sources" class="gfx-library" aria-labelledby="library-heading"><div class="gfx-library-heading"><h2 id="library-heading">Source previews</h2><span id="count" class="gfx-count" hidden></span></div>
+<p>Samples use your preview theme. Copy a source URL into OBS, or open it on your streaming PC to see the local graphic.</p>
 <div class="gfx-grid" id="gallery"></div></section>
 <section id="spotify" class="gfx-controls" aria-labelledby="spotify-heading">
 <h2 id="spotify-heading">Spotify overlay</h2><p class="gfx-state">Now playing, viewer requests and the !song reminder. Use a 570 × 125 browser source in OBS.</p>
@@ -60,7 +62,7 @@
 <fieldset id="spotify-controls" class="spotify-fields" disabled aria-labelledby="spotify-heading">
 <div class="gfx-field"><label for="spotify-style">Spotify palette</label><select id="spotify-style"><option value="stream">Follow stream theme</option><optgroup label="Spotify-only override"><option value="classic">Classic · KingGumption</option><option value="halloween">Halloween · Midnight Request</option><option value="ghost">Ghost · Icy Blue</option><option value="slime">Slime · Toxic Green</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></optgroup></select></div>
 <div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Full strength</span></div></div>
-<div class="gfx-field"><label for="spotify-background">Background at faded edge <output id="background-pct" for="spotify-background"></output></label><input type="range" min="0" max="100" value="65" id="spotify-background" aria-describedby="background-help"><small id="background-help">Raise this for brighter scenes. Use 0% for the original fade.</small></div>
+<div class="gfx-field"><label for="spotify-background">Background at faded edge <output id="background-pct" for="spotify-background"></output></label><input type="range" min="0" max="100" value="0" id="spotify-background" aria-describedby="background-help"><small id="background-help">Raise this for brighter scenes. Use 0% for the original fade.</small></div>
 <div><span id="opacity-default-label"></span> <button type="button" class="gfx-link" id="opacity-restore">Use default</button> <button type="button" class="gfx-link" data-owner-write id="opacity-set-default">Save opacity as default</button></div>
 <div><button type="button" id="spotify-save" class="gfx-btn gfx-primary">Save Spotify settings</button> <button id="spotify-discard" type="button" class="gfx-link" hidden>Discard</button></div>
 </fieldset><output class="gfx-state" id="spotify-status" role="status"></output>
@@ -131,7 +133,7 @@
    const stage=node('div','gfx-stage'),img=new Image(),imageError=node('span','','Preview unavailable');
    img.dataset.sample=id;img.dataset.name=name;imageError.hidden=true;
    img.onerror=()=>{img.hidden=true;imageError.hidden=false;};stage.append(img,imageError);
-   const bottom=node('div'),tools=node('div','gfx-url-tools'),label=node('small','','Base URL · checking OBS…');
+   const bottom=node('div'),tools=node('div','gfx-url-tools'),label=node('small','','Checking OBS connection…');
    const copy=node('button','gfx-btn','Copy URL'),field=node('textarea');
    copy.type='button';copy.disabled=!base;field.placeholder='Connect OBS to read this source URL.';copy.setAttribute('aria-label','Copy '+name+' URL');
    field.rows=2;field.readOnly=true;field.spellcheck=false;field.value=base;field.setAttribute('aria-label',name+' URL');
@@ -142,10 +144,15 @@
      catch{field.focus();field.select();copy.textContent='Selected · copy manually';}
      clearTimeout(resetCopy);resetCopy=setTimeout(()=>{copy.textContent='Copy URL';},2500);
    };
-   tools.append(label,copy);bottom.append(tools,field);card.append(top,stage,bottom);el('gallery').append(card);
+   tools.append(label,copy);bottom.append(tools,field);
+   const localRoutes={banner:'follow',bannerPlain:'follow-no-character',card:'card-twitch',cardVertical:'card-tiktok',counter:'deaths'};
+   if(Object.hasOwn(localRoutes,id)){
+     const open=node('a','gfx-open-source','Open on streaming PC ↗');open.href='/graphics/live/'+localRoutes[id];open.target='_blank';open.rel='noopener noreferrer';open.setAttribute('aria-label','Open '+name+' on streaming PC (new tab)');bottom.append(open);
+   }
+card.append(top,stage,bottom);el('gallery').append(card);
    json('/admin/graphics/url/'+encodeURIComponent(id)).then(r=>{
-     field.value=r.url;copy.disabled=false;label.textContent='Current OBS URL';label.dataset.live='';
-   }).catch(e=>{label.textContent=e.status===409?'Source URL not recognised':base?'Base URL · OBS unavailable':'URL unavailable · connect OBS';});
+     field.value=r.url;copy.disabled=false;label.textContent='OBS is using this URL';label.dataset.live='';
+   }).catch(e=>{label.textContent=e.status===409?'OBS currently uses a different URL':base?'Setup URL · OBS connection unavailable':'URL unavailable · connect OBS';});
  }
  async function load(){
    busy=true;uncertain=false;el('reload').hidden=true;updateControls();stateMessage('Loading settings…');

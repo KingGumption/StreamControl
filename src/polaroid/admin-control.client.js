@@ -36,7 +36,8 @@ async function updateStatus() {
       card('Queue', `${status.queueLength}${status.processing ? ' (working)' : ''}`),
       card('Deliveries', String(status.deliveryQueueLength || 0)),
     ].filter(Boolean).join('');
-    overlayUrl.textContent = status.overlayUrl;
+    overlayUrl.value = status.overlayUrl || '';
+    document.getElementById('copy-photo-url').disabled=!overlayUrl.value;
     if (status.lastError) {
       result.dataset.serviceError = 'true';
       result.textContent = `Last error: ${status.lastError}`;
@@ -53,6 +54,13 @@ async function updateStatus() {
     statusElement.innerHTML = card('Service', 'Disconnected', 'bad');
   }
 }
+
+document.getElementById('copy-photo-url').addEventListener('click',async()=>{
+  if(!overlayUrl.value)return;
+  const message=document.getElementById('photo-copy-status');
+  try{await navigator.clipboard.writeText(overlayUrl.value);message.textContent='OBS URL copied.';}
+  catch{overlayUrl.focus();overlayUrl.select();message.textContent='URL selected. Copy it with your keyboard.';}
+});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();

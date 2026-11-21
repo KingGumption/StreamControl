@@ -61,7 +61,19 @@
     toggle.textContent = open ? 'Close menu' : 'Menu';
   }
   menu(false);
-  toggle.addEventListener('click',()=>menu(header.dataset.menu !== 'open'));
+  const firstDestination=()=>nav.querySelector('a[href]:not([hidden])')?.focus();
+  toggle.addEventListener('click',event=>{
+    const open=header.dataset.menu!=='open';menu(open);
+    if(open && event.detail===0)firstDestination();
+  });
+  toggle.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'){event.preventDefault();menu(true);firstDestination();}
+  });
+  header.addEventListener('focusout',event=>{
+    if(event.relatedTarget && !header.contains(event.relatedTarget) && header.dataset.menu==='open')menu(false);
+  });
+  document.addEventListener('pointerdown',event=>{if(header.dataset.menu==='open'&&!header.contains(event.target))menu(false);});
+  matchMedia('(max-width:800px)').addEventListener('change',()=>menu(false));
   header.addEventListener('keydown',event=>{
     if (event.key === 'Escape' && header.dataset.menu === 'open') {
       menu(false); toggle.focus();
@@ -126,6 +138,7 @@
   if((gamePage||current==='quizPreview') && current!=='games')keys.splice(keys.indexOf('games')+1,0,current);
   brand.href=isPublic?'/':'/admin/workspace';
   renderLinks(isPublic?['terms','privacy','login']:keys);
+  if(!nav.children.length){nav.hidden=true;toggle.hidden=true;}
   header.append(bar,nav);body.prepend(skip,header);
   if(body.hasAttribute('data-sections')){
     async function checkAccess(){

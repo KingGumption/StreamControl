@@ -1,0 +1,8 @@
+.report-view-picker{display:none}
+@media(max-width:680px){
+  .engagement-site .report-view-picker{display:grid;gap:5px;font-weight:650;width:100%;min-width:0}
+  .engagement-site .report-view-picker select{font:inherit;width:100%;max-width:100%;min-height:44px}
+  .engagement-site .report-view-picker+.tabs{display:none!important}
+  .engagement-site .control-deck,.engagement-site .toolbar:has(.report-view-picker){position:static}
+  .engagement-site .filters,.engagement-site .control-deck,.engagement-site .toolbar:has(.report-view-picker){min-width:0}
+}

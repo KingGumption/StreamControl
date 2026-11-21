@@ -4,10 +4,17 @@ const {app}=require('../src/admin'),access=require('../src/moderator-access'),{s
 test('each section grant changes both page and data access in an existing moderator session',async t=>{
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
  t.after(()=>{server.closeAllConnections();server.close()});
- const user=await access.create('helper',crypto.randomUUID()),url='http://127.0.0.1:'+server.address().port+'/admin';
+ const password=crypto.randomUUID(),user=await access.create('helper',password),url='http://127.0.0.1:'+server.address().port+'/admin';
  const cookie=user=>'stream_control_session='+access.issue(user);
  const owner=cookie({id:'owner',role:'owner'}),mod=cookie({...user,role:'games'});
  const call=(route,cookie,body)=>fetch(url+route,{redirect:'manual',method:body?'POST':'GET',headers:{cookie,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+ const {setConfigValue}=require('../src/db');
+ setConfigValue('graphics_settings',{theme:'vicecity',backgroundOpacity:72,transparency:12,defaultTransparency:8});
+ const graphics=async()=> (await fetch(url.replace(/\/admin$/,'')+'/graphics/state')).json();
+ const restored=await graphics();
+ assert.deepEqual([restored.backgroundOpacity,restored.transparency,restored.defaultTransparency],[0,12,8]);
+ assert.equal((await call('/graphics',owner,{scope:'spotify',spotifyStyle:'vicecity',backgroundOpacity:53,transparency:12})).status,200);
+ assert.equal((await graphics()).backgroundOpacity,53);
  const {spotifyApi}=require('../src/spotify-api'),{bridgeHub}=require('../src/bridge-hub');
  const track={name:'Sample track',uri:'spotify:track:sample'};
  const pick=t.mock.method(spotifyApi,'randomPlaylistTrack',async()=>track);
@@ -57,6 +64,9 @@ test('each section grant changes both page and data access in an existing modera
  const degraded=await (await setOpen(true)).json();assert.equal(degraded.settings.songRequestsEnabled,true);assert.match(degraded.playbackWarning,/could not be confirmed/);
  await call('/moderators/handoff',owner,{enabled:true});
  await call(grants,owner,{sections:['games'],gameControl:false});
+ const login=returnTo=>call('/login','',{username:'helper',password,returnTo});
+ assert.equal((await login('/admin/games/quick?game=number')).headers.get('location'),'/admin/games/quick?game=number');
+ assert.equal((await login('/admin/moderators')).headers.get('location'),'/admin/games');
  assert.equal((await call('/games/action',mod,{action:'launch',game:'quiz'})).status,403);
  assert.equal((await (await call('/games/state',mod)).json()).controlEnabled,false);
  assert.equal((await call(grants,owner,{sections:['moderators']})).status,400);

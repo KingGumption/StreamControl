@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StreamEngagement</title>
+    <title>Song requests · Stream Engagement</title>
     <style>
       :root {
         --bg: #101418;
@@ -162,6 +162,23 @@
       .request-status.partial { color: #f4c95d; }
       .request-status.error, .request-status.denied { color: var(--danger); }
       button:disabled { opacity: 0.45; cursor: not-allowed; }
+      .request-message:empty{display:none}
+      .command-card{padding:0;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;margin:0}
+      summary.command-header{display:list-item;padding:12px 2px;margin:0;font-weight:650;cursor:pointer}
+      .command-card[open]{padding-bottom:12px}
+      #permissionsSection .toolbar select{width:auto}
+      #songSettingsSection .switch:has(input:disabled){opacity:.6}
+      @media (max-width: 600px){
+        .requests-scroll{max-height:420px}.requests-scroll thead{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden}
+        .requests-scroll table,.requests-scroll tbody{display:block;width:100%;min-width:0}
+        .requests-scroll tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;border-top:1px solid var(--border);padding:10px 0}
+        .requests-scroll td{padding:0;border:0;overflow-wrap:anywhere}
+        .requests-scroll td:nth-child(4){grid-area:1/1/2/3;font-weight:650}
+        .requests-scroll td:nth-child(1){grid-area:4/1/5/3;color:var(--muted);font-size:.8rem}
+        .requests-scroll td:nth-child(2){grid-area:3/1;color:var(--muted);font-size:.82rem}
+        .requests-scroll td:nth-child(3){grid-area:2/1}.requests-scroll td:nth-child(5){grid-area:2/2;text-align:right}
+        .requests-scroll td:nth-child(6){grid-area:3/2/5/3}.requests-scroll td[colspan]{grid-area:auto / span 2}
+      }
       @media (max-width: 900px) {
         header { align-items: flex-start; flex-direction: column; }
         .grid { grid-template-columns: 1fr; }
@@ -174,7 +191,7 @@
 </style>
   <link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script><link rel="stylesheet" href="/assets/moderator-sections.css"></head>
   <body class="engagement-site">
-    <div class="shell">
+    <main class="shell">
       <header>
         <h1>Song requests</h1>
         <nav class="admin-nav" aria-label="Admin pages">
@@ -189,8 +206,8 @@
         <div class="mod-song-summary"><h2>Song request settings</h2><p id="modSongSettings" role="status">Loading current settings…</p></div>
         <div class="setting-row" data-song-control="requests">
           <div class="setting-copy">
-            <h2>Song Requests</h2>
-            <p class="muted">Opening requests keeps the current Spotify session. If Spotify is closed, it opens on the stream PC and starts a random playlist track.</p>
+            <h2>Accept song requests</h2>
+            <p class="muted">If Spotify is closed, opening requests starts a playlist track on the stream PC.</p>
           </div>
           <label class="switch" title="Open or close song requests">
             <input type="checkbox" id="songRequestsEnabled" disabled aria-label="Open song requests" />
@@ -199,15 +216,14 @@
         </div>
         <div class="setting-row" data-song-control="explicit">
           <div class="setting-copy">
-            <h2>Allow Explicit Tracks</h2>
-            <p class="muted">When off, song requests only accept results Spotify marks as non-explicit.</p>
+            <h2>Allow explicit tracks</h2>
+            <p class="muted">Turn off to accept clean tracks only.</p>
           </div>
           <label class="switch" title="Allow explicit Spotify tracks">
             <input type="checkbox" id="allowExplicitTracks" aria-label="Allow explicit Spotify tracks" />
             <span class="switch-track" aria-hidden="true"></span>
           </label>
         </div>
-        <div data-owner-write><button type="button" id="spotifyOfflineTest" hidden>Test Spotify playback offline</button><span id="spotifyPlaybackStatus" role="status"></span></div>
         <p id="liveRequestHint" class="muted"></p>
         <details class="spotify-account" id="spotifyAccount"><summary>Spotify account settings</summary>
           <p class="muted" id="spotifyAccountStatus" role="status">Open to check account settings.</p>
@@ -232,10 +248,11 @@
 
       <section class="panel requests-panel" id="requestsSection">
         <div class="connection-heading">
-          <h2>Recent Song Requests</h2>
+          <h2>Recent requests</h2>
           <span class="muted">Newest first</span>
         </div>
-        <div class="requests-scroll">
+        <p id="requestLoadError" hidden role="status">Request history is unavailable. Retrying…</p>
+        <div class="requests-scroll" role="region" aria-label="Recent requests" tabindex="0">
           <table>
             <thead>
               <tr>
@@ -248,7 +265,7 @@
               </tr>
             </thead>
             <tbody id="requestTable">
-              <tr><td colspan="6" class="muted">No song requests yet.</td></tr>
+              <tr><td colspan="6" class="muted">Loading requests…</td></tr>
             </tbody>
           </table>
         </div>
@@ -257,12 +274,12 @@
 
       <div class="grid">
         <section class="panel" id="permissionsSection">
-          <h2>Permissions</h2>
+          <h2>Chat command permissions</h2>
           <p class="muted"><strong>!skip</strong> skips the current song. <strong>!songremove</strong> removes the latest request; add a request ID to choose one. Removal affects the playlist and history, not songs already in Spotify’s playback queue. Both commands default to owner and moderators.</p>
           <div id="commandList"></div>
           <div class="toolbar">
-            <button class="primary" id="savePermissions">Save</button>
-            <button class="secondary" id="applyPreset">Apply preset</button>
+            <button class="primary" id="savePermissions">Save permissions</button>
+            <button class="secondary" id="applyPreset">Use preset</button>
             <select id="presetSelect" aria-label="Permission preset">
               <option value="owner_only">Owner only</option>
               <option value="mods_plus_owner">Mods + Owner</option>
@@ -271,12 +288,12 @@
               <option value="everyone">Everyone</option>
             </select>
           </div>
-          <div id="saveToast" class="save-toast">✓ Permissions updated</div>
+          <p id="saveToast" class="request-message" role="status"></p>
           <p class="muted">Role availability varies by platform/event. VIP, member, follower, and fan-club checks are only honored when the platform provides that data reliably.</p>
         </section>
 
         <aside class="panel" id="overridesSection">
-          <h2>User Overrides</h2>
+          <h2>Individual exceptions</h2>
           <div class="form-group">
             <label for="overridePlatform">Platform</label>
             <select id="overridePlatform">
@@ -286,8 +303,8 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="overrideUsername">Username</label>
-            <input id="overrideUsername" type="text" placeholder="ExamplePerson" />
+            <label for="overrideUsername">Viewer username</label>
+            <input id="overrideUsername" type="text" required maxlength="100" autocomplete="off" />
           </div>
           <div class="form-group">
             <label for="overrideCommand">Command</label>
@@ -301,9 +318,10 @@
             </select>
           </div>
           <div class="toolbar">
-            <button id="addOverride" class="primary">Add Override</button>
+            <button id="addOverride" class="primary">Add exception</button>
           </div>
 
+          <p id="overrideFeedback" class="request-message" role="status"></p>
           <div class="eng-table-scroll" tabindex="0" role="region" aria-label="Permission overrides"><table>
             <thead>
               <tr>
@@ -319,10 +337,9 @@
         </aside>
       </div>
 
-      <p class="muted">Set up the Spotify browser source in <a href="/admin/graphics#spotify">Graphics → Spotify overlay</a>.</p>
+      <p><a href="/admin/graphics#spotify">Spotify overlay settings</a></p>
 
-      <div class="footer-space"></div>
-    </div>
+    </main>
 
     <script>
       const state = {
@@ -361,10 +378,11 @@
       async function loadRequests() {
         try {
           const response = await fetch('/admin/requests', { cache: 'no-store' });
-          if (!response.ok) return;
+          if (!response.ok) throw Error();
           const json = await response.json();
           const table = document.getElementById('requestTable');
           table.innerHTML = '';
+          document.getElementById('requestLoadError').hidden=true;
           const requests = json.requests || [];
           if (!requests.length) {
             const row = document.createElement('tr');
@@ -409,12 +427,13 @@
             table.appendChild(row);
           });
         } catch {
-          // Keep the previous table contents during transient admin API errors.
+          document.getElementById('requestLoadError').hidden=false;
         }
       }
 
       async function loadConfig() {
         const response = await fetch('/admin/config');
+        if(!response.ok)throw Error('Could not load settings.');
         const json = await response.json();
         state.config = json.config || { commands: {} };
         state.presets = json.presets || {};
@@ -427,7 +446,7 @@
           document.getElementById('saveRepeatTrack').disabled = false;
         }
         state.overrides = (state.config.overrides || []).slice();
-        hasSettings=response.ok;render();updateRequestSwitch();
+        hasSettings=response.ok;render();renderCommands();renderOverrides();updateRequestSwitch();
       }
 
       function render() {
@@ -435,17 +454,22 @@
           const s=state.settings,minutes=s.duplicateSongCooldownMinutes;
           document.getElementById('modSongSettings').textContent=(s.songRequestsEnabled?'Requests open':'Requests closed')+' · '+(s.allowExplicitTracks?'Explicit tracks allowed':'Clean tracks only')+' · '+(minutes ? 'Repeat cooldown: '+minutes+' min':'Repeats allowed');
         }
+        renderSwitches();
+      }
+      function renderSwitches(){
         document.getElementById('allowExplicitTracks').checked = Boolean(state.settings.allowExplicitTracks);
         document.getElementById('songRequestsEnabled').checked = Boolean(state.settings.songRequestsEnabled);
+      }
+      function renderCommands(){
         const commands = Object.keys(state.config.commands || {}).sort();
         const commandList = document.getElementById('commandList');
         commandList.innerHTML = '';
         commands.forEach((command) => {
-          const card = document.createElement('div');
+          const card = document.createElement('details');
           card.className = 'command-card';
-          const title = document.createElement('div');
+          const title = document.createElement('summary');
           title.className = 'command-header';
-          title.innerHTML = `<strong>!${command}</strong>`;
+          title.textContent = '!'+command;
           card.appendChild(title);
 
           const platformGrid = document.createElement('div');
@@ -483,17 +507,19 @@
         const overrideCommand = document.getElementById('overrideCommand');
         overrideCommand.innerHTML = commands.map((command) => `<option value="${command}">!${command}</option>`).join('');
 
+      }
+      function renderOverrides(){
         const overrideTable = document.getElementById('overrideTable');
         overrideTable.innerHTML = '';
         state.overrides.forEach((entry) => {
           const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${entry.platform}</td>
-            <td>${entry.username}</td>
-            <td>!${entry.command}</td>
-            <td>${entry.access}</td>
-            <td><button class="remove-btn" data-platform="${entry.platform}" data-username="${entry.username}" data-command="${entry.command}">Remove</button></td>
-          `;
+          for(const value of [entry.platform,entry.username,'!'+entry.command,entry.access]){
+            const cell=row.insertCell();cell.textContent=value;
+          }
+          const remove=document.createElement('button');remove.className='remove-btn';remove.textContent='Remove';
+          remove.setAttribute('aria-label','Remove exception for '+entry.username+' on !'+entry.command);
+          Object.assign(remove.dataset,{platform:entry.platform,username:entry.username,command:entry.command});
+          row.insertCell().append(remove);
           overrideTable.appendChild(row);
         });
       }
@@ -509,19 +535,12 @@
           if (input.checked) payload.commands[command][platform].push(role);
         });
 
-        const response = await fetch('/admin/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ config: { commands: payload.commands, presets: state.presets } })
-        });
+        const message=document.getElementById('saveToast');
+        try{
+          await saveChange('/admin/save',{config:{commands:payload.commands,presets:state.presets}});
+          message.textContent='Permissions saved.';
+        }catch(error){message.textContent=error.message;}
 
-        const result = await response.json();
-        const toast = document.getElementById('saveToast');
-        toast.style.display = 'block';
-        setTimeout(() => { toast.style.display = 'none'; }, 2000);
-        if (result.ok) {
-          await loadConfig();
-        }
       });
 
       document.getElementById('applyPreset').addEventListener('click', () => {
@@ -545,31 +564,29 @@
         const username = document.getElementById('overrideUsername').value.trim();
         const command = document.getElementById('overrideCommand').value;
         const access = document.getElementById('overrideAccess').value;
-        if (!username) return;
-
-        await fetch('/admin/override', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ platform, username, command, access })
-        });
-
-        document.getElementById('overrideUsername').value = '';
-        await loadConfig();
+        if (!document.getElementById('overrideUsername').reportValidity())return;
+        const message=document.getElementById('overrideFeedback');
+        try{
+          const result=await saveChange('/admin/override',{platform,username,command,access});
+          state.overrides=result.config.overrides;renderOverrides();document.getElementById('overrideUsername').value='';
+          message.textContent='Exception saved.';
+        }catch(error){message.textContent=error.message;}
       });
-
-      document.getElementById('overrideTable').addEventListener('click', async (event) => {
-        const button = event.target.closest('button.remove-btn');
-        if (!button) return;
-        await fetch('/admin/override/remove', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            platform: button.dataset.platform,
-            username: button.dataset.username,
-            command: button.dataset.command
-          })
-        });
-        await loadConfig();
+      async function saveChange(url,body){
+        const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        const data=await r.json();
+        if(!r.ok||!data.ok)throw Error(data.message||data.error||'Could not save changes.');
+        return data;
+      }
+      document.getElementById('overrideTable').addEventListener('click',async event=>{
+        const button=event.target.closest('button.remove-btn');if(!button)return;
+        const message=document.getElementById('overrideFeedback');button.disabled=true;
+        try{
+          const {platform,username,command}=button.dataset;
+          await saveChange('/admin/override/remove',{platform,username,command});
+          state.overrides=state.overrides.filter(e=>e.platform!==platform||e.username!==username||e.command!==command);
+          renderOverrides();message.textContent='Exception removed.';
+        }catch(error){button.disabled=false;message.textContent=error.message;}
       });
 
       document.getElementById('requestTable').addEventListener('click', async (event) => {
@@ -604,8 +621,15 @@
       });
 
       document.getElementById('spotifyDisconnect').addEventListener('click', async () => {
-        const response = await fetch('/admin/spotify/disconnect', { method: 'POST' });
-        if (response.ok) await loadSpotifyAccount();
+        const button=document.getElementById('spotifyDisconnect');
+        button.disabled=true;
+        try {
+          const response=await fetch('/admin/spotify/disconnect',{method:'POST'});
+          if(!response.ok)throw Error();
+          await loadSpotifyAccount();
+        }catch{
+          document.getElementById('spotifyAccountStatus').textContent='Could not disconnect Spotify. Try again.';
+        }finally{button.disabled=false;}
       });
 
       const repeatInput = document.getElementById('repeatTrackMinutes');
@@ -655,13 +679,11 @@
         }
       });
 
-      const requestSwitch=document.getElementById('songRequestsEnabled'),testButton=document.getElementById('spotifyOfflineTest');
+      const requestSwitch=document.getElementById('songRequestsEnabled');
       const ownerCanOpen=!document.body.hasAttribute('data-sections');
       let live=false,requestBusy=false,hasSettings=false,checking=false;
       function updateRequestSwitch(){
         requestSwitch.disabled=requestBusy||!hasSettings||(!ownerCanOpen&&!live&&!requestSwitch.checked);
-        testButton.hidden=document.body.hasAttribute('data-sections')||live;
-        testButton.disabled=requestBusy;
         document.getElementById('liveRequestHint').textContent=live?'':ownerCanOpen?'OBS is offline. You can open requests as the owner.':'Opening song requests requires a live OBS stream.';
       }
       async function refreshLive(){
@@ -670,11 +692,6 @@
         try{const r=await fetch('/admin/spotify/launch-status',{cache:'no-store',signal:AbortSignal.timeout(8000)});live=r.ok&&(await r.json()).live===true;}
         catch{live=false;}finally{checking=false;updateRequestSwitch();}
       }
-      testButton.onclick=async()=>{
-        const status=document.getElementById('spotifyPlaybackStatus');requestBusy=true;updateRequestSwitch();status.textContent='Starting Spotify…';
-        try{const r=await fetch('/admin/spotify/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offlineTest:true})});const data=await r.json();if(!r.ok)throw Error(data.error);status.textContent='Started '+data.track+'.';}
-        catch(error){status.textContent=error.message;}finally{requestBusy=false;updateRequestSwitch();}
-      };
       refreshLive();setInterval(refreshLive,10000);document.addEventListener('visibilitychange',refreshLive);
       document.getElementById('songRequestsEnabled').addEventListener('change', async (event) => {
         const input = event.currentTarget;
@@ -702,7 +719,7 @@
         }
       });
 
-      loadConfig();
+      loadConfig().catch(()=>{document.getElementById('songRequestsMessage').textContent='Could not load settings. Refresh to try again.';});
       loadRequests();
       setInterval(loadRequests, 5000);
     </script>

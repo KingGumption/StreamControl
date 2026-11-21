@@ -4,6 +4,18 @@
   const themes = {classic:'Classic',spooktober:'Spooktober',vicecity:'Vice City'};
   const formatter = new Intl.DateTimeFormat(undefined,{dateStyle:'short',timeStyle:'short'});
   let lastUpdate = null, loading = false;
+  // Server-side scopes also determine which collection headings make sense here.
+  if(document.body.hasAttribute('data-sections')){
+    const allowed=new Set(document.body.dataset.sections.split(' ').filter(Boolean));
+    if(!allowed.has('songs'))document.querySelector('.dash-panel').hidden=true;
+    const tools=document.querySelector('.dash-tools');
+    if(![...tools.querySelectorAll('a')].some(a=>!a.hidden))tools.hidden=true;
+    if(!['songs','graphics','games'].some(id=>allowed.has(id)))document.querySelector('.dash-stats').hidden=true;
+    if(allowed.size===1 && allowed.has('home')){
+      const note=document.createElement('p');note.textContent='Only the Dashboard is assigned to this account. Ask the owner for access to other tools.';
+      document.getElementById('dash-alert').after(note);
+    }
+  }
   const node = (tag,text,cls) => { const n=document.createElement(tag); n.textContent=text; if(cls)n.className=cls; return n; };
   const text = (id,t) => {byId(id).textContent=t;};
   function requests(items) {

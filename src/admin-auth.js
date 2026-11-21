@@ -14,7 +14,7 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
 
   function loginPage(req, res) {
     const user = identity(req);
-    if (user) return res.redirect(landing(user));
+    if (user) return res.redirect(afterLogin(user,req.query?.returnTo));
     return res.sendFile(path.join(__dirname, '..', 'public', 'admin-login.html'));
   }
 
@@ -34,11 +34,12 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
       ? (safeSecretEqual(password,config.admin.password) ? {id:'owner',role:'owner'} : null)
       : await access.authenticate(username,password);
     if (!user) {
-      return res.redirect('/admin/login?error=1');
+      const target=req.body?.returnTo;
+      return res.redirect('/admin/login?error=1'+(target?'&returnTo='+encodeURIComponent(safeReturnPath(target)):''));
     }
     attempts.delete(key);
     res.setHeader('Set-Cookie', serializeSessionCookie(access.issue(user,now()), SESSION_MAX_AGE_SECONDS));
-    return res.redirect(user.role === 'games' ? landing(user) : safeReturnPath(req.body?.returnTo));
+    return res.redirect(afterLogin(user,req.body?.returnTo));
   }
 
   function logout(req, res) {
@@ -119,11 +120,27 @@ function serializeSessionCookie(value, maxAge) {
   return `${COOKIE_NAME}=${encodeURIComponent(value)}; Path=/admin; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`;
 }
 
-function safeReturnPath(value) {
-  const pathValue = String(value || '/admin/dashboard');
-  return pathValue === '/admin' || pathValue.startsWith('/admin/') || pathValue.startsWith('/admin?') ? pathValue : '/admin';
+const workspacePages = new Set([
+  ...Object.values(require('./workspace-access').sections).map(section => section.page),
+  '/ui', '/stream-engagement', '/workspace', '/moderators', '/games/quick',
+  '/quiz', '/quiz/preview', '/king-of-the-hill'
+]);
+
+function afterLogin(user, returnTo) {
+  const target = safeReturnPath(returnTo);
+  if (!target) return landing(user);
+  const pathname = new URL(target, 'https://workspace.invalid').pathname.slice('/admin'.length).replace(/\/+$/, '') || '/';
+  return canRead(user, pathname) ? target : landing(user);
 }
 
+function safeReturnPath(value) {
+  if (typeof value !== 'string' || !/^\/admin(?:\/|\?|$)/.test(value)) return '';
+  const target = new URL(value, 'https://workspace.invalid');
+  const pathname = target.pathname.replace(/\/+$/, '');
+  if (pathname !== '/admin' && !pathname.startsWith('/admin/')) return '';
+  if (!workspacePages.has(pathname.slice('/admin'.length) || '/')) return '';
+  return target.pathname + target.search + target.hash;
+}
 function safeSecretEqual(left, right) {
   const leftHash = crypto.createHash('sha256').update(String(left)).digest();
   const rightHash = crypto.createHash('sha256').update(String(right)).digest();

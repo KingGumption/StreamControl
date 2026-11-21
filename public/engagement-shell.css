@@ -151,3 +151,22 @@ body.engagement-site .spotify-account summary{cursor:pointer;color:var(--teal);w
   body.engagement-site .eng-shell :is(.eng-toggle,.eng-account button){padding-inline:9px}
 }
 @media(max-width:338px){body.engagement-site .eng-connections{display:grid;grid-template-columns:auto auto;justify-content:start;column-gap:18px}body.engagement-site .eng-service{min-height:24px}}
+body.engagement-site .document-index{margin:18px 0;padding:12px 15px;border:1px solid var(--border);border-radius:10px;background:var(--bg)}
+body.engagement-site .document-index summary{cursor:pointer;font-weight:650}
+body.engagement-site .document-index nav{display:grid;gap:6px;padding:10px 0 0}
+body.engagement-site .document-index nav a{width:fit-content;padding:3px 0}
+body.engagement-site .access-signin{box-sizing:border-box;border:1px solid var(--border)}
+body.engagement-site .access-signin *{box-sizing:border-box}
+body.engagement-site .access-signin p{color:var(--muted);margin:5px 0 22px}
+body.engagement-site .access-signin label{display:block;margin:15px 0 5px;font-weight:650}
+body.engagement-site .access-signin input:not([type=hidden]),body.engagement-site .access-signin button{width:100%;min-height:44px;padding:10px 12px;font:inherit}
+body.engagement-site .access-signin button{margin-top:20px;cursor:pointer;font-weight:700}
+body.engagement-site .access-signin .error{display:none;padding:10px 12px;border-left:3px solid var(--danger);background:#35252b;color:#ffc3c6}
+body.engagement-site .access-signin .error.show{display:block}
+@media(prefers-reduced-motion:reduce){html:has(body.engagement-site) {scroll-behavior:auto}}
+/* Song switches use a visually hidden input: the visible track owns its keyboard focus ring. */
+body.engagement-site .switch input:focus-visible + .switch-track{outline:3px solid var(--teal);outline-offset:3px}
+body.engagement-site .switch input:not(:checked) + .switch-track{border-color:#778697}
+@media(forced-colors:active){
+  body.engagement-site .switch input:focus-visible + .switch-track{outline-color:Highlight}
+}

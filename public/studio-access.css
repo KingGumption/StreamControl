@@ -1,0 +1,45 @@
+.access-workspace{max-width:1060px!important}
+.access-workspace *{box-sizing:border-box}
+.access-title,.access-head,.access-identity,.access-actions{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;flex-wrap:wrap}
+.access-title{margin-bottom:23px}
+.access-title p,.access-panel p,.access-panel small{color:var(--muted)}
+.access-title p{max-width:62ch;margin:7px 0 0}
+.access-title>a,.access-panel button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border:1px solid var(--border);border-radius:8px;background:var(--panel-alt);color:var(--text);padding:7px 14px;font:inherit;font-weight:650;cursor:pointer}
+.access-title>a{background:var(--accent);border-color:var(--accent);color:#211910;text-decoration:none;font-weight:650}
+.access-panel{margin:16px 0;padding:clamp(18px,2.4vw,28px);background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:var(--eng-radius,14px)}
+.access-panel h2,.access-panel h3{margin:0}
+.access-panel :where(p){margin:6px 0 12px}
+.access-panel summary{font-weight:700;cursor:pointer;min-height:30px}
+.access-panel[open]>summary{margin-bottom:16px}
+.access-panel ul{list-style:none;margin:0;padding:0}
+.access-handoff{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 32px}
+.access-handoff>div{grid-row:1/3;max-width:62ch}
+.access-handoff>div p{margin:7px 0 0}
+.access-handoff>label,.access-check{display:flex;align-items:center;gap:8px;min-height:36px}
+.access-handoff>label{font-weight:670}
+.access-handoff #handoffStatus{grid-column:2;margin:0;font-size:.88rem}
+.access-panel input[type=checkbox]{height:18px;width:18px;flex:none}
+.access-head span,.access-state,.access-placeholder{font-size:.88rem;color:var(--muted)}
+.access-identity{justify-content:start}
+.access-state{border:1px solid var(--border);padding:2px 8px;border-radius:99px}
+.access-account,.access-placeholder,#audit li{border-top:1px solid var(--border);padding:16px 0}
+.access-account:last-child,#audit li:last-child{padding-bottom:0}
+#accounts,#audit{margin-top:14px}
+.access-account .access-edit{margin-top:10px}
+.access-account .access-edit summary{color:var(--teal);font-size:.92rem}
+.access-account fieldset{margin:10px 0 16px;padding:12px;border:1px solid var(--border);border-radius:8px}
+.access-account legend{padding:0 4px;font-weight:650}
+.access-check-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:4px 14px}
+.access-check:has(input:disabled){color:var(--muted)}
+.access-actions{justify-content:start}
+.access-actions button:disabled{opacity:.6}
+.access-actions .access-revoke{margin-left:auto;color:var(--danger);background:transparent}
+.access-workspace #message:not(:empty){padding:12px 15px;border-left:3px solid var(--teal);background:var(--panel);overflow-wrap:anywhere}
+.access-workspace #message:empty{display:none}
+.access-panel #create{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.access-panel #create label{display:grid;gap:5px}
+.access-panel #create input{width:100%;padding:10px;font:inherit}
+.access-panel #create button{justify-self:start}
+.access-panel small{font-size:.83rem}
+#accounts h3,#audit li{overflow-wrap:anywhere}
+@media(max-width:680px){.access-handoff,.access-panel #create{grid-template-columns:1fr}.access-handoff>div{grid-row:auto}.access-handoff #handoffStatus{grid-column:1}.access-handoff>label{margin-top:10px}.access-title{align-items:start}.access-actions .access-revoke{margin-left:0}}
