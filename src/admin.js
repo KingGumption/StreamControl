@@ -445,15 +445,16 @@ async function requireLivePlayback(){
 }
 router.get('/spotify/launch-status',async(req,res)=>res.set('Cache-Control','no-store').json({live:await streamPlaybackLive()}));
 let launchingSpotify=false;
-async function startStreamPlayback(offlineTest=false){
+async function startStreamPlayback(offlineTest=false,skipIfRunning=false){
   const checkLive=offlineTest?async()=>{}:requireLivePlayback;
   if(launchingSpotify)throw Object.assign(new Error('Spotify is already starting on the stream PC.'),{code:'starting'});
   launchingSpotify=true;
   try{
     await checkLive();
+    const desktop=appConfig.mode==='local'?await require('./spotify-desktop').launch(skipIfRunning):await require('./bridge-hub').bridgeHub.launchSpotify(offlineTest,skipIfRunning);
+    if(desktop.alreadyRunning)return null;
     const selected=await spotifyApi.randomPlaylistTrack();
     await checkLive();
-    const desktop=appConfig.mode==='local'?await require('./spotify-desktop').launch():await require('./bridge-hub').bridgeHub.launchSpotify(offlineTest);
     await spotifyApi.playStreamTrack(desktop.deviceName,selected,checkLive);
     return selected.name;
   }finally{launchingSpotify=false;}
@@ -542,6 +543,7 @@ router.post('/settings/explicit-tracks', (req, res) => {
   res.json({ ok: true, settings });
 });
 
+let requestsChanging=false;
 router.post('/settings/song-requests', async (req, res) => {
   if (typeof req.body?.songRequestsEnabled !== 'boolean') {
     res.status(400).json({ ok: false, message: 'songRequestsEnabled must be true or false' });
@@ -549,24 +551,33 @@ router.post('/settings/song-requests', async (req, res) => {
   }
 
   const previous = getRuntimeSettings();
-  if(launchingSpotify)return res.status(409).json({ok:false,message:'Spotify is starting. Try again in a moment.'});
+  if(requestsChanging||launchingSpotify)return res.status(409).json({ok:false,message:'Spotify is starting. Try again in a moment.'});
   if(previous.songRequestsEnabled===req.body.songRequestsEnabled)return res.json({ok:true,settings:previous});
-  let track;
-  if(req.body.songRequestsEnabled){
-    try{track=await startStreamPlayback();}catch(error){return playbackFailure(error,res);}
-  }
-  setSongRequestsEnabled(req.body.songRequestsEnabled);
-  const settings = getRuntimeSettings();
-  addAuditLog({
-    action: 'song-requests-setting',
-    platform: 'all',
-    command: 'song',
-    previousValue: previous,
-    newValue: settings,
-    source: req.identity.username,
-    details: settings.songRequestsEnabled ? 'Song requests opened' : 'Song requests closed',
-  });
-  res.json({ ok: true, settings,track });
+  requestsChanging=true;
+  try{
+    let track,playbackWarning;
+    if(req.body.songRequestsEnabled){
+      const owner=req.identity.role==='owner';
+      try{track=await startStreamPlayback(owner,true);}
+      catch(error){
+        if(['starting','stream-offline'].includes(error.code))return playbackFailure(error,res);
+        playbackWarning='Song requests are open. Automatic Spotify playback could not be confirmed.';
+      }
+      if(!owner && !await streamPlaybackLive())return playbackFailure(Object.assign(new Error('Song requests can only be opened while OBS is live.'),{code:'stream-offline'}),res);
+    }
+    setSongRequestsEnabled(req.body.songRequestsEnabled);
+    const settings = getRuntimeSettings();
+    addAuditLog({
+      action: 'song-requests-setting',
+      platform: 'all',
+      command: 'song',
+      previousValue: previous,
+      newValue: settings,
+      source: req.identity.username,
+      details: settings.songRequestsEnabled ? 'Song requests opened' : 'Song requests closed',
+    });
+    res.json({ ok: true, settings,track,playbackWarning });
+  }finally{requestsChanging=false;}
 });
 
 router.get('/quiz/test/catalog', (req, res) => res.json({ ok: true, game: quizTestSessions.catalog() }));

@@ -190,7 +190,7 @@
         <div class="setting-row" data-song-control="requests">
           <div class="setting-copy">
             <h2>Song Requests</h2>
-            <p class="muted">Opening requests while live starts a random playlist track on the stream PC. Closing requests hides the overlay and leaves playback running.</p>
+            <p class="muted">Opening requests keeps the current Spotify session. If Spotify is closed, it opens on the stream PC and starts a random playlist track.</p>
           </div>
           <label class="switch" title="Open or close song requests">
             <input type="checkbox" id="songRequestsEnabled" disabled aria-label="Open song requests" />
@@ -656,12 +656,13 @@
       });
 
       const requestSwitch=document.getElementById('songRequestsEnabled'),testButton=document.getElementById('spotifyOfflineTest');
+      const ownerCanOpen=!document.body.hasAttribute('data-sections');
       let live=false,requestBusy=false,hasSettings=false,checking=false;
       function updateRequestSwitch(){
-        requestSwitch.disabled=requestBusy||!hasSettings||(!live&&!requestSwitch.checked);
+        requestSwitch.disabled=requestBusy||!hasSettings||(!ownerCanOpen&&!live&&!requestSwitch.checked);
         testButton.hidden=document.body.hasAttribute('data-sections')||live;
         testButton.disabled=requestBusy;
-        document.getElementById('liveRequestHint').textContent=live?'':'Opening song requests requires a live OBS stream.';
+        document.getElementById('liveRequestHint').textContent=live?'':ownerCanOpen?'OBS is offline. You can open requests as the owner.':'Opening song requests requires a live OBS stream.';
       }
       async function refreshLive(){
         if(document.hidden||checking)return;
@@ -691,7 +692,7 @@
           state.settings = result.settings;render();
           input.checked = Boolean(state.settings.songRequestsEnabled);
           message.textContent = input.checked
-            ? (result.track?'Song requests are open. Playing '+result.track+'.':'Song requests are open.')
+            ? (result.playbackWarning || (result.track?'Song requests are open. Playing '+result.track+'.':'Song requests are open.'))
             : 'Song requests are closed. !song cannot modify Spotify.';
         } catch (error) {
           input.checked = !input.checked;

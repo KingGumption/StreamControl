@@ -11,7 +11,12 @@ async function status(){
     return /^"Spotify\.exe",/im.test(stdout)?'connected':'disconnected';
   }catch{return 'unknown'}
 }
-async function launch(){
+async function launch(skipIfRunning=false){
+  if(skipIfRunning){
+    const state=await status();
+    if(state==='connected')return {alreadyRunning:true};
+    if(state!=='disconnected')throw Error('Could not confirm Spotify desktop status.');
+  }
   if(process.platform!=='win32')throw Error('Spotify desktop launch requires the Windows stream PC.');
   // The command and URI are fixed. No browser or bridge input enters the Windows shell.
   await exec(path.join(system32,'WindowsPowerShell/v1.0/powershell.exe'),['-NoProfile','-NonInteractive','-Command',"Start-Process -FilePath 'spotify:' -ErrorAction Stop"],{windowsHide:true,timeout:8000});

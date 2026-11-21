@@ -10,11 +10,12 @@ test('each section grant changes both page and data access in an existing modera
  const call=(route,cookie,body)=>fetch(url+route,{redirect:'manual',method:body?'POST':'GET',headers:{cookie,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
  const {spotifyApi}=require('../src/spotify-api'),{bridgeHub}=require('../src/bridge-hub');
  const track={name:'Sample track',uri:'spotify:track:sample'};
- t.mock.method(spotifyApi,'randomPlaylistTrack',async()=>track);
+ const pick=t.mock.method(spotifyApi,'randomPlaylistTrack',async()=>track);
  let liveState={outputActive:true,outputReconnecting:false};
  t.mock.method(bridgeHub,'requestObs',async method=>{assert.equal(method,'GetStreamStatus');return liveState});
- const launch=t.mock.method(bridgeHub,'launchSpotify',async()=>({deviceName:'Stream PC'}));
- t.mock.method(spotifyApi,'playStreamTrack',async(device,selected)=>{assert.equal(device,'Stream PC');assert.equal(selected,track)});
+ let running=false;
+ const launch=t.mock.method(bridgeHub,'launchSpotify',async(_,skip)=>skip&&running?{alreadyRunning:true}:{deviceName:'Stream PC'});
+ const play=t.mock.method(spotifyApi,'playStreamTrack',async(device,selected)=>{assert.equal(device,'Stream PC');assert.equal(selected,track)});
  assert.equal((await call('/spotify/launch','',{})).status,401);
  assert.equal((await call('/spotify/launch',owner,{})).status,200);
  for(const state of [{outputActive:false},{outputActive:true,outputReconnecting:true},null]){
@@ -23,7 +24,7 @@ test('each section grant changes both page and data access in an existing modera
    assert.equal(launch.mock.callCount(),before);
  }
  assert.equal((await call('/spotify/launch',owner,{offlineTest:true})).status,200);
- assert.deepEqual(launch.mock.calls.at(-1).arguments,[true]);
+ assert.deepEqual(launch.mock.calls.at(-1).arguments,[true,false]);
  liveState={outputActive:true};
  const grants='/moderators/'+user.id+'/sections';
  for(const [key,group] of Object.entries(sections)){
@@ -47,6 +48,13 @@ test('each section grant changes both page and data access in an existing modera
  assert.equal((await setOpen(true)).status,409);assert.equal(launch.mock.callCount(),beforeOpen);
  liveState={outputActive:true};assert.equal((await setOpen(true)).status,200);assert.equal((await setOpen(true)).status,200);
  assert.equal(launch.mock.callCount(),beforeOpen+1);
+ running=true;const picked=pick.mock.callCount(),played=play.mock.callCount();
+ await setOpen(false);assert.equal((await setOpen(true)).status,200);
+ liveState={outputActive:false};await setOpen(false);assert.equal((await setOpen(true)).status,409);
+ assert.equal((await call('/settings/song-requests',owner,{songRequestsEnabled:true})).status,200);
+ assert.equal(pick.mock.callCount(),picked);assert.equal(play.mock.callCount(),played);
+ await setOpen(false);running=false;liveState={outputActive:true};pick.mock.mockImplementationOnce(async()=>{throw Error('Spotify unavailable')});
+ const degraded=await (await setOpen(true)).json();assert.equal(degraded.settings.songRequestsEnabled,true);assert.match(degraded.playbackWarning,/could not be confirmed/);
  await call('/moderators/handoff',owner,{enabled:true});
  await call(grants,owner,{sections:['games'],gameControl:false});
  assert.equal((await call('/games/action',mod,{action:'launch',game:'quiz'})).status,403);

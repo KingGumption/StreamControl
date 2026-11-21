@@ -184,7 +184,7 @@ class ConnectorRuntime {
     }
     if(message.type==='spotify.desktop.launch'){
       const socket=this.cloud;
-      this.launchSpotify(message.offlineTest===true).then(data=>{
+      this.launchSpotify(message.offlineTest===true,message.skipIfRunning===true).then(data=>{
         if(this.cloud===socket)this.send({type:'spotify.desktop.response',id:message.id,ok:true,data});
       }).catch(()=>{
         if(this.cloud===socket)this.send({type:'spotify.desktop.response',id:message.id,ok:false,error:'Windows could not open Spotify on the stream PC.'});
@@ -194,12 +194,12 @@ class ConnectorRuntime {
     if (message.type === 'obs.request') void this.handleObsRequest(message);
   }
 
-  async launchSpotify(offlineTest){
-    if(offlineTest)return require('./spotify-desktop').launch();
+  async launchSpotify(offlineTest,skipIfRunning=false){
+    if(offlineTest)return require('./spotify-desktop').launch(skipIfRunning);
     await this.ensureObsConnected();
     const status=await this.obs.call('GetStreamStatus');
     if(status?.outputActive!==true||status.outputReconnecting===true)throw Error('OBS is offline');
-    return require('./spotify-desktop').launch();
+    return require('./spotify-desktop').launch(skipIfRunning);
   }
 
   async handleObsRequest(message) {
