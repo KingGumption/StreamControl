@@ -59,6 +59,7 @@ class BridgeHub extends EventEmitter {
     if (!message || typeof message.type !== 'string') return;
     if (message.type === 'service.state' && ['streamerbot', 'tikfinity', 'obs'].includes(message.service)) {
       const state = { connected: Boolean(message.connected), detail: String(message.detail || '') };
+      if(message.service==='streamerbot' && message.connected===true && message.authenticatedLocally===true)state.authenticatedLocally=true;
       this.serviceStates.set(message.service, state);
       this.emit('service-state', message.service, state);
       return;

@@ -1,6 +1,7 @@
 const {gameLauncher}=require('./game-launcher');
 const {arcadeGames}=require('./arcade-games');
 const crypto = require('node:crypto');
+const {streamerBotAuthentication}=require('./streamerbot-auth');
 const { avatarWarmer } = require('./avatar-warmer');
 const { appConfig } = require('./app-config');
 const {
@@ -27,6 +28,8 @@ class StreamerBotAdapter {
     this.onChatEvent = onChatEvent;
     this.socket = null;
     this.canSendChat = false;
+    this.replySetup = '';
+    this.pendingReplies = new Set();
     this.authRequestId = null;
     this.subscribeRequestId = null;
     this.rawMessageListeners = new Set();
@@ -39,7 +42,11 @@ class StreamerBotAdapter {
 
   onOpen(socket) {
     this.socket = socket;
+    this.authRequestId = null;
+    this.subscribeRequestId = null;
+    this.pendingReplies.clear();
     this.canSendChat = false;
+    this.replySetup = '';
     updateConnectionStatus('streamerbot', {
       state: 'connecting',
       detail: 'WebSocket connected; waiting for Streamer.bot hello',
@@ -50,6 +57,7 @@ class StreamerBotAdapter {
   onClose() {
     this.socket = null;
     this.canSendChat = false;
+    this.pendingReplies.clear();
     this.notifyConnection(false);
   }
 
@@ -67,6 +75,7 @@ class StreamerBotAdapter {
     if (payload.request === 'Hello') {
       if (payload.authentication) {
         if (!this.config.password) {
+          this.replySetup = 'Set STREAMERBOT_WS_PASSWORD on the Stream Engagement server to enable chat replies';
           this.subscribe();
           updateConnectionStatus('streamerbot', {
             state: 'connected',
@@ -83,12 +92,13 @@ class StreamerBotAdapter {
         updateConnectionStatus('streamerbot', { state: 'connecting', detail: 'Authenticating with Streamer.bot' });
         return;
       }
-      this.canSendChat = true;
+      // An unauthenticated socket can receive events; SendMessage requires authentication.
+      this.replySetup = 'Enable WebSocket Authentication in Streamer.bot and set the matching STREAMERBOT_WS_PASSWORD on the Stream Engagement server';
       this.subscribe();
       return;
     }
 
-    if (payload.id === this.authRequestId) {
+    if (this.authRequestId && payload.id === this.authRequestId) {
       if (payload.status !== 'ok') {
         updateConnectionStatus('streamerbot', {
           state: 'disconnected',
@@ -101,9 +111,16 @@ class StreamerBotAdapter {
       return;
     }
 
-    if (payload.id === this.subscribeRequestId) {
+    if (this.pendingReplies.delete(payload.id)) {
+      updateConnectionStatus('streamerbot', {state:'connected', detail:payload.status==='ok'
+        ? 'Chat subscribed; Streamer.bot accepted the last chat reply'
+        : 'Chat subscribed; Streamer.bot rejected the last chat reply. Check WebSocket authentication and the platform bot account.'});
+      return;
+    }
+
+    if (this.subscribeRequestId && payload.id === this.subscribeRequestId) {
       updateConnectionStatus('streamerbot', payload.status === 'ok'
-        ? { state: 'connected', detail: 'Connected; Twitch and YouTube chat subscribed' }
+        ? { state: 'connected', detail: this.canSendChat ? 'Connected; Twitch and YouTube chat subscribed' : 'Chat reception only. '+this.replySetup }
         : { state: 'disconnected', detail: 'Connected, but chat event subscription failed' });
       return;
     }
@@ -150,14 +167,19 @@ class StreamerBotAdapter {
 
   sendChat(platform, message) {
     if (!this.canSendChat || !['twitch', 'youtube'].includes(platform)) return false;
-    return this.send({
+    const id=requestId('chat');
+    if (this.pendingReplies.size>=256) this.pendingReplies.delete(this.pendingReplies.values().next().value);
+    this.pendingReplies.add(id);
+    const sent=this.send({
       request: 'SendMessage',
-      id: requestId('chat'),
+      id,
       platform,
       bot: true,
       internal: false,
       message,
     });
+    if(!sent)this.pendingReplies.delete(id);
+    return sent;
   }
 
   sendTikTokReply(message) {
@@ -294,6 +316,11 @@ class IntegrationRuntime {
       });
       if (service === 'streamerbot') {
         if (state.connected && !this.streamerBot.connected) this.streamerBot.onOpen(bridgeSocket);
+        // Only the token-authenticated PC bridge can attest its own successful local handshake.
+        if (state.connected && state.authenticatedLocally===true && !this.streamerBot.canSendChat) {
+          this.streamerBot.canSendChat=true;
+          this.streamerBot.subscribe();
+        }
         if (!state.connected && this.streamerBot.connected) this.streamerBot.onClose();
       }
       if (service === 'tikfinity' && state.connected) this.tikfinity.onOpen();
@@ -406,15 +433,6 @@ function parseJson(raw) {
   } catch {
     return null;
   }
-}
-
-function streamerBotAuthentication(password, authentication) {
-  const secret = crypto.createHash('sha256')
-    .update(`${password}${authentication.salt}`, 'utf8')
-    .digest('base64');
-  return crypto.createHash('sha256')
-    .update(`${secret}${authentication.challenge}`, 'utf8')
-    .digest('base64');
 }
 
 function requestId(prefix) {

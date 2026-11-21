@@ -50,11 +50,12 @@ test('Streamer.bot adapter normalizes events and sends chat responses', async ()
   const socket = fakeSocket();
   const events = [];
   const adapter = new StreamerBotAdapter({
-    config: { password: '', tiktokReplyActionId: 'action-id' },
+    config: { password: 'test-password', tiktokReplyActionId: 'action-id' },
     onChatEvent: (event) => events.push(event),
   });
   adapter.onOpen(socket);
-  adapter.handleMessage(JSON.stringify({ request: 'Hello', info: {} }));
+  adapter.handleMessage(JSON.stringify({ request: 'Hello', authentication:{salt:'fixture',challenge:'fixture'} }));
+  adapter.handleMessage(JSON.stringify({id:socket.sent[0].id,status:'ok'}));
   adapter.handleMessage(JSON.stringify({
     event: { source: 'Twitch', type: 'ChatMessage' },
     data: { text: '!playlist', user: { id: 'u1', login: 'User' } },
@@ -68,6 +69,24 @@ test('Streamer.bot adapter normalizes events and sends chat responses', async ()
   assert.deepEqual(socket.sent.at(-1).args, { message: 'Added song' });
 });
 
+test('unauthenticated chat subscription cannot send a privileged playlist reply or overwrite the setup diagnosis', () => {
+ const {getConnectionStatuses}=require('../src/connection-status');
+ for(const hello of [{request:'Hello'},{request:'Hello',authentication:{salt:'fixture',challenge:'fixture'}}]){
+  const socket=fakeSocket(),adapter=new StreamerBotAdapter({config:{password:''},onChatEvent:()=>{}});
+  adapter.onOpen(socket);adapter.handleMessage(JSON.stringify(hello));
+  adapter.handleMessage(JSON.stringify({id:socket.sent[0].id,status:'ok'}));
+  assert.equal(adapter.sendChat('twitch','fixture'),false);assert.deepEqual(socket.sent.map(s=>s.request),['Subscribe']);
+  assert.match(getConnectionStatuses().streamerbot.detail,/Chat reception only.*STREAMERBOT_WS_PASSWORD/);
+ }
+});
+test('an authenticated but rejected chat reply yields a safe owner diagnostic, not a delivery claim',()=>{
+ const {getConnectionStatuses}=require('../src/connection-status');
+ const socket=fakeSocket(),adapter=new StreamerBotAdapter({config:{password:'fixture'},onChatEvent:()=>{}});
+ adapter.onOpen(socket);adapter.handleMessage(JSON.stringify({request:'Hello',authentication:{salt:'s',challenge:'c'}}));
+ adapter.handleMessage(JSON.stringify({id:socket.sent[0].id,status:'ok'}));adapter.sendChat('twitch','fixture');
+ adapter.handleMessage(JSON.stringify({id:socket.sent.at(-1).id,status:'error',error:'private diagnostic'}));
+ assert.match(getConnectionStatuses().streamerbot.detail,/rejected the last chat reply/);assert.doesNotMatch(getConnectionStatuses().streamerbot.detail,/private diagnostic/);
+});
 test('Streamer.bot adapter can share extra event subscriptions with feature modules', () => {
   const socket = fakeSocket();
   const messages = [];

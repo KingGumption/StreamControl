@@ -1,4 +1,6 @@
 const WebSocket = require('ws');
+const {randomUUID}=require('node:crypto');
+const {streamerBotAuthentication}=require('./streamerbot-auth');
 const OBSWebSocket = require('obs-websocket-js').default;
 const { WebSocketConnectionMonitor } = require('./connection-status');
 const { loadPolaroidConfig } = require('./polaroid/config');
@@ -13,6 +15,9 @@ class ConnectorRuntime {
     this.cloudTimer = null;
     this.started = false;
     this.streamerBotSocket = null;
+    this.localAuthReady = false;
+    this.localAuthId = null;
+    this.localAuthTimer = null;
     this.tikfinitySocket = null;
     this.obsConnected = false;
     this.obsConnectPromise = null;
@@ -42,9 +47,9 @@ class ConnectorRuntime {
       new WebSocketConnectionMonitor({
         service: 'streamerbot', url: this.config.streamerBot.websocketUrl, registry: this.registry,
         reconnectDelayMs: this.reconnectDelayMs, WebSocketImpl: this.WebSocketImpl,
-        onOpen: (socket) => { this.streamerBotSocket = socket; this.sendServiceState('streamerbot', true, 'Connected'); },
-        onMessage: (payload) => this.send({ type: 'service.message', service: 'streamerbot', payload: bufferText(payload) }),
-        onClose: () => { this.streamerBotSocket = null; this.sendServiceState('streamerbot', false, 'Disconnected'); },
+        onOpen: socket=>this.openStreamerBot(socket),
+        onMessage: (payload,socket)=>this.handleStreamerBot(payload,socket),
+        onClose: ()=>{this.clearLocalAuth();this.streamerBotSocket=null;this.sendServiceState('streamerbot',false,'Disconnected');},
       }),
       new WebSocketConnectionMonitor({
         service: 'tikfinity', url: this.config.tikfinity.websocketUrl, registry: this.registry,
@@ -57,7 +62,65 @@ class ConnectorRuntime {
     this.localMonitors.forEach((monitor) => monitor.start());
   }
 
+  clearLocalAuth() {
+    clearTimeout(this.localAuthTimer);this.localAuthTimer=null;
+    this.localAuthReady=false;this.localAuthId=null;
+  }
+
+  openStreamerBot(socket) {
+    this.clearLocalAuth();
+    this.streamerBotSocket=socket;
+    if(!this.config.streamerBot.password){this.sendServiceState('streamerbot',true,'Connected');return;}
+    this.sendServiceState('streamerbot',false,'Waiting for local Streamer.bot authentication');
+    this.watchLocalAuth(socket);
+  }
+
+  watchLocalAuth(socket) {
+    clearTimeout(this.localAuthTimer);
+    this.localAuthTimer=setTimeout(()=>{
+      if(socket!==this.streamerBotSocket||this.localAuthReady)return;
+      this.clearLocalAuth();
+      this.sendServiceState('streamerbot',false,'Timed out waiting for local Streamer.bot authentication');
+      // Reconnect with a fresh socket and challenge; an old acknowledgement cannot unlock it.
+      socket.close();
+    },10000);
+    this.localAuthTimer.unref?.();
+  }
+
+  handleStreamerBot(raw,socket) {
+    if(socket!==this.streamerBotSocket||!socket)return;
+    const password=this.config.streamerBot.password;
+    if(!password){this.send({type:'service.message',service:'streamerbot',payload:bufferText(raw)});return;}
+    let p;try{p=JSON.parse(bufferText(raw));}catch{return;}
+    if(!p||typeof p!=='object')return;
+    if(p.request==='Hello'){
+      this.clearLocalAuth();
+      const auth=p.authentication;
+      if(typeof auth?.salt!=='string'||!auth.salt||typeof auth.challenge!=='string'||!auth.challenge){
+        this.sendServiceState('streamerbot',false,'Local WebSocket authentication is configured but Streamer.bot did not offer a challenge');
+        return;
+      }
+      this.sendServiceState('streamerbot',false,'Authenticating with Streamer.bot locally');
+      this.localAuthId='pc-streamerbot-auth:'+randomUUID();
+      this.watchLocalAuth(socket);
+      socket.send(JSON.stringify({request:'Authenticate',id:this.localAuthId,authentication:streamerBotAuthentication(password,auth)}));
+      return;
+    }
+    if(typeof p.id==='string'&&p.id.startsWith('pc-streamerbot-auth:')){
+      if(p.id!==this.localAuthId)return;
+      this.clearLocalAuth();
+      if(p.status==='ok'){
+        this.localAuthReady=true;
+        this.send({type:'service.state',service:'streamerbot',connected:true,authenticatedLocally:true,detail:'Authenticated by local connector'});
+      }else{this.sendServiceState('streamerbot',false,'Streamer.bot rejected local WebSocket authentication; check the connector password');}
+      return;
+    }
+    // No unauthenticated events or authentication exchange may enter the bridge or replay backlog.
+    if(this.localAuthReady)this.send({type:'service.message',service:'streamerbot',payload:bufferText(raw)});
+  }
+
   reconnectLocalServices() {
+    this.clearLocalAuth();
     this.localMonitors.forEach((monitor) => monitor.stop());
     this.localMonitors = [];
     this.streamerBotSocket = null;
@@ -101,6 +164,11 @@ class ConnectorRuntime {
     let message;
     try { message = JSON.parse(bufferText(raw)); } catch { return; }
     if (message.type === 'service.send') {
+      if(message.service==='streamerbot'&&this.config.streamerBot.password){
+        if(!this.localAuthReady)return;
+        let command;try{command=JSON.parse(message.payload);}catch{return;}
+        if(command?.request==='Authenticate')return;
+      }
       const socket = message.service === 'streamerbot' ? this.streamerBotSocket : message.service === 'tikfinity' ? this.tikfinitySocket : null;
       if (socket?.readyState === WebSocket.OPEN) socket.send(String(message.payload));
       return;
@@ -181,6 +249,7 @@ class ConnectorRuntime {
   }
 
   async stop() {
+    this.clearLocalAuth();this.streamerBotSocket=null;
     clearTimeout(this.flushTimer);this.flushTimer=null;
     this.started = false;
     if (this.cloudTimer) clearTimeout(this.cloudTimer);
