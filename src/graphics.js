@@ -83,10 +83,22 @@ function install(app,router){
  app.get('/graphics/state',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).json(read()));
  app.get('/graphics/events',(req,res,next)=>{res.set('Access-Control-Allow-Origin','*');next();},(req,res)=>streamEvents(req,res,{name:'graphics',initial:read,subscribe:f=>{listeners.add(f);return()=>listeners.delete(f);}}));
  router.get('/graphics',(_,res)=>res.sendFile(path.join(__dirname,'../public/admin-graphics.html')));
- router.get('/graphics/catalog',(_,res)=>res.json(names));
+ const gallery=['banner','bannerPlain','card','cardVertical','counter'];
+ const bannerUrl='file:///C:/Users/Zatanna/Documents/StreamStuff/StreamAssets/followbanner/follow-banner.html';
+ const cardUrl='file:///C:/Users/Zatanna/Documents/Codex/2026-09-11/wha/outputs/FollowerCard-Blender/index.html';
+ const base={banner:bannerUrl,bannerPlain:bannerUrl+'?no-char',card:cardUrl,cardVertical:cardUrl,counter:'http://127.0.0.1:18765/'};
+ router.get('/graphics/catalog',(_,res)=>res.json(gallery.map(id=>({id,name:names[id],base:base[id]}))));
+ router.get('/graphics/url/:id',async(req,res)=>{
+  const id=req.params.id;if(!gallery.includes(id))return res.sendStatus(404);
+  try{const {inputSettings}=await obs('GetInputSettings',{inputName:names[id]});
+   const url=new URL(inputSettings.url),expected=new URL(base[id]);
+   if(url.protocol!==expected.protocol||url.host!==expected.host||decodeURIComponent(url.pathname).toLowerCase()!==decodeURIComponent(expected.pathname).toLowerCase())return res.sendStatus(409);
+   res.set('Cache-Control','no-store').json({url:inputSettings.url});
+  }catch{res.sendStatus(503);}
+ });
  router.get('/graphics/preview/:id',async(req,res)=>{
   if(req.identity?.role!=='owner')return res.sendStatus(403);
-  if(!Object.hasOwn(names,req.params.id))return res.sendStatus(404);
+  if(!gallery.includes(req.params.id))return res.sendStatus(404);
   try{const {imageData}=await obs('GetSourceScreenshot',{sourceName:names[req.params.id],imageFormat:'png',imageWidth:480});res.set('Cache-Control','no-store').type('png').send(Buffer.from(imageData.split(',')[1],'base64'));}catch{res.sendStatus(503);}
  });
  router.post('/graphics',async(req,res)=>{
