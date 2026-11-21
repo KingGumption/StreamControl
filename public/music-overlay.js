@@ -8,6 +8,7 @@
     // Explicitly choosing “Follow stream” clears an old Spotify-only override.
     graphicTheme=['classic','halloween','ghost','slime','spooktober','vicecity'].includes(style) ? style : state.spotifyStyle==='stream' ? 'classic' : null;
     if(graphicTheme) document.documentElement.dataset.theme=graphicTheme;
+    if(Number.isInteger(state.backgroundOpacity))root.style.setProperty('--background-opacity',state.backgroundOpacity+'%');
     if(Number.isInteger(state.transparency))root.style.opacity=String(1-state.transparency/100);
   };
   if(preview){

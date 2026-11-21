@@ -9,7 +9,7 @@ function read(){
  const state=getConfigValue('graphics_settings',defaults);
  // Match the visual precedence of existing installs until the owner makes a choice.
  const legacy=state.theme ? null : getConfigValue('song_overlay_style',null);
- return {...state,defaultTransparency:state.defaultTransparency??state.transparency??0,spotifyStyle:state.spotifyStyle || (spotifyStyles.includes(legacy)?legacy:null)};
+ return {...state,backgroundOpacity:state.backgroundOpacity??65,defaultTransparency:state.defaultTransparency??state.transparency??0,spotifyStyle:state.spotifyStyle || (spotifyStyles.includes(legacy)?legacy:null)};
 }
 const names={
  banner:'follow=new',bannerPlain:'follow=new-no-char',card:'PlayingCardTwitch-3D',cardVertical:'PlayingCard-3d-Tiktok',
@@ -110,14 +110,15 @@ function install(app,router){
  });
  router.post('/graphics',async(req,res)=>{
   if(req.identity?.role!=='owner')return res.sendStatus(403);
-  const {scope,theme,transparency,spotifyStyle}=req.body||{};
+  const {scope,theme,transparency,spotifyStyle,backgroundOpacity}=req.body||{};
   const previous=read(); let state;
   if(scope==='spotify-default'){
    if(!Number.isInteger(transparency)||transparency<0||transparency>100)return res.sendStatus(400);
    state={...previous,defaultTransparency:transparency};
   }else if(scope==='spotify'){
    if(!spotifyStyles.includes(spotifyStyle)||!Number.isInteger(transparency)||transparency<0||transparency>100)return res.sendStatus(400);
-   state={...previous,spotifyStyle,transparency};
+   if(backgroundOpacity!==undefined && (!Number.isInteger(backgroundOpacity)||backgroundOpacity<0||backgroundOpacity>100))return res.sendStatus(400);
+   state={...previous,spotifyStyle,transparency,backgroundOpacity:backgroundOpacity??previous.backgroundOpacity};
   }else if(scope==='theme'){
    if(!themes.includes(theme))return res.sendStatus(400);
    state={...previous,theme};

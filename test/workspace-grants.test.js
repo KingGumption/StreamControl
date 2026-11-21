@@ -32,11 +32,21 @@ test('each section grant changes both page and data access in an existing modera
    for(const forbidden of ['/moderators/state','/games/device-token','/spotify/connect','/content-coach/tiktok/connect'])assert.equal((await call(forbidden,mod)).status,403);
    const before=launch.mock.callCount();
    assert.equal((await call('/spotify/launch',mod,{offlineTest:true})).status,403);
-   assert.equal((await call('/spotify/launch',mod,{})).status,key==='songs'?200:403);
-   assert.equal(launch.mock.callCount()-before,key==='songs'?1:0);
+   assert.equal((await call('/spotify/launch',mod,{})).status,403);
+   assert.equal(launch.mock.callCount(),before);
    const other=key==='graphics'?'/games/state':'/graphics/catalog';assert.equal((await call(other,mod)).status,403);
    assert.equal((await call(grants,mod,{sections:['games']})).status,403);
  }
+ const setOpen=value=>call('/settings/song-requests',mod,{songRequestsEnabled:value});
+ const explicit=()=>call('/settings/explicit-tracks',mod,{allowExplicitTracks:true});
+ await call(grants,owner,{sections:['songs'],songControls:['explicit']});
+ assert.equal((await explicit()).status,200);assert.equal((await setOpen(false)).status,403);
+ await call(grants,owner,{sections:['songs'],songControls:['requests']});
+ assert.equal((await explicit()).status,403);assert.equal((await setOpen(false)).status,200);
+ const beforeOpen=launch.mock.callCount();liveState={outputActive:false};
+ assert.equal((await setOpen(true)).status,409);assert.equal(launch.mock.callCount(),beforeOpen);
+ liveState={outputActive:true};assert.equal((await setOpen(true)).status,200);assert.equal((await setOpen(true)).status,200);
+ assert.equal(launch.mock.callCount(),beforeOpen+1);
  await call('/moderators/handoff',owner,{enabled:true});
  await call(grants,owner,{sections:['games'],gameControl:false});
  assert.equal((await call('/games/action',mod,{action:'launch',game:'quiz'})).status,403);

@@ -185,58 +185,19 @@
         <form class="admin-logout" method="post" action="/admin/logout"><button type="submit" data-admin-logout>Log out</button></form></nav>
       </header>
 
-      <section class="panel"><h2>Stream playback</h2><p>Open Spotify on the stream PC and play a random track from the request playlist.</p>
-        <button type="button" id="launchSpotify" class="primary" disabled>Open Spotify &amp; play</button>
-        <button type="button" id="spotifyOfflineTest" data-owner-write hidden>Test playback offline</button>
-        <span id="spotifyLaunchAvailability">Checking live status…</span>
-        <span id="spotifyPlaybackStatus" role="status"></span>
-      </section>
-      <script>
-        const launchButton=document.getElementById('launchSpotify');
-        const testButton=document.getElementById('spotifyOfflineTest');
-        const ownerPlayback=!document.body.hasAttribute('data-sections');
-        let playbackBusy=false,checkingLive=false,live=false;
-        async function refreshPlaybackLive(){
-          if(checkingLive||document.hidden)return;
-          checkingLive=true;
-          try{const r=await fetch('/admin/spotify/launch-status',{cache:'no-store',signal:AbortSignal.timeout(8000)});live=r.ok && (await r.json()).live===true;}
-          catch{live=false;}
-          finally{
-            checkingLive=false;launchButton.disabled=playbackBusy||!live;testButton.hidden=!ownerPlayback||live;testButton.disabled=playbackBusy;
-            document.getElementById('spotifyLaunchAvailability').textContent=live?'':'Available while OBS is live.';
-          }
-        }
-        refreshPlaybackLive();setInterval(refreshPlaybackLive,10000);
-        document.addEventListener('visibilitychange',refreshPlaybackLive);
-        async function launchPlayback(offlineTest){
-          const status=document.getElementById('spotifyPlaybackStatus');
-          playbackBusy=true;launchButton.disabled=testButton.disabled=true;status.textContent='Starting playback…';
-          try{
-            const response=await fetch('/admin/spotify/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offlineTest})});
-            if(response.status===401)throw Error('Sign in again to start playback.');
-            if(response.status===403)throw Error('Song Requests access is required.');
-            const data=await response.json();
-            if(!response.ok)throw Error(data.error);
-            status.textContent='Started '+data.track+'.';
-          }catch(error){status.textContent=error.message||'Could not start playback.';}
-          finally{playbackBusy=false;refreshPlaybackLive();}
-        }
-        launchButton.onclick=()=>launchPlayback(false);
-        if(ownerPlayback)testButton.onclick=()=>launchPlayback(true);
-      </script>
       <section class="panel settings-panel" id="songSettingsSection">
         <div class="mod-song-summary"><h2>Song request settings</h2><p id="modSongSettings" role="status">Loading current settings…</p></div>
-        <div class="setting-row">
+        <div class="setting-row" data-song-control="requests">
           <div class="setting-copy">
             <h2>Song Requests</h2>
-            <p class="muted">When closed, <strong>!song</strong> cannot search, queue, or add anything to Spotify, and the music overlay is hidden.</p>
+            <p class="muted">Opening requests while live starts a random playlist track on the stream PC. Closing requests hides the overlay and leaves playback running.</p>
           </div>
           <label class="switch" title="Open or close song requests">
-            <input type="checkbox" id="songRequestsEnabled" aria-label="Open song requests" />
+            <input type="checkbox" id="songRequestsEnabled" disabled aria-label="Open song requests" />
             <span class="switch-track" aria-hidden="true"></span>
           </label>
         </div>
-        <div class="setting-row">
+        <div class="setting-row" data-song-control="explicit">
           <div class="setting-copy">
             <h2>Allow Explicit Tracks</h2>
             <p class="muted">When off, song requests only accept results Spotify marks as non-explicit.</p>
@@ -246,6 +207,8 @@
             <span class="switch-track" aria-hidden="true"></span>
           </label>
         </div>
+        <div data-owner-write><button type="button" id="spotifyOfflineTest" hidden>Test Spotify playback offline</button><span id="spotifyPlaybackStatus" role="status"></span></div>
+        <p id="liveRequestHint" class="muted"></p>
         <details class="spotify-account" id="spotifyAccount"><summary>Spotify account settings</summary>
           <p class="muted" id="spotifyAccountStatus" role="status">Open to check account settings.</p>
           <button type="button" class="primary" id="spotifyConnect" hidden>Connect Spotify</button>
@@ -464,7 +427,7 @@
           document.getElementById('saveRepeatTrack').disabled = false;
         }
         state.overrides = (state.config.overrides || []).slice();
-        render();
+        hasSettings=response.ok;render();updateRequestSwitch();
       }
 
       function render() {
@@ -679,7 +642,7 @@
           });
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save setting');
-          state.settings = result.settings;
+          state.settings = result.settings;render();
           input.checked = Boolean(state.settings.allowExplicitTracks);
           message.textContent = input.checked
             ? 'Explicit tracks are allowed.'
@@ -692,10 +655,30 @@
         }
       });
 
+      const requestSwitch=document.getElementById('songRequestsEnabled'),testButton=document.getElementById('spotifyOfflineTest');
+      let live=false,requestBusy=false,hasSettings=false,checking=false;
+      function updateRequestSwitch(){
+        requestSwitch.disabled=requestBusy||!hasSettings||(!live&&!requestSwitch.checked);
+        testButton.hidden=document.body.hasAttribute('data-sections')||live;
+        testButton.disabled=requestBusy;
+        document.getElementById('liveRequestHint').textContent=live?'':'Opening song requests requires a live OBS stream.';
+      }
+      async function refreshLive(){
+        if(document.hidden||checking)return;
+        checking=true;
+        try{const r=await fetch('/admin/spotify/launch-status',{cache:'no-store',signal:AbortSignal.timeout(8000)});live=r.ok&&(await r.json()).live===true;}
+        catch{live=false;}finally{checking=false;updateRequestSwitch();}
+      }
+      testButton.onclick=async()=>{
+        const status=document.getElementById('spotifyPlaybackStatus');requestBusy=true;updateRequestSwitch();status.textContent='Starting Spotify…';
+        try{const r=await fetch('/admin/spotify/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({offlineTest:true})});const data=await r.json();if(!r.ok)throw Error(data.error);status.textContent='Started '+data.track+'.';}
+        catch(error){status.textContent=error.message;}finally{requestBusy=false;updateRequestSwitch();}
+      };
+      refreshLive();setInterval(refreshLive,10000);document.addEventListener('visibilitychange',refreshLive);
       document.getElementById('songRequestsEnabled').addEventListener('change', async (event) => {
         const input = event.currentTarget;
         const message = document.getElementById('songRequestsMessage');
-        input.disabled = true;
+        requestBusy=true;updateRequestSwitch();
         message.textContent = 'Saving…';
         try {
           const response = await fetch('/admin/settings/song-requests', {
@@ -704,17 +687,17 @@
             body: JSON.stringify({ songRequestsEnabled: input.checked })
           });
           const result = await response.json();
-          if (!response.ok || !result.ok) throw new Error(result.message || 'Could not save setting');
-          state.settings = result.settings;
+          if (!response.ok || !result.ok) throw new Error(result.message || result.error || 'Could not save setting');
+          state.settings = result.settings;render();
           input.checked = Boolean(state.settings.songRequestsEnabled);
           message.textContent = input.checked
-            ? 'Song requests are open.'
+            ? (result.track?'Song requests are open. Playing '+result.track+'.':'Song requests are open.')
             : 'Song requests are closed. !song cannot modify Spotify.';
         } catch (error) {
           input.checked = !input.checked;
           message.textContent = error.message || 'Could not save setting.';
         } finally {
-          input.disabled = false;
+          requestBusy=false;updateRequestSwitch();
         }
       });
 

@@ -59,7 +59,8 @@
 <div class="spotify-layout"><div>
 <fieldset id="spotify-controls" class="spotify-fields" disabled aria-labelledby="spotify-heading">
 <div class="gfx-field"><label for="spotify-style">Spotify palette</label><select id="spotify-style"><option value="stream">Follow stream theme</option><optgroup label="Spotify-only override"><option value="classic">Classic · KingGumption</option><option value="halloween">Halloween · Midnight Request</option><option value="ghost">Ghost · Icy Blue</option><option value="slime">Slime · Toxic Green</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></optgroup></select></div>
-<div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Full original fade</span></div></div>
+<div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Full strength</span></div></div>
+<div class="gfx-field"><label for="spotify-background">Background at faded edge <output id="background-pct" for="spotify-background"></output></label><input type="range" min="0" max="100" value="65" id="spotify-background" aria-describedby="background-help"><small id="background-help">Raise this for brighter scenes. Use 0% for the original fade.</small></div>
 <div><span id="opacity-default-label"></span> <button type="button" class="gfx-link" id="opacity-restore">Use default</button> <button type="button" class="gfx-link" data-owner-write id="opacity-set-default">Save opacity as default</button></div>
 <div><button type="button" id="spotify-save" class="gfx-btn gfx-primary">Save Spotify settings</button> <button id="spotify-discard" type="button" class="gfx-link" hidden>Discard</button></div>
 </fieldset><output class="gfx-state" id="spotify-status" role="status"></output>
@@ -78,8 +79,8 @@
  const el = id => document.getElementById(id);
  const viewOnly=document.body.hasAttribute('data-sections');
  const draft = () => ({theme:el('theme').value});
- const spotifyDraft = () => ({spotifyStyle:el('spotify-style').value,transparency:100-Number(el('slider').value)});
- const spotifyDirty = () => saved && (spotifyDraft().spotifyStyle!==(saved.spotifyStyle||'stream') || spotifyDraft().transparency!==saved.transparency);
+ const spotifyDraft = () => ({spotifyStyle:el('spotify-style').value,backgroundOpacity:Number(el('spotify-background').value),transparency:100-Number(el('slider').value)});
+ const spotifyDirty = () => saved && (spotifyDraft().spotifyStyle!==(saved.spotifyStyle||'stream') || spotifyDraft().transparency!==saved.transparency || spotifyDraft().backgroundOpacity!==saved.backgroundOpacity);
  const themeLabel = v => Array.from(el('theme').options).find(o=>o.value===v)?.textContent || v;
  const stateMessage = (text,type='') => {el('status').dataset.state=type;el('status').textContent=text;};
  let saved=null, busy=false, uncertain=false;
@@ -95,8 +96,9 @@
    el('discard').hidden=!dirty()||busy||uncertain;
  }
  function paintPreview(){
-   const {theme}=draft(),{transparency,spotifyStyle}=spotifyDraft();
-   el('spotify-frame').contentWindow?.postMessage({type:'graphics-preview',theme,spotifyStyle,transparency},location.origin);
+   const {theme}=draft(),{transparency,spotifyStyle,backgroundOpacity}=spotifyDraft();
+   el('background-pct').value=backgroundOpacity+'%';
+   el('spotify-frame').contentWindow?.postMessage({type:'graphics-preview',theme,spotifyStyle,transparency,backgroundOpacity},location.origin);
    el('pct').value=(100-transparency)+'%';
    el('slider').setAttribute('aria-valuetext',(100-transparency)+'% opacity');
    for(const img of document.querySelectorAll('img[data-sample]')){
@@ -149,7 +151,7 @@
    busy=true;uncertain=false;el('reload').hidden=true;updateControls();stateMessage('Loading settings…');
    try{
      const [s,items]=await Promise.all([json('/graphics/state'),json('/admin/graphics/catalog')]);
-     saved=s;el('theme').value=s.theme||'classic';el('slider').value=100-s.transparency;el('spotify-style').value=s.spotifyStyle||'stream';el('spotify-status').textContent='';
+     saved=s;el('theme').value=s.theme||'classic';el('slider').value=100-s.transparency;el('spotify-background').value=s.backgroundOpacity;el('spotify-style').value=s.spotifyStyle||'stream';el('spotify-status').textContent='';
      el('gallery').replaceChildren();items.forEach(showSource);el('count').textContent=items.length+' sources';el('count').hidden=false;
      paintPreview();savedNote();
    }catch{uncertain=true;el('reload').hidden=false;stateMessage('Could not load the graphics workspace.','error');}
@@ -157,7 +159,7 @@
  }
  el('theme').onchange=onEdit;el('reload').onclick=load;
  const spotifyEdit=()=>{paintPreview();updateControls();el('spotify-status').textContent=spotifyDirty()?(viewOnly?'Preview only. The live overlay is unchanged.':'Preview only. Save Spotify settings to update OBS.'):'';};
- el('slider').oninput=spotifyEdit;el('spotify-style').onchange=spotifyEdit;el('spotify-frame').onload=paintPreview;
+ el('spotify-background').oninput=el('slider').oninput=spotifyEdit;el('spotify-style').onchange=spotifyEdit;el('spotify-frame').onload=paintPreview;
  el('opacity-restore').onclick=()=>{el('slider').value=100-saved.defaultTransparency;spotifyEdit();};
  el('opacity-set-default').onclick=async()=>{
    busy=true;updateControls();
@@ -167,7 +169,7 @@
    }catch{uncertain=true;el('reload').hidden=false;el('spotify-status').textContent='Could not confirm the default. Reload settings to check.';}
    finally{busy=false;updateControls();}
  };
- el('spotify-discard').onclick=()=>{el('spotify-style').value=saved.spotifyStyle||'stream';el('slider').value=100-saved.transparency;spotifyEdit();};
+ el('spotify-discard').onclick=()=>{el('spotify-style').value=saved.spotifyStyle||'stream';el('slider').value=100-saved.transparency;el('spotify-background').value=saved.backgroundOpacity;spotifyEdit();};
  el('spotify-save').onclick=async()=>{
   busy=true;updateControls();el('spotify-status').textContent='Saving…';
   try{const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scope:'spotify',...spotifyDraft()})});

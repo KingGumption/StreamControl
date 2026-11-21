@@ -3,6 +3,10 @@ process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'music-routes-'));proc
 const {spotifyApi}=require('../src/spotify-api');spotifyApi.getPlaybackState=async()=>null;
 const {app}=require('../src/admin'),{db}=require('../src/db');
 test('live music state follows toggle, reconnect preserves off, and disabled live tests are rejected',async t=>{
+ const hub=require('../src/bridge-hub').bridgeHub;
+ t.mock.method(hub,'requestObs',async()=>({outputActive:true}));
+ t.mock.method(hub,'launchSpotify',async()=>({deviceName:'test'}));
+ t.mock.method(spotifyApi,'randomPlaylistTrack',async()=>({name:'Test',uri:'spotify:track:test'}));t.mock.method(spotifyApi,'playStreamTrack',async()=>{});
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const base=`http://127.0.0.1:${server.address().port}`;
  const controller=new AbortController();t.after(()=>{controller.abort();server.closeAllConnections();server.close();db.close();});
  const post=(route,body,cookie)=>fetch(base+route,{method:'POST',redirect:'manual',headers:{Origin:'https://stream.example.test','Content-Type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify(body)});

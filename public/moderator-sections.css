@@ -11,3 +11,11 @@ body[data-sections] :is([data-owner-write],#spotifyAccount,#songSettingsSection 
 .growth-form,details:has(#growthCsvImport),[data-coach-remove],[data-segment-edit],[data-remove-experiment],[data-edit-experiment],[data-remove-discovery]){display:none!important}
 body[data-sections] .mod-song-summary {line-height:1.7}
 body[data-sections] .mod-song-summary b {font-weight:650}
+
+body[data-song-controls~="requests"] #songSettingsSection [data-song-control="requests"],
+body[data-song-controls~="explicit"] #songSettingsSection [data-song-control="explicit"]{display:flex!important}
+body[data-song-controls~="requests"] #songSettingsSection [data-song-control="requests"] .switch,
+body[data-song-controls~="explicit"] #songSettingsSection [data-song-control="explicit"] .switch,
+body[data-song-controls~="requests"] #songSettingsSection #songRequestsEnabled,
+body[data-song-controls~="explicit"] #songSettingsSection #allowExplicitTracks{display:inline-block!important}
+body[data-sections] .setting-row[data-song-control]{display:none!important}

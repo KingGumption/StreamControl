@@ -134,7 +134,8 @@
         const response=await fetch('/admin/games/session',{cache:'no-store'});
         if(response.status===401){location.replace('/admin/login');return;}
         if(!response.ok)return;
-        const {sections}=await response.json();
+        const {sections,songControls}=await response.json();
+        if(sections?.join(' ')===body.dataset.sections && (songControls||[]).join(' ')!==body.dataset.songControls){location.reload();return;}
         if(sections?.join(' ')!==body.dataset.sections)location.replace('/admin/workspace');
       } catch { /* Retry when the workspace is reachable. */ }
     }

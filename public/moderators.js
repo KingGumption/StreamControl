@@ -22,8 +22,14 @@ async function refresh() {
       const games=choices.find(input=>input.value==='games');
       const sync=()=>{control.disabled=!games.checked;};sync();games.onchange=sync;
       controlLabel.append(control,document.createTextNode(' Operate games when game controls are enabled'));box.append(controlLabel);
+      const songs=choices.find(input=>input.value==='songs');
+      const songGrants=[['requests','Open and close song requests (opens Spotify)'],['explicit','Change explicit-track setting']].map(([id,text])=>{
+        const label=document.createElement('label'),input=document.createElement('input');
+        input.type='checkbox';input.value=id;input.checked=user.songControls.includes(id);label.append(input,document.createTextNode(' '+text));box.append(label);return input;
+      });
+      const syncSongs=()=>songGrants.forEach(input=>{input.disabled=!songs.checked});syncSongs();songs.onchange=syncSongs;
       const save=document.createElement('button');save.type='button';save.textContent='Save access';
-      save.onclick=()=>run(()=>api(user.id+'/sections',{sections:choices.filter(i=>i.checked).map(i=>i.value),gameControl:control.checked && games.checked}));
+      save.onclick=()=>run(()=>api(user.id+'/sections',{sections:choices.filter(i=>i.checked).map(i=>i.value),gameControl:control.checked && games.checked,songControls:songGrants.filter(i=>songs.checked&&i.checked).map(i=>i.value)}));
       box.append(save);li.append(box);
     }
     if(user.enabled){const button=document.createElement('button');button.textContent='Revoke access';button.onclick=()=>run(()=>api(user.id+'/revoke',{}));li.append(button);}return li;

@@ -4,7 +4,7 @@ html[data-theme=ghost]{--text:#f5f3e9;--muted:#cdd0c4;--accent:#9ceaff;--seconda
 html[data-theme=slime]{--text:#f5f3e9;--muted:#cdd0c4;--accent:#b5f75a;--secondary:#d6a3ff;--paper:#e1ffcf;--ink:#10190e;--surface:rgba(16,25,14,.78)}
 *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent;font-family:Arial,sans-serif}
 [hidden]{display:none!important}
-#music{position:absolute;left:0;top:0;width:570px;height:125px;overflow:hidden;isolation:isolate;color:var(--text);transform-origin:top left;pointer-events:none}
+#music{position:absolute;left:0;top:0;width:570px;height:125px;overflow:hidden;isolation:isolate;background-color:color-mix(in srgb,var(--ink) var(--background-opacity,65%),transparent);color:var(--text);transform-origin:top left;pointer-events:none}
 #content,.music-card{position:absolute;inset:0}
 .music-card{display:flex;gap:18px;align-items:center;padding:8px;background:linear-gradient(90deg,var(--surface),transparent);text-shadow:0 1px 5px #000}
 .cover{width:88px;height:88px;flex:none;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px #dedcc320,0 3px 12px #0005}

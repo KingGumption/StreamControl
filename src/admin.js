@@ -128,7 +128,7 @@ router.post('/games/action',(req,res)=>{try{res.json({ok:true,...quickGameState(
 router.post('/games/preset',(req,res)=>{try{res.json({ok:true,preset:gameLauncher.savePreset(req.body.game,req.body.values||{})});}catch(e){res.status(400).json({ok:false,error:e.message});}});
 router.post('/games/device-token',(req,res)=>res.json({ok:true,token:issueDeviceToken()}));
 router.post('/games/device-token/revoke',(req,res)=>{revokeDeviceToken();res.json({ok:true});});
-router.get('/games/session', (req,res) => res.json({ok:true,sections:req.identity.sections,user:gameUser(req.identity),handoff:{enabled:access.controls(req.identity)}}));
+router.get('/games/session', (req,res) => res.json({ok:true,sections:req.identity.sections,songControls:req.identity.songControls,user:gameUser(req.identity),handoff:{enabled:access.controls(req.identity)}}));
 router.get('/games/connections', (req,res) => {
   const connections = getConnectionStatuses();
   res.json({ok:true,connections:Object.fromEntries(['streamerbot','tikfinity','connector'].filter(key=>connections[key]).map(key=>[key,{connected:connections[key].state==='connected',state:connections[key].state}]))});
@@ -148,7 +148,7 @@ router.get('/workspace/connections', async (_req,res) => {
 });
 router.get('/workspace',(req,res)=>{const target=landing(req.identity);if(target!=='/admin/workspace')return res.redirect(target);return workspacePage(res,'workspace-empty.html');});
 router.post('/moderators/:id/sections',(req,res)=>{
-  try {access.setSections(req.params.id,req.body.sections,req.body.gameControl);res.json({ok:true});}
+  try {access.setSections(req.params.id,req.body.sections,req.body.gameControl,req.body.songControls);res.json({ok:true});}
   catch(error){res.status(400).json({error:error.message});}
 });
 router.get('/moderators/state', (req,res) => res.json({ok:true,accounts:access.list(),sections:Object.entries(workspaceSections).map(([id,{label}])=>({id,label})),handoff:access.handoff(),audit:getAuditLog(100).filter(row=>['game-control','games-handoff'].includes(row.action)).slice(0,30)}));
@@ -445,11 +445,9 @@ async function requireLivePlayback(){
 }
 router.get('/spotify/launch-status',async(req,res)=>res.set('Cache-Control','no-store').json({live:await streamPlaybackLive()}));
 let launchingSpotify=false;
-router.post('/spotify/launch',async(req,res)=>{
-  const offlineTest=req.body?.offlineTest===true;
-  if(offlineTest && req.identity.role!=='owner')return res.status(403).json({error:'Offline playback tests require the owner account.'});
+async function startStreamPlayback(offlineTest=false){
   const checkLive=offlineTest?async()=>{}:requireLivePlayback;
-  if(launchingSpotify)return res.status(409).json({error:'Spotify is already starting on the stream PC.'});
+  if(launchingSpotify)throw Object.assign(new Error('Spotify is already starting on the stream PC.'),{code:'starting'});
   launchingSpotify=true;
   try{
     await checkLive();
@@ -457,16 +455,21 @@ router.post('/spotify/launch',async(req,res)=>{
     await checkLive();
     const desktop=appConfig.mode==='local'?await require('./spotify-desktop').launch():await require('./bridge-hub').bridgeHub.launchSpotify(offlineTest);
     await spotifyApi.playStreamTrack(desktop.deviceName,selected,checkLive);
-    res.json({track:selected.name});
-  }catch(error){
-    if(error.code==='stream-offline')return res.status(409).json({error:error.message});
+    return selected.name;
+  }finally{launchingSpotify=false;}
+}
+function playbackFailure(error,res){
+    if(['starting','stream-offline'].includes(error.code))return res.status(409).json({error:error.message});
     const messages={'queue-permission-missing':'Reconnect the Spotify account with playback permissions.',
       'queue-forbidden':'Spotify refused playback. Check Premium and playback permissions.',
       'rate-limited':'Spotify is rate limiting requests. Try again later.',
       'spotify-not-connected':'Connect the stream Spotify account first.'};
     const safe=['playlist-empty','playlist-missing','stream-device-missing'].includes(error.code)?error.message:null;
     res.status(503).json({error:safe||messages[error.code]||'Could not start the stream playlist. Check the PC connector, Spotify installation and account connection.'});
-  }finally{launchingSpotify=false;}
+}
+router.post('/spotify/launch',async(req,res)=>{
+  try{res.json({track:await startStreamPlayback(req.body?.offlineTest===true)});}
+  catch(error){playbackFailure(error,res);}
 });
 router.get('/spotify/connect', (req, res) => {
   try {
@@ -531,7 +534,7 @@ router.post('/settings/explicit-tracks', (req, res) => {
     command: 'song',
     previousValue: previous,
     newValue: settings,
-    source: 'admin-page',
+    source: req.identity.username,
     details: settings.allowExplicitTracks
       ? 'Explicit Spotify tracks allowed'
       : 'Only non-explicit Spotify tracks allowed',
@@ -539,13 +542,19 @@ router.post('/settings/explicit-tracks', (req, res) => {
   res.json({ ok: true, settings });
 });
 
-router.post('/settings/song-requests', (req, res) => {
+router.post('/settings/song-requests', async (req, res) => {
   if (typeof req.body?.songRequestsEnabled !== 'boolean') {
     res.status(400).json({ ok: false, message: 'songRequestsEnabled must be true or false' });
     return;
   }
 
   const previous = getRuntimeSettings();
+  if(launchingSpotify)return res.status(409).json({ok:false,message:'Spotify is starting. Try again in a moment.'});
+  if(previous.songRequestsEnabled===req.body.songRequestsEnabled)return res.json({ok:true,settings:previous});
+  let track;
+  if(req.body.songRequestsEnabled){
+    try{track=await startStreamPlayback();}catch(error){return playbackFailure(error,res);}
+  }
   setSongRequestsEnabled(req.body.songRequestsEnabled);
   const settings = getRuntimeSettings();
   addAuditLog({
@@ -554,10 +563,10 @@ router.post('/settings/song-requests', (req, res) => {
     command: 'song',
     previousValue: previous,
     newValue: settings,
-    source: 'admin-page',
+    source: req.identity.username,
     details: settings.songRequestsEnabled ? 'Song requests opened' : 'Song requests closed',
   });
-  res.json({ ok: true, settings });
+  res.json({ ok: true, settings,track });
 });
 
 router.get('/quiz/test/catalog', (req, res) => res.json({ ok: true, game: quizTestSessions.catalog() }));

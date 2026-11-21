@@ -27,13 +27,17 @@ if (!db.prepare('PRAGMA table_info(moderator_accounts)').all().some(col=>col.nam
   db.exec(`ALTER TABLE moderator_accounts ADD COLUMN sections TEXT NOT NULL DEFAULT '["games"]'`);
 if (!db.prepare('PRAGMA table_info(moderator_accounts)').all().some(col=>col.name==='game_control'))
   db.exec('ALTER TABLE moderator_accounts ADD COLUMN game_control INTEGER NOT NULL DEFAULT 1');
+if (!db.prepare('PRAGMA table_info(moderator_accounts)').all().some(col=>col.name==='song_controls'))
+  db.exec("ALTER TABLE moderator_accounts ADD COLUMN song_controls TEXT NOT NULL DEFAULT '[]'");
 function controls(user) { return handoff().enabled && (user.role==='owner' || (user.sections.includes('games') && user.game_control===1)); }
-function unpack(user) { return {...user,sections:JSON.parse(user.sections)}; }
-function list() { return db.prepare('SELECT id,username,enabled,sections,game_control FROM moderator_accounts ORDER BY username').all().map(unpack); }
-function setSections(id,keys,gameControl) {
+function unpack(user) { return {...user,sections:JSON.parse(user.sections),songControls:JSON.parse(user.song_controls)}; }
+function list() { return db.prepare('SELECT id,username,enabled,sections,game_control,song_controls FROM moderator_accounts ORDER BY username').all().map(unpack); }
+function setSections(id,keys,gameControl,songControls) {
   if (!Array.isArray(keys)||!keys.every(k=>typeof k==='string' && Object.hasOwn(sections,k))) throw Error('Choose valid workspace sections.');
   if(typeof gameControl!=='boolean' && gameControl!==undefined)throw Error('Choose a valid game control setting.');
-  if(!db.prepare('UPDATE moderator_accounts SET sections=?,game_control=coalesce(?,game_control) WHERE id=? AND enabled=1').run(JSON.stringify([...new Set(keys)]),gameControl===undefined?null:Number(gameControl),id).changes)throw Error('Active moderator not found.');
+  if(songControls!==undefined && (!Array.isArray(songControls)||!songControls.every(k=>['requests','explicit'].includes(k))))throw Error('Choose valid song controls.');
+  const storedControls=keys.includes('songs')?(songControls===undefined?null:JSON.stringify([...new Set(songControls)])):'[]';
+  if(!db.prepare('UPDATE moderator_accounts SET sections=?,game_control=coalesce(?,game_control),song_controls=coalesce(?,song_controls) WHERE id=? AND enabled=1').run(JSON.stringify([...new Set(keys)]),gameControl===undefined?null:Number(gameControl),storedControls,id).changes)throw Error('Active moderator not found.');
 }
 async function create(username, password) {
   username = String(username || '').trim().toLowerCase();
@@ -67,7 +71,7 @@ function session(token, now = Date.now()) {
   const record = db.prepare('SELECT * FROM admin_sessions WHERE id_hash=? AND expires_at>?').get(digest(token),now);
   if (!record) return null;
   if (record.role === 'owner') return {id:'owner',username:'Owner',role:'owner'};
-  const user = db.prepare('SELECT id,username,sections,game_control FROM moderator_accounts WHERE id=? AND enabled=1').get(record.user_id);
+  const user = db.prepare('SELECT id,username,sections,game_control,song_controls FROM moderator_accounts WHERE id=? AND enabled=1').get(record.user_id);
   return user ? {...unpack(user),role:'games'} : null;
 }
 function logout(token) { if(token)db.prepare('DELETE FROM admin_sessions WHERE id_hash=?').run(digest(token)); }
