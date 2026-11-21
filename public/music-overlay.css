@@ -4,9 +4,19 @@ html[data-theme=ghost]{--text:#f5f3e9;--muted:#cdd0c4;--accent:#9ceaff;--seconda
 html[data-theme=slime]{--text:#f5f3e9;--muted:#cdd0c4;--accent:#b5f75a;--secondary:#d6a3ff;--paper:#e1ffcf;--ink:#10190e;--surface:rgba(16,25,14,.78)}
 *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent;font-family:Arial,sans-serif}
 [hidden]{display:none!important}
-#music{position:absolute;left:0;top:0;width:570px;height:125px;overflow:hidden;isolation:isolate;background-color:color-mix(in srgb,var(--ink) var(--background-opacity,65%),transparent);color:var(--text);transform-origin:top left;pointer-events:none}
+#music{position:absolute;left:0;top:0;width:570px;height:125px;overflow:hidden;isolation:isolate;color:var(--text);transform-origin:top left;pointer-events:none}
+/* Fade the painted panel and transition ink independently of the foreground artwork. */
+#music::before,#printEffects{
+  --edge-x:linear-gradient(to right,transparent 1px,#000 24px,#000 calc(100% - 24px),transparent calc(100% - 1px));
+  --edge-y:linear-gradient(to bottom,transparent 1px,#000 13px,#000 calc(100% - 13px),transparent calc(100% - 1px));
+  -webkit-mask-image:var(--edge-x),var(--edge-y);
+  -webkit-mask-composite:source-in;
+  mask-image:var(--edge-x),var(--edge-y);
+  mask-composite:intersect;
+}
+#music::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--surface),transparent),color-mix(in srgb,var(--ink) var(--background-opacity,65%),transparent)}
 #content,.music-card{position:absolute;inset:0}
-.music-card{display:flex;gap:18px;align-items:center;padding:8px;background:linear-gradient(90deg,var(--surface),transparent);text-shadow:0 1px 5px #000}
+.music-card{display:flex;gap:18px;align-items:center;padding:8px;text-shadow:0 1px 5px #000}
 .cover{width:88px;height:88px;flex:none;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px #dedcc320,0 3px 12px #0005}
 .copy{min-width:0;flex:1;border-left:1px solid var(--accent);padding-left:18px}
 .label{font-size:12px;line-height:20px;font-weight:700;letter-spacing:2.3px;color:var(--accent)}
@@ -14,7 +24,7 @@ html[data-theme=slime]{--text:#f5f3e9;--muted:#cdd0c4;--accent:#b5f75a;--seconda
 .artist{font-size:19px;line-height:27px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .requester{font-size:15px;line-height:20px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .progress{height:2px;margin-top:9px;background:#ffffff24;width:98%;overflow:hidden}.fill{height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:var(--accent)}
-.request-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;padding:8px 18px 8px 22px;border-left:2px solid var(--accent)}
+.request-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;padding:8px 18px 8px 22px}
 .request-card .label{font-size:15px;line-height:18px;letter-spacing:2.4px}
 .command{font-size:36px;line-height:40px;letter-spacing:-.5px;font-weight:700;white-space:nowrap}
 .instruction{font-size:20px;line-height:25px;color:var(--muted)}
