@@ -2,8 +2,20 @@
   'use strict';
   const params = new URLSearchParams(location.search), preview = params.get('preview') === '1';
   const root = document.getElementById('music'), content = document.getElementById('content'), effects = document.getElementById('printEffects');
+  let graphicTheme=null;
+  const applyGraphics=state=>{
+    graphicTheme=({vicecity:'vicecity',classic:'classic',spooktober:'spooktober'})[state.theme]||null;
+    if(graphicTheme) document.documentElement.dataset.theme=graphicTheme;
+    if(Number.isInteger(state.transparency))root.style.opacity=String(1-state.transparency/100);
+  };
+  if(preview){
+    addEventListener('message',e=>{if(e.source===parent && e.origin===location.origin && e.data?.type==='graphics-preview')applyGraphics(e.data);});
+  }else{
+    const feed=new EventSource('/graphics/events');
+    feed.addEventListener('graphics',e=>applyGraphics(JSON.parse(e.data)));
+  }
   const themes = ['classic','halloween','ghost','slime'];
-  function applyTheme(style) { if (themes.includes(style)) document.documentElement.dataset.theme = style; }
+  function applyTheme(style) { if (!graphicTheme && themes.includes(style)) document.documentElement.dataset.theme = style; }
   applyTheme(params.get('theme') || 'classic');
   let enabled = false, playback = null, activeRequest = null, hint = false, currentKey = '', transitioning = false;
   let nextHintAt = Date.now() + 60000, generation = 0, requestTimer = null, hintTimer = null;

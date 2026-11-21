@@ -621,6 +621,7 @@ router.get('/king-of-the-hill', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'admin-hill.html'));
 });
 
+require('./graphics').install(app,router);
 app.use('/admin', router);
 app.use('/assets', (req,res,next) => /\.html$/i.test(req.path) ? res.sendStatus(404) : next());
 app.use('/assets', express.static(path.join(__dirname, '..', 'public')));
