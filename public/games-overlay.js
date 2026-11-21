@@ -2,7 +2,7 @@
   const host=document.getElementById('gameHost');
   const routes={quiz:'/quiz',hill:'/king-of-the-hill',snacks:'/chat-games',escape:'/chat-games',higher:'/chat-games',split:'/chat-games',boss:'/chat-games',number:'/chat-games'};
   const params=new URLSearchParams(location.search),theme=params.get('theme'),forward=new URLSearchParams();
-  if(['halloween','ghost','slime'].includes(theme))forward.set('theme',theme);
+  if(['classic','spooktober','vicecity','halloween','ghost','slime'].includes(theme))forward.set('theme',theme);
   if(params.get('muted')==='1')forward.set('muted','1');
   if(params.has('volume')&&Number.isFinite(Number(params.get('volume'))))forward.set('volume',String(Math.max(0,Math.min(100,Number(params.get('volume'))))));
   const suffix=forward.size?'?'+forward.toString():'';

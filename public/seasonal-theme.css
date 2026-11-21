@@ -1,7 +1,9 @@
 html[data-theme=halloween]{--accent:#ffad55;--secondary:#d1a0ff;--panel:#24182f;--border:#9260b7;--gold:#ffd26c;--theme-deep:#120c1c}
 html[data-theme=ghost]{--accent:#9ceaff;--secondary:#c5d1f7;--panel:#182633;--border:#7296ad;--gold:#e5f4ff;--theme-deep:#0a1520}
 html[data-theme=slime]{--accent:#b5f75a;--secondary:#d6a3ff;--panel:#1d2720;--border:#6c9750;--gold:#e1ff87;--theme-deep:#10190e}
-html[data-theme]{--cyan:var(--accent);--pink:var(--secondary);--violet:var(--secondary);--glass:var(--panel);--glass-deep:var(--theme-deep);--line:var(--border);--text:#f7f8ff;--muted:#d3dce8}
+html[data-theme=vicecity]{--accent:#a373d3;--secondary:#eb9998;--panel:#241b32;--border:#6f70a2;--gold:#eb9998;--theme-deep:#171320;--theme-text:#fff1ef;--theme-muted:#dfcadd}
+html[data-theme=spooktober]{--accent:#b8cb59;--secondary:#c5db70;--panel:#242719;--border:#747d3c;--gold:#c5db70;--theme-deep:#10110b;--theme-text:#eee8d5;--theme-muted:#c9ccaf}
+html[data-theme]{--cyan:var(--accent);--pink:var(--secondary);--violet:var(--secondary);--glass:var(--panel);--glass-deep:var(--theme-deep);--line:var(--border);--text:var(--theme-text,#f7f8ff);--muted:var(--theme-muted,#d3dce8)}
 html[data-theme] .quiz-overlay .panel,html[data-theme] .quiz-stage{background:var(--panel);border-color:var(--border)}
 html[data-theme] .quiz-overlay #status,html[data-theme] .stage-label,html[data-theme] .pass-balance{color:var(--gold)}
 html[data-theme] .quiz-overlay .option:not(.correct):not(.incorrect){background:var(--theme-deep);border-color:var(--border)}
