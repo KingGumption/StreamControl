@@ -1,10 +1,22 @@
 const path = require('node:path');
+const fs = require('node:fs');
 const {getConfigValue,setConfigValue}=require('./db');
 const {bridgeHub}=require('./bridge-hub');
 const {streamEvents}=require('./sse');
 const listeners=new Set();
+const christmasLikes=fs.readFileSync(path.join(__dirname,'../public/christmas-likes.css'),'utf8').trim();
 const defaults={theme:null,transparency:0};
-const spotifyStyles=['stream','classic','halloween','ghost','slime','spooktober','vicecity'];
+const looks={
+ classic:{intro:'kinggumption-channel66-',divider:['#03f5d8','#c447ff']},
+ spooktober:{intro:'kinggumption-channel66-',divider:['#747d3c','#b8cb59']},
+ vicecity:{intro:'KingGumption-Vice-Sunset-Dynamic-',sticker:'Vicecity',label:'Vice City',divider:['#a373d3','#eb9998']},
+ christmas:{intro:'KingGumption-Christmas-',sticker:'Christmas',label:'Christmas',divider:['#A92E43','#E7BC70']}
+};
+const themes=Object.keys(looks);
+const spotifyStyles=['stream','halloween','ghost','slime',...themes];
+function stickerFile(look,orientation){
+ return look.sticker?'Glitch-Sticker-'+look.sticker+'-'+orientation+'.webm':'pig-print-'+orientation.toLowerCase()+'.webm';
+}
 function read(){
  const state=getConfigValue('graphics_settings',defaults);
  // The earlier feathered panel stored a solid backing. Start the restored layout with its original fade.
@@ -16,18 +28,29 @@ function read(){
 const names={
  banner:'follow=new',bannerPlain:'follow=new-no-char',card:'PlayingCardTwitch-3D',cardVertical:'PlayingCard-3d-Tiktok',
  counter:'DeathCounter',credits:'StreamCredits',creditsVertical:'StreamCredits-Vertical',divider:'GlassOverlays',
+ likes:'ThinLikeCount',likers:'Like-Leaderboard',
  intro:'Spooktober-Intro',introVertical:'SpooktoberIntro-Vertical',stinger:'SkullStinger',verticalYT:'StingerVERTYT',verticalTT:'SkullStingerVertical'
 };
-const themes=['classic','spooktober','vicecity'];
 const obs=(m,args)=>bridgeHub.requestObs(m,args);
+const likesAppearance=new Map();
 let tail=Promise.resolve(), retry;
 async function sync(theme,only){
  clearTimeout(retry);
+ const look=looks[theme];
  const pending=[];
  for(const [id,inputName] of Object.entries(names)){
   if(only && !only.includes(inputName))continue;
   if(id.startsWith('card')||id.startsWith('banner')||id==='counter')continue; // Card resolves the theme before loading its renderer.
   try{
+   if(id==='likes'||id==='likers'){
+    // Their OBS custom CSS imports /graphics/likes.css. Never request private widget URLs.
+    const seasonal=theme==='christmas';
+    if(likesAppearance.get(inputName)!==seasonal){
+     await obs('PressInputPropertiesButton',{inputName,propertyName:'refreshnocache'});
+     likesAppearance.set(inputName,seasonal);
+    }
+    continue;
+   }
    if(id.startsWith('vertical')){
     const canvas=id==='verticalYT'?'Twitch/YT Vertical':'TikTok Canvas';
     const vendor=async(requestType,args={})=>{
@@ -37,11 +60,11 @@ async function sync(theme,only){
     const {transitions}=await vendor('get_transitions');
     const original=transitions.find(t=>t.name===inputName && t.type==='obs_stinger_transition');
     if(!original?.settings?.path)throw Error();
-    const leaf=theme==='vicecity'?'Glitch-Sticker-Vicecity-Vertical.webm':'pig-print-vertical.webm';
+    const leaf=stickerFile(look,'Vertical');
     const filename=path.win32.join(path.win32.dirname(original.settings.path),leaf);
     let target=transitions.find(t=>t.type===original.type && t.settings?.path && path.win32.normalize(t.settings.path).toLowerCase()===filename.toLowerCase());
     if(!target){
-     const name=inputName+' - '+(theme==='vicecity'?'Vice City':'Original');
+     const name=inputName+' - '+(look.label||'Original');
      if(transitions.some(t=>t.name===name))throw Error();
      await vendor('transitions_add',{name,type:original.type,settings:{...original.settings,path:filename.replaceAll('\\','/')}});
      target={name};
@@ -53,7 +76,7 @@ async function sync(theme,only){
     if(t.transitionName!==inputName){pending.push(inputName);continue;}
     const current=t.transitionSettings?.path;
     if(!current)throw Error();
-    const leaf=theme==='vicecity'?'Glitch-Sticker-Vicecity-Horizontal.webm':'pig-print-horizontal.webm';
+    const leaf=stickerFile(look,'Horizontal');
     const file=path.win32.join(path.win32.dirname(current),leaf).replaceAll('\\','/');
     if(current.replaceAll('\\','/')!==file)await obs('SetCurrentSceneTransitionSettings',{transitionSettings:{path:file},overlay:true});
     continue;
@@ -62,13 +85,13 @@ async function sync(theme,only){
    let patch;
    if(id.startsWith('intro')){
     const isVertical=id==='introVertical',size=isVertical?'9x16':'16x9';
-    const leaf=(theme==='vicecity'?'KingGumption-Vice-Sunset-Dynamic-':'kinggumption-channel66-')+size+'.mp4';
+    const leaf=look.intro+size+'.mp4';
     if(path.win32.basename(s.local_file).toLowerCase()===leaf.toLowerCase())continue;
     const media=await obs('GetMediaInputStatus',{inputName});
     if(['OBS_MEDIA_STATE_PLAYING','OBS_MEDIA_STATE_PAUSED','OBS_MEDIA_STATE_OPENING'].includes(media.mediaState)){pending.push(inputName);continue;}
     patch={local_file:path.win32.join(path.win32.dirname(s.local_file),leaf).replaceAll('\\','/')};
    }else if(id==='divider'){
-    const palette={vicecity:['#a373d3','#eb9998'],spooktober:['#747d3c','#b8cb59'],classic:['#03f5d8','#c447ff']}[theme];
+    const palette=look.divider;
     const base=(s.css||'').split('/* stream graphics */')[0];
     patch={css:base+'/* stream graphics */.neon-divider{background:linear-gradient(90deg,transparent,'+palette[0]+' 24%,'+palette[1]+' 50%,'+palette[0]+' 76%,transparent)!important;box-shadow:0 0 10px '+palette[1]+'77!important}.neon-divider::after{background:'+palette[1]+'14!important}'};
     if(s.css===patch.css)continue;
@@ -89,6 +112,7 @@ function queue(only){const job=tail.then(()=>bridgeHub.connected&&read().theme?s
 function install(app,router){
  bridgeHub.on('connector-connected',()=>{if(read().theme)void queue();});
  app.get('/graphics/state',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).json(read()));
+ app.get('/graphics/likes.css',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).type('css').send(read().theme==='christmas'?christmasLikes:'/* Use the configured widget appearance. */'));
  app.get('/graphics/events',(req,res,next)=>{res.set('Access-Control-Allow-Origin','*');next();},(req,res)=>streamEvents(req,res,{name:'graphics',initial:read,subscribe:f=>{listeners.add(f);return()=>listeners.delete(f);}}));
  router.get('/graphics/spotify-availability',(_,res)=>res.set('Cache-Control','no-store').json({enabled:require('./runtime-settings').songRequestsEnabled()}));
  router.get('/graphics',(_,res)=>require('./workspace-page')(res,'admin-graphics.html'));

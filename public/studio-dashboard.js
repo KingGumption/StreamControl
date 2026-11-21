@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const byId = suffix => document.getElementById('dash-' + suffix);
-  const themes = {classic:'Classic',spooktober:'Spooktober',vicecity:'Vice City'};
+  const themes = {classic:'Classic',spooktober:'Spooktober',vicecity:'Vice City',christmas:'Christmas'};
   const formatter = new Intl.DateTimeFormat(undefined,{dateStyle:'short',timeStyle:'short'});
   let lastUpdate = null, loading = false;
   // Server-side scopes also determine which collection headings make sense here.

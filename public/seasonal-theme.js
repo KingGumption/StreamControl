@@ -3,7 +3,7 @@
   const pinned=new URLSearchParams(location.search).get('theme');
   const game=document.currentScript?.hasAttribute('data-follow-graphics');
   const seasonal=['halloween','ghost','slime'];
-  const stream=['classic','spooktober','vicecity'];
+  const stream=['classic','spooktober','vicecity','christmas'];
 
   function apply(theme) {
     if(theme==='classic' || !theme)delete root.dataset.theme;

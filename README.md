@@ -19,6 +19,16 @@ npm start
 
 The shared admin is at `http://127.0.0.1:8787/admin`.
 
+## Seasonal graphics
+
+Use **Graphics → Overall theme** to preview Christmas, then **Apply to stream** to select it. The follower graphics, death counter, games, Polaroid, divider, likes widgets, intros, credits and stingers use the stream look. Spotify follows when its palette is set to **Follow stream theme**. A game or Polaroid source with a pinned theme keeps its own palette. Chat layouts have their own presets.
+
+The OBS browser sources named `ThinLikeCount` and `Like-Leaderboard` load the seasonal colours through an import at the beginning of their Custom CSS. When rebuilding these sources, keep the following first line, followed by the source’s existing CSS. The service refreshes them when entering or leaving Christmas. Their widget URLs stay on the streaming PC.
+
+```css
+@import url("https://streamengagement.onrender.com/graphics/likes.css");
+```
+
 ## Hybrid cloud deployment
 
 Hybrid mode keeps the dashboard, analytics database, Spotify integration, overlays, rendered Polaroids, and command logic online. The streaming PC runs only `src/connector.js`, which maintains one authenticated outbound WebSocket to the hosted service and relays OBS, Streamer.bot, and TikFinity traffic. No local ports are exposed to the internet, and OBS credentials remain on the streaming PC.

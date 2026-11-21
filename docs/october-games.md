@@ -40,7 +40,7 @@ Hill now includes 57 topics, each with ten options. Launch presets can restrict 
 
 ## URL colour variants
 
-Append `?theme=halloween`, `?theme=ghost` or `?theme=slime` to `/games`, `/polaroid` or `/overlay`. The shared games source forwards the colour variant to each game. If the URL already has parameters, use `&theme=...`. For Games, omit the theme parameter to follow the overall theme in Graphics. Applying Classic, Spooktober or Vice City updates the active game immediately. A game URL with a supported theme specified keeps its fixed palette. The dock has themed overlay links. Themes alter presentation colours, not photo pixels or gameplay; correctness and platform identity colours remain distinguishable.
+Append `?theme=halloween`, `?theme=ghost` or `?theme=slime` to `/games`, `/polaroid` or `/overlay`. The shared games source forwards the colour variant to each game. If the URL already has parameters, use `&theme=...`. For Games, omit the theme parameter to follow the overall theme in Graphics. Applying Classic, Spooktober, Vice City or Christmas updates the active game immediately. A game URL with a supported theme specified keeps its fixed palette. The dock has themed overlay links. Themes alter presentation colours, not photo pixels or gameplay; correctness and platform identity colours remain distinguishable.
 
 ## Stream Deck
 

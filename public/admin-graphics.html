@@ -46,9 +46,9 @@
 <nav class="gfx-jump" aria-label="On this page"><a href="#appearance">Stream appearance</a><a href="#sources">Source previews</a><a href="#spotify">Spotify overlay</a></nav>
 <p class="mod-reading-note">Read-only graphics. Preview themes and Spotify opacity locally. Only the owner can change what appears on stream.</p>
 <section id="appearance" class="gfx-controls" aria-labelledby="settings-heading">
-<h2 id="settings-heading">Stream appearance</h2><p>All eight games follow this theme on the shared Games overlay. A fixed-theme overlay URL keeps its own colours.</p>
+<h2 id="settings-heading">Stream appearance</h2><p>All eight games and the Polaroid overlay follow this theme. A fixed-theme overlay URL keeps its own colours.</p>
 <fieldset id="controls" class="gfx-form" aria-labelledby="settings-heading" disabled>
-<div class="gfx-field"><label for="theme">Overall theme</label><select id="theme"><option value="classic">Classic</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></select></div>
+<div class="gfx-field"><label for="theme">Overall theme</label><select id="theme"><option value="classic">Classic</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option><option value="christmas">Christmas</option></select></div>
 <button class="gfx-btn gfx-primary" id="save" type="button" disabled>Apply to stream</button>
 </fieldset>
 <div class="gfx-footer"><output id="status" role="status">Loading settings…</output><button type="button" id="discard" class="gfx-link" hidden>Discard changes</button><button id="reload" class="gfx-link" type="button" hidden>Reload settings</button></div>
@@ -60,7 +60,7 @@
 <h2 id="spotify-heading">Spotify overlay</h2><p class="gfx-state">Now playing, viewer requests and the !song reminder. Use a 570 × 125 browser source in OBS.</p>
 <div class="spotify-layout"><div>
 <fieldset id="spotify-controls" class="spotify-fields" disabled aria-labelledby="spotify-heading">
-<div class="gfx-field"><label for="spotify-style">Spotify palette</label><select id="spotify-style"><option value="stream">Follow stream theme</option><optgroup label="Spotify-only override"><option value="classic">Classic · KingGumption</option><option value="halloween">Halloween · Midnight Request</option><option value="ghost">Ghost · Icy Blue</option><option value="slime">Slime · Toxic Green</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></optgroup></select></div>
+<div class="gfx-field"><label for="spotify-style">Spotify palette</label><select id="spotify-style"><option value="stream">Follow stream theme</option><optgroup label="Spotify-only override"><option value="classic">Classic · KingGumption</option><option value="halloween">Halloween · Midnight Request</option><option value="ghost">Ghost · Icy Blue</option><option value="slime">Slime · Toxic Green</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option><option value="christmas">Christmas</option></optgroup></select></div>
 <div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Full strength</span></div></div>
 <div class="gfx-field"><label for="spotify-background">Background at faded edge <output id="background-pct" for="spotify-background"></output></label><input type="range" min="0" max="100" value="0" id="spotify-background" aria-describedby="background-help"><small id="background-help">Raise this for brighter scenes. Use 0% for the original fade.</small></div>
 <div><span id="opacity-default-label"></span> <button type="button" class="gfx-link" id="opacity-restore">Use default</button> <button type="button" class="gfx-link" data-owner-write id="opacity-set-default">Save opacity as default</button></div>

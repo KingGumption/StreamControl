@@ -6,7 +6,7 @@
   const applyGraphics=state=>{
     const style=state.spotifyStyle && state.spotifyStyle!=='stream' ? state.spotifyStyle : state.theme;
     // Explicitly choosing “Follow stream” clears an old Spotify-only override.
-    graphicTheme=['classic','halloween','ghost','slime','spooktober','vicecity'].includes(style) ? style : state.spotifyStyle==='stream' ? 'classic' : null;
+    graphicTheme=['classic','halloween','ghost','slime','spooktober','vicecity','christmas'].includes(style) ? style : state.spotifyStyle==='stream' ? 'classic' : null;
     if(graphicTheme) document.documentElement.dataset.theme=graphicTheme;
     if(Number.isInteger(state.backgroundOpacity))root.style.setProperty('--background-opacity',state.backgroundOpacity+'%');
     if(Number.isInteger(state.transparency))root.style.opacity=String(1-state.transparency/100);
@@ -17,7 +17,7 @@
     const feed=new EventSource('/graphics/events');
     feed.addEventListener('graphics',e=>applyGraphics(JSON.parse(e.data)));
   }
-  const themes = ['classic','halloween','ghost','slime'];
+  const themes = ['classic','halloween','ghost','slime','vicecity','spooktober','christmas'];
   function applyTheme(style) { if (!graphicTheme && themes.includes(style)) document.documentElement.dataset.theme = style; }
   applyTheme(params.get('theme') || 'classic');
   let enabled = false, playback = null, activeRequest = null, hint = false, currentKey = '', transitioning = false;

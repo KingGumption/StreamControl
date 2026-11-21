@@ -28,3 +28,9 @@ html[data-theme=slime]{--text:#f5f3e9;--muted:#cdd0c4;--accent:#b5f75a;--seconda
 html[data-theme=classic] .requester{color:var(--secondary)}
 html[data-theme=vicecity]{--accent:#a373d3;--secondary:#eb9998;--text:#fff1ef;--muted:#dfcadd;--paper:#fff1ef;--ink:#171320;--surface:#241b32ee}
 html[data-theme=spooktober]{--accent:#b8cb59;--secondary:#c5db70;--text:#eee8d5;--muted:#c9ccaf;--paper:#eee8d5;--ink:#10110b;--surface:#242719ee}
+html[data-theme=christmas]{--accent:#e7bc70;--secondary:#a92e43;--text:#fff4dc;--muted:#dfd3b9;--paper:#fff4dc;--ink:#10251f;--surface:#123b32}
+html[data-theme=christmas] .music-card::after{
+  content:"";position:absolute;pointer-events:none;bottom:3px;right:4px;width:80px;height:26px;
+  background:url('/assets/christmas-sprig.svg') center/contain no-repeat;
+}
+html[data-theme=christmas] .fill{background:linear-gradient(90deg,#a92e43,#e7bc70)}

@@ -1,0 +1,28 @@
+/* Applies to the normal like goal, compact graphic variants and local top likers. */
+.thin-source .thin-widget {
+  background:linear-gradient(100deg,#10251ff0,#123b32f2)!important;
+  border-color:#b79961!important;
+  box-shadow:inset 0 0 0 1px #e7bc7024,0 0 10px #10251f55!important;
+}
+.thin-source .heading,.thin-source .goal-target {color:#fff4dc!important;text-shadow:0 1px 3px #10251f!important}
+.thin-source .bar {background:#10251f!important;border-color:#9a8053!important}
+.thin-source .fill {background:linear-gradient(90deg,#a92e43,#cd5361 50%,#e7bc70)!important;box-shadow:0 0 8px #e7bc704a!important}
+.thin-source .counter {background:#e7bc70!important;color:#10251f!important;border-color:#785a2d!important;text-shadow:none!important}
+#graphic-root {
+  --surface-fill:#123b32ed!important;--edge:#b79961!important;--accent:#e7bc70!important;
+  --ink:#fff4dc!important;--muted:#e4d8b9!important;--track:#10251f!important;
+  --progress-start:#a92e43!important;--progress-end:#e7bc70!important;--glow-color:#e7bc704a!important;
+  --first:#e7bc70!important;--first-text:#fff4dc!important;
+  --milestone:#a92e43!important;--milestone-text:#fff4dc!important;
+}
+.top-likers-widget {
+  --top-likers-bg-start:18,59,50!important;--top-likers-bg-end:48,43,35!important;
+  --top-likers-bg-base:16,37,31!important;--top-likers-border-rgb:231,188,112!important;
+  --top-likers-glow-rgb:169,46,67!important;--top-likers-tile-rgb:18,59,50!important;
+  --top-likers-tile-border-rgb:157,129,81!important;--top-likers-first-rgb:169,46,67!important;
+  --top-likers-first:#a92e43!important;
+  --top-likers-first-star:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e7bc70' d='M12 0c1 8 3 11 12 12-9 1-11 4-12 12-1-8-3-11-12-12 9-1 11-4 12-12Z'/%3E%3C/svg%3E")!important;
+  --top-likers-milestone-card-rgb:169,46,67!important;--top-likers-milestone-text:#fff4dc!important;
+  --top-likers-first-text:#fff4dc!important;--top-likers-text-color:#fff4dc!important;
+  --top-likers-title-color:#e7bc70!important;
+}

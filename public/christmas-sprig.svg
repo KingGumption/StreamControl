@@ -1,0 +1,10 @@
+<!-- A gold-foil fir sprig with cranberry berries. Transparent edges leave the image visible. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="45" viewBox="0 0 140 45" fill="none">
+ <g stroke="#E7BC70" stroke-width="1.2" stroke-linecap="round">
+  <path d="M3 3c24 3 42 11 69 28m-51-22-6-6m15 9-5-9m15 13-6-12m15 17-6-12m16 18-7-11m8 17-15-1m6-6-16-1m7-4-16-2m4-4-13-2m2-4-11-1"/>
+  <path d="M37 15C60 12 78 9 100 7M50 14l10-7m2 5 9-7m4 5 8-5m1 4 9-5M60 13l9 3m5-6 11 3m1-6 10 3"/>
+ </g>
+ <path d="M79 24l1.3 4.4 4.7 1.3-4.7 1.3-1.3 4.4-1.2-4.4-4.5-1.3 4.5-1.3z" fill="#FFF4DC"/>
+ <g fill="#A92E43" stroke="#E7BC70" stroke-width=".6"><circle cx="36" cy="18" r="3.5"/><circle cx="41" cy="20" r="3"/><circle cx="37" cy="23" r="2.5"/></g>
+ <path d="M94 28h31m4 0h4" stroke="#E7BC70" opacity=".6"/>
+</svg>
