@@ -91,26 +91,17 @@ function install(app,router){
  router.get('/graphics/spotify-availability',(_,res)=>res.set('Cache-Control','no-store').json({enabled:require('./runtime-settings').songRequestsEnabled()}));
  router.get('/graphics',(_,res)=>res.sendFile(path.join(__dirname,'../public/admin-graphics.html')));
  const gallery=['banner','bannerPlain','card','cardVertical','counter'];
- // Discover machine-specific paths from this owner's OBS. Persist only the base, never follower event fields.
- const readBase=id=>{
-  const cached=getConfigValue('graphics_base_'+id,id==='counter'?'http://127.0.0.1:18765/':'');
-  return id.startsWith('card') && !/\/followcards\/index\.html$/i.test(cached) ? '' : cached;
- };
- router.get('/graphics/catalog',(_,res)=>res.set('Cache-Control','no-store').json(gallery.map(id=>({id,name:names[id],base:readBase(id)}))));
+ const origin=new URL(require('./app-config').appConfig.publicBaseUrl).origin;
+ const entry={banner:'follow',bannerPlain:'follow-no-character',card:'card-twitch',cardVertical:'card-tiktok',counter:'deaths'};
+ const local={banner:'18743/widgets/banner',bannerPlain:'18743/widgets/banner?no-char',card:'18743/widgets/card/twitch',cardVertical:'18743/widgets/card/tiktok',counter:'18765/'};
+ const address=id=>origin+'/graphics/live/'+entry[id];
+ for(const id of gallery)app.get('/graphics/live/'+entry[id],(_,res)=>res.set({'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}).redirect('http://127.0.0.1:'+local[id]));
+ router.get('/graphics/catalog',(_,res)=>res.set('Cache-Control','no-store').json(gallery.map(id=>({id,name:names[id],base:address(id)}))));
  router.get('/graphics/url/:id',async(req,res)=>{
   const id=req.params.id;if(!gallery.includes(id))return res.sendStatus(404);
   try{const {inputSettings}=await obs('GetInputSettings',{inputName:names[id]});
-   const url=new URL(inputSettings.url),card=id.startsWith('card'),counter=id==='counter';
-   const pathname=decodeURIComponent(url.pathname).toLowerCase();
-   const expected=counter ? url.origin==='http://127.0.0.1:18765' && pathname==='/' :
-    url.protocol==='file:' && !url.host && pathname.endsWith(card?'/followcards/index.html':'/followbanner/follow-banner.html');
-   if(!expected || url.username || url.password)return res.sendStatus(409);
-   const clean=new URL(url);clean.hash='';
-   const allowed=new Set(card?['frame','style','collection','character','name','accent','bg','follower','rarity','event','hold']:['style','font','no-char','game','gameName','ActivePackPath','title']);
-   for(const k of [...clean.searchParams.keys()])if(!allowed.has(k))clean.searchParams.delete(k);
-   const base=new URL(clean);base.search='';if(id==='bannerPlain')base.searchParams.set('no-char','');
-   if(readBase(id)!==base.href)setConfigValue('graphics_base_'+id,base.href);
-   res.set('Cache-Control','no-store').json({url:clean.href});
+   if(inputSettings.url!==address(id))return res.sendStatus(409);
+   res.set('Cache-Control','no-store').json({url:address(id)});
   }catch{res.sendStatus(503);}
  });
  router.get('/graphics/preview/:id',async(req,res)=>{
