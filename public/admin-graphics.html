@@ -1,22 +1,144 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Graphics · Stream Engagement</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#13131b;color:#fff3ef;font:16px/1.5 system-ui}main{max-width:1000px;margin:auto;padding:32px 22px}a{color:#dfb3e4}h1{font-size:clamp(36px,6vw,64px);margin:18px 0 0}p{color:#c2baca}section{background:#201c29;border:1px solid #42384e;border-radius:16px;padding:22px;margin:20px 0}label{display:block;font-weight:650;margin:12px 0}select,button{padding:9px 14px;background:#352c41;color:white;border:1px solid #766482;border-radius:8px;font:inherit}button{cursor:pointer}button:disabled{opacity:.6}.primary{background:#e5adc3;color:#251c30;font-weight:750}input{width:min(340px,100%);accent-color:#dfa7d0}iframe,.stage{width:100%;border:0;background:repeating-conic-gradient(#33303d 0 25%,#292630 0 50%) 0/24px 24px;border-radius:8px}iframe{max-width:570px;height:125px;display:block;margin:18px 0}.stage{min-height:140px;display:grid;place-items:center;margin:14px 0}.stage img{max-width:100%;max-height:330px}#status{display:block;margin:.7em 0;color:#efd4bb}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #eb9998}#gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}article{background:#18151f;padding:16px;border-radius:10px;min-width:0}article h3{margin:0}.stage{height:220px;padding:8px}.stage img{max-height:100%;object-fit:contain;height:100%;width:100%}textarea{box-sizing:border-box;width:100%;margin-top:5px;background:#15131a;border:1px solid #51475b;color:#f1e8f6;border-radius:5px;padding:7px;min-height:66px;overflow-wrap:anywhere}small{color:#ccbfd2}</style></head>
-<body><main><a href="/admin">← Stream Engagement</a><h1>Graphics</h1><p>Set the look for your stream. Chat widgets keep their own settings.</p>
-<section><h2>Stream theme</h2><fieldset id="controls" disabled style="border:0;padding:0"><label for="theme">Overall theme</label><select id="theme"><option value="classic">Classic</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></select>
-<label for="slider">Spotify opacity · <output id="pct"></output></label><input id="slider" type="range" min="0" max="100"><p>0%: fully transparent · 100%: fully opaque</p><button class="primary" id="save">Apply to stream</button></fieldset><output id="status" role="status">Loading settings…</output></section>
-<section><h2>Graphics previews</h2><p>Preview a theme before applying it. Each sample is rendered from the corresponding overlay. OBS URLs include the current alert parameters when connected.</p><div id="gallery"></div></section></main>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Graphics · Stream Engagement</title>
+<style>
+.gfx-workspace{max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,48px) 64px;color:var(--text,#f5f3ef)}
+.gfx-workspace *{box-sizing:border-box}
+.gfx-heading h1,.gfx-workspace h2,.gfx-workspace h3,.gfx-workspace p{margin:0}
+.gfx-heading h1{font-size:clamp(2.5rem,5vw,4rem);line-height:1.08;letter-spacing:-.05em}
+.gfx-heading p,.gfx-library>p{margin-top:.45rem;color:var(--muted,#b4bdca)}
+.gfx-controls{margin:1.8rem 0 2.5rem;padding:clamp(16px,2.5vw,26px);border:1px solid var(--border,#394251);border-radius:16px;background:var(--panel,#191e27)}
+.gfx-controls h2,.gfx-library h2{font-size:1.35rem;line-height:1.2;letter-spacing:-.03em}
+.gfx-form{display:grid;grid-template-columns:minmax(140px,1fr) minmax(210px,1.4fr) auto;gap:clamp(18px,3vw,40px);align-items:center;border:0;margin:18px 0 0;padding:0;min-width:0}
+.gfx-field{min-width:0;display:grid;gap:5px}.gfx-field label{font-weight:650;font-size:.91rem}.gfx-field output{float:right;color:var(--accent,#f7c894);font-variant-numeric:tabular-nums}
+.gfx-field select{width:100%;font:inherit;min-height:42px}
+.gfx-field input[type=range]{width:100%;min-height:22px;margin:0;padding:0;accent-color:var(--accent,#f7c894);cursor:pointer}
+.gfx-scale,.gfx-url-tools,.gfx-card-top,.gfx-library-heading,.gfx-footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.gfx-scale{font-size:.77rem;color:var(--muted,#b4bdca)}
+.gfx-btn{cursor:pointer;min-height:40px;border-radius:8px;border:1px solid var(--border,#394251);background:var(--panel-alt,#222936);color:var(--text,#f5f3ef);font:inherit;padding:8px 13px}
+.gfx-workspace button.gfx-primary{font-weight:700;background:var(--accent,#f7c894);border-color:transparent;color:#211a15}
+.gfx-workspace button:disabled{cursor:default;opacity:.65}
+.gfx-footer{border-top:1px solid var(--border,#394251);padding-top:12px;margin-top:16px;justify-content:flex-start;flex-wrap:wrap}.gfx-footer output,.gfx-library p,.gfx-state{font-size:.9rem;color:var(--muted,#b4bdca)}.gfx-footer output[data-state="draft"]{color:var(--accent,#f7c894)}.gfx-footer output[data-state="error"]{color:var(--danger,#ffa5ac)}
+.gfx-workspace .gfx-link{background:none;border:0;padding:6px;color:var(--accent,#f7c894);text-decoration:underline;text-underline-offset:.2em;font:inherit;cursor:pointer}
+.gfx-library-heading{justify-content:flex-start}.gfx-count{border:1px solid var(--border,#394251);border-radius:99px;color:var(--muted,#b4bdca);padding:2px 9px;font-size:.8rem}
+.gfx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.gfx-card{display:grid;grid-template-rows:auto auto auto;gap:14px;min-width:0;padding:16px;border:1px solid var(--border,#394251);border-radius:13px;background:var(--panel,#191e27)}
+.gfx-card-top h3{overflow-wrap:anywhere;font-size:1.02rem;letter-spacing:-.02em;color:var(--text,#f5f3ef)}
+.gfx-kind{color:var(--muted,#b4bdca);font-size:.8rem;text-align:right}
+.gfx-stage{display:grid;place-items:center;height:clamp(160px,17vw,208px);padding:8px 12px;overflow:hidden;border-radius:8px;border:1px solid #313847;background:repeating-conic-gradient(#252b37 0 25%,#232833 0 50%) 0/24px 24px}
+.gfx-stage img{max-width:100%;object-fit:contain;width:100%;height:100%;min-height:0}.gfx-stage span{color:#f5f3ef;font-size:.88rem}
+.gfx-url-tools small{color:var(--muted,#b4bdca)}.gfx-url-tools small[data-live]{color:var(--teal,#7edbc7)}
+.gfx-url-tools button{font-size:.82rem;min-height:32px}
+.gfx-card textarea{display:block;margin:7px 0 0;width:100%;min-height:3.4rem;resize:vertical;font: .80rem/1.45 ui-monospace,Consolas,monospace;color:var(--text,#f5f3ef);background:var(--bg,#101319);border-radius:6px;border:1px solid var(--border,#394251);padding:8px}
+.gfx-workspace [hidden]{display:none!important}
+.gfx-workspace :focus-visible{outline:3px solid var(--accent,#f7c894);outline-offset:3px}
+@media(max-width:720px){.gfx-form{grid-template-columns:1fr 1fr;gap:16px}.gfx-grid{grid-template-columns:1fr}.gfx-btn.gfx-primary{grid-column:1/-1}.gfx-stage{height:180px}}
+@media(max-width:440px){.gfx-form{grid-template-columns:1fr}.gfx-card{padding:12px}.gfx-heading p{font-size:.94rem}.gfx-card-top{align-items:flex-start}}
+</style>
+<link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script></head>
+<body class="engagement-site">
+<main class="gfx-workspace">
+<div class="gfx-heading"><h1>Graphics</h1><p>Preview your overlays, copy their OBS URLs, and set the theme for your stream.</p></div>
+<section class="gfx-controls" aria-labelledby="settings-heading">
+<h2 id="settings-heading">Stream appearance</h2>
+<fieldset id="controls" class="gfx-form" aria-labelledby="settings-heading" disabled>
+<div class="gfx-field"><label for="theme">Overall theme</label><select id="theme"><option value="classic">Classic</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></select></div>
+<div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Opaque</span></div></div>
+<button class="gfx-btn gfx-primary" id="save" type="button" disabled>Apply to stream</button>
+</fieldset>
+<div class="gfx-footer"><output id="status" role="status">Loading settings…</output><button type="button" id="discard" class="gfx-link" hidden>Discard changes</button><button id="reload" class="gfx-link" type="button" hidden>Reload settings</button></div>
+</section>
+<section class="gfx-library" aria-labelledby="library-heading"><div class="gfx-library-heading"><h2 id="library-heading">Source previews</h2><span id="count" class="gfx-count" hidden></span></div>
+<p>Samples use the selected theme. Current URLs include the alert details supplied by OBS.</p>
+<div class="gfx-grid" id="gallery"></div></section>
+</main>
 <script>
-const el=id=>document.getElementById(id);
-const draft=()=>({theme:el('theme').value,transparency:100-Number(el('slider').value)});
-function preview(){el('pct').value=el('slider').value+'%';el('slider').setAttribute('aria-valuetext',el('slider').value+'% opacity');for(const img of document.querySelectorAll('[data-sample]'))img.src='/assets/graphics-samples/'+el('theme').value+'-'+img.dataset.sample+'.png'}
-el('slider').oninput=preview;el('theme').onchange=preview;
-async function json(url,opts){const r=await fetch(url,opts);if(!r.ok)throw Error();return r.json()}
-function showSource({id,name,base}){
- const card=document.createElement('article'),title=document.createElement('h3'),img=new Image(),stage=document.createElement('div'),label=document.createElement('small'),url=document.createElement('textarea');
- title.textContent=name;img.alt=name+' sample';img.dataset.sample=id;stage.className='stage';stage.append(img);
- label.textContent='Base URL · checking OBS…';url.readOnly=true;url.setAttribute('aria-label',name+' URL');url.value=base;url.onclick=()=>url.select();
- card.append(title,stage,label,url);el('gallery').append(card);
- json('/admin/graphics/url/'+id).then(r=>{url.value=r.url;label.textContent='Current OBS URL'}).catch(()=>{label.textContent='Base URL · OBS unavailable'});
-}
-(async()=>{try{const [s,items]=await Promise.all([json('/graphics/state'),json('/admin/graphics/catalog')]);el('theme').value=s.theme||'classic';el('slider').value=100-s.transparency;items.forEach(showSource);preview();el('controls').disabled=false;el('status').textContent=s.theme?'Saved theme: '+s.theme:'No shared theme applied yet.'}catch{el('status').textContent='Could not load graphics settings. Reload to retry.'}})();
-el('save').onclick=async()=>{el('controls').disabled=true;el('status').textContent='Applying…';try{const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(draft())});el('status').textContent=r.pending.length?'Saved. Waiting for OBS or an idle source: '+r.pending.join(', '):'Applied to stream.'}catch{el('status').textContent='Could not confirm the update. Reload to check.'}finally{el('controls').disabled=false}};
-</script></body></html>
+(() => {
+ const el = id => document.getElementById(id);
+ const draft = () => ({theme:el('theme').value,transparency:100-Number(el('slider').value)});
+ const themeLabel = v => Array.from(el('theme').options).find(o=>o.value===v)?.textContent || v;
+ const stateMessage = (text,type='') => {el('status').dataset.state=type;el('status').textContent=text;};
+ let saved=null, busy=false, uncertain=false;
+ const dirty = () => saved && (draft().theme!==(saved.theme||'classic') || draft().transparency!==saved.transparency);
+ function updateControls(){
+   el('controls').disabled=busy||!saved||uncertain;
+   el('save').disabled=busy||uncertain||!saved||(!dirty()&&Boolean(saved.theme));
+   el('discard').hidden=!dirty()||busy||uncertain;
+ }
+ function paintPreview(){
+   const {theme,transparency}=draft();
+   el('pct').value=(100-transparency)+'%';
+   el('slider').setAttribute('aria-valuetext',(100-transparency)+'% opacity');
+   for(const img of document.querySelectorAll('img[data-sample]')){
+     if(img.dataset.theme===theme)continue;
+     img.alt=img.dataset.name+' · '+themeLabel(theme)+' preview';img.dataset.theme=theme;
+     img.hidden=false;img.nextElementSibling.hidden=true;
+     img.src='/assets/graphics-samples/'+theme+'-'+img.dataset.sample+'.png';
+   }
+ }
+ function savedNote(){
+   if(!saved)return;
+   stateMessage(saved.theme ? 'Saved theme: '+themeLabel(saved.theme)+'.' : 'No theme applied. Choose a theme and apply it when ready.');
+ }
+ function onEdit(){
+   paintPreview();updateControls();
+   if(dirty())stateMessage('Preview only. Apply to update the stream.','draft');else savedNote();
+ }
+ async function json(url,opts={}){
+   const r=await fetch(url,{cache:'no-store',...opts});
+   if(!r.ok)throw Object.assign(new Error('Request failed'),{status:r.status});
+   return r.json();
+ }
+ const kind={banner:'Follow banner',bannerPlain:'Follow banner',card:'Twitch card',cardVertical:'TikTok card',counter:'Counter'};
+ function showSource({id,name,base}){
+   const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
+   const card=node('article','gfx-card'),top=node('div','gfx-card-top'),title=node('h3','',name);
+   title.id='src-'+id;card.setAttribute('aria-labelledby',title.id);
+   top.append(title,node('span','gfx-kind',kind[id]||''));
+   const stage=node('div','gfx-stage'),img=new Image(),imageError=node('span','','Preview unavailable');
+   img.dataset.sample=id;img.dataset.name=name;imageError.hidden=true;
+   img.onerror=()=>{img.hidden=true;imageError.hidden=false;};stage.append(img,imageError);
+   const bottom=node('div'),tools=node('div','gfx-url-tools'),label=node('small','','Base URL · checking OBS…');
+   const copy=node('button','gfx-btn','Copy URL'),field=node('textarea');
+   copy.type='button';copy.setAttribute('aria-label','Copy '+name+' URL');
+   field.rows=2;field.readOnly=true;field.spellcheck=false;field.value=base;field.setAttribute('aria-label',name+' URL');
+   field.onclick=()=>field.select();
+   let resetCopy;
+   copy.onclick=async()=>{
+     try{await navigator.clipboard.writeText(field.value);copy.textContent='Copied';}
+     catch{field.focus();field.select();copy.textContent='Selected · copy manually';}
+     clearTimeout(resetCopy);resetCopy=setTimeout(()=>{copy.textContent='Copy URL';},2500);
+   };
+   tools.append(label,copy);bottom.append(tools,field);card.append(top,stage,bottom);el('gallery').append(card);
+   json('/admin/graphics/url/'+encodeURIComponent(id)).then(r=>{
+     field.value=r.url;label.textContent='Current OBS URL';label.dataset.live='';
+   }).catch(e=>{label.textContent=e.status===409?'Base URL · OBS points elsewhere':'Base URL · OBS unavailable';});
+ }
+ async function load(){
+   busy=true;uncertain=false;el('reload').hidden=true;updateControls();stateMessage('Loading settings…');
+   try{
+     const [s,items]=await Promise.all([json('/graphics/state'),json('/admin/graphics/catalog')]);
+     saved=s;el('theme').value=s.theme||'classic';el('slider').value=100-s.transparency;
+     el('gallery').replaceChildren();items.forEach(showSource);el('count').textContent=items.length+' sources';el('count').hidden=false;
+     paintPreview();savedNote();
+   }catch{uncertain=true;el('reload').hidden=false;stateMessage('Could not load the graphics workspace.','error');}
+   finally{busy=false;updateControls();}
+ }
+ el('theme').onchange=onEdit;el('slider').oninput=onEdit;el('reload').onclick=load;
+ el('discard').onclick=()=>{el('theme').value=saved.theme||'classic';el('slider').value=100-saved.transparency;paintPreview();savedNote();updateControls();el('theme').focus();};
+ el('save').onclick=async()=>{
+   const next=draft();busy=true;updateControls();stateMessage('Applying to stream…');
+   try{
+     const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(next)});
+     saved=r.state||next;
+     stateMessage(r.pending.length?'Settings saved. Waiting for OBS or an idle source to finish updating '+r.pending.length+' '+(r.pending.length===1?'source.':'sources.'):'Applied to stream: '+themeLabel(saved.theme)+'.');
+   }catch{uncertain=true;el('reload').hidden=false;stateMessage('Could not confirm whether the update was saved. Reload settings to check.','error');}
+   finally{busy=false;updateControls();}
+ };
+ load();
+})();
+</script>
+</body>
+</html>

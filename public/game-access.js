@@ -19,7 +19,7 @@
         banner.textContent = handoff.enabled ? `Signed in as ${user.username}. Game controls enabled.` : `Signed in as ${user.username}. Moderator game controls are disabled.`;
         // Server permissions remain authoritative, including after expiry.
         document.querySelectorAll('button').forEach(button => {
-          if (button.hasAttribute('data-admin-logout') || ['openOverlay','copyUrl'].includes(button.id)) return;
+          if (button.closest('.eng-shell') || button.hasAttribute('data-admin-logout') || ['openOverlay','copyUrl'].includes(button.id)) return;
           button.inert = !handoff.enabled;
           if (!handoff.enabled) button.setAttribute('aria-disabled','true');
           else button.removeAttribute('aria-disabled');
