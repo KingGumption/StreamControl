@@ -78,22 +78,21 @@
   if (!isPublic) {
     const group=make('ul','eng-connections');
     group.setAttribute('aria-label','Live connections');
-    const services={spotify:'Spotify',tikfinity:'TikFinity',streamerbot:'Streamer.bot',connector:'PC connector'};
+    const services={spotify:'Spotify API',spotifyApp:'Spotify app',tikfinity:'TikFinity',streamerbot:'Streamer.bot',connector:'PC connector'};
     const states={connected:'Connected',disconnected:'Disconnected',connecting:'Connecting',unknown:'Unavailable'};
     const labels=[];
     for(const [key,name] of Object.entries(services)){
-      const item=make('li'), chip=make(key==='spotify'?'a':'span','eng-service');
-      if(key==='spotify')chip.href='spotify:';
+      const item=make('li'), chip=make('span','eng-service');
       const icon=make('span','eng-service-mark','?');
       icon.setAttribute('aria-hidden','true');chip.append(icon,make('span',null,name));
       function set(state){
-        const label=name+': '+states[state]+(key==='spotify'?'. Open Spotify desktop':'');
+        const label=name+': '+(key==='spotifyApp'?({connected:'Running',disconnected:'Closed',unknown:'Unavailable'})[state]:states[state]);
         if(chip.dataset.state===state)return;
         chip.dataset.state=state;chip.title=label;
         chip.setAttribute('aria-label',label);chip.lastChild.setAttribute('aria-hidden','true');
         icon.textContent={connected:'✓',disconnected:'×',connecting:'…',unknown:'?'}[state];
       }
-      if(key!=='spotify')chip.setAttribute('role','img');
+      chip.setAttribute('role','img');
       set('unknown');labels.push([key,set]);item.append(chip);group.append(item);
     }
     bar.insertBefore(group,toggle);

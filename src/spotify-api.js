@@ -169,6 +169,43 @@ class SpotifyApiClient {
     return device;
   }
 
+  async randomPlaylistTrack(){
+    this.assertQueuePermission();
+    const id=this.config.spotify.playlistId;
+    if(!id)throw new SpotifyApiError('Configure the stream playlist first.',{code:'playlist-missing'});
+    const clean=this.loadCleanOnly();
+    let chosen=null,count=0,offset=0;
+    for(;;){
+      const page=await this.request('/playlists/'+encodeURIComponent(id)+'/items?limit=50&offset='+offset);
+      if(!Array.isArray(page?.items)||(!page.items.length && page.next))throw new SpotifyApiError('Invalid playlist response');
+      for(const entry of page.items){
+        const track=entry?.item??entry?.track;
+        if(track?.type!=='track'||!track.uri?.startsWith('spotify:track:')||entry.is_local||track.is_local||track.is_playable===false||track.restrictions?.reason||(clean&&track.explicit!==false))continue;
+        if(Math.random()*++count<1)chosen={uri:track.uri,name:track.name||'Playlist track'};
+      }
+      if(!page.next)break;
+      offset+=page.items.length;
+    }
+    if(!chosen)throw new SpotifyApiError('The stream playlist has no playable tracks matching the current settings.',{code:'playlist-empty'});
+    return chosen;
+  }
+
+  async playStreamTrack(deviceName,track,requireLive){
+    const name=String(deviceName||'').trim().toLowerCase();
+    for(let attempt=0;name && attempt<12;attempt++){
+      const data=await this.request('/me/player/devices',{errorCodes:{403:'queue-forbidden'}});
+      const matches=(data?.devices||[]).filter(d=>d.type?.toLowerCase()==='computer' && d.name?.trim().toLowerCase()===name && !d.is_restricted && d.id);
+      if(matches.length===1){
+        await requireLive();
+        return this.request('/me/player/play?device_id='+encodeURIComponent(matches[0].id),{
+          method:'PUT',body:JSON.stringify({context_uri:'spotify:playlist:'+this.config.spotify.playlistId,offset:{uri:track.uri}}),errorCodes:{403:'queue-forbidden'}});
+      }
+      if(matches.length>1)break;
+      if(attempt<11)await new Promise(resolve=>setTimeout(resolve,1000));
+    }
+    throw new SpotifyApiError('Spotify opened, but its stream-PC device could not be identified. Check the desktop app is signed into the connected account.',{code:'stream-device-missing'});
+  }
+
   async skipTrack(deviceId) {
     this.assertQueuePermission();
     const params = new URLSearchParams();

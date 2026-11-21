@@ -141,6 +141,10 @@ class ConnectorRuntime {
     socket.on('open', () => {
       console.log(`[Connector] Connected to ${this.config.bridge.cloudUrl}`);
       this.send({ type: 'connector.hello', version: 1 });
+      void this.reportSpotifyApp(socket);
+      clearInterval(this.spotifyStatusTimer);
+      this.spotifyStatusTimer=setInterval(()=>this.reportSpotifyApp(socket),10000);
+      this.spotifyStatusTimer.unref();
       this.flushOutbox();
       this.reconnectLocalServices();
       this.sendServiceState('obs', this.obsConnected, this.obsConnected ? 'Connected' : 'Not connected');
@@ -148,7 +152,7 @@ class ConnectorRuntime {
     socket.on('message', (raw) => this.handleCloudMessage(raw));
     socket.on('error', (error) => console.warn('[Connector] Cloud connection:', safeMessage(error)));
     socket.on('close', () => {
-      if (this.cloud === socket) this.cloud = null;
+      if (this.cloud === socket) {clearInterval(this.spotifyStatusTimer);this.cloud = null;}
       if (this.started) this.scheduleCloudReconnect();
     });
   }
@@ -158,6 +162,11 @@ class ConnectorRuntime {
     this.cloudTimer = setTimeout(() => { this.cloudTimer = null; this.connectCloud(); }, this.reconnectDelayMs);
     // This is a standalone process, unlike the HTTP server. Keep its retry
     // alive when cloud and local sockets are all down; stop() releases it.
+  }
+
+  async reportSpotifyApp(socket){
+    const state=await require('./spotify-desktop').status();
+    if(this.cloud===socket)this.send({type:'spotify.desktop.state',state});
   }
 
   handleCloudMessage(raw) {
@@ -173,7 +182,23 @@ class ConnectorRuntime {
       if (socket?.readyState === WebSocket.OPEN) socket.send(String(message.payload));
       return;
     }
+    if(message.type==='spotify.desktop.launch'){
+      const socket=this.cloud;
+      this.launchSpotifyWhileLive().then(data=>{
+        if(this.cloud===socket)this.send({type:'spotify.desktop.response',id:message.id,ok:true,data});
+      }).catch(()=>{
+        if(this.cloud===socket)this.send({type:'spotify.desktop.response',id:message.id,ok:false,error:'Windows could not open Spotify on the stream PC.'});
+      });
+      return;
+    }
     if (message.type === 'obs.request') void this.handleObsRequest(message);
+  }
+
+  async launchSpotifyWhileLive(){
+    await this.ensureObsConnected();
+    const status=await this.obs.call('GetStreamStatus');
+    if(status?.outputActive!==true||status.outputReconnecting===true)throw Error('OBS is offline');
+    return require('./spotify-desktop').launch();
   }
 
   async handleObsRequest(message) {
@@ -252,6 +277,7 @@ class ConnectorRuntime {
     this.clearLocalAuth();this.streamerBotSocket=null;
     clearTimeout(this.flushTimer);this.flushTimer=null;
     this.started = false;
+    clearInterval(this.spotifyStatusTimer);
     if (this.cloudTimer) clearTimeout(this.cloudTimer);
     this.cloudTimer = null;
     this.localMonitors.forEach((monitor) => monitor.stop());

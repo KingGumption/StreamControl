@@ -73,6 +73,7 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
     const pathname = req.path;
     const read = ['GET','HEAD'].includes(req.method);
     const writes = new Set(['/games/action','/games/preset','/quiz/audio','/quiz/open','/quiz/next','/quiz/stop','/king-of-the-hill/start','/king-of-the-hill/stop','/king-of-the-hill/next','/king-of-the-hill/settings']);
+    if(req.method==='POST' && pathname==='/spotify/launch' && req.identity.sections.includes('songs'))return next();
     if (read && canRead(req.identity,pathname)) return next();
     if (req.method === 'POST' && writes.has(pathname) && access.controls(req.identity)) return next();
     return res.status(403).json({ok:false,error:'Owner access required, or moderator game controls are disabled.'});

@@ -8,11 +8,29 @@ test('each section grant changes both page and data access in an existing modera
  const cookie=user=>'stream_control_session='+access.issue(user);
  const owner=cookie({id:'owner',role:'owner'}),mod=cookie({...user,role:'games'});
  const call=(route,cookie,body)=>fetch(url+route,{redirect:'manual',method:body?'POST':'GET',headers:{cookie,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+ const {spotifyApi}=require('../src/spotify-api'),{bridgeHub}=require('../src/bridge-hub');
+ const track={name:'Sample track',uri:'spotify:track:sample'};
+ t.mock.method(spotifyApi,'randomPlaylistTrack',async()=>track);
+ let liveState={outputActive:true,outputReconnecting:false};
+ t.mock.method(bridgeHub,'requestObs',async method=>{assert.equal(method,'GetStreamStatus');return liveState});
+ const launch=t.mock.method(bridgeHub,'launchSpotify',async()=>({deviceName:'Stream PC'}));
+ t.mock.method(spotifyApi,'playStreamTrack',async(device,selected)=>{assert.equal(device,'Stream PC');assert.equal(selected,track)});
+ assert.equal((await call('/spotify/launch','',{})).status,401);
+ assert.equal((await call('/spotify/launch',owner,{})).status,200);
+ for(const state of [{outputActive:false},{outputActive:true,outputReconnecting:true},null]){
+   liveState=state;const before=launch.mock.callCount();
+   assert.equal((await call('/spotify/launch',owner,{})).status,409);
+   assert.equal(launch.mock.callCount(),before);
+ }
+ liveState={outputActive:true};
  const grants='/moderators/'+user.id+'/sections';
  for(const [key,group] of Object.entries(sections)){
    assert.equal((await call(grants,owner,{sections:[key],gameControl:false})).status,200);
    assert.equal((await call(group.page,mod)).status,200,key);
    for(const forbidden of ['/moderators/state','/games/device-token','/spotify/connect','/content-coach/tiktok/connect'])assert.equal((await call(forbidden,mod)).status,403);
+   const before=launch.mock.callCount();
+   assert.equal((await call('/spotify/launch',mod,{})).status,key==='songs'?200:403);
+   assert.equal(launch.mock.callCount()-before,key==='songs'?1:0);
    const other=key==='graphics'?'/games/state':'/graphics/catalog';assert.equal((await call(other,mod)).status,403);
    assert.equal((await call(grants,mod,{sections:['games']})).status,403);
  }

@@ -1,6 +1,6 @@
 const sections = {
   home: {label:'Dashboard', page:'/dashboard', reads:['/dashboard/state']},
-  songs: {label:'Song requests', page:'/', reads:['/ui','/stream-engagement','/config','/requests','/connections']},
+  songs: {label:'Song requests', page:'/', reads:['/ui','/stream-engagement','/config','/requests','/connections','/spotify/launch-status']},
   games: {label:'Games', page:'/games', reads:['/games/quick','/games/state','/games/connections','/quiz','/quiz/state','/king-of-the-hill','/king-of-the-hill/state']},
   graphics: {label:'Graphics', page:'/graphics', reads:['/graphics/catalog','/graphics/spotify-availability']},
   polaroid: {label:'Polaroid', page:'/polaroid', reads:['/polaroid/status','/polaroid/latest','/polaroid/control.js']},

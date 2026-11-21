@@ -38,6 +38,7 @@ class BridgeHub extends EventEmitter {
 
   accept(socket) {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) this.socket.close(4001, 'Replaced by a newer connector');
+    this.spotifyAppState='unknown';
     this.socket = socket;
     socket.isAlive = true;
     socket.on('pong', () => { socket.isAlive = true; });
@@ -74,9 +75,13 @@ class BridgeHub extends EventEmitter {
       this.emit('obs-event', message.event, message.data || {});
       return;
     }
-    if (message.type === 'obs.response' && message.id) {
+    if(message.type==='spotify.desktop.state'){
+      this.spotifyAppState=['connected','disconnected'].includes(message.state)?message.state:'unknown';
+      return;
+    }
+    if (['obs.response','spotify.desktop.response'].includes(message.type) && message.id) {
       const pending = this.pending.get(message.id);
-      if (!pending) return;
+      if (!pending || pending.responseType!==message.type) return;
       clearTimeout(pending.timer);
       this.pending.delete(message.id);
       if (message.ok) pending.resolve(message.data);
@@ -89,16 +94,24 @@ class BridgeHub extends EventEmitter {
   }
 
   requestObs(method, args = {}) {
+    return this.requestConnector('obs.request','obs.response',{method,args});
+  }
+
+  launchSpotify(){
+    return this.requestConnector('spotify.desktop.launch','spotify.desktop.response',{});
+  }
+
+  requestConnector(type,responseType,payload){
     if (!this.connected) return Promise.reject(new Error('Local connector is offline'));
     const id = crypto.randomUUID();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
-        reject(new Error(`OBS connector request timed out: ${method}`));
+        reject(new Error(`Connector request timed out: ${payload.method||type}`));
       }, this.requestTimeoutMs);
       timer.unref?.();
-      this.pending.set(id, { resolve, reject, timer });
-      if (!this.send({ type: 'obs.request', id, method, args })) {
+      this.pending.set(id, { resolve, reject, timer,responseType });
+      if (!this.send({type,id,...payload})) {
         clearTimeout(timer);
         this.pending.delete(id);
         reject(new Error('Local connector is offline'));

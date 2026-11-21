@@ -136,12 +136,14 @@ router.get('/games/connections', (req,res) => {
 router.get('/moderators', (req,res) => workspacePage(res,'admin-moderators.html'));
 // Workspace-wide operational summary. Never return source details, timestamps,
 // Spotify identity/scopes, or private bridge metadata through this endpoint.
-router.get('/workspace/connections', (_req,res) => {
+router.get('/workspace/connections', async (_req,res) => {
   const services=getConnectionStatuses();
   const connections=Object.fromEntries(['spotify','streamerbot','tikfinity','connector'].map(key=>{
     const value=services[key]?.state;
     return [key,{state:['connected','connecting','disconnected'].includes(value)?value:'unknown'}];
   }));
+  const hub=require('./bridge-hub').bridgeHub;
+  connections.spotifyApp={state:appConfig.mode==='local'?await require('./spotify-desktop').status():hub.connected?(hub.spotifyAppState||'unknown'):'unknown'};
   res.set('Cache-Control','no-store').json({ok:true,connections});
 });
 router.get('/workspace',(req,res)=>{const target=landing(req.identity);if(target!=='/admin/workspace')return res.redirect(target);return workspacePage(res,'workspace-empty.html');});
@@ -428,6 +430,41 @@ router.delete('/requests/:id', async (req, res) => {
   });
 });
 
+async function streamPlaybackLive(){
+  try{
+    let output;
+    if(appConfig.mode==='local'){
+      await polaroidRuntime.ensureObsConnected();
+      output=await polaroidRuntime.obs.call('GetStreamStatus');
+    }else output=await require('./bridge-hub').bridgeHub.requestObs('GetStreamStatus');
+    return output?.outputActive===true && output.outputReconnecting!==true;
+  }catch{return false;}
+}
+async function requireLivePlayback(){
+  if(!await streamPlaybackLive())throw Object.assign(new Error('Playback is available only while OBS is live.'),{code:'stream-offline'});
+}
+router.get('/spotify/launch-status',async(req,res)=>res.set('Cache-Control','no-store').json({live:await streamPlaybackLive()}));
+let launchingSpotify=false;
+router.post('/spotify/launch',async(req,res)=>{
+  if(launchingSpotify)return res.status(409).json({error:'Spotify is already starting on the stream PC.'});
+  launchingSpotify=true;
+  try{
+    await requireLivePlayback();
+    const selected=await spotifyApi.randomPlaylistTrack();
+    await requireLivePlayback();
+    const desktop=appConfig.mode==='local'?await require('./spotify-desktop').launch():await require('./bridge-hub').bridgeHub.launchSpotify();
+    await spotifyApi.playStreamTrack(desktop.deviceName,selected,requireLivePlayback);
+    res.json({track:selected.name});
+  }catch(error){
+    if(error.code==='stream-offline')return res.status(409).json({error:error.message});
+    const messages={'queue-permission-missing':'Reconnect the Spotify account with playback permissions.',
+      'queue-forbidden':'Spotify refused playback. Check Premium and playback permissions.',
+      'rate-limited':'Spotify is rate limiting requests. Try again later.',
+      'spotify-not-connected':'Connect the stream Spotify account first.'};
+    const safe=['playlist-empty','playlist-missing','stream-device-missing'].includes(error.code)?error.message:null;
+    res.status(503).json({error:safe||messages[error.code]||'Could not start the stream playlist. Check the PC connector, Spotify installation and account connection.'});
+  }finally{launchingSpotify=false;}
+});
 router.get('/spotify/connect', (req, res) => {
   try {
     res.redirect(spotifyAuth.createAuthorizationUrl());

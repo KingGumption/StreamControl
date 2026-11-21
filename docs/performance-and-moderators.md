@@ -6,9 +6,9 @@ Sign in as the owner and open **Moderators**. Create a separate account for each
 
 Select the sections an account can view and choose **Save access**. Existing accounts start with Games. A moderator lands on the first assigned section and uses the same pages as the owner. Clearing every section gives the account an empty workspace. Section grants take effect on the next request, including for existing sessions. Revoking an account invalidates its sessions.
 
-Games has an additional **Operate games** permission. To use it, the account needs Games access and the site-wide **Allow moderator game controls** switch must be on. The global switch also governs moderator chat controls and stays set until you change it. Other assigned sections provide read-only access. Account administration and connecting integrations require the owner account.
+Games has an additional **Operate games** permission. To use it, the account needs Games access and the site-wide **Allow moderator game controls** switch must be on. The global switch also governs moderator chat controls and stays set until you change it. Song Requests access also allows launching stream playback. Other assigned sections provide read-only access. Account administration and connecting integrations require the owner account.
 
-The signed-in header shows connection states for Spotify API, Streamer.bot, TikFinity and the PC connector. Select Spotify to open the desktop app on the device running the browser.
+The header reports Spotify API authorization and the Spotify desktop process separately. While OBS is live, **Open Spotify & play** in Song Requests opens the app on the Windows stream PC and starts the configured playlist at a random eligible track. Spotify Premium and playback permissions are required. The device name defaults to the PC hostname. If Spotify Connect uses a custom desktop name, set `SPOTIFY_STREAM_DEVICE_NAME` in the local connector environment and restart the connector.
 
 ## Responsiveness
 

@@ -185,6 +185,40 @@
         <form class="admin-logout" method="post" action="/admin/logout"><button type="submit" data-admin-logout>Log out</button></form></nav>
       </header>
 
+      <section class="panel"><h2>Stream playback</h2><p>Open Spotify on the stream PC and play a random track from the request playlist.</p>
+        <button type="button" id="launchSpotify" class="primary" disabled>Open Spotify &amp; play</button>
+        <span id="spotifyLaunchAvailability">Checking live status…</span>
+        <span id="spotifyPlaybackStatus" role="status"></span>
+      </section>
+      <script>
+        const launchButton=document.getElementById('launchSpotify');
+        let playbackBusy=false,checkingLive=false,live=false;
+        async function refreshPlaybackLive(){
+          if(checkingLive||document.hidden)return;
+          checkingLive=true;
+          try{const r=await fetch('/admin/spotify/launch-status',{cache:'no-store',signal:AbortSignal.timeout(8000)});live=r.ok && (await r.json()).live===true;}
+          catch{live=false;}
+          finally{
+            checkingLive=false;launchButton.disabled=playbackBusy||!live;
+            document.getElementById('spotifyLaunchAvailability').textContent=live?'':'Available while OBS is live.';
+          }
+        }
+        refreshPlaybackLive();setInterval(refreshPlaybackLive,10000);
+        document.addEventListener('visibilitychange',refreshPlaybackLive);
+        launchButton.onclick=async function(){
+          const status=document.getElementById('spotifyPlaybackStatus');
+          playbackBusy=true;this.disabled=true;status.textContent='Starting playback…';
+          try{
+            const response=await fetch('/admin/spotify/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+            if(response.status===401)throw Error('Sign in again to start playback.');
+            if(response.status===403)throw Error('Song Requests access is required.');
+            const data=await response.json();
+            if(!response.ok)throw Error(data.error);
+            status.textContent='Started '+data.track+'.';
+          }catch(error){status.textContent=error.message||'Could not start playback.';}
+          finally{playbackBusy=false;refreshPlaybackLive();}
+        };
+      </script>
       <section class="panel settings-panel" id="songSettingsSection">
         <div class="mod-song-summary"><h2>Song request settings</h2><p id="modSongSettings" role="status">Loading current settings…</p></div>
         <div class="setting-row">
