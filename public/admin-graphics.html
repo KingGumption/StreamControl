@@ -120,7 +120,7 @@
    if(dirty())stateMessage(viewOnly?'Preview only. The live theme is unchanged.':'Preview only. Apply to update the stream.','draft');else savedNote();
  }
  async function json(url,opts={}){
-   const r=await fetch(url,{cache:'no-store',...opts});
+   const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(12000),...opts});
    if(!r.ok)throw Object.assign(new Error('Request failed'),{status:r.status});
    return r.json();
  }
@@ -197,7 +197,7 @@ card.append(top,stage,bottom);el('gallery').append(card);
    try{
      const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scope:'theme',...next})});
      saved=r.state||next;
-     stateMessage(r.pending.length?'Settings saved. Waiting for OBS or an idle source to finish updating '+r.pending.length+' '+(r.pending.length===1?'source.':'sources.'):'Applied to stream: '+themeLabel(saved.theme)+'.');
+     stateMessage(themeLabel(saved.theme)+' saved. '+(r.obsSync==='offline'?'OBS sources will update when the PC connector reconnects.':'OBS sources update in the background.'));
    }catch{uncertain=true;el('reload').hidden=false;stateMessage('Could not confirm whether the update was saved. Reload settings to check.','error');}
    finally{busy=false;updateControls();}
  };

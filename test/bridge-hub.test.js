@@ -38,6 +38,12 @@ test('authenticates the connector and relays services plus OBS requests in both 
   });
 
   const remoteObs = new RemoteObsClient(hub);
+  const duplicate = new WebSocket(url, { headers: { Authorization: `Bearer ${token}` } });
+  duplicate.on('error', () => {});
+  const [, refused] = await once(duplicate, 'unexpected-response');
+  assert.equal(refused.statusCode, 409);
+  refused.resume();
+  duplicate.terminate();
   const obsRequest = once(connector, 'message');
   const resultPromise = remoteObs.call('GetStreamStatus');
   const request = JSON.parse((await obsRequest)[0].toString());

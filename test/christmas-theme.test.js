@@ -14,15 +14,27 @@ test('Christmas selects each OBS asset and removing the theme restores the likes
  const owner=access.issue({id:'owner',role:'owner'});
  const post=body=>fetch(origin+'/admin/graphics',{method:'POST',headers:{cookie:'stream_control_session='+owner,'Content-Type':'application/json'},body:JSON.stringify(body)});
  const calls=[];
+ const stalled=Promise.withResolvers();
+ t.after(()=>stalled.resolve());
  t.mock.getter(bridgeHub,'connected',()=>true);
  t.mock.method(bridgeHub,'requestObs',async(method,args)=>{
   calls.push({method,args});
+  if(calls.length===1)await stalled.promise;
   if(method==='GetCurrentSceneTransition')return {transitionName:'SkullStinger',transitionSettings:{path:'media/pig-print-horizontal.webm'}};
   if(method==='GetInputSettings')return {inputSettings:{local_file:'media/original.mp4',css:'.base{}',url:'http://localhost:8791/?vertical=1'}};
   if(method==='CallVendorRequest')return {responseData:{success:true,transitions:['StingerVERTYT','SkullStingerVertical'].map(name=>({name,type:'obs_stinger_transition',settings:{path:'media/pig-print-vertical.webm'}}))}};
   return {};
  });
- assert.deepEqual((await (await post({scope:'theme',theme:'christmas'})).json()).pending,[]);
+ const result=await Promise.race([
+  post({scope:'theme',theme:'christmas'}).then(r=>r.json()),
+  require('node:timers/promises').setTimeout(3000,null,{ref:false})
+ ]);
+ assert.equal(result?.state.theme,'christmas','theme save must finish even while OBS is stalled');
+ assert.equal(result.obsSync,'syncing');
+ const read=()=>fetch(origin+'/graphics/state').then(r=>r.json());
+ assert.equal((await read()).theme,'christmas');
+ stalled.resolve();
+ assert.equal((await read()).obsSync,'complete');
  const css=()=>fetch(origin+'/graphics/likes.css').then(r=>r.text());
  assert.match(await css(),/\.thin-source/);
  const updates=Object.fromEntries(calls.filter(c=>c.method==='SetInputSettings').map(({args})=>[args.inputName,args.inputSettings]));

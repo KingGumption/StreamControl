@@ -33,14 +33,20 @@ const names={
 };
 const obs=(m,args)=>bridgeHub.requestObs(m,args);
 const likesAppearance=new Map();
-let tail=Promise.resolve(), retry;
-async function sync(theme,only){
- clearTimeout(retry);
+const hostedSources=new Set(['card','cardVertical','banner','bannerPlain','counter']);
+const managedSources=Object.entries(names).filter(([id])=>!hostedSources.has(id)).map(([,name])=>name);
+let latestJob=null, running=false, revision=0, retry;
+let obsSync='offline';
+async function sync(theme,only,version){
+ const obs=(method,args)=>{
+  if(version!==revision || !bridgeHub.connected)throw Error('Sync superseded');
+  return bridgeHub.requestObs(method,args);
+ };
  const look=looks[theme];
  const pending=[];
  for(const [id,inputName] of Object.entries(names)){
-  if(only && !only.includes(inputName))continue;
-  if(id.startsWith('card')||id.startsWith('banner')||id==='counter')continue; // Card resolves the theme before loading its renderer.
+  if(version!==revision || !bridgeHub.connected)break;
+  if(!only.includes(inputName))continue;
   try{
    if(id==='likes'||id==='likers'){
     // Their OBS custom CSS imports /graphics/likes.css. Never request private widget URLs.
@@ -105,13 +111,35 @@ async function sync(theme,only){
    await obs('SetInputSettings',{inputName,inputSettings:patch,overlay:true});
   }catch{pending.push(inputName);}
  }
- if(pending.length){retry=setTimeout(()=>{if(bridgeHub.connected && read().theme===theme)void queue(pending);},30000);retry.unref?.();}
  return pending;
 }
-function queue(only){const job=tail.then(()=>bridgeHub.connected&&read().theme?sync(read().theme,only):Object.values(names));tail=job.catch(()=>{});return job;}
+async function drain(){
+ running=true;
+ try{
+  while(latestJob){
+   const {theme,only,version}=latestJob;
+   latestJob=null;
+   const pending=await sync(theme,only,version);
+   if(version!==revision)continue;
+   obsSync=pending.length?'waiting':'complete';
+   if(pending.length){
+    retry=setTimeout(()=>queue(theme,pending),30000);
+    retry.unref?.();
+   }
+  }
+ }finally{running=false;}
+}
+function queue(theme,only=managedSources){
+ clearTimeout(retry);
+ revision++;
+ obsSync=bridgeHub.connected?'syncing':'offline';
+ latestJob=bridgeHub.connected?{theme,only,version:revision}:null;
+ if(latestJob&&!running)void drain();
+}
 function install(app,router){
- bridgeHub.on('connector-connected',()=>{if(read().theme)void queue();});
- app.get('/graphics/state',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).json(read()));
+ bridgeHub.on('connector-connected',()=>{const {theme}=read();if(theme)queue(theme);});
+ bridgeHub.on('connector-disconnected',()=>{clearTimeout(retry);revision++;latestJob=null;obsSync='offline';});
+ app.get('/graphics/state',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).json({...read(),obsSync}));
  app.get('/graphics/likes.css',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).type('css').send(read().theme==='christmas'?christmasLikes:'/* Use the configured widget appearance. */'));
  app.get('/graphics/events',(req,res,next)=>{res.set('Access-Control-Allow-Origin','*');next();},(req,res)=>streamEvents(req,res,{name:'graphics',initial:read,subscribe:f=>{listeners.add(f);return()=>listeners.delete(f);}}));
  router.get('/graphics/spotify-availability',(_,res)=>res.set('Cache-Control','no-store').json({enabled:require('./runtime-settings').songRequestsEnabled()}));
@@ -156,7 +184,9 @@ function install(app,router){
   setConfigValue('graphics_settings',state);
   if(previous.theme!==state.theme){const {audience}=require('./game-launcher').gameLauncher;if(audience.active==='rival'){audience.currentTheme=state.theme;audience.changed();}}
   for(const f of listeners)f(state);
-  const pending=['spotify','spotify-default'].includes(scope)?[]:await queue();res.json({state,pending});
+  const applyTheme=scope==='theme'||scope===undefined;
+  if(applyTheme)queue(state.theme);
+  res.json({state,pending:applyTheme?managedSources:[],obsSync});
  });
 }
 module.exports={install};

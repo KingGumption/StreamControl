@@ -29,6 +29,10 @@ class BridgeHub extends EventEmitter {
         socket.destroy();
         return;
       }
+      if (this.connected) {
+        socket.end('HTTP/1.1 409 Conflict\r\nConnection: close\r\nContent-Length: 0\r\n\r\n');
+        return;
+      }
       this.server.handleUpgrade(request, socket, head, (webSocket) => this.accept(webSocket));
     });
     this.heartbeat = setInterval(() => this.ping(), 30000);
@@ -37,7 +41,6 @@ class BridgeHub extends EventEmitter {
   }
 
   accept(socket) {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) this.socket.close(4001, 'Replaced by a newer connector');
     this.spotifyAppState='unknown';
     this.socket = socket;
     socket.isAlive = true;
