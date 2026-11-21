@@ -92,7 +92,10 @@ function install(app,router){
  router.get('/graphics',(_,res)=>res.sendFile(path.join(__dirname,'../public/admin-graphics.html')));
  const gallery=['banner','bannerPlain','card','cardVertical','counter'];
  // Discover machine-specific paths from this owner's OBS. Persist only the base, never follower event fields.
- const readBase=id=>getConfigValue('graphics_base_'+id,id==='counter'?'http://127.0.0.1:18765/':'');
+ const readBase=id=>{
+  const cached=getConfigValue('graphics_base_'+id,id==='counter'?'http://127.0.0.1:18765/':'');
+  return id.startsWith('card') && !/\/followcards\/index\.html$/i.test(cached) ? '' : cached;
+ };
  router.get('/graphics/catalog',(_,res)=>res.set('Cache-Control','no-store').json(gallery.map(id=>({id,name:names[id],base:readBase(id)}))));
  router.get('/graphics/url/:id',async(req,res)=>{
   const id=req.params.id;if(!gallery.includes(id))return res.sendStatus(404);
@@ -100,7 +103,7 @@ function install(app,router){
    const url=new URL(inputSettings.url),card=id.startsWith('card'),counter=id==='counter';
    const pathname=decodeURIComponent(url.pathname).toLowerCase();
    const expected=counter ? url.origin==='http://127.0.0.1:18765' && pathname==='/' :
-    url.protocol==='file:' && !url.host && pathname.endsWith(card?'/followercard-blender/index.html':'/followbanner/follow-banner.html');
+    url.protocol==='file:' && !url.host && pathname.endsWith(card?'/followcards/index.html':'/followbanner/follow-banner.html');
    if(!expected || url.username || url.password)return res.sendStatus(409);
    const clean=new URL(url);clean.hash='';
    const allowed=new Set(card?['frame','style','collection','character','name','accent','bg','follower','rarity','event','hold']:['style','font','no-char','game','gameName','ActivePackPath','title']);

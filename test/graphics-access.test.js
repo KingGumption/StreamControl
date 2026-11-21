@@ -8,9 +8,9 @@ test('source URLs are owner-only, reject unrelated sources and remember no event
  const get=(route,session)=>fetch(base+'/admin/graphics/'+route,{headers:session?{Cookie:'stream_control_session='+session}:{}});
  const owner=access.issue({id:'owner',role:'owner'}),moderator=access.issue({...await access.create('fixture-mod','fixture-password'),role:'games'});
  for(const route of ['catalog','url/card','preview/card']){assert.equal((await get(route)).status,401);assert.equal((await get(route,moderator)).status,403)}
- let url='file:///D:/fixtures/FollowerCard-Blender/index.html?frame=spooky&name=Trevor&follower=Example&token=fictional#ignored';
+ let url='file:///D:/fixtures/FollowCards/index.html?frame=spooky&name=Trevor&follower=Example&token=fictional#ignored';
  t.mock.method(bridgeHub,'requestObs',async()=>({inputSettings:{url}}));
- const r=await get('url/card',owner);assert.equal(r.status,200);assert.equal(r.headers.get('cache-control'),'no-store');assert.equal((await r.json()).url,'file:///D:/fixtures/FollowerCard-Blender/index.html?frame=spooky&name=Trevor&follower=Example');
- const list=await (await get('catalog',owner)).json();assert.equal(list.find(i=>i.id==='card').base,'file:///D:/fixtures/FollowerCard-Blender/index.html');
+ const r=await get('url/card',owner);assert.equal(r.status,200);assert.equal(r.headers.get('cache-control'),'no-store');assert.equal((await r.json()).url,'file:///D:/fixtures/FollowCards/index.html?frame=spooky&name=Trevor&follower=Example');
+ const list=await (await get('catalog',owner)).json();assert.equal(list.find(i=>i.id==='card').base,'file:///D:/fixtures/FollowCards/index.html');
  url='https://example.test/private';assert.equal((await get('url/card',owner)).status,409);
 });
