@@ -96,7 +96,7 @@ app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, 
 });
 
 
-app.get('/games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-overlay.html')));
+app.get(['/games','/games/full','/games/corner'],(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-overlay.html')));
 app.get('/games/state',(req,res)=>res.json(gameLauncher.overlayState()));
 app.get('/games/events',(req,res)=>streamEvents(req,res,{name:'game-selection',subscribe:fn=>gameLauncher.subscribeOverlay(fn),initial:()=>gameLauncher.overlayState()}));
 app.get('/word-vault',(_,res)=>res.sendFile(path.join(__dirname,'../public/word-vault.html')));

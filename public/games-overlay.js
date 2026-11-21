@@ -6,14 +6,18 @@
   if(params.get('muted')==='1')forward.set('muted','1');
   if(params.has('volume')&&Number.isFinite(Number(params.get('volume'))))forward.set('volume',String(Math.max(0,Math.min(100,Number(params.get('volume'))))));
 
+  const path=location.pathname.replace(/\/$/,'');
+  const view=path==='/games/corner'?'corner':path==='/games/full'?'full':'combined';
+  host.dataset.view=view;
   let selected=null;
   function render({active,layout}) {
-    const next=Object.hasOwn(routes,active)?active:null;
-    const compact=layout==='compact'&&['higher','number','split','word'].includes(next);
+    const compact=layout==='compact';
+    const visible=view==='combined'||(compact?view==='corner':view==='full');
+    const next=visible&&Object.hasOwn(routes,active)?active:null;
     const key=next?next+'-'+compact:null;
     if(key===selected)return;
     selected=key;
-    host.classList.toggle('corner',compact);
+    host.classList.toggle('corner',compact&&view==='combined');
     // Removing the previous frame also closes its event stream and audio.
     host.replaceChildren();
     if(!next)return;
@@ -27,5 +31,6 @@
   }
   const events=new EventSource('/games/events');
   events.addEventListener('game-selection',event=>render(JSON.parse(event.data)));
+  events.onerror=()=>render({active:null});
   // EventSource reconnects with a fresh selection, including after deployments.
 })();

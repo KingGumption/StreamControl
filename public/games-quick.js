@@ -137,7 +137,7 @@ function fields() {
     );
   }
 }
-function overlays(){if(state?.user.role!=='owner'){ $('links').replaceChildren();return; }const params=new URLSearchParams();if($('theme').value)params.set('theme',$('theme').value);params.set('volume',$('overlayVolume').value);if($('overlayMuted').checked)params.set('muted','1');const suffix='?'+params.toString();$('links').replaceChildren(...[['All Games','/games'],['Polaroid','/polaroid'],['Songs','/overlay']].map(([name,path])=>{const a=document.createElement('a');a.textContent=name;a.href=path+suffix;a.target='_blank';return a;}));}
+function overlays(){if(state?.user.role!=='owner'){ $('links').replaceChildren();return; }const params=new URLSearchParams();if($('theme').value)params.set('theme',$('theme').value);params.set('volume',$('overlayVolume').value);if($('overlayMuted').checked)params.set('muted','1');const suffix='?'+params.toString();$('links').replaceChildren(...[['Full board','/games/full'],['Gameplay corner','/games/corner'],['All Games (combined)','/games'],['Polaroid','/polaroid'],['Songs','/overlay']].map(([name,path])=>{const a=document.createElement('a');a.textContent=name;a.href=path+suffix;a.target='_blank';return a;}));}
 async function refresh(){
  const version=++refreshVersion;
  const latest=await api('games/state');
