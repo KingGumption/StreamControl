@@ -1,0 +1,13 @@
+/* Shared read-only sections: browsing controls remain accessible; setup and writes do not. */
+.mod-reading-note,.mod-song-summary,.mod-latest-title,.mod-latest-empty{display:none}
+body[data-sections] .mod-reading-note,body[data-sections] .mod-song-summary,body[data-sections] .mod-latest-title,body[data-sections] .mod-latest-empty{display:block}
+body[data-sections] .mod-reading-note{margin:.75rem 0;padding:.65rem .9rem;border-inline-start:3px solid var(--eng-accent,#a8ddbc);color:inherit}
+body[data-sections] :is([data-owner-write],#spotifyAccount,#songSettingsSection .setting-row,#songSettingsSection .switch,.request-remove-btn,
+#test-form,.polaroid-test-copy,#spotify-test,#spotify-test-help,#spotify-save,#spotify-discard,#save,#discard,
+#postForm,#editor,#add,#researchForm,#experimentForm,.panel:has(> #researchForm),.panel:has(> #experimentForm),
+.panel:has(#previewImport),[data-edit],[data-remove],[data-experiment],[data-content-sync],[data-content-disconnect],
+[data-instagram-bootstrap],a[href$="/connect"],a[href="/admin/content-coach/export"],.video-evidence,[data-analyze-group],
+[data-analyze-video],[data-research-group],[data-remove-group],[data-track-group],[data-apply-trial],[data-dismiss-trial],label:has([data-trial-target]),
+.growth-form,details:has(#growthCsvImport),[data-coach-remove],[data-segment-edit],[data-remove-experiment],[data-edit-experiment],[data-remove-discovery]){display:none!important}
+body[data-sections] .mod-song-summary {line-height:1.7}
+body[data-sections] .mod-song-summary b {font-weight:650}

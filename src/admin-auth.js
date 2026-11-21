@@ -1,6 +1,7 @@
 const crypto = require('node:crypto');
 const path = require('node:path');
 
+const {canRead,landing}=require('./workspace-access');
 const COOKIE_NAME = 'stream_control_session';
 const SESSION_MAX_AGE_SECONDS = 12 * 60 * 60;
 
@@ -13,7 +14,7 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
 
   function loginPage(req, res) {
     const user = identity(req);
-    if (user) return res.redirect(user.role === 'owner' ? '/admin/dashboard' : '/admin/games');
+    if (user) return res.redirect(landing(user));
     return res.sendFile(path.join(__dirname, '..', 'public', 'admin-login.html'));
   }
 
@@ -37,7 +38,7 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
     }
     attempts.delete(key);
     res.setHeader('Set-Cookie', serializeSessionCookie(access.issue(user,now()), SESSION_MAX_AGE_SECONDS));
-    return res.redirect(user.role === 'games' ? '/admin/games' : safeReturnPath(req.body?.returnTo));
+    return res.redirect(user.role === 'games' ? landing(user) : safeReturnPath(req.body?.returnTo));
   }
 
   function logout(req, res) {
@@ -71,10 +72,9 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
     if (req.identity?.role === 'owner') return next();
     const pathname = req.path;
     const read = ['GET','HEAD'].includes(req.method);
-    const reads = new Set(['/games/quick','/games/state','/games','/quiz','/quiz/state','/king-of-the-hill','/king-of-the-hill/state','/games/session','/games/connections']);
     const writes = new Set(['/games/action','/games/preset','/quiz/audio','/quiz/open','/quiz/next','/quiz/stop','/king-of-the-hill/start','/king-of-the-hill/stop','/king-of-the-hill/next','/king-of-the-hill/settings']);
-    if (read && reads.has(pathname)) return next();
-    if (req.method === 'POST' && writes.has(pathname) && access.handoff(now()).enabled) return next();
+    if (read && canRead(req.identity,pathname)) return next();
+    if (req.method === 'POST' && writes.has(pathname) && access.controls(req.identity)) return next();
     return res.status(403).json({ok:false,error:'Owner access required, or moderator game controls are disabled.'});
   }
   return { loginPage, login, logout, requireAuthentication, requireSameOrigin, requireCapability };

@@ -14,9 +14,6 @@
       previous = signature;
       document.querySelectorAll('[data-overlay-setup]').forEach(el=>{el.hidden=user.role!=='owner';});
       if (user.role === 'games') {
-        document.querySelectorAll('a[href^="/admin"]').forEach(link => {
-          if (!['/admin/games/quick','/admin/games','/admin/quiz','/admin/king-of-the-hill'].includes(link.getAttribute('href'))) link.hidden = true;
-        });
         banner.textContent = handoff.enabled ? `Signed in as ${user.username}. Game controls enabled.` : `Signed in as ${user.username}. Moderator game controls are disabled.`;
         // Server permissions remain authoritative, including after expiry.
         document.querySelectorAll('button').forEach(button => {

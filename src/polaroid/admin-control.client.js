@@ -24,17 +24,18 @@ async function updateStatus() {
     const response = await fetch('/admin/polaroid/status', { cache: 'no-store' });
     if (!response.ok) throw new Error(`Status failed (${response.status})`);
     const status = await response.json();
+    const modView=document.body.hasAttribute("data-sections");
     statusElement.innerHTML = [
       card('OBS', status.obsConnected ? 'Connected' : 'Waiting', status.obsConnected ? 'ok' : 'warn'),
       card('Streamer.bot', status.streamerBotConnected ? 'Connected' : 'Waiting', status.streamerBotConnected ? 'ok' : 'warn'),
       card('Discord', status.discordConfigured ? 'Configured' : 'Needs webhook', status.discordConfigured ? 'ok' : 'warn'),
       card('Twitch chat', status.twitchChatConfigured ? 'Enabled' : 'Not enabled', status.twitchChatConfigured ? 'ok' : 'warn'),
       card('Profile pictures', status.avatarResolverConfigured ? 'Enabled' : 'Needs helper action', status.avatarResolverConfigured ? 'ok' : 'warn'),
-      card('Camera source', status.cameraSource),
-      card('Reward', status.rewardTitle),
+      !modView && card('Camera source', status.cameraSource),
+      !modView && card('Reward', status.rewardTitle),
       card('Queue', `${status.queueLength}${status.processing ? ' (working)' : ''}`),
       card('Deliveries', String(status.deliveryQueueLength || 0)),
-    ].join('');
+    ].filter(Boolean).join('');
     overlayUrl.textContent = status.overlayUrl;
     if (status.lastError) {
       result.dataset.serviceError = 'true';
@@ -43,7 +44,8 @@ async function updateStatus() {
       delete result.dataset.serviceError;
       result.textContent = '';
     }
-    if (status.lastCapture?.imageUrl && latest.hidden) {
+    if (status.lastCapture?.imageUrl && latest.getAttribute('src')!==status.lastCapture.imageUrl) {
+      document.getElementById('modCaptureEmpty')?.remove();
       latest.src = status.lastCapture.imageUrl;
       latest.hidden = false;
     }

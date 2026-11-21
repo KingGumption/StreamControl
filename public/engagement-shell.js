@@ -3,7 +3,7 @@
   'use strict';
   const path = location.pathname.replace(/\/+$/, '') || '/';
   const links = {
-    home: ['/admin/dashboard', 'Dashboard'], terms: ['/terms', 'Terms'], privacy: ['/privacy', 'Privacy'],
+    empty: ['/admin/workspace','Workspace'], home: ['/admin/dashboard', 'Dashboard'], terms: ['/terms', 'Terms'], privacy: ['/privacy', 'Privacy'],
     quizPreview: ['/admin/quiz/preview', 'Quiz preview'], login: ['/admin/login', 'Sign in'], songs: ['/admin', 'Song requests'],
     games: ['/admin/games', 'Games'], quick: ['/admin/games/quick', 'Quick controls'],
     quiz: ['/admin/quiz', 'Quiz'], hill: ['/admin/king-of-the-hill', 'King of the Hill'],
@@ -75,27 +75,79 @@
     logout.type='submit'; logout.dataset.adminLogout='';
     account.append(logout); bar.append(account);
   }
+  if (!isPublic) {
+    const group=make('ul','eng-connections');
+    group.setAttribute('aria-label','Live connections');
+    const services={spotify:'Spotify',tikfinity:'TikFinity',streamerbot:'Streamer.bot',connector:'PC connector'};
+    const states={connected:'Connected',disconnected:'Disconnected',connecting:'Connecting',unknown:'Unavailable'};
+    const labels=[];
+    for(const [key,name] of Object.entries(services)){
+      const item=make('li'), chip=make(key==='spotify'?'a':'span','eng-service');
+      if(key==='spotify')chip.href='spotify:';
+      const icon=make('span','eng-service-mark','?');
+      icon.setAttribute('aria-hidden','true');chip.append(icon,make('span',null,name));
+      function set(state){
+        const label=name+': '+states[state]+(key==='spotify'?'. Open Spotify desktop':'');
+        if(chip.dataset.state===state)return;
+        chip.dataset.state=state;chip.title=label;
+        chip.setAttribute('aria-label',label);chip.lastChild.setAttribute('aria-hidden','true');
+        icon.textContent={connected:'✓',disconnected:'×',connecting:'…',unknown:'?'}[state];
+      }
+      if(key!=='spotify')chip.setAttribute('role','img');
+      set('unknown');labels.push([key,set]);item.append(chip);group.append(item);
+    }
+    bar.insertBefore(group,toggle);
+    let pending=false;
+    async function loadHealth(){
+      if(pending||document.hidden)return;pending=true;
+      try {
+        const response=await fetch('/admin/workspace/connections',{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(8000)});
+        if(!response.ok)throw Error();
+        const {connections}=await response.json();
+        for(const [key,set] of labels){const s=connections?.[key]?.state;set(Object.hasOwn(states,s)?s:'unknown');}
+      }catch{for(const [,set] of labels)set('unknown');}
+      finally{pending=false;}
+    }
+    loadHealth();
+    document.addEventListener('visibilitychange',loadHealth);
+    window.addEventListener('pageshow',event=>{if(event.persisted)loadHealth();});
+    setInterval(loadHealth,10000);
+  }
   const renderLinks = keys => {
     nav.replaceChildren(...keys.map(key=>{
       const [url,name] = links[key], a=make('a',null,name);
       a.href=url;
       if(key===current) a.setAttribute('aria-current','page');
-      if(key==='games' && (gamePage || current==='quizPreview') && current!=='games') a.dataset.sectionActive='true';
+
       return a;
     }));
   };
-  renderLinks(isPublic ? ['terms','privacy','login'] : gamePage ? gamePages : current==='quizPreview' ? [...studioPages.slice(0,2),current,...studioPages.slice(2)] : studioPages);
-  header.append(bar,nav); body.prepend(skip,header);
-  if (gamePage) {
-    // These four pages are available to moderators. Default their navigation to game tools.
-    fetch('/admin/games/session',{cache:'no-store',credentials:'same-origin'})
-      .then(r=>r.ok ? r.json() : null).then(session=>{
-        if(session?.user?.role!=='owner') return;
-        // The game pages already have page-specific launch/settings links. Include a current-page
-        // link on deep pages so screen-reader navigation still identifies the active destination.
-        const keys=studioPages.slice();
-        if(current!=='games') keys.splice(keys.indexOf('games')+1,0,current);
-        renderLinks(keys); brand.href='/admin/dashboard';
-      }).catch(()=>{});
+  const allowed=body.dataset.sections?.split(' ') || studioPages;
+  const keys=studioPages.filter(k=>allowed.includes(k));
+  if((gamePage||current==='quizPreview') && current!=='games')keys.splice(keys.indexOf('games')+1,0,current);
+  brand.href=isPublic?'/':'/admin/workspace';
+  renderLinks(isPublic?['terms','privacy','login']:keys);
+  header.append(bar,nav);body.prepend(skip,header);
+  if(body.hasAttribute('data-sections')){
+    async function checkAccess(){
+      if(document.hidden)return;
+      try {
+        const response=await fetch('/admin/games/session',{cache:'no-store'});
+        if(response.status===401){location.replace('/admin/login');return;}
+        if(!response.ok)return;
+        const {sections}=await response.json();
+        if(sections?.join(' ')!==body.dataset.sections)location.replace('/admin/workspace');
+      } catch { /* Retry when the workspace is reachable. */ }
+    }
+    window.addEventListener('pageshow',event=>{if(event.persisted)checkAccess()});
+    document.addEventListener('visibilitychange',checkAccess);
+    setInterval(checkAccess,15000);
+    const groups={quick:'games',quiz:'games',hill:'games',quizPreview:'games'};
+    for(const a of content.querySelectorAll('a[href]')){
+      const url=new URL(a.href,location.href);
+      if(url.origin!==location.origin)continue;
+      const key=Object.keys(links).find(k=>links[k][0]===url.pathname);
+      if(key && !allowed.includes(groups[key]||key) && !isPublic)a.hidden=true;
+    }
   }
 })();

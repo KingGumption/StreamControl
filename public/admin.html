@@ -172,8 +172,8 @@
 
 .admin-nav .admin-logout{margin:0;display:flex}.admin-logout button{width:auto;margin:0;padding:9px 13px;font:inherit;font-weight:bold;color:var(--muted,#a2b5c3);background:var(--panel-alt,#1e2430);border:1px solid var(--border,#27313d);border-radius:7px;cursor:pointer}.admin-logout button:hover{color:var(--text,#edf4f7);border-color:var(--accent,#4ecdc4)}.admin-logout button:focus-visible{outline:3px solid #4ecdc4;outline-offset:2px}
 </style>
-  <link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script></head>
-  <body>
+  <link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script><link rel="stylesheet" href="/assets/moderator-sections.css"></head>
+  <body class="engagement-site">
     <div class="shell">
       <header>
         <h1>Song requests</h1>
@@ -185,47 +185,8 @@
         <form class="admin-logout" method="post" action="/admin/logout"><button type="submit" data-admin-logout>Log out</button></form></nav>
       </header>
 
-      <section class="panel connection-panel collapsed" id="dashboardSection">
-        <div class="connection-heading">
-          <h2>Live Connections</h2>
-          <div class="connection-heading-actions">
-            <span class="muted">Updates automatically</span>
-            <button type="button" class="collapse-button" id="connectionToggle" aria-expanded="false">Show details</button>
-          </div>
-        </div>
-        <div class="connection-grid" id="connectionGrid" aria-live="polite">
-          <article class="connection-card" id="spotifyStatusCard" data-service="spotify">
-            <div class="connection-name"><span class="status-dot"></span>Spotify</div>
-            <div class="connection-state" data-field="state">Checking…</div>
-            <div class="connection-detail" data-field="detail">Loading connection state</div>
-            <div class="connection-meta" data-field="meta"></div>
-            <div class="connection-actions">
-              <button type="button" class="primary" id="spotifyConnect">Connect Spotify</button>
-              <button type="button" class="secondary" id="spotifyDisconnect" hidden>Disconnect</button>
-            </div>
-          </article>
-          <article class="connection-card" data-service="tikfinity">
-            <div class="connection-name"><span class="status-dot"></span>TikFinity</div>
-            <div class="connection-state" data-field="state">Checking…</div>
-            <div class="connection-detail" data-field="detail">Loading connection state</div>
-            <div class="connection-meta" data-field="meta"></div>
-          </article>
-          <article class="connection-card" data-service="streamerbot">
-            <div class="connection-name"><span class="status-dot"></span>Streamer.bot</div>
-            <div class="connection-state" data-field="state">Checking…</div>
-            <div class="connection-detail" data-field="detail">Loading connection state</div>
-            <div class="connection-meta" data-field="meta"></div>
-          </article>
-          <article class="connection-card" data-service="connector">
-            <div class="connection-name"><span class="status-dot"></span>PC Connector</div>
-            <div class="connection-state" data-field="state">Checking...</div>
-            <div class="connection-detail" data-field="detail">Not required in local mode</div>
-            <div class="connection-meta" data-field="meta"></div>
-          </article>
-        </div>
-      </section>
-
       <section class="panel settings-panel" id="songSettingsSection">
+        <div class="mod-song-summary"><h2>Song request settings</h2><p id="modSongSettings" role="status">Loading current settings…</p></div>
         <div class="setting-row">
           <div class="setting-copy">
             <h2>Song Requests</h2>
@@ -246,6 +207,11 @@
             <span class="switch-track" aria-hidden="true"></span>
           </label>
         </div>
+        <details class="spotify-account" id="spotifyAccount"><summary>Spotify account settings</summary>
+          <p class="muted" id="spotifyAccountStatus" role="status">Open to check account settings.</p>
+          <button type="button" class="primary" id="spotifyConnect" hidden>Connect Spotify</button>
+          <button type="button" class="secondary" id="spotifyDisconnect" hidden>Disconnect Spotify</button>
+        </details>
         <form id="repeatTrackForm" class="setting-row" style="flex-wrap:wrap">
           <div class="setting-copy">
             <h2><label for="repeatTrackMinutes">Repeat track cooldown</label></h2>
@@ -276,7 +242,7 @@
                 <th>User</th>
                 <th>Request</th>
                 <th>Result</th>
-                <th>Action</th>
+                <th data-owner-write>Action</th>
               </tr>
             </thead>
             <tbody id="requestTable">
@@ -371,53 +337,24 @@
         return Number.isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString();
       }
 
-      function renderConnections(connections) {
-        document.querySelectorAll('.connection-card[data-service]').forEach((card) => {
-          const status = connections[card.dataset.service] || {
-            state: 'disconnected',
-            detail: 'Status unavailable'
-          };
-          const connectionState = ['connected', 'connecting', 'disconnected'].includes(status.state)
-            ? status.state
-            : 'disconnected';
-          card.classList.remove('connected', 'connecting', 'disconnected');
-          card.classList.add(connectionState);
-          card.querySelector('[data-field="state"]').textContent =
-            connectionState.charAt(0).toUpperCase() + connectionState.slice(1);
-          card.querySelector('[data-field="detail"]').textContent = status.detail || 'No details available';
-
-          const meta = [];
-          meta.push(`Last connected: ${formatTime(status.lastConnectedAt)}`);
-          if (card.dataset.service !== 'spotify') {
-            meta.push(`Last event: ${formatTime(status.lastEventAt)}`);
-          } else {
-            meta.push(`Request playlist: ${status.playlistConfigured ? 'Configured' : 'Missing'}`);
-            if (status.queueEnabled) meta.push(`Live queue: ${status.queueAuthorized ? 'Authorised' : 'Reconnect required'}`);
-            const connectButton = document.getElementById('spotifyConnect');
-            const disconnectButton = document.getElementById('spotifyDisconnect');
-            connectButton.hidden = connectionState !== 'disconnected' || !status.configured || status.authorizationStored;
-            disconnectButton.hidden = !status.authorizationStored;
-          }
-          if (status.reconnectAttempt) meta.push(`Reconnect attempt: ${status.reconnectAttempt}`);
-          card.querySelector('[data-field="meta"]').textContent = meta.join(' · ');
-        });
-      }
-
-      async function loadConnections() {
+      async function loadSpotifyAccount() {
+        const message = document.getElementById('spotifyAccountStatus');
+        const connect = document.getElementById('spotifyConnect'), disconnect = document.getElementById('spotifyDisconnect');
+        connect.hidden = disconnect.hidden = true;
+        message.textContent = 'Checking account settings…';
         try {
           const response = await fetch('/admin/connections', { cache: 'no-store' });
-          if (!response.ok) throw new Error(`Status request failed (${response.status})`);
-          const json = await response.json();
-          renderConnections(json.connections || {});
-        } catch (error) {
-          renderConnections({
-            spotify: { state: 'disconnected', detail: 'Status service unavailable' },
-            tikfinity: { state: 'disconnected', detail: 'Status service unavailable' },
-            streamerbot: { state: 'disconnected', detail: 'Status service unavailable' },
-            connector: { state: 'disconnected', detail: 'Status service unavailable' }
-          });
-        }
+          if (!response.ok) throw Error();
+          const status = (await response.json()).connections.spotify;
+          message.textContent = [status.detail, 'Request playlist: ' + (status.playlistConfigured ? 'configured' : 'missing'),
+            status.queueEnabled && ('Live queue: ' + (status.queueAuthorized ? 'authorised' : 'reconnect required'))].filter(Boolean).join(' · ');
+          connect.hidden = status.state !== 'disconnected' || !status.configured || status.authorizationStored;
+          disconnect.hidden = !status.authorizationStored;
+        } catch { message.textContent = 'Account settings unavailable. Close and reopen to retry.'; }
       }
+      document.getElementById('spotifyAccount').addEventListener('toggle', event => {
+        if (event.currentTarget.open) loadSpotifyAccount();
+      });
 
       async function loadRequests() {
         try {
@@ -430,7 +367,7 @@
           if (!requests.length) {
             const row = document.createElement('tr');
             const cell = document.createElement('td');
-            cell.colSpan = 6;
+            cell.colSpan = document.body.hasAttribute('data-sections') ? 5 : 6;
             cell.className = 'muted';
             cell.textContent = 'No song requests yet.';
             row.appendChild(cell);
@@ -440,12 +377,12 @@
           requests.forEach((request) => {
             const row = document.createElement('tr');
             const values = [
-              `#${request.id} · ${formatTime(request.timestamp)}`,
+              request.id == null ? formatTime(request.timestamp) : `#${request.id} · ${formatTime(request.timestamp)}`,
               request.platform,
               request.username,
               request.track_name
                 ? `${request.track_name} — ${request.artists || 'Unknown artist'}`
-                : request.query,
+                : request.query || 'Unmatched request',
               request.status
             ];
             values.forEach((value, index) => {
@@ -454,6 +391,7 @@
               if (index === 4) cell.className = `request-status ${request.status || ''}`;
               row.appendChild(cell);
             });
+            if(document.body.hasAttribute('data-sections')){table.appendChild(row);return;}
             const actionCell = document.createElement('td');
             const removeButton = document.createElement('button');
             removeButton.type = 'button';
@@ -491,6 +429,10 @@
       }
 
       function render() {
+        if(document.body.hasAttribute('data-sections')){
+          const s=state.settings,minutes=s.duplicateSongCooldownMinutes;
+          document.getElementById('modSongSettings').textContent=(s.songRequestsEnabled?'Requests open':'Requests closed')+' · '+(s.allowExplicitTracks?'Explicit tracks allowed':'Clean tracks only')+' · '+(minutes ? 'Repeat cooldown: '+minutes+' min':'Repeats allowed');
+        }
         document.getElementById('allowExplicitTracks').checked = Boolean(state.settings.allowExplicitTracks);
         document.getElementById('songRequestsEnabled').checked = Boolean(state.settings.songRequestsEnabled);
         const commands = Object.keys(state.config.commands || {}).sort();
@@ -628,13 +570,6 @@
         await loadConfig();
       });
 
-      document.getElementById('connectionToggle').addEventListener('click', (event) => {
-        const panel = document.getElementById('dashboardSection');
-        const collapsed = panel.classList.toggle('collapsed');
-        event.currentTarget.setAttribute('aria-expanded', String(!collapsed));
-        event.currentTarget.textContent = collapsed ? 'Show details' : 'Hide details';
-      });
-
       document.getElementById('requestTable').addEventListener('click', async (event) => {
         const button = event.target.closest('button.request-remove-btn');
         if (!button) return;
@@ -668,7 +603,7 @@
 
       document.getElementById('spotifyDisconnect').addEventListener('click', async () => {
         const response = await fetch('/admin/spotify/disconnect', { method: 'POST' });
-        if (response.ok) await loadConnections();
+        if (response.ok) await loadSpotifyAccount();
       });
 
       const repeatInput = document.getElementById('repeatTrackMinutes');
@@ -745,9 +680,7 @@
       });
 
       loadConfig();
-      loadConnections();
       loadRequests();
-      setInterval(loadConnections, 2500);
       setInterval(loadRequests, 5000);
     </script>
   </body>

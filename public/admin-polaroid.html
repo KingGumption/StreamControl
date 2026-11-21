@@ -83,8 +83,8 @@
 
 .admin-nav .admin-logout{margin:0;display:flex}.admin-logout button{width:auto;margin:0;padding:9px 13px;font:inherit;font-weight:bold;color:var(--muted,#a2b5c3);background:var(--panel-alt,#1e2430);border:1px solid var(--border,#27313d);border-radius:7px;cursor:pointer}.admin-logout button:hover{color:var(--text,#edf4f7);border-color:var(--accent,#4ecdc4)}.admin-logout button:focus-visible{outline:3px solid #4ecdc4;outline-offset:2px}
 </style>
-<link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script></head>
-<body>
+<link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script><link rel="stylesheet" href="/assets/moderator-sections.css"></head>
+<body class="engagement-site">
   <div class="shell">
     <header>
       <h1>Polaroid</h1>
@@ -98,13 +98,13 @@
 
     <section class="panel">
       <h2>Polaroid Redeem</h2>
-      <p class="lede">Connection health and a complete camera-capture test, now inside the shared admin.</p>
+      <p class="lede polaroid-test-copy">Connection health and a complete camera-capture test, now inside the shared admin.</p><p class="mod-reading-note">View service health and the latest published photo. Only the owner can trigger a test capture.</p>
       <div id="status" class="status-grid" aria-live="polite"></div>
     </section>
 
     <section class="panel">
-      <h2>Take a test Polaroid</h2>
-      <p>This always tests the camera capture and OBS overlay. Delivery to Discord and Twitch chat is optional.</p>
+      <h2 class="polaroid-test-copy">Take a test Polaroid</h2><h2 class="mod-latest-title">Latest Polaroid</h2><p id="modCaptureEmpty" class="mod-latest-empty">No capture to show yet.</p>
+      <p class="polaroid-test-copy">This always tests the camera capture and OBS overlay. Delivery to Discord and Twitch chat is optional.</p>
       <form id="test-form">
         <div class="test-fields">
           <input id="name" value="Test Viewer" maxlength="50" aria-label="Redeemer name" required>

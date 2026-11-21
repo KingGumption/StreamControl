@@ -1,17 +1,14 @@
 # Performance and moderator handoff
 
-## Games-only access
+## Moderator workspace access
 
-On the cloud dashboard, sign in as `owner` with the existing admin password. Old sessions need to sign in again after this release. Open **Manage moderators** from Games, or visit `/admin/moderators`.
+Sign in as the owner and open **Moderators**. Create a separate account for each moderator and share their credentials privately. Everyone signs in at `/admin/login`.
 
-1. Create an individual moderator username and password (12–256 characters). Share those credentials privately with that moderator.
-2. Give them the normal `/admin/login` link. They land on `/admin/games` and can view Quiz and King of the Hill.
-3. Enable handoff for 1–720 minutes when you want them to run games. They can start, advance, stop and configure the live games. Owner control remains available throughout.
-4. Disable handoff to stop moderator actions immediately, or revoke an account to invalidate all its sessions. Expiry is enforced by the server, even on an already-open page.
+Select the sections an account can view and choose **Save access**. Existing accounts start with Games. A moderator lands on the first assigned section and uses the same pages as the owner. Clearing every section gives the account an empty workspace. Section grants take effect on the next request, including for existing sessions. Revoking an account invalidates its sessions.
 
-Spotify, permissions, analytics, Polaroid, moderator management and preview/practice routes remain owner-only. Hiding links is only presentation: a central server allowlist rejects direct requests to those routes. Minimal connection readiness is exposed without integration configuration. Game mutations use a state token to reject stale/double actions. The management page shows recent control actions and who made them.
+Games has an additional **Operate games** permission. To use it, the account needs Games access and the site-wide **Allow moderator game controls** switch must be on. The global switch also governs moderator chat controls and stays set until you change it. Other assigned sections provide read-only access. Account administration and connecting integrations require the owner account.
 
-Handoff starts disabled. No real moderator accounts are shipped or created automatically. Local mode remains the trusted, loopback-only owner workflow; remote moderator access uses cloud mode and HTTPS.
+The signed-in header shows connection states for Spotify API, Streamer.bot, TikFinity and the PC connector. Select Spotify to open the desktop app on the device running the browser.
 
 ## Responsiveness
 

@@ -111,3 +111,43 @@ body.engagement-site > main.card h1 {font-size:clamp(2rem,5vw,2.8rem)}
   body.engagement-site .eng-nav a[aria-current=page] {outline:2px solid Highlight;outline-offset:-3px}
 }
 body.engagement-site .eng-table-scroll{overflow-x:auto;max-width:100%}
+
+/* These links are superseded by the workspace header. Hide them from the first paint. */
+body.engagement-site :is(.admin-nav,nav[aria-label="Admin pages"],.site-header,.legal-links){display:none!important}
+body.engagement-site[data-sections] :is(#spotifyConnect,#spotifyDisconnect,#permissionsSection,#overridesSection,.request-remove-btn,#test-form,#spotify-test,#spotify-save,#saveRepeatTrack,#repeatTrackForm,#savePermissions,#previewImport,#commitImport,#postForm,#experimentForm,#researchForm,[data-content-sync],[data-content-disconnect],[data-instagram-bootstrap],a[href$="/connect"],a[href="/admin/content-coach/export"]){display:none!important}
+body[data-sections] #songSettingsSection :is(button,input,select),
+body[data-sections][data-engagement-page="graphics"] :is(#save,#discard,#spotify-discard),
+body[data-sections][data-engagement-page="coach"] #add{display:none!important}
+body[data-sections]:not([data-sections~="songs"]) .dash-panel:has(#dash-requests),
+body[data-sections]:not([data-sections~="songs"]) .dash-stats a[href="/admin"],
+body[data-sections]:not([data-sections~="graphics"]) .dash-stats a[href="/admin/graphics"],
+body[data-sections]:not([data-sections~="games"]) .dash-stats a[href="/admin/games"]{display:none!important}
+#accounts li{display:grid;gap:.75rem;justify-items:start;padding-block:1rem}
+#accounts fieldset{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1rem;border:1px solid var(--border);border-radius:.5rem;padding:1rem}
+#accounts fieldset label{display:inline-flex;align-items:center;gap:.3rem}
+#accounts fieldset input{width:auto}
+/* Compact service strip; never mounted on public or broadcast routes. */
+body.engagement-site .eng-connections{display:flex;align-items:center;flex-wrap:wrap;gap:5px 9px;margin:0 0 0 auto;padding:0;list-style:none}
+body.engagement-site .eng-connections li{padding:0;margin:0;display:flex}
+body.engagement-site .eng-service{display:inline-flex;align-items:center;gap:5px;min-height:28px;font-size:.78rem;line-height:1.2;font-weight:600;white-space:nowrap;color:var(--muted);text-decoration:none}
+body.engagement-site a.eng-service{text-decoration:underline;text-underline-offset:3px;color:var(--text)}
+body.engagement-site .eng-service-mark{display:inline-grid;place-items:center;flex:none;width:14px;height:14px;border:1px solid currentColor;border-radius:50%;font-size:10px;line-height:1;font-family:system-ui,sans-serif;font-weight:750;color:var(--muted)}
+body.engagement-site .eng-service[data-state=connected] .eng-service-mark{color:var(--success)}
+body.engagement-site .eng-service[data-state=connecting] .eng-service-mark{color:var(--warning)}
+body.engagement-site .eng-service[data-state=disconnected] .eng-service-mark{color:var(--danger)}
+body.engagement-site .eng-connections~.eng-account{margin-left:4px}
+body.engagement-site .spotify-account{padding:12px 0;border-top:1px solid var(--border)}
+body.engagement-site .spotify-account summary{cursor:pointer;color:var(--teal);width:fit-content}
+@media(max-width:900px){
+  body.engagement-site .eng-connections{order:5;flex-basis:100%;margin:0;border-top:1px solid var(--border);padding-top:4px;gap:2px 12px}
+  body.engagement-site .eng-connections~.eng-account{margin-left:auto}
+  body.engagement-site .eng-connections~.eng-toggle+.eng-account{margin-left:0}
+}
+@media(max-width:380px){body.engagement-site .eng-connections{gap:0 8px}body.engagement-site .eng-service{font-size:.7rem}}
+@media(max-width:440px){
+  body.engagement-site .eng-bar{column-gap:7px}
+  body.engagement-site .eng-brand{gap:7px;font-size:.91rem}
+  body.engagement-site .eng-brand span:last-child{max-width:92px;white-space:normal;line-height:1.06}
+  body.engagement-site .eng-shell :is(.eng-toggle,.eng-account button){padding-inline:9px}
+}
+@media(max-width:338px){body.engagement-site .eng-connections{display:grid;grid-template-columns:auto auto;justify-content:start;column-gap:18px}body.engagement-site .eng-service{min-height:24px}}

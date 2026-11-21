@@ -1,0 +1,21 @@
+const test=require('node:test'), assert=require('node:assert/strict');
+const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),crypto=require('node:crypto');
+process.env.DATA_DIR=fs.mkdtempSync(path.join(os.tmpdir(),'granted-songs-'));
+process.env.APP_MODE='cloud';process.env.ADMIN_PASSWORD=crypto.randomUUID();
+const {app}=require('../src/admin'),{addSongRequest,db}=require('../src/db'),access=require('../src/moderator-access');
+test('a songs grant reveals a read-only track ledger, without raw queries, private identity or provider errors',async t=>{
+ const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
+ t.after(()=>{server.closeAllConnections();server.close();db.close();});
+ const privateFixture=crypto.randomUUID(),moderator=await access.create('reader',crypto.randomUUID());
+ const cookie='stream_control_session='+access.issue({...moderator,role:'games'});
+ const base='http://127.0.0.1:'+server.address().port;
+ addSongRequest({platform:'twitch',username:'Viewer',userId:privateFixture,query:privateFixture,status:'not-found',response:privateFixture});
+ access.setSections(moderator.id,['songs']);
+ const res=await fetch(base+'/admin/requests',{headers:{cookie}});
+ assert.equal(res.status,200);
+ const {requests}=await res.json();assert.equal(requests.length,1);
+ assert.deepEqual(Object.keys(requests[0]).sort(),['timestamp','platform','username','track_name','artists','status'].sort());
+ assert.equal(JSON.stringify(requests).includes(privateFixture),false);
+ access.setSections(moderator.id,['graphics']);
+ assert.equal((await fetch(base+'/admin/requests',{headers:{cookie}})).status,403);
+});

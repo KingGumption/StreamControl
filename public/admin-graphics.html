@@ -38,10 +38,11 @@
 @media(max-width:440px){.gfx-form{grid-template-columns:1fr}.gfx-card{padding:12px}.gfx-heading p{font-size:.94rem}.gfx-card-top{align-items:flex-start}}
 .spotify-layout{display:grid;grid-template-columns:minmax(190px,0.86fr) minmax(0,1.14fr);gap:24px;margin:18px 0}.spotify-fields{border:0;padding:0;margin:0 0 8px;display:grid;gap:12px}.spotify-stage{width:100%;max-width:570px;aspect-ratio:570/125;overflow:hidden;border-radius:8px;background:repeating-conic-gradient(#303440 0 25%,#252933 0 50%) 0/20px 20px}.spotify-stage iframe{width:100%;height:100%;border:0;display:block;background:transparent}.spotify-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}.spotify-actions input{flex:1;min-width:150px}.gfx-workspace #spotify>label{font-weight:650}.gfx-workspace #spotify p{margin-top:6px}@media(max-width:720px){.spotify-layout{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script></head>
-<body class="engagement-site">
+<link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script><link rel="stylesheet" href="/assets/moderator-sections.css"></head>
+<body class="engagement-site engagement-site">
 <main class="gfx-workspace">
-<div class="gfx-heading"><h1>Graphics</h1><p>Preview your overlays, copy their OBS URLs, and set the theme for your stream.</p></div>
+<div class="gfx-heading"><h1>Graphics</h1><p>Preview overlays and copy their OBS URLs.</p></div>
+<p class="mod-reading-note">Read-only graphics. Preview themes and Spotify opacity locally. Only the owner can change what appears on stream.</p>
 <section class="gfx-controls" aria-labelledby="settings-heading">
 <h2 id="settings-heading">Stream appearance</h2>
 <fieldset id="controls" class="gfx-form" aria-labelledby="settings-heading" disabled>
@@ -74,6 +75,7 @@
 <script>
 (() => {
  const el = id => document.getElementById(id);
+ const viewOnly=document.body.hasAttribute('data-sections');
  const draft = () => ({theme:el('theme').value});
  const spotifyDraft = () => ({spotifyStyle:el('spotify-style').value,transparency:100-Number(el('slider').value)});
  const spotifyDirty = () => saved && (spotifyDraft().spotifyStyle!==(saved.spotifyStyle||'stream') || spotifyDraft().transparency!==saved.transparency);
@@ -101,11 +103,12 @@
  }
  function savedNote(){
    if(!saved)return;
+   if(viewOnly){stateMessage(saved.theme ? 'Stream theme: '+themeLabel(saved.theme)+'. Changes here only affect your preview.' : 'No theme selected. Changes here only affect your preview.');return;}
    stateMessage(saved.theme ? 'Saved theme: '+themeLabel(saved.theme)+'.' : 'No theme applied. Choose a theme and apply it when ready.');
  }
  function onEdit(){
    paintPreview();updateControls();
-   if(dirty())stateMessage('Preview only. Apply to update the stream.','draft');else savedNote();
+   if(dirty())stateMessage(viewOnly?'Preview only. The live theme is unchanged.':'Preview only. Apply to update the stream.','draft');else savedNote();
  }
  async function json(url,opts={}){
    const r=await fetch(url,{cache:'no-store',...opts});
@@ -148,7 +151,7 @@
    finally{busy=false;updateControls();}
  }
  el('theme').onchange=onEdit;el('reload').onclick=load;
- const spotifyEdit=()=>{paintPreview();updateControls();el('spotify-status').textContent=spotifyDirty()?'Preview only. Save Spotify settings to update OBS.':'';};
+ const spotifyEdit=()=>{paintPreview();updateControls();el('spotify-status').textContent=spotifyDirty()?(viewOnly?'Preview only. The live overlay is unchanged.':'Preview only. Save Spotify settings to update OBS.'):'';};
  el('slider').oninput=spotifyEdit;el('spotify-style').onchange=spotifyEdit;el('spotify-frame').onload=paintPreview;
  el('spotify-discard').onclick=()=>{el('spotify-style').value=saved.spotifyStyle||'stream';el('slider').value=100-saved.transparency;spotifyEdit();};
  el('spotify-save').onclick=async()=>{
@@ -164,7 +167,7 @@
  let requestsEnabled=false;
  async function refreshAvailability(){try{const s=await json('/admin/graphics/spotify-availability');requestsEnabled=s.enabled;el('spotify-test-help').textContent=requestsEnabled?'A live test appears in all connected OBS overlays.':'Live tests are unavailable while song requests are closed.';}catch{requestsEnabled=false;el('spotify-test-help').textContent='Could not check whether live tests are enabled.';}el('spotify-test').disabled=!requestsEnabled;}
  el('spotify-test').onclick=async()=>{el('spotify-test').disabled=true;el('spotify-message').textContent='Sending live test…';try{await json('/admin/overlay/preview',{method:'POST'});el('spotify-message').textContent='Live test sent to connected overlays.';}catch(e){el('spotify-message').textContent=e.status===409?'Song requests are closed. No test was sent.':'Live test could not be confirmed.';}await refreshAvailability();};
- refreshAvailability();addEventListener('focus',refreshAvailability);
+ if(!viewOnly){refreshAvailability();addEventListener('focus',refreshAvailability);}
  el('discard').onclick=()=>{el('theme').value=saved.theme||'classic';paintPreview();savedNote();updateControls();el('theme').focus();};
  el('save').onclick=async()=>{
    const next=draft();busy=true;updateControls();stateMessage('Applying to stream…');
