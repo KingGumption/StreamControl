@@ -446,14 +446,17 @@ async function requireLivePlayback(){
 router.get('/spotify/launch-status',async(req,res)=>res.set('Cache-Control','no-store').json({live:await streamPlaybackLive()}));
 let launchingSpotify=false;
 router.post('/spotify/launch',async(req,res)=>{
+  const offlineTest=req.body?.offlineTest===true;
+  if(offlineTest && req.identity.role!=='owner')return res.status(403).json({error:'Offline playback tests require the owner account.'});
+  const checkLive=offlineTest?async()=>{}:requireLivePlayback;
   if(launchingSpotify)return res.status(409).json({error:'Spotify is already starting on the stream PC.'});
   launchingSpotify=true;
   try{
-    await requireLivePlayback();
+    await checkLive();
     const selected=await spotifyApi.randomPlaylistTrack();
-    await requireLivePlayback();
-    const desktop=appConfig.mode==='local'?await require('./spotify-desktop').launch():await require('./bridge-hub').bridgeHub.launchSpotify();
-    await spotifyApi.playStreamTrack(desktop.deviceName,selected,requireLivePlayback);
+    await checkLive();
+    const desktop=appConfig.mode==='local'?await require('./spotify-desktop').launch():await require('./bridge-hub').bridgeHub.launchSpotify(offlineTest);
+    await spotifyApi.playStreamTrack(desktop.deviceName,selected,checkLive);
     res.json({track:selected.name});
   }catch(error){
     if(error.code==='stream-offline')return res.status(409).json({error:error.message});

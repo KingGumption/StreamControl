@@ -60,6 +60,7 @@
 <fieldset id="spotify-controls" class="spotify-fields" disabled aria-labelledby="spotify-heading">
 <div class="gfx-field"><label for="spotify-style">Spotify palette</label><select id="spotify-style"><option value="stream">Follow stream theme</option><optgroup label="Spotify-only override"><option value="classic">Classic · KingGumption</option><option value="halloween">Halloween · Midnight Request</option><option value="ghost">Ghost · Icy Blue</option><option value="slime">Slime · Toxic Green</option><option value="spooktober">Spooktober</option><option value="vicecity">Vice City</option></optgroup></select></div>
 <div class="gfx-field"><label for="slider">Spotify opacity <output id="pct" for="slider"></output></label><input type="range" min="0" max="100" id="slider" aria-describedby="opacity-scale"><div id="opacity-scale" class="gfx-scale"><span>Transparent</span><span>Opaque</span></div></div>
+<div><span id="opacity-default-label"></span> <button type="button" class="gfx-link" id="opacity-restore">Use default</button> <button type="button" class="gfx-link" data-owner-write id="opacity-set-default">Save opacity as default</button></div>
 <div><button type="button" id="spotify-save" class="gfx-btn gfx-primary">Save Spotify settings</button> <button id="spotify-discard" type="button" class="gfx-link" hidden>Discard</button></div>
 </fieldset><output class="gfx-state" id="spotify-status" role="status"></output>
 </div><div>
@@ -85,6 +86,10 @@
  const dirty = () => saved && (draft().theme!==(saved.theme||'classic'));
  function updateControls(){
    el('spotify-controls').disabled=el('controls').disabled=busy||!saved||uncertain;
+   const matchesDefault=saved && spotifyDraft().transparency===saved.defaultTransparency;
+   el('opacity-default-label').textContent=saved?'Default opacity: '+(100-saved.defaultTransparency)+'%':'';
+   el('opacity-restore').disabled=!saved||matchesDefault||busy||uncertain;
+   el('opacity-set-default').disabled=viewOnly||!saved||matchesDefault||busy||uncertain;
    el('spotify-save').disabled=!spotifyDirty()||busy||uncertain;el('spotify-discard').hidden=!spotifyDirty()||busy||uncertain;
    el('save').disabled=busy||uncertain||!saved||(!dirty()&&Boolean(saved.theme));
    el('discard').hidden=!dirty()||busy||uncertain;
@@ -153,6 +158,15 @@
  el('theme').onchange=onEdit;el('reload').onclick=load;
  const spotifyEdit=()=>{paintPreview();updateControls();el('spotify-status').textContent=spotifyDirty()?(viewOnly?'Preview only. The live overlay is unchanged.':'Preview only. Save Spotify settings to update OBS.'):'';};
  el('slider').oninput=spotifyEdit;el('spotify-style').onchange=spotifyEdit;el('spotify-frame').onload=paintPreview;
+ el('opacity-restore').onclick=()=>{el('slider').value=100-saved.defaultTransparency;spotifyEdit();};
+ el('opacity-set-default').onclick=async()=>{
+   busy=true;updateControls();
+   try{
+     const r=await json('/admin/graphics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({scope:'spotify-default',transparency:spotifyDraft().transparency})});
+     saved=r.state;el('spotify-status').textContent='Default opacity saved.';
+   }catch{uncertain=true;el('reload').hidden=false;el('spotify-status').textContent='Could not confirm the default. Reload settings to check.';}
+   finally{busy=false;updateControls();}
+ };
  el('spotify-discard').onclick=()=>{el('spotify-style').value=saved.spotifyStyle||'stream';el('slider').value=100-saved.transparency;spotifyEdit();};
  el('spotify-save').onclick=async()=>{
   busy=true;updateControls();el('spotify-status').textContent='Saving…';

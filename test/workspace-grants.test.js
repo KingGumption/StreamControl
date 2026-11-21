@@ -22,6 +22,8 @@ test('each section grant changes both page and data access in an existing modera
    assert.equal((await call('/spotify/launch',owner,{})).status,409);
    assert.equal(launch.mock.callCount(),before);
  }
+ assert.equal((await call('/spotify/launch',owner,{offlineTest:true})).status,200);
+ assert.deepEqual(launch.mock.calls.at(-1).arguments,[true]);
  liveState={outputActive:true};
  const grants='/moderators/'+user.id+'/sections';
  for(const [key,group] of Object.entries(sections)){
@@ -29,6 +31,7 @@ test('each section grant changes both page and data access in an existing modera
    assert.equal((await call(group.page,mod)).status,200,key);
    for(const forbidden of ['/moderators/state','/games/device-token','/spotify/connect','/content-coach/tiktok/connect'])assert.equal((await call(forbidden,mod)).status,403);
    const before=launch.mock.callCount();
+   assert.equal((await call('/spotify/launch',mod,{offlineTest:true})).status,403);
    assert.equal((await call('/spotify/launch',mod,{})).status,key==='songs'?200:403);
    assert.equal(launch.mock.callCount()-before,key==='songs'?1:0);
    const other=key==='graphics'?'/games/state':'/graphics/catalog';assert.equal((await call(other,mod)).status,403);

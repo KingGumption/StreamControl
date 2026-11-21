@@ -97,8 +97,8 @@ class BridgeHub extends EventEmitter {
     return this.requestConnector('obs.request','obs.response',{method,args});
   }
 
-  launchSpotify(){
-    return this.requestConnector('spotify.desktop.launch','spotify.desktop.response',{});
+  launchSpotify(offlineTest=false){
+    return this.requestConnector('spotify.desktop.launch','spotify.desktop.response',{offlineTest:offlineTest===true});
   }
 
   requestConnector(type,responseType,payload){
