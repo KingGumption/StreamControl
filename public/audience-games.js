@@ -41,14 +41,18 @@
   }
   function render({active,game}) {
     audience.hidden = !game || !['heist','rival'].includes(active) || game.phase === 'idle';
-    if (audience.hidden) { endsAt = null; return; }
+    if (audience.hidden) { endsAt = null; window.AdventureStage.render(null); return; }
     const heist = active === 'heist';
     audience.dataset.active = active;
     const phase = game.phase;
     const betweenMissions = !heist && phase === 'intermission';
     audience.dataset.phase = phase;
-    byId('stage').textContent = (heist ? 'Heist Night' : game.rivalName || 'Seasonal Rival') + ' / ' + (stages[phase] || phase);
-    byId('title').textContent = game.title;
+    const court=heist && ['defence','verdict'].includes(phase);
+    audience.dataset.world=court?'court':active;
+    audience.dataset.choices=game.options?.length || 0;
+    window.AdventureStage.render({active,game});
+    byId('stage').textContent = court ? 'Case '+String(game.round).padStart(2,'0')+' · '+(phase==='defence'?'Defence':'Verdict') : (heist ? 'Heist Night' : game.rivalName || 'Seasonal Rival') + ' / ' + (stages[phase] || phase);
+    byId('title').textContent = court ? 'Chat Court' : game.title;
     byId('prompt').textContent = betweenMissions ? 'Each in-game death adds 1 to the ' + game.stashName + '.' : game.prompt;
     byId('round').textContent = 'Round ' + game.round + ' / ' + game.rounds;
     endsAt = game.endsAt;
@@ -59,17 +63,25 @@
       : [score('Rival’s ' + game.stashName,game.sack,betweenMissions),score('Chat recovered',game.recovered,betweenMissions)];
     if (betweenMissions) scores.push(score('Deaths',game.deaths,true));
     if (heist && ['job-vote','job'].includes(phase) && game.job) scores.push(score('Job reward',game.job.reward));
+    if(!heist)for(const item of scores)item.classList.add('score-bubble');
     byId('scores').replaceChildren(...scores);
     const options = game.options || [];
     const total = (game.votes || []).reduce((sum,n) => sum + n,0);
-    byId('options').replaceChildren(...options.map((label,i) => choice(label,i,game.votes[i] || 0,total)));
+    const lead=Math.max(0,...game.votes);
+    byId('options').replaceChildren(...options.map((label,i) => {
+      const item=choice(label,i,game.votes[i] || 0,total);
+      item.classList.toggle('leading',lead>0&&game.votes[i]===lead);
+      const correct=phase==='reveal' && game.prompt.startsWith('Answer '+(i+1)+':');
+      if(correct){item.classList.add('correct');item.querySelector('.option-index').textContent='✓';}
+      return item;
+    }));
     const detail = (heist && ['defence','verdict'].includes(phase) && game.selectedDefence ? 'Crew defence: “' + game.selectedDefence + '”' : '')
       || (heist ? game.consequence || game.result : game.finalChallenge || game.result);
     byId('detail').textContent = detail || '';
     byId('detail').hidden = !detail || detail === game.prompt;
     audience.classList.toggle('with-detail', !byId('detail').hidden && options.length > 0);
     byId('help').textContent = phase === 'reveal' ? 'Voting closed'
-      : options.length ? (heist ? 'One vote per viewer' : 'Type 1–' + options.length + ' in chat · One vote per viewer')
+      : options.length ? 'Type 1–' + options.length + ' in chat'
       : phase === 'defence' ? '!defend + your message' : '';
     byId('total').textContent = options.length ? number.format(total) + (total === 1 ? ' vote' : ' votes') : '';
   }

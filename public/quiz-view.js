@@ -4,6 +4,19 @@ let viewKey = '', stageTimer = null, animationRunning = false;
 let lobbyRosterKey = '', lobbyCards = new Map();
 function ensurePresentation() {
   if ($('quizEnergy')) return;
+  if ($('quizMachine')) {
+    const mast=node('header','machine-mast');
+    const title=$('overlayRoot').querySelector('h1');
+    title.replaceChildren(node('span','','Elimination'),node('strong','','Quiz'));
+    const lights=node('div','machine-lights'); lights.id='machineLights';
+    lights.setAttribute('aria-label','Question progress');
+    mast.append(title,lights);
+    $('overlayRoot').prepend(mast);
+    const backglass=node('div','lobby-lettering');
+    backglass.append(node('span','','Elimination'),node('strong','','Quiz'));
+    backglass.setAttribute('aria-hidden','true');
+    $('question').before(backglass);
+  }
   const energy = node('div', 'quiz-energy'); energy.id = 'quizEnergy';
   const track = node('div', 'quiz-time-track');
   const fill = node('div', 'quiz-time-fill'); fill.id = 'quizTimeFill';
@@ -28,7 +41,13 @@ function updateEnergy(g) {
   $('quizAnswerProgress').textContent = answered === g.survivors && g.survivors > 0 ? `All ${answered} answers locked in` : `${answered} / ${g.survivors} answers locked in`;
 }
 function updateLobby(g) {
-  const holder = $('quizLobbyPlayers'); holder.hidden = !['lobby','question'].includes(g.phase);
+  const holder = $('quizLobbyPlayers');
+  if ($('quizMachine')) {
+    const mast=$('machineLights')?.parentElement;
+    if(g.phase==='question' && mast && holder.parentElement!==mast)mast.insertBefore(holder,$('machineLights'));
+    else if(g.phase!=='question' && holder.parentElement!==$('questionPanel'))$('counts').after(holder);
+  }
+  holder.hidden = !['lobby','question'].includes(g.phase);
   if (holder.hidden) { lobbyRosterKey = ''; lobbyCards.clear(); holder.replaceChildren(); return; }
   const available = (g.roster || []).filter(p=>g.phase==='lobby'||p.alive!==false);
   const players = available.slice(-8);
@@ -209,6 +228,13 @@ function render(g) {
   ensurePresentation();
   if ($('overlayRoot')) { $('overlayRoot').hidden = g.phase === 'idle'; $('overlayRoot').dataset.phase = g.roundResult ? 'reveal' : g.phase; }
   updateStatus(g);
+  const lamps=$('machineLights');
+  if(lamps){
+    const count=Math.max(1,g.questionCount||1);
+    if(lamps.children.length!==count)lamps.replaceChildren(...Array.from({length:count},()=>node('i','')));
+    [...lamps.children].forEach((lamp,i)=>lamp.classList.toggle('lit',i<g.round));
+    lamps.setAttribute('aria-label',g.phase==='lobby'?count+' questions':roundLabel(g));
+  }
   $('questionPanel').className = g.phase === 'lobby' ? 'panel quiz-lobby' : g.question?.image ? 'panel has-media' : 'panel';
   $('counts').textContent = g.phase === 'lobby' ? `${g.players} ${g.players === 1 ? 'player' : 'players'} joined` : `${g.players} joined - ${g.survivors} remaining`;
   updateLobby(g);
@@ -228,6 +254,7 @@ function render(g) {
     (g.question?.options || []).forEach((text, i) => {
       const correct = g.question.answer === i;
       const option = node('div', 'option' + (correct ? ' correct' : g.roundResult ? ' incorrect' : ''));
+      if(text.length>37)option.className+=' long-answer';
       const label=node('span','answer-label');label.append(node('b','answer-number',String(i+1)),node('span','answer-text',text));
       option.append(label);
       if (g.roundResult) option.append(node('strong', 'answer-count', `${g.roundResult.answerCounts[i]} ${correct ? 'correct' : 'wrong'}`));

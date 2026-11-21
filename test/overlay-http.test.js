@@ -56,11 +56,15 @@ test('serves the transparent music overlay, assets, and preview trigger', async 
   const hillOverlay = await fetch(`${base}/king-of-the-hill`);
   assert.equal(hillOverlay.status, 200);
   const hillOverlayHtml = await hillOverlay.text();
-  assert.match(hillOverlayHtml, /king-of-the-hill\/events/);
-  assert.match(hillOverlayHtml, /platformVotes/);
-  assert.match(hillOverlayHtml, /#9146ff/);
-  assert.match(hillOverlayHtml, /#ff3040/);
-  assert.match(hillOverlayHtml, /#25f4ee/);
+  assert.match(hillOverlayHtml, /src="\/assets\/hill-tourney\.js"/);
+  const hillClient = await fetch(`${base}/assets/hill-tourney.js`);
+  assert.equal(hillClient.status, 200);
+  const hillScript = await hillClient.text();
+  assert.match(hillScript, /king-of-the-hill\/events/);
+  assert.match(hillScript, /platformVotes/);
+  for (const platform of ['Twitch', 'YouTube', 'TikTok']) {
+    assert.ok(hillScript.includes(platform));
+  }
 
   const hillState = await fetch(`${base}/king-of-the-hill/state`);
   assert.equal(hillState.status, 200);

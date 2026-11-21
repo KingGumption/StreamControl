@@ -7,6 +7,7 @@
   const labels = {exact:'correct position',present:'wrong position',absent:'absent'};
   const examples = ['CRANE','FROST','GLYPH','BLADE','PEARL','BRICK','CHESS'];
   let lastBoard = '';
+  let lastPins = '';
   let renderedRound = null;
   let renderedAttempts = 0;
   let endsAt = null;
@@ -58,6 +59,18 @@
     const lead = candidates[0];
     const runnerUp = candidates[1];
     const used = rows.length;
+    const pins=Array.from({length:5},(_,i)=>guessing ? rows.find(row=>row.marks[i]==='exact')?.word[i] || '·' : game.answer?.[i] || '·');
+    const pinKey=round+':'+pins.join('');
+    if(pinKey!==lastPins){
+      lastPins=pinKey;
+      const cylinders=pins.map(letter=>{
+        const n=document.createElement('span');n.className='lock-pin';n.textContent=letter;
+        if(letter!=='·')n.classList.add('set');return n;
+      });
+      byId('spindle').replaceChildren(...cylinders);
+      byId('spindle').setAttribute('aria-label',pins.map(letter=>letter==='·'?'unknown':letter).join(', '));
+    }
+    cabinet.dataset.lock=guessing?'closed':game.solved?'opened':'sealed';
     endsAt = game.endsAt;
     tick();
     byId('puzzle').textContent = 'Vault ' + round + ' / ' + rounds;

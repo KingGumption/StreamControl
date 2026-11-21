@@ -2,8 +2,22 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gameplay corner</title>
 <link rel="stylesheet" href="/assets/seasonal-theme.css"><link rel="stylesheet" href="/assets/arcade-corner.css">
 <script data-follow-graphics src="/assets/seasonal-theme.js"></script></head>
-<body><main hidden>
-<header><h1></h1><span id="clock"></span></header>
-<div class="play"><div class="stamp" aria-hidden="true"><b></b></div><div class="call"><span id="round"></span><h2></h2><div id="choices"></div></div></div>
-<footer><span id="rule"></span><strong id="activity"></strong></footer>
+<body><main hidden aria-live="off">
+<section class="felt" id="higher" aria-label="Higher or Lower" hidden>
+  <div class="table-rim"></div><div class="shoe"><i></i><i></i><i></i></div>
+  <div class="hand"><div class="playing-card" id="held"><b></b><span>♠</span></div><div class="playing-card" id="draw"><b></b><span>♦</span></div></div>
+  <div class="table-call"><h1>Higher <em>or</em> Lower</h1><p class="meta"></p><h2></h2><div class="bets"><span><b>1</b> Higher</span><span><b>2</b> Lower</span></div></div>
+  <div class="rail"><span class="instruction"></span><b class="clock"></b></div>
+</section>
+<section id="split" class="arena" aria-label="Split the Crowd" hidden>
+  <header><h1>Split the Crowd</h1><span class="meta"></span></header>
+  <div class="sides"><div class="side" id="left"><div class="gate">1</div><strong></strong><div class="crowd"></div></div><div class="side" id="right"><div class="gate">2</div><strong></strong><div class="crowd"></div></div></div>
+  <div class="announcer"><b class="clock"></b><span class="instruction"></span></div>
+</section>
+<section class="receiver" id="number" aria-label="Secret Number Hunt" hidden>
+  <div class="case"><header><h1>Secret Number Hunt</h1><span class="meta"></span></header>
+    <div class="scope"><div class="reading"><strong id="frequency"></strong><span id="unit"></span></div><div class="ruler"><div id="range"></div><div id="echoes"></div></div><div class="scale"><span>01</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+    <footer><span class="instruction"></span><b class="clock"></b></footer>
+  </div>
+</section>
 </main><script src="/assets/arcade-corner.js"></script></body></html>

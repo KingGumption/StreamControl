@@ -12,18 +12,19 @@
   <div class="scale">
     <main class="cabinet" hidden>
       <header class="mast">
-        <div class="dial" aria-hidden="true"><i></i></div>
         <div><p class="eyebrow" id="puzzle"></p><h1>Word Vault</h1></div>
         <div class="meter"><span class="eyebrow">Crew score</span><strong id="score">0</strong></div>
       </header>
       <section class="play">
         <div class="board-panel">
+          <div class="receipt-title">Guess log</div>
           <div id="board" role="list" aria-label="Tried words and letter clues"></div>
           <div class="key"><span><b>✓</b> Exact</span><span><b>↔</b> Move</span><span><b>×</b> Out</span></div>
         </div>
         <div class="intel">
           <div class="reading"><span class="eyebrow" id="attempt"></span><strong id="clock"></strong></div>
           <h2 id="directive"></h2>
+          <div class="combination" aria-label="Known letters"><div class="spindle" id="spindle"></div></div>
           <div class="slip">
             <p class="eyebrow" id="slip-label"></p>
             <strong id="signal"></strong>

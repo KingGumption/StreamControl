@@ -20,7 +20,7 @@ const JOBS = [
     ]
   },
   {
-    title:'The Crew�s Last Score',reward:200,
+    title:'The Crew’s Last Score',reward:200,
     options:['One life','Borrowed wheels','The chat chauffeur'],
     challenges:[
       'Complete your next GTA mission objective without an in-game death or restart.',
