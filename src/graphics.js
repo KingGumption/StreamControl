@@ -8,17 +8,38 @@ const read=()=>getConfigValue('graphics_settings',defaults);
 const names={
  banner:'follow=new',bannerPlain:'follow=new-no-char',card:'PlayingCardTwitch-3D',cardVertical:'PlayingCard-3d-Tiktok',
  counter:'DeathCounter',credits:'StreamCredits',creditsVertical:'StreamCredits-Vertical',divider:'GlassOverlays',
- intro:'Spooktober-Intro',introVertical:'SpooktoberIntro-Vertical',stinger:'SkullStinger'
+ intro:'Spooktober-Intro',introVertical:'SpooktoberIntro-Vertical',stinger:'SkullStinger',verticalYT:'StingerVERTYT',verticalTT:'SkullStingerVertical'
 };
 const themes=['classic','spooktober','vicecity'];
 const obs=(m,args)=>bridgeHub.requestObs(m,args);
 let tail=Promise.resolve(), retry;
-async function sync(theme){
+async function sync(theme,only){
  clearTimeout(retry);
  const pending=[];
  for(const [id,inputName] of Object.entries(names)){
+  if(only && !only.includes(inputName))continue;
   if(id.startsWith('card')||id.startsWith('banner')||id==='counter')continue; // Card resolves the theme before loading its renderer.
   try{
+   if(id.startsWith('vertical')){
+    const canvas=id==='verticalYT'?'Twitch/YT Vertical':'TikTok Canvas';
+    const vendor=async(requestType,args={})=>{
+     const r=await obs('CallVendorRequest',{vendorName:'aitum-stream-suite',requestType,requestData:{canvas,...args}});
+     if(!r.responseData?.success)throw Error();return r.responseData;
+    };
+    const {transitions}=await vendor('get_transitions');
+    const original=transitions.find(t=>t.name===inputName && t.type==='obs_stinger_transition');
+    if(!original?.settings?.path)throw Error();
+    const leaf=theme==='vicecity'?'Glitch-Sticker-Vicecity-Vertical.webm':'pig-print-vertical.webm';
+    const filename=path.win32.join(path.win32.dirname(original.settings.path),leaf);
+    let target=transitions.find(t=>t.type===original.type && t.settings?.path && path.win32.normalize(t.settings.path).toLowerCase()===filename.toLowerCase());
+    if(!target){
+     const name=inputName+' - '+(theme==='vicecity'?'Vice City':'Original');
+     if(transitions.some(t=>t.name===name))throw Error();
+     await vendor('transitions_add',{name,type:original.type,settings:{...original.settings,path:filename.replaceAll('\\','/')}});
+     target={name};
+    }
+    await vendor('switch_transition',{transition:target.name});continue;
+   }
    if(id==='stinger'){
     const t=await obs('GetCurrentSceneTransition');
     if(t.transitionName!==inputName){pending.push(inputName);continue;}
@@ -53,10 +74,10 @@ async function sync(theme){
    await obs('SetInputSettings',{inputName,inputSettings:patch,overlay:true});
   }catch{pending.push(inputName);}
  }
- if(pending.length){retry=setTimeout(()=>{if(bridgeHub.connected)void queue();},30000);retry.unref?.();}
+ if(pending.length){retry=setTimeout(()=>{if(bridgeHub.connected && read().theme===theme)void queue(pending);},30000);retry.unref?.();}
  return pending;
 }
-function queue(){const job=tail.then(()=>bridgeHub.connected&&read().theme?sync(read().theme):Object.values(names));tail=job.catch(()=>{});return job;}
+function queue(only){const job=tail.then(()=>bridgeHub.connected&&read().theme?sync(read().theme,only):Object.values(names));tail=job.catch(()=>{});return job;}
 function install(app,router){
  bridgeHub.on('connector-connected',()=>{if(read().theme)void queue();});
  app.get('/graphics/state',(_,res)=>res.set({'Access-Control-Allow-Origin':'*','Cache-Control':'no-store'}).json(read()));
