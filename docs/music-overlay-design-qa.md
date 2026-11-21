@@ -1,7 +1,7 @@
 # Music overlay design QA
 
 Source visual truth: approved animated prototype at
-C:/Users/Zatanna/Documents/Codex/2026-09-18/files-pasted-by-the-user-continue/videos/music-transition/index.html
+the local music-transition prototype (not distributed).
 and the selected minimal-artwork board exec-bfa8f2c4-7e79-4b51-be50-06341fce6869.png.
 
 Implementation: public/overlay.html, music-overlay.css, music-overlay.js.

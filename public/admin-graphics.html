@@ -102,7 +102,7 @@
    img.onerror=()=>{img.hidden=true;imageError.hidden=false;};stage.append(img,imageError);
    const bottom=node('div'),tools=node('div','gfx-url-tools'),label=node('small','','Base URL · checking OBS…');
    const copy=node('button','gfx-btn','Copy URL'),field=node('textarea');
-   copy.type='button';copy.setAttribute('aria-label','Copy '+name+' URL');
+   copy.type='button';copy.disabled=!base;field.placeholder='Connect OBS to read this source URL.';copy.setAttribute('aria-label','Copy '+name+' URL');
    field.rows=2;field.readOnly=true;field.spellcheck=false;field.value=base;field.setAttribute('aria-label',name+' URL');
    field.onclick=()=>field.select();
    let resetCopy;
@@ -113,8 +113,8 @@
    };
    tools.append(label,copy);bottom.append(tools,field);card.append(top,stage,bottom);el('gallery').append(card);
    json('/admin/graphics/url/'+encodeURIComponent(id)).then(r=>{
-     field.value=r.url;label.textContent='Current OBS URL';label.dataset.live='';
-   }).catch(e=>{label.textContent=e.status===409?'Base URL · OBS points elsewhere':'Base URL · OBS unavailable';});
+     field.value=r.url;copy.disabled=false;label.textContent='Current OBS URL';label.dataset.live='';
+   }).catch(e=>{label.textContent=e.status===409?'Source URL not recognised':base?'Base URL · OBS unavailable':'URL unavailable · connect OBS';});
  }
  async function load(){
    busy=true;uncertain=false;el('reload').hidden=true;updateControls();stateMessage('Loading settings…');

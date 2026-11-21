@@ -62,7 +62,7 @@ function registerCreditsFeed(app, { capturesDir, token }) {
     try { parseWindow(req.query.start, req.query.end); } catch (error) { return res.status(400).json({ error: error.message }); }
     try {
       const photos = await listCaptures(capturesDir, req.query.start, req.query.end);
-      res.json({ version: 1, start: req.query.start, end: req.query.end, photos, storageDirectory: capturesDir });
+      res.json({ version: 1, start: req.query.start, end: req.query.end, photos });
     } catch { res.status(500).json({ error: 'Unable to read the Polaroid index.' }); }
   });
   app.get('/api/polaroid-credits/photo/:filename', authorize, (req, res) => {

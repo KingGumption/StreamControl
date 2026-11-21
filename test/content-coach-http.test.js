@@ -5,7 +5,7 @@ const {app}=require('../src/admin'),access=require('../src/moderator-access');
 test('Content Coach is owner-only, same-origin, private, and supports persistence and export',async t=>{
  const server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));t.after(()=>new Promise(r=>{server.closeAllConnections();server.close(r);}));const base=`http://127.0.0.1:${server.address().port}`;
  const paths=['/admin/content-coach','/admin/content-coach/data','/admin/content-coach/analysis','/admin/content-coach/export'];
- for(const [route,heading] of [['/','Make every stream more engaging'],['/terms','Terms of Service'],['/privacy','Privacy Policy']]){
+ for(const [route,heading] of [['/terms','Terms of Service'],['/privacy','Privacy Policy']]){
   const response=await fetch(base+route,{redirect:'manual'});
   assert.equal(response.status,200);
   const html=await response.text();
@@ -18,6 +18,12 @@ test('Content Coach is owner-only, same-origin, private, and supports persistenc
  const owner=`stream_control_session=${access.issue({id:'owner',role:'owner'})}`;
  const moderator=await access.create('contenttestmod','good-test-password');const mod=`stream_control_session=${access.issue({...moderator,role:"games"})}`;
  for(const p of paths)assert.equal((await fetch(base+p,{headers:{Cookie:mod}})).status,403);
+ const entry=await fetch(base+'/',{redirect:'manual'});assert.equal(entry.headers.get('location'),'/admin/dashboard');
+ const guest=await fetch(base+'/admin/dashboard',{redirect:'manual',headers:{Accept:'text/html'}});assert.match(guest.headers.get('location'),/^\/admin\/login/);
+ assert.equal((await fetch(base+'/admin/dashboard/state')).status,401);
+ assert.equal((await fetch(base+'/admin/dashboard/state',{headers:{Cookie:mod}})).status,403);
+ assert.equal((await fetch(base+'/admin/dashboard',{headers:{Cookie:mod},redirect:'manual'})).headers.get('location'),'/admin/games');
+ const state=await fetch(base+'/admin/dashboard/state',{headers:{Cookie:owner}});assert.equal(state.status,200);assert.equal(state.headers.get('cache-control'),'no-store');assert.ok(Array.isArray((await state.json()).requests));
  const headers={Cookie:owner,'Content-Type':'application/json',Origin:'https://example.test'};
  const page=await fetch(base+paths[0],{headers});assert.equal(page.status,200);assert.match(page.headers.get('cache-control'),/no-store/);assert.match(await page.text(),/Content Coach/);
  const payload={revision:0,type:'import',rows:[{platform:'youtube',format:'short',title:'Test',url:'https://youtu.be/abcdefghi00',durationSeconds:30,publishedAt:'2026-08-01T00:00:00Z',observedAt:'2026-08-08T00:00:00Z',window:'7d',traffic:'organic',views:100,source:'Test export'}]};

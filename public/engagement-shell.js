@@ -3,7 +3,7 @@
   'use strict';
   const path = location.pathname.replace(/\/+$/, '') || '/';
   const links = {
-    home: ['/', 'Home'], terms: ['/terms', 'Terms'], privacy: ['/privacy', 'Privacy'],
+    home: ['/admin/dashboard', 'Dashboard'], terms: ['/terms', 'Terms'], privacy: ['/privacy', 'Privacy'],
     quizPreview: ['/admin/quiz/preview', 'Quiz preview'], login: ['/admin/login', 'Sign in'], songs: ['/admin', 'Song requests'],
     games: ['/admin/games', 'Games'], quick: ['/admin/games/quick', 'Quick controls'],
     quiz: ['/admin/quiz', 'Quiz'], hill: ['/admin/king-of-the-hill', 'King of the Hill'],
@@ -14,10 +14,10 @@
   const current = ['/admin/ui','/admin/stream-engagement'].includes(path)
     ? 'songs' : Object.keys(links).find(key => links[key][0] === path);
   if (!current || document.querySelector('.eng-shell')) return;
-  const isPublic = ['home','login','privacy','terms'].includes(current);
+  const isPublic = ['login','privacy','terms'].includes(current);
   const gamePages = ['games','quick','quiz','hill'];
   const gamePage = gamePages.includes(current);
-  const studioPages = ['songs','games','graphics','polaroid','analytics','coach','moderators'];
+  const studioPages = ['home','songs','games','graphics','polaroid','analytics','coach','moderators'];
   const body = document.body;
   body.classList.add('engagement-site');
   body.dataset.engagementArea = isPublic ? 'public' : 'studio';
@@ -43,7 +43,7 @@
   const header = make('header','eng-shell');
   const bar = make('div','eng-bar');
   const brand = make('a','eng-brand');
-  brand.href = isPublic ? '/' : gamePage ? '/admin/games' : '/admin';
+  brand.href = isPublic ? '/' : gamePage ? '/admin/games' : '/admin/dashboard';
   const monogram = make('span','eng-mark','SE');
   monogram.setAttribute('aria-hidden','true');
   brand.append(monogram,make('span',null,'Stream Engagement'));
@@ -84,7 +84,7 @@
       return a;
     }));
   };
-  renderLinks(isPublic ? ['home','terms','privacy','login'] : gamePage ? gamePages : current==='quizPreview' ? [...studioPages.slice(0,2),current,...studioPages.slice(2)] : studioPages);
+  renderLinks(isPublic ? ['terms','privacy','login'] : gamePage ? gamePages : current==='quizPreview' ? [...studioPages.slice(0,2),current,...studioPages.slice(2)] : studioPages);
   header.append(bar,nav); body.prepend(skip,header);
   if (gamePage) {
     // These four pages are available to moderators. Default their navigation to game tools.
@@ -95,7 +95,7 @@
         // link on deep pages so screen-reader navigation still identifies the active destination.
         const keys=studioPages.slice();
         if(current!=='games') keys.splice(keys.indexOf('games')+1,0,current);
-        renderLinks(keys); brand.href='/admin';
+        renderLinks(keys); brand.href='/admin/dashboard';
       }).catch(()=>{});
   }
 })();

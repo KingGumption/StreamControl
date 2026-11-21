@@ -148,7 +148,7 @@ Existing song request rows and archived Polaroid captures are included immediate
 
 ## Song request commands
 
-- `!song <title and artist>` searches Spotify, selects the best result Spotify marks as non-explicit by default, rejects a track already accepted by this application, adds it to the configured playlist and active Spotify playback queue, and records the result. If Spotify does not return a non-explicit result, the request is rejected rather than falling back to an explicit track.
+- `!song <title and artist>` searches Spotify, selects the best result Spotify marks as non-explicit by default, queues it on the active Spotify device, and records the result. A track already on the configured playlist is queued without adding another playlist copy. After a successful enqueue, the duplicate-song cooldown applies to that Spotify track across platforms and requesters (default 30 minutes; set to 0 to disable). If Spotify does not return a non-explicit result, the request is rejected rather than falling back to an explicit track.
 - `!playlist` posts the configured Spotify playlist link.
 - `!songlast` posts the most recently accepted request.
 
@@ -158,7 +158,7 @@ The **Allow Explicit Tracks** Dashboard toggle controls Spotify result selection
 
 The **Song Requests** Dashboard toggle opens and closes `!song` submissions. When closed, the application replies that requests are closed before searching Spotify, changing the request playlist, or touching the live queue. The setting is saved locally and survives restarts.
 
-The recent-request table has a fixed-height scroll area. Removing an accepted request removes the track from the configured request playlist and deletes its local request-history entry. Spotify's Web API does not provide an operation for removing an arbitrary item from the live playback queue, so a copy already queued in Spotify remains there; the admin page states this limitation before and after removal.
+The recent-request table has a fixed-height scroll area. Removing a new request deletes its history entry and removes the playlist item only if that request added it. Removing a repeat never deletes the pre-existing playlist item or resets its cooldown. Spotify's Web API does not provide an operation for removing an arbitrary item from the live playback queue, so a copy already queued in Spotify remains there; the admin page states this limitation before and after removal.
 
 Live queueing requires Spotify Premium, an active unrestricted Spotify playback device, and the playback OAuth permissions requested by this application. After enabling this feature for an existing installation, disconnect and reconnect Spotify once from the admin page to approve the new permissions. If the active device disappears after the playlist update, the request is recorded as partial rather than incorrectly reported as a total failure.
 
@@ -166,7 +166,7 @@ The app subscribes directly to `Twitch.ChatMessage` and `YouTube.Message` events
 
 ## OBS song-added overlay
 
-The app includes a transparent browser-source overlay at `http://127.0.0.1:8787/overlay`. It slides in after Spotify accepts a request and shows the song title, artist, requester, and Spotify album art held by the pig mascot. Requests that reach the playlist but miss the live queue also appear; dry-run requests do not.
+The app includes a transparent browser-source overlay at `http://127.0.0.1:8787/overlay`. It slides in after Spotify accepts a request and shows the song title, artist, requester, and Spotify album art held by the pig mascot. Only requests successfully added to playback trigger the requested-song notification. Failed, playlist-only, and dry-run requests do not.
 
 1. Start the app and open the admin Dashboard.
 2. In **Song Added Overlay**, click **Send preview** to check the animation.

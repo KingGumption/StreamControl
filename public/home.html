@@ -1,7 +1,27 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="StreamEngagement brings interactive stream tools and published-content analysis together for creators."><title>StreamEngagement | Creator tools</title><link rel="stylesheet" href="/assets/legal.css"><link rel="stylesheet" href="/assets/engagement-shell.css"><script defer src="/assets/engagement-shell.js"></script><link rel="stylesheet" href="/assets/studio-home.css"></head>
-<body><div class="shell"><header class="site-header"><a class="brand" href="/">StreamEngagement</a><nav class="site-nav" aria-label="Site"><a href="/admin">Control room</a><a href="/terms">Terms of Service</a><a href="/privacy">Privacy Policy</a></nav></header>
-<main><div class="studio-intro"><div class="hero"><p class="eyebrow">KingGumption / Creator workspace</p><h1>Your stream<br>control room.</h1><p class="lead">Set the look before you go live, run audience requests during the show, and review what connected afterwards.</p><div class="actions"><a class="button primary" href="/admin">Open control room →</a><a class="button" href="/admin/graphics">Preview graphics</a></div></div>
-<div class="studio-art" aria-hidden="true"><div class="scope"><i></i><i></i><i></i><i></i></div><span>STUDIO &nbsp; / &nbsp; SIGNAL MONITOR</span></div></div>
-<div class="features"><section class="card"><p class="eyebrow">01 / Prepare</p><h2>Set the scene</h2><p>Choose the shared overlay theme and check each graphic before it reaches OBS.</p><a href="/admin/graphics">Open Graphics →</a></section><section class="card"><p class="eyebrow">02 / Broadcast</p><h2>Run the show</h2><p>Open a game, manage song requests, or give a moderator the controls.</p><a href="/admin/games">Open Games →</a></section><section class="card"><p class="eyebrow">03 / Review</p><h2>Learn from a stream</h2><p>Review audience activity in Analytics. Use Content Coach to compare the clips you publish afterwards.</p><a href="/admin/analytics">Open Analytics →</a></section></div></main>
-<footer class="site-footer"><span>StreamEngagement by KingGumption</span><nav aria-label="Legal"><a href="/terms">Terms of Service</a><a href="/privacy">Privacy Policy</a></nav></footer></div></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Dashboard · Stream Engagement</title>
+<link rel="stylesheet" href="/assets/engagement-shell.css"><link rel="stylesheet" href="/assets/studio-home.css">
+<script defer src="/assets/engagement-shell.js"></script><script defer src="/assets/studio-dashboard.js"></script>
+</head>
+<body class="studio-dashboard"><main class="dashboard">
+<header class="dash-title"><div><p class="eyebrow">KingGumption / Workspace</p><h1>Dashboard</h1></div>
+<div class="dash-refresh"><span id="dash-updated" aria-live="off">Loading stream status…</span><button type="button" id="dash-refresh">Refresh</button></div></header>
+<div id="dash-alert" role="status" hidden></div>
+<div class="dash-stats">
+<a href="/admin"><span>Song requests</span><strong id="dash-open">—</strong><small id="dash-queue">Queue status unavailable</small></a>
+<a href="/admin/graphics"><span>Graphics theme</span><strong id="dash-theme">—</strong><small>Manage appearance <b aria-hidden="true">↗</b></small></a>
+<a href="/admin/games"><span>Selected game</span><strong id="dash-game">—</strong><small>Open game controls <b aria-hidden="true">↗</b></small></a>
+</div>
+<div class="dash-columns"><section class="dash-panel" aria-labelledby="dash-connections-title">
+<header><div><p class="eyebrow">System health</p><h2 id="dash-connections-title">Connections</h2></div><span class="dash-total" id="dash-total"></span></header>
+<ul class="dash-services" id="dash-services"><li>Loading connection status…</li></ul>
+<a class="dash-action" href="/admin#dashboardSection">Connection settings <span aria-hidden="true">→</span></a></section>
+<section class="dash-panel" aria-labelledby="dash-requests-title"><header><div><p class="eyebrow">Activity</p><h2 id="dash-requests-title">Recent song requests</h2></div></header>
+<ol class="dash-requests" id="dash-requests"><li>Loading recent requests…</li></ol>
+<a class="dash-action" href="/admin">Manage song requests <span aria-hidden="true">→</span></a></section></div>
+<nav class="dash-tools" aria-label="More workspace tools"><h2>More tools</h2><a href="/admin/polaroid">Polaroid <span aria-hidden="true">↗</span></a><a href="/admin/analytics">Analytics <span aria-hidden="true">↗</span></a><a href="/admin/content-coach">Content Coach <span aria-hidden="true">↗</span></a><a href="/admin/moderators">Moderators <span aria-hidden="true">↗</span></a></nav>
+<noscript><p>This dashboard needs JavaScript to load current stream status. You can still open the tools above.</p></noscript>
+</main></body></html>

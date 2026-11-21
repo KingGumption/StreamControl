@@ -97,6 +97,23 @@ class SpotifyApiClient {
     };
   }
 
+  // Read the real request playlist: history cannot see manual additions or removals.
+  async playlistHasTrack(track, playlistId = this.config.spotify.playlistId) {
+    if (!playlistId) throw new SpotifyApiError('The request playlist is not configured', {code:'playlist-missing'});
+    const base = '/playlists/' + encodeURIComponent(playlistId) + '/items';
+    for (let offset = 0; ; ) {
+      const page = await this.request(base + '?limit=50&offset=' + offset, {errorCodes:{403:'playlist-read-forbidden',404:'playlist-read-forbidden'}});
+      if (!Array.isArray(page?.items)) throw new SpotifyApiError('Invalid playlist response', {code:'playlist-read-failed'});
+      if (page.items.some(entry => {
+        const item = entry?.item ?? entry?.track;
+        return item && (item.id === track.id || item.uri === track.uri || item.linked_from?.id === track.id);
+      })) return true;
+      if (!page.next) return false;
+      if (!page.items.length) throw new SpotifyApiError('Empty playlist page', {code:'playlist-read-failed'});
+      offset += page.items.length;
+    }
+  }
+
   async addTrackToPlaylist(trackUri, playlistId = this.config.spotify.playlistId) {
     if (!playlistId) {
       throw new SpotifyApiError('The request playlist is not configured', { code: 'playlist-missing' });

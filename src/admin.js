@@ -40,6 +40,7 @@ const {
   getRuntimeSettings,
   getSongOverlayStyle, setSongOverlayStyle, subscribeSongOverlayStyle,
   setAllowExplicitTracks,
+  getDuplicateSongCooldownMinutes, setDuplicateSongCooldownMinutes,
   setSongRequestsEnabled,
   getHillGameTimings,
   setHillGameTimings,
@@ -67,6 +68,7 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'same-origin');
   if (appConfig.mode === 'cloud') res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   if (req.path === '/admin' || req.path.startsWith('/admin/')) {
+    res.setHeader('Cache-Control','private, no-store');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   }
@@ -86,7 +88,10 @@ app.use((req, res, next) => {
 app.get('/admin/login', adminAuth.loginPage);
 app.post('/admin/login', adminAuth.requireSameOrigin, (req,res,next) => adminAuth.login(req,res).catch(next));
 app.post('/admin/logout', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, adminAuth.logout);
-app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, adminAuth.requireCapability);
+app.use('/admin', adminAuth.requireAuthentication, adminAuth.requireSameOrigin, (req,res,next)=>{
+  if(req.path==='/dashboard' && req.method==='GET' && req.identity?.role==='games')return res.redirect('/admin/games');
+  return adminAuth.requireCapability(req,res,next);
+});
 
 
 app.get('/games',(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-overlay.html')));
@@ -98,18 +103,33 @@ app.get('/chat-games/events',(req,res)=>streamEvents(req,res,{name:'arcade-state
 app.post('/api/games/action',adminAuth.requireSameOrigin,(req,res)=>{
   const token=String(req.get('authorization')||'').replace(/^Bearer /,'');
   if(!validDeviceToken(token))return res.status(401).json({ok:false,error:'Game device token required.'});
-  try{res.json({ok:true,...gameLauncher.action(req.body.action,req.body.game,{role:'device',id:'stream-deck'})});}catch(e){res.status(409).json({ok:false,error:e.message});}
+  try{res.json({ok:true,...quickGameState(gameLauncher.action(req.body.action,req.body.game,{role:'device',id:'stream-deck'}))});}catch(e){res.status(409).json({ok:false,error:e.message});}
 });
 router.get('/games/quick',(req,res)=>res.sendFile(path.join(__dirname,'..','public','games-quick.html')));
-router.get('/games/state',(req,res)=>res.json({ok:true,...gameLauncher.state(),user:req.identity,controlEnabled:access.handoff().enabled}));
-router.post('/games/action',(req,res)=>{try{res.json({ok:true,...gameLauncher.action(req.body.action,req.body.game,req.identity)});}catch(e){res.status(409).json({ok:false,error:e.message});}});
+function gameUser({username,role}) { return {username,role}; }
+function quickGameState(s) {
+  // This dock operates games; it does not need contestant profiles, personal IDs,
+  // the full roster, or arbitrary extra fields from persisted configuration.
+  const pick=(object,keys)=>Object.fromEntries(keys.filter(k=>Object.hasOwn(object||{},k)).map(k=>[k,object[k]]));
+  const catalog=s.catalog.map(g=>pick(g,['id','name','help']));
+  const presets={};
+  for(const {id} of catalog) {
+    const keys=id==='quiz'?['questionCount','answerSeconds','lobbySeconds']:id==='hill'?['category']:['rounds','seconds'];
+    if(Object.hasOwn(s.presets,id)) presets[id]=pick(s.presets[id],keys);
+  }
+  return {active:s.active,catalog,presets,hillCategories:s.hillCategories,
+    quiz:pick(s.quiz,['phase','round','players','lobbyEndsAt','acceptUntil','nextQuestionAt','lobbyNotice']),
+    hill:pick(s.hill,['phase','round','endsAt']),arcade:pick(s.arcade,['phase','round','endsAt','players'])};
+}
+router.get('/games/state',(req,res)=>res.json({ok:true,...quickGameState(gameLauncher.state()),user:gameUser(req.identity),controlEnabled:access.handoff().enabled}));
+router.post('/games/action',(req,res)=>{try{res.json({ok:true,...quickGameState(gameLauncher.action(req.body.action,req.body.game,req.identity))});}catch(e){res.status(409).json({ok:false,error:e.message});}});
 router.post('/games/preset',(req,res)=>{try{res.json({ok:true,preset:gameLauncher.savePreset(req.body.game,req.body.values||{})});}catch(e){res.status(400).json({ok:false,error:e.message});}});
 router.post('/games/device-token',(req,res)=>res.json({ok:true,token:issueDeviceToken()}));
 router.post('/games/device-token/revoke',(req,res)=>{revokeDeviceToken();res.json({ok:true});});
-router.get('/games/session', (req,res) => res.json({ok:true,user:req.identity,handoff:access.handoff()}));
+router.get('/games/session', (req,res) => res.json({ok:true,user:gameUser(req.identity),handoff:{enabled:access.handoff().enabled}}));
 router.get('/games/connections', (req,res) => {
   const connections = getConnectionStatuses();
-  res.json({ok:true,connections:Object.fromEntries(['streamerbot','tikfinity','connector'].filter(key=>connections[key]).map(key=>[key,{connected:connections[key].connected,state:connections[key].state}]))});
+  res.json({ok:true,connections:Object.fromEntries(['streamerbot','tikfinity','connector'].filter(key=>connections[key]).map(key=>[key,{connected:connections[key].state==='connected',state:connections[key].state}]))});
 });
 router.get('/moderators', (req,res) => res.sendFile(path.join(__dirname,'..','public','admin-moderators.html')));
 router.get('/moderators/state', (req,res) => res.json({ok:true,accounts:access.list(),handoff:access.handoff(),audit:getAuditLog(100).filter(row=>['game-control','games-handoff'].includes(row.action)).slice(0,30)}));
@@ -132,6 +152,13 @@ router.use((req,res,next) => {
   next();
 });
 
+router.get('/dashboard',(_,res)=>res.set('Cache-Control','no-store').sendFile(path.join(__dirname,'../public/home.html')));
+router.get('/dashboard/state',(_,res)=>{
+  const settings=getRuntimeSettings(), theme=require('./db').getConfigValue('graphics_settings',{}).theme||null;
+  const requests=listSongRequests(5).map(r=>({platform:r.platform,username:r.username,track:r.track_name||r.query,artist:r.artists,status:r.status,at:r.timestamp}));
+  res.set('Cache-Control','no-store').json({connections:getConnectionStatuses(),requests,theme,songRequestsEnabled:settings.songRequestsEnabled,
+    queueEnabled:appConfig.spotify.queueEnabled,duplicateSongCooldownMinutes:settings.duplicateSongCooldownMinutes??null,game:gameLauncher.active()});
+});
 router.get('/status', (req, res) => {
   res.json({ ok: true, message: 'admin online', connections: getConnectionStatuses() });
 });
@@ -313,7 +340,7 @@ router.delete('/requests/:id', async (req, res) => {
     return;
   }
 
-  const wasAdded = ['accepted', 'partial'].includes(request.status) && Boolean(request.spotify_uri);
+  const wasAdded = (request.playlist_added == null ? ['accepted', 'partial'].includes(request.status) : Boolean(request.playlist_added)) && Boolean(request.spotify_uri);
   try {
     if (wasAdded) await spotifyApi.removeTrackFromPlaylist(request.spotify_uri);
   } catch (error) {
@@ -390,6 +417,20 @@ router.get('/config', (req, res) => {
     roles: ROLE_OPTIONS,
     settings: getRuntimeSettings(),
   });
+});
+
+router.post('/settings/duplicate-song-cooldown', (req,res) => {
+  const previous = getDuplicateSongCooldownMinutes();
+  let minutes;
+  try { minutes = setDuplicateSongCooldownMinutes(req.body?.duplicateSongCooldownMinutes); }
+  catch(error) {
+    if (!(error instanceof RangeError)) throw error;
+    return res.status(400).json({ok:false,message:error.message});
+  }
+  addAuditLog({action:'duplicate-song-cooldown-setting',platform:'spotify',command:'song',
+    source:'admin-page',previousValue:previous,newValue:minutes,
+    details:minutes ? 'Repeat track cooldown: '+minutes+' minutes' : 'Repeat track cooldown disabled'});
+  res.json({ok:true,duplicateSongCooldownMinutes:minutes});
 });
 
 router.post('/settings/song-overlay', (req,res) => {
@@ -623,8 +664,16 @@ router.get('/king-of-the-hill', (req, res) => {
 
 require('./graphics').install(app,router);
 app.use('/admin', router);
-app.use('/assets', (req,res,next) => /\.html$/i.test(req.path) ? res.sendStatus(404) : next());
-app.use('/assets', express.static(path.join(__dirname, '..', 'public')));
+app.use('/assets', (req,res,next) => {
+  let assetPath;
+  try { assetPath=decodeURIComponent(req.path); } catch { return res.sendStatus(400); }
+  // Match the decoded filename the static handler will resolve. HTML pages have
+  // explicit routes with their own access policy and must never be served here.
+  const parts=assetPath.split(/[\\/]/).filter(Boolean);
+  if (/\.html?$/i.test(assetPath) || parts.some(part=>part.startsWith('.')) || parts[0]?.toLowerCase()==='polaroid') return res.sendStatus(404);
+  next();
+});
+app.use('/assets', express.static(path.join(__dirname, '..', 'public'),{index:false,redirect:false,dotfiles:'deny'}));
 app.get('/tiktok02ShwsPpXcAq9IX8pYJ1VS0XrJtQrT4l.txt', (req, res) => {
   res.type('text/plain').sendFile(path.join(__dirname, '..', 'public', 'tiktok02ShwsPpXcAq9IX8pYJ1VS0XrJtQrT4l.txt'));
 });
@@ -634,11 +683,16 @@ app.get('/overlay', (req, res) => {
 app.get('/polaroid', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'polaroid', 'overlay.html'));
 });
-app.use('/polaroid/assets', express.static(path.join(__dirname, '..', 'public', 'polaroid')));
-app.use('/polaroid/captures', express.static(polaroidRuntime.capturesDir, {
-  immutable: true,
-  maxAge: '1y',
-}));
+const overlayFiles=['overlay.css','overlay.js','audio/wow.mp3'];
+for(const asset of overlayFiles) app.get('/polaroid/assets/'+asset,(_,res)=>res.sendFile(path.join(__dirname,'../public/polaroid',asset)));
+router.get('/polaroid/control.js',(_,res)=>res.sendFile(path.join(__dirname,'polaroid/admin-control.client.js')));
+app.get('/polaroid/captures/:filename',(req,res)=>{
+  const filename=req.params.filename;
+  // Captures share their storage directory with a private credits ledger.
+  // Only serve JPEG names generated by the capture runtime (including owner-test previews).
+  if(!/^(?:test_)?\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z_[a-zA-Z0-9_-]{1,40}\.jpg$/.test(filename))return res.sendStatus(404);
+  res.set('Cache-Control','no-store').sendFile(filename,{root:polaroidRuntime.capturesDir},err=>{if(err && !res.headersSent)res.sendStatus(err.status===404?404:500);});
+});
 app.get('/polaroid/events', (req,res) => streamEvents(req,res,{name:'polaroid',subscribe:fn=>polaroidRuntime.subscribe(fn)}));
 app.get('/king-of-the-hill', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'king-of-the-hill.html'));
@@ -689,7 +743,7 @@ app.get('/callback', async (req, res) => {
     res.redirect('/admin?spotify=error');
   }
 });
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'home.html')));
+app.get('/', (_,res)=>res.set('Cache-Control','no-store').redirect('/admin/dashboard'));
 app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'terms.html')));
 app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'privacy.html')));
 

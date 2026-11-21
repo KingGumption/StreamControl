@@ -13,12 +13,12 @@ function createAdminAuth(config, { now = () => Date.now() } = {}) {
 
   function loginPage(req, res) {
     const user = identity(req);
-    if (user) return res.redirect(user.role === 'owner' ? '/admin' : '/admin/games');
+    if (user) return res.redirect(user.role === 'owner' ? '/admin/dashboard' : '/admin/games');
     return res.sendFile(path.join(__dirname, '..', 'public', 'admin-login.html'));
   }
 
   async function login(req, res) {
-    if (!enabled) return res.redirect('/admin');
+    if (!enabled) return res.redirect('/admin/dashboard');
     const key = String(req.ip || req.socket?.remoteAddress || 'unknown');
     for (const [id, item] of attempts) if (item.resetAt <= now()) attempts.delete(id);
     if (!attempts.has(key) && attempts.size >= 10000) return res.status(429).send('Try again later.');
@@ -116,7 +116,7 @@ function serializeSessionCookie(value, maxAge) {
 }
 
 function safeReturnPath(value) {
-  const pathValue = String(value || '/admin');
+  const pathValue = String(value || '/admin/dashboard');
   return pathValue === '/admin' || pathValue.startsWith('/admin/') || pathValue.startsWith('/admin?') ? pathValue : '/admin';
 }
 

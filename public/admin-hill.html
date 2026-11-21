@@ -121,6 +121,7 @@
               <button class="secondary" id="nextGame" disabled>End vote now</button>
               <button class="danger" id="stopGame" disabled>Stop</button>
             </div>
+            <div hidden data-overlay-setup>
             <p class="muted">OBS Browser Source: <strong>Width 1080 · Height 640</strong>. Same size as the quiz; one third of a 1080 × 1920 vertical stream. Refresh the source after resizing.</p>
             <div class="overlay-url">
               <input id="overlayUrl" type="text" readonly aria-label="King of the Hill OBS overlay URL" />
@@ -128,6 +129,7 @@
             </div>
             <div class="toolbar">
               <button class="secondary" id="openOverlay">Open overlay full size</button>
+            </div>
             </div>
             <div class="message" id="message" role="status" aria-live="polite"></div>
           </div>

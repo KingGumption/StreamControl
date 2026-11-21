@@ -193,3 +193,12 @@ test('refreshes once and retries after an unauthorized response', async () => {
   assert.equal(refreshCount, 1);
   assert.equal(fetchCount, 2);
 });
+
+test('reads playlist membership across pages and supports Spotify item and track wrappers',async()=>{
+ const urls=[];const track={id:'requested',uri:'spotify:track:requested'};
+ const client=new SpotifyApiClient({auth:{getAccessToken:async()=>'token'},fetchImpl:async url=>{
+   urls.push(url);return response(url.includes('offset=0')?{items:[{item:null},{track:{id:'other'}}],next:'yes'}:{items:[{item:{id:'requested'}}],next:null});}});
+ assert.equal(await client.playlistHasTrack(track,'test'),true);
+ assert.deepEqual(urls.map(u=>new URL(u).searchParams.get('offset')),['0','2']);
+ assert.equal(await client.playlistHasTrack({id:'missing',uri:'spotify:track:missing'},'test'),false);
+});

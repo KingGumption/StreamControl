@@ -246,6 +246,18 @@
             <span class="switch-track" aria-hidden="true"></span>
           </label>
         </div>
+        <form id="repeatTrackForm" class="setting-row" style="flex-wrap:wrap">
+          <div class="setting-copy">
+            <h2><label for="repeatTrackMinutes">Repeat track cooldown</label></h2>
+            <p class="muted" id="repeatTrackHelp">How long viewers must wait before the same track can enter the Spotify queue again. Set to 0 to allow repeats immediately.</p>
+          </div>
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+            <input id="repeatTrackMinutes" type="number" min="0" max="1440" step="1" required disabled style="width:6rem" aria-describedby="repeatTrackHelp repeatTrackUnit">
+            <span id="repeatTrackUnit">minutes</span>
+            <button type="submit" id="saveRepeatTrack" disabled>Save cooldown</button>
+          </div>
+        </form>
+        <div class="request-message" id="repeatTrackMessage" role="status"></div>
         <div class="request-message" id="songRequestsMessage" role="status" aria-live="polite"></div>
         <div class="request-message" id="explicitTracksMessage" role="status" aria-live="polite"></div>
       </section>
@@ -468,7 +480,7 @@
             removeButton.type = 'button';
             removeButton.className = 'remove-btn request-remove-btn';
             removeButton.dataset.requestId = request.id;
-            removeButton.dataset.wasAdded = ['accepted', 'partial'].includes(request.status) && request.spotify_uri ? 'true' : 'false';
+            removeButton.dataset.wasAdded = (request.playlist_added == null ? ['accepted', 'partial'].includes(request.status) : Boolean(request.playlist_added)) && request.spotify_uri ? 'true' : 'false';
             removeButton.textContent = 'Remove';
             removeButton.title = removeButton.dataset.wasAdded === 'true'
               ? 'Remove from the request playlist and local history'
@@ -489,6 +501,12 @@
         state.presets = json.presets || {};
         state.roles = json.roles || {};
         state.settings = json.settings || { allowExplicitTracks: false };
+        const repeatInput = document.getElementById('repeatTrackMinutes');
+        if (Number.isInteger(state.settings.duplicateSongCooldownMinutes)) {
+          if (repeatInput.dataset.edited !== 'true') repeatInput.value = state.settings.duplicateSongCooldownMinutes;
+          repeatInput.disabled = false;
+          document.getElementById('saveRepeatTrack').disabled = false;
+        }
         document.getElementById('previewOverlay').disabled = !state.settings.songRequestsEnabled;
         if (overlayVariants.some(v => v.id === state.settings.songOverlayStyle)) { variantSelect.value = state.settings.songOverlayStyle; updateOverlayVariant(); }
         state.overrides = (state.config.overrides || []).slice();
@@ -674,6 +692,27 @@
       document.getElementById('spotifyDisconnect').addEventListener('click', async () => {
         const response = await fetch('/admin/spotify/disconnect', { method: 'POST' });
         if (response.ok) await loadConnections();
+      });
+
+      const repeatInput = document.getElementById('repeatTrackMinutes');
+      repeatInput.addEventListener('input', () => { repeatInput.dataset.edited='true'; });
+      document.getElementById('repeatTrackForm').addEventListener('submit', async event => {
+        event.preventDefault();
+        const minutes=repeatInput.valueAsNumber;
+        if (!repeatInput.reportValidity() || !Number.isInteger(minutes)) return;
+        const button=document.getElementById('saveRepeatTrack'), message=document.getElementById('repeatTrackMessage');
+        button.disabled=repeatInput.disabled=true;
+        message.textContent='Saving cooldown…';
+        try {
+          const r=await fetch('/admin/settings/duplicate-song-cooldown',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duplicateSongCooldownMinutes:minutes})});
+          const result=await r.json();
+          if(!r.ok || !result.ok) throw new Error(result.message || 'Could not save cooldown.');
+          state.settings.duplicateSongCooldownMinutes=result.duplicateSongCooldownMinutes;
+          repeatInput.value=result.duplicateSongCooldownMinutes;
+          repeatInput.dataset.edited='false';
+          message.textContent=minutes ? 'Saved. The same track can be queued again after '+minutes+(minutes===1?' minute.':' minutes.') : 'Saved. The repeat track cooldown is off.';
+        } catch(error) { message.textContent=error.message || 'Could not save cooldown. Try again.'; }
+        finally { button.disabled=repeatInput.disabled=false; }
       });
 
       document.getElementById('allowExplicitTracks').addEventListener('change', async (event) => {

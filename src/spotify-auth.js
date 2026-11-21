@@ -8,6 +8,8 @@ const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const PROFILE_URL = 'https://api.spotify.com/v1/me';
 const SCOPES = [
   'user-read-private',
+  'playlist-read-private',
+  'playlist-read-collaborative',
   'playlist-modify-public',
   'playlist-modify-private',
   'user-read-playback-state',

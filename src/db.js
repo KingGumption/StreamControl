@@ -58,6 +58,11 @@ db.exec(`
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 
+  CREATE TABLE IF NOT EXISTS track_queue_times (
+    track_id TEXT PRIMARY KEY,
+    queued_at_ms INTEGER NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS song_requests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -145,6 +150,17 @@ db.exec(`
 `);
 
 const songRequestColumns = prepare('PRAGMA table_info(song_requests)').all();
+if (!songRequestColumns.some(column => column.name === 'playlist_added')) {
+  db.transaction(() => {
+    db.exec('ALTER TABLE song_requests ADD COLUMN playlist_added INTEGER');
+    // Only migrate legacy records whose reply confirms an actual queue write.
+    db.exec(`INSERT OR IGNORE INTO track_queue_times(track_id,queued_at_ms)
+      SELECT spotify_track_id, CAST(MAX((julianday(timestamp)-2440587.5)*86400000) AS INTEGER)
+      FROM song_requests WHERE spotify_track_id IS NOT NULL AND julianday(timestamp) IS NOT NULL
+        AND status='accepted' AND response LIKE '% to the request playlist and playback queue.'
+      GROUP BY spotify_track_id`);
+  })();
+}
 if (!songRequestColumns.some((column) => column.name === 'album_art_url')) {
   db.exec('ALTER TABLE song_requests ADD COLUMN album_art_url TEXT');
 }
@@ -337,6 +353,13 @@ function clearSpotifyAuth() {
   return prepare('DELETE FROM spotify_auth WHERE id = 1').run().changes > 0;
 }
 
+function lastTrackQueueTime(trackId) {
+  return prepare('SELECT queued_at_ms FROM track_queue_times WHERE track_id=?').get(trackId)?.queued_at_ms ?? null;
+}
+function markTrackQueued(trackId, timeMs) {
+  prepare('INSERT INTO track_queue_times(track_id,queued_at_ms) VALUES(?,?) ON CONFLICT(track_id) DO UPDATE SET queued_at_ms=excluded.queued_at_ms').run(trackId,timeMs);
+}
+
 function addSongRequest({
   platform,
   userId,
@@ -347,6 +370,7 @@ function addSongRequest({
   trackName,
   artists,
   albumName,
+  playlistAdded,
   albumArtUrl,
   userProfileImageUrl,
   roles,
@@ -361,10 +385,10 @@ function addSongRequest({
   const result = prepare(`
     INSERT INTO song_requests (
       timestamp, platform, platform_user_id, username, query, spotify_track_id,
-      spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id, status, response, error_code
+      spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id, status, response, error_code, playlist_added
     ) VALUES (
       @timestamp, @platform, @userId, @username, @query, @trackId,
-      @trackUri, @trackName, @artists, @albumName, @albumArtUrl, @userProfileImageUrl, @roles, @sessionId, @status, @response, @errorCode
+      @trackUri, @trackName, @artists, @albumName, @albumArtUrl, @userProfileImageUrl, @roles, @sessionId, @status, @response, @errorCode, @playlistAdded
     )
   `).run({
     timestamp: occurredAt,
@@ -377,6 +401,7 @@ function addSongRequest({
     trackName: trackName || null,
     artists: artists || null,
     albumName: albumName || null,
+    playlistAdded: playlistAdded == null ? null : Number(playlistAdded),
     albumArtUrl: albumArtUrl || null,
     userProfileImageUrl: userProfileImageUrl || null,
     roles: Array.isArray(roles) && roles.length ? JSON.stringify([...new Set(roles.map((role) => String(role).toLowerCase()))]) : null,
@@ -392,7 +417,7 @@ function listSongRequests(limit = 50) {
   const safeLimit = Math.max(1, Math.min(200, Number(limit) || 50));
   return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
-           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
+           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id, playlist_added,
            status, response, error_code
     FROM song_requests
     ORDER BY id DESC
@@ -563,7 +588,7 @@ function listSongRequestsForRange({ since, before } = {}) {
   if (before) { conditions.push('julianday(timestamp) < julianday(@before)'); params.before = before; }
   return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
-           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
+           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id, playlist_added,
            status, response, error_code
     FROM song_requests
     ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
@@ -699,7 +724,7 @@ function getSongRequest(id) {
   if (!Number.isSafeInteger(requestId) || requestId < 1) return null;
   return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
-           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
+           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id, playlist_added,
            status, response, error_code
     FROM song_requests
     WHERE id = ?
@@ -715,7 +740,7 @@ function deleteSongRequest(id) {
 function getLastAcceptedSongRequest() {
   return prepare(`
     SELECT id, timestamp, platform, platform_user_id, username, query,
-           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id,
+           spotify_track_id, spotify_uri, track_name, artists, album_name, album_art_url, user_profile_image_url, roles, session_id, playlist_added,
            status, response
     FROM song_requests
     WHERE status IN ('accepted', 'partial', 'dry-run')
@@ -745,7 +770,7 @@ const schema = {
   getSpotifyAuth,
   saveSpotifyAuth,
   clearSpotifyAuth,
-  addSongRequest,
+  addSongRequest, lastTrackQueueTime, markTrackQueued,
   listSongRequests,
   listSongRequestsForRange,
   addEngagementEvent,

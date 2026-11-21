@@ -143,7 +143,7 @@ test('serves the transparent music overlay, assets, and preview trigger', async 
   assert.match(polaroidAdminHtml, /Polaroid Redeem/);
   assert.match(polaroidAdminHtml, /id="deliver-discord" type="checkbox" checked/);
 
-  const polaroidControl = await fetch(`${base}/polaroid/assets/control.js`);
+  const polaroidControl = await fetch(`${base}/admin/polaroid/control.js`);
   assert.equal(polaroidControl.status, 200);
   assert.match(await polaroidControl.text(), /deliverToDiscord/);
 

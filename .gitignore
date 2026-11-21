@@ -9,3 +9,16 @@ data/spotify-oauth-tokens.json
 data/polaroid-config.json
 data/polaroid-captures/
 backups/
+
+# Local credentials and runtime state (example templates are safe to track).
+.env.*
+!.env*.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.sqlite*
+*.db
+*.db-*
+data/
+polaroid-config.json

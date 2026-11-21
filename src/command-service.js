@@ -3,11 +3,11 @@ const { getLiveConfig } = require('./config');
 const { canUseCommand } = require('./permissions');
 const { spotifyApi } = require('./spotify-api');
 const { overlayEvents } = require('./overlay-events');
-const { songRequestsEnabled } = require('./runtime-settings');
+const { songRequestsEnabled, getDuplicateSongCooldownMinutes } = require('./runtime-settings');
 const {
   addSongRequest,
   getLastAcceptedSongRequest,
-  hasAcceptedTrack,
+  lastTrackQueueTime, markTrackQueued,
   getSongRequest,
   deleteSongRequest,
 } = require('./db');
@@ -38,17 +38,21 @@ class CooldownManager {
   }
 }
 
+const pendingTracks = new Set();
+
 class CommandService {
   constructor({
     config = appConfig,
     spotify = spotifyApi,
     loadPermissions = getLiveConfig,
-    history = { addSongRequest, getLastAcceptedSongRequest, hasAcceptedTrack, getSongRequest, deleteSongRequest },
+    history = { addSongRequest, getLastAcceptedSongRequest, lastTrackQueueTime, markTrackQueued, getSongRequest, deleteSongRequest },
     cooldowns = new CooldownManager({
       userSeconds: config.cooldowns.userSeconds,
       globalSeconds: config.cooldowns.globalSeconds,
     }),
     notifications = overlayEvents,
+    trackCooldownMinutes = getDuplicateSongCooldownMinutes,
+    now = Date.now,
     areSongRequestsEnabled = songRequestsEnabled,
   } = {}) {
     this.controlBusy = false;
@@ -58,6 +62,8 @@ class CommandService {
     this.history = history;
     this.cooldowns = cooldowns;
     this.notifications = notifications;
+    this.trackCooldownMinutes = trackCooldownMinutes;
+    this.now = now;
     this.areSongRequestsEnabled = areSongRequestsEnabled;
   }
 
@@ -101,7 +107,7 @@ class CommandService {
       const request = args.trim() ? this.history.getSongRequest(args.trim()) : this.history.getLastAcceptedSongRequest();
       if (!request) return handled('No matching song request was found.', 'not-found');
       if (this.config.dryRun) return handled('Dry run: would remove request #' + request.id + ' (' + request.track_name + ').', 'dry-run');
-      const added = ['accepted', 'partial'].includes(request.status);
+      const added = request.playlist_added == null ? ['accepted', 'partial'].includes(request.status) : Boolean(request.playlist_added);
       if (added) await this.spotify.removeTrackFromPlaylist(request.spotify_uri);
       this.history.deleteSongRequest(request.id);
       return handled('Removed request #' + request.id + ' (' + request.track_name + ') from ' + (added ? 'the playlist and request history. If already queued, it remains in Spotify’s playback queue; use !skip when it plays.' : 'request history.'), 'ok');
@@ -144,39 +150,51 @@ class CommandService {
         return handled(`@${event.user.username}, I couldn't find that song on Spotify.`, 'not-found');
       }
 
-      if (this.history.hasAcceptedTrack(track.id)) {
-        this.record(event, trimmedQuery, track, 'duplicate', 'Track was already requested', 'duplicate');
-        return handled(`@${event.user.username}, ${trackLabel(track)} has already been requested.`, 'duplicate');
-      }
-
-      let activeDevice = null;
-      if (!this.config.dryRun && this.config.spotify.queueEnabled) {
-        activeDevice = await this.spotify.getActivePlaybackDevice();
-      }
-
-      if (!this.config.dryRun) await this.spotify.addTrackToPlaylist(track.uri);
-
-      if (!this.config.dryRun && this.config.spotify.queueEnabled) {
-        try {
-          await this.spotify.addTrackToQueue(track.uri, activeDevice.id);
-        } catch (queueError) {
-          const errorCode = queueError.code || 'queue-failed';
-          const response = `@${event.user.username}, added ${trackLabel(track)} to the request playlist, but ${queueFailureMessage(errorCode)}`;
-          const requestId = this.record(event, trimmedQuery, track, 'partial', response, errorCode);
-          this.notifySongAdded(event, track, 'partial', requestId);
-          return handled(response, 'partial', track);
+      if (pendingTracks.has(track.id)) return handled(`@${event.user.username}, a request for ${trackLabel(track)} is already in progress.`, 'busy');
+      pendingTracks.add(track.id);
+      try {
+        if (this.config.dryRun) {
+          const response = `@${event.user.username}, dry run: no changes made for ${trackLabel(track)}.`;
+          this.record(event, trimmedQuery, track, 'dry-run', response, null, false);
+          return handled(response, 'dry-run', track);
         }
-      }
-
-      const status = this.config.dryRun ? 'dry-run' : 'accepted';
-      const response = this.config.dryRun
-        ? `@${event.user.username}, dry run: would add ${trackLabel(track)}.`
-        : this.config.spotify.queueEnabled
-          ? `@${event.user.username}, added ${trackLabel(track)} to the request playlist and playback queue.`
-          : `@${event.user.username}, added ${trackLabel(track)} to the request playlist.`;
-      const requestId = this.record(event, trimmedQuery, track, status, response, null);
-      if (status === 'accepted') this.notifySongAdded(event, track, status, requestId);
-      return handled(response, status, track);
+        const queue = this.config.spotify.queueEnabled;
+        if (queue) {
+          const last = this.history.lastTrackQueueTime(track.id);
+          const remaining = last == null ? 0 : last + this.trackCooldownMinutes()*60000 - this.now();
+          if (remaining > 0) {
+            const response = `@${event.user.username}, ${trackLabel(track)} was recently queued. Try again in ${Math.ceil(remaining/1000)}s.`;
+            this.record(event, trimmedQuery, track, 'duplicate', response, 'track-cooldown', false);
+            return handled(response, 'duplicate');
+          }
+        }
+        const device = queue ? await this.spotify.getActivePlaybackDevice() : null;
+        const exists = await this.spotify.playlistHasTrack(track);
+        if (!queue && exists) {
+          const response = `@${event.user.username}, ${trackLabel(track)} is already on the playlist. Playback queueing is disabled.`;
+          this.record(event, trimmedQuery, track, 'duplicate', response, 'queue-disabled', false);
+          return handled(response, 'duplicate');
+        }
+        if (!exists) await this.spotify.addTrackToPlaylist(track.uri);
+        if (queue) {
+          try {
+            await this.spotify.addTrackToQueue(track.uri, device.id);
+          } catch (error) {
+            const code = error.code || 'queue-failed';
+            const response = `@${event.user.username}, ${exists ? 'already on the playlist' : 'added to the playlist'}: ${trackLabel(track)}, but ${queueFailureMessage(code)}`;
+            const status = exists ? 'error' : 'partial';
+            this.record(event, trimmedQuery, track, status, response, code, !exists);
+            return handled(response, status, track);
+          }
+          this.history.markTrackQueued(track.id, this.now());
+        }
+        const response = exists
+          ? `@${event.user.username}, queued ${trackLabel(track)}. It was already on the request playlist.`
+          : `@${event.user.username}, added ${trackLabel(track)} to the request playlist${queue ? ' and playback queue.' : '. Playback queueing is disabled.'}`;
+        const requestId = this.record(event, trimmedQuery, track, 'accepted', response, null, !exists);
+        if (queue) this.notifySongAdded(event, track, 'accepted', requestId);
+        return handled(response, 'accepted', track);
+      } finally { pendingTracks.delete(track.id); }
     } catch (error) {
       const errorCode = error.code || (error.name === 'SpotifyAuthError' ? 'spotify-not-connected' : 'request-failed');
       const response = userSafeError(event.user.username, errorCode, error.retryAfter);
@@ -185,13 +203,14 @@ class CommandService {
     }
   }
 
-  record(event, query, track, status, response, errorCode) {
+  record(event, query, track, status, response, errorCode, playlistAdded = false) {
     return this.history.addSongRequest({
       platform: event.platform,
       userId: event.user.id,
       username: event.user.username,
       query,
       trackId: track?.id,
+      playlistAdded,
       trackUri: track?.uri,
       trackName: track?.name,
       artists: track?.artists?.join(', '),
@@ -231,6 +250,7 @@ function trackLabel(track) {
 function userSafeError(username, code, retryAfter) {
   if (code === 'spotify-not-connected') return `@${username}, Spotify is not connected yet.`;
   if (code === 'playlist-missing') return `@${username}, the request playlist is not configured.`;
+  if (code === 'playlist-read-forbidden') return `@${username}, Spotify cannot read the request playlist. Check playlist access and reconnect Spotify from the admin page.`;
   if (code === 'playlist-forbidden') return `@${username}, Spotify cannot modify the configured playlist.`;
   if (code === 'clean-version-not-found') return `@${username}, I couldn't find a non-explicit version of that song.`;
   if (code === 'queue-permission-missing') return `@${username}, Spotify must be reconnected from the admin page to enable live queueing.`;

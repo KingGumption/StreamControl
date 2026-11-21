@@ -84,16 +84,23 @@ function install(app,router){
  app.get('/graphics/events',(req,res,next)=>{res.set('Access-Control-Allow-Origin','*');next();},(req,res)=>streamEvents(req,res,{name:'graphics',initial:read,subscribe:f=>{listeners.add(f);return()=>listeners.delete(f);}}));
  router.get('/graphics',(_,res)=>res.sendFile(path.join(__dirname,'../public/admin-graphics.html')));
  const gallery=['banner','bannerPlain','card','cardVertical','counter'];
- const bannerUrl='file:///C:/Users/Zatanna/Documents/StreamStuff/StreamAssets/followbanner/follow-banner.html';
- const cardUrl='file:///C:/Users/Zatanna/Documents/Codex/2026-09-11/wha/outputs/FollowerCard-Blender/index.html';
- const base={banner:bannerUrl,bannerPlain:bannerUrl+'?no-char',card:cardUrl,cardVertical:cardUrl,counter:'http://127.0.0.1:18765/'};
- router.get('/graphics/catalog',(_,res)=>res.json(gallery.map(id=>({id,name:names[id],base:base[id]}))));
+ // Discover machine-specific paths from this owner's OBS. Persist only the base, never follower event fields.
+ const readBase=id=>getConfigValue('graphics_base_'+id,id==='counter'?'http://127.0.0.1:18765/':'');
+ router.get('/graphics/catalog',(_,res)=>res.set('Cache-Control','no-store').json(gallery.map(id=>({id,name:names[id],base:readBase(id)}))));
  router.get('/graphics/url/:id',async(req,res)=>{
   const id=req.params.id;if(!gallery.includes(id))return res.sendStatus(404);
   try{const {inputSettings}=await obs('GetInputSettings',{inputName:names[id]});
-   const url=new URL(inputSettings.url),expected=new URL(base[id]);
-   if(url.protocol!==expected.protocol||url.host!==expected.host||decodeURIComponent(url.pathname).toLowerCase()!==decodeURIComponent(expected.pathname).toLowerCase())return res.sendStatus(409);
-   res.set('Cache-Control','no-store').json({url:inputSettings.url});
+   const url=new URL(inputSettings.url),card=id.startsWith('card'),counter=id==='counter';
+   const pathname=decodeURIComponent(url.pathname).toLowerCase();
+   const expected=counter ? url.origin==='http://127.0.0.1:18765' && pathname==='/' :
+    url.protocol==='file:' && !url.host && pathname.endsWith(card?'/followercard-blender/index.html':'/followbanner/follow-banner.html');
+   if(!expected || url.username || url.password)return res.sendStatus(409);
+   const clean=new URL(url);clean.hash='';
+   const allowed=new Set(card?['frame','style','collection','character','name','accent','bg','follower','rarity','event','hold']:['style','font','no-char','game','gameName','ActivePackPath','title']);
+   for(const k of [...clean.searchParams.keys()])if(!allowed.has(k))clean.searchParams.delete(k);
+   const base=new URL(clean);base.search='';if(id==='bannerPlain')base.searchParams.set('no-char','');
+   if(readBase(id)!==base.href)setConfigValue('graphics_base_'+id,base.href);
+   res.set('Cache-Control','no-store').json({url:clean.href});
   }catch{res.sendStatus(503);}
  });
  router.get('/graphics/preview/:id',async(req,res)=>{

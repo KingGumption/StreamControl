@@ -58,6 +58,20 @@ function setSongRequestsEnabled(value) {
   return value;
 }
 
+const DUPLICATE_SONG_COOLDOWN_KEY = 'duplicate_song_cooldown_minutes';
+function validDuplicateSongCooldown(value) {
+  return Number.isInteger(value) && value >= 0 && value <= 1440;
+}
+function getDuplicateSongCooldownMinutes() {
+  const value = getConfigValue(DUPLICATE_SONG_COOLDOWN_KEY, 30);
+  return validDuplicateSongCooldown(value) ? value : 30;
+}
+function setDuplicateSongCooldownMinutes(value) {
+  if (!validDuplicateSongCooldown(value)) throw new RangeError('Enter a whole number of minutes from 0 to 1440.');
+  setConfigValue(DUPLICATE_SONG_COOLDOWN_KEY, value);
+  return value;
+}
+
 function getHillGameTimings() {
   const stored = getConfigValue(HILL_GAME_TIMINGS_KEY, DEFAULT_HILL_GAME_TIMINGS);
   return {
@@ -117,6 +131,7 @@ function getRuntimeSettings() {
     songOverlayStyle: getSongOverlayStyle(),
     allowExplicitTracks: allowExplicitTracks(),
     songRequestsEnabled: songRequestsEnabled(),
+    duplicateSongCooldownMinutes: getDuplicateSongCooldownMinutes(),
   };
 }
 
@@ -133,6 +148,7 @@ module.exports = {
   setAllowExplicitTracks,
   songRequestsEnabled, subscribeSongRequestsEnabled,
   setSongRequestsEnabled,
+  getDuplicateSongCooldownMinutes, setDuplicateSongCooldownMinutes,
   getHillGameTimings,
   setHillGameTimings,
   getHillGameRoundCount,
