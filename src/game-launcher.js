@@ -10,7 +10,12 @@ const compactGames=new Set(['word','higher','number','split']);
 const ALIASES={'word-vault':'word','heist-night':'heist',grinch:'rival','seasonal-rival':'rival','king-of-the-hill':'hill','kingofthehill':'hill','snackwars':'snacks','snack-wars':'snacks','higher-or-lower':'higher','haunted-house':'escape','split-the-crowd':'split','boss-battle':'boss','number-hunt':'number'};
 class GameLauncher {
  constructor({audience=new AudienceGames(),quiz=quizGame,hill=hillGame,arcade=arcadeGames,permission=()=>access.handoff().enabled,load=()=>getConfigValue('game_presets',{}),save=v=>setConfigValue('game_presets',v),audit=addAuditLog}={}){Object.assign(this,{audience,quiz,hill,arcade,permission,load,save,audit});}
- catalog(){return [{id:'quiz',name:'Elimination Quiz'},{id:'hill',name:'King of the Hill'},...CATALOG,...Object.entries(audienceNames).map(([id,name])=>id==='rival'?{id,name,variant:rivalName(this.audience.theme())}:{id,name})];}
+ catalog(){
+  const audience=Object.entries(audienceNames).map(([id,name])=>
+   id==='rival'?{id,name,variant:rivalName(this.audience.theme())}:{id,name});
+  const games=[{id:'quiz',name:'Elimination Quiz'},{id:'hill',name:'King of the Hill'},...CATALOG,...audience];
+  return games.map(game=>compactGames.has(game.id)?{...game,supportsCorner:true}:game);
+ }
  canonical(id){id=String(id||'').trim().toLowerCase();return ALIASES[id]||id;}
  active(){if(this.audience.active)return this.audience.active;if(['lobby','question','reveal','completed'].includes(this.quiz.phase))return 'quiz';if(this.hill.running)return 'hill';if(['question','reveal','completed'].includes(this.arcade.phase))return this.arcade.id;return null;}
  overlayState(){const active=this.active();return active&&this.compactGame===active?{active,layout:'compact'}:{active};}
@@ -61,7 +66,7 @@ class GameLauncher {
   if(action==='stop')this.compactGame=null;
   this.audit({action:'game-control',source:actor.id||actor.role,details:JSON.stringify({action,game:id})});return this.state();
  }
- state(){return {active:this.active(),catalog:this.catalog(),audience:this.audience.snapshot(true).game,quiz:this.quiz.getState(),hill:this.hill.getState(),arcade:this.arcade.getState(),presets:this.load(),hillCategories:[...new Set(this.hill.topics.map(t=>t.category||'general'))]};}
+ state(){return {...this.overlayState(),catalog:this.catalog(),audience:this.audience.snapshot(true).game,quiz:this.quiz.getState(),hill:this.hill.getState(),arcade:this.arcade.getState(),presets:this.load(),hillCategories:[...new Set(this.hill.topics.map(t=>t.category||'general'))]};}
  chat(event){const m=String(event.text||'').trim().match(/^!(launch|start|next|stop|games)(?:\s+([\w-]+))?\s*$/i);if(!m)return null;
   if(m[1].toLowerCase()==='games')return 'Games: '+this.catalog().map(g=>g.id).join(', ')+'. Mods: !launch gamename; !start quiz; !next gamename; !stop.';
   const roles=event.user?.roles||[];const actor={id:event.platform+':'+event.user?.id,role:roles.includes('broadcaster')?'owner':roles.includes('moderator')?'games':'viewer'};

@@ -19,14 +19,15 @@ test('compact layouts are sent on the first overlay update and are scoped to the
  launcher.load=()=>presets;launcher.save=value=>{presets=value;};
  const unsubscribe=launcher.subscribeOverlay(state=>updates.push(state));
  t.after(()=>{unsubscribe();if(launcher.active())launcher.action('stop',undefined,actor);});
+ assert.deepEqual(launcher.catalog().filter(game=>game.supportsCorner).map(game=>game.id).sort(),['higher','number','split','word']);
  for(const id of ['word','higher','number','split']){
   launcher.savePreset(id,{layout:'compact'});
   updates.length=0;
-  launcher.action('launch',id,actor);
+  assert.equal(launcher.action('launch',id,actor).layout,'compact');
   assert.deepEqual(updates[0],{active:id,layout:'compact'});
   launcher.action('stop',id,actor);
   assert.deepEqual(updates.at(-1),{active:null});
-  launcher.action('launch',id,actor,{layout:'full'});
+  assert.equal(launcher.action('launch',id,actor,{layout:'full'}).layout,undefined);
   assert.deepEqual(launcher.overlayState(),{active:id});
   assert.equal(launcher.preset(id).layout,'compact');
   launcher.action('stop',id,actor);

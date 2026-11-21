@@ -3,6 +3,8 @@
   const cabinet = document.querySelector('.cabinet');
   const compact = new URLSearchParams(location.search).get('layout') === 'compact';
   document.documentElement.classList.toggle('compact', compact);
+  const decoder = document.querySelector('.decoder');
+  const surface = compact ? decoder : cabinet;
   const markers = {exact:'✓',present:'↔',absent:'×'};
   const labels = {exact:'correct position',present:'wrong position',absent:'absent'};
   const examples = ['CRANE','FROST','GLYPH','BLADE','PEARL','BRICK','CHESS'];
@@ -48,18 +50,55 @@
   }
 
   function tick() {
-    byId('clock').textContent = endsAt ? Math.max(0,Math.ceil((endsAt-Date.now())/1000)) + 's' : '';
+    byId(compact?'decoder-clock':'clock').textContent = endsAt ? Math.max(0,Math.ceil((endsAt-Date.now())/1000)) + 's' : '';
+  }
+
+  let decoderHistoryKey='';
+  function drawDecoder(game,pins,example){
+    const guessing=game.phase==='guessing', lead=game.candidates[0];
+    byId('decoder-round').textContent='Vault '+game.round+'/'+game.rounds;
+    byId('decoder-score').textContent=Number(game.score).toLocaleString('en-GB')+' pts';
+    byId('decoder-state').textContent=guessing?'Attempt '+(game.rows.length+1)+' / '+game.attemptLimit:game.solved?'Vault opened':'Vault sealed';
+    const key=JSON.stringify([game.round,game.rows,pins]);
+    if(key!==decoderHistoryKey){
+      decoderHistoryKey=key;
+      const code=byId('decoder-code');
+      code.replaceChildren(...pins.map(letter=>{
+        const cell=document.createElement('b');cell.textContent=letter==='·'?'_':letter;return cell;
+      }));
+      code.setAttribute('aria-label','Combination: '+pins.map(letter=>letter==='·'?'unknown':letter).join(', '));
+      const history=byId('decoder-history');
+      history.replaceChildren(...game.rows.map(row=>{
+        const line=document.createElement('div');line.className='decoder-entry';line.setAttribute('role','listitem');
+        line.setAttribute('aria-label',[...row.word].map((c,i)=>c+' '+labels[row.marks[i]]).join(', '));
+        for(const [i,char] of [...row.word].entries()){
+          const letter=document.createElement('span'),symbol=document.createElement('small');letter.className=row.marks[i];
+          letter.textContent=char;symbol.textContent=markers[row.marks[i]];letter.append(symbol);line.append(letter);
+        }
+        return line;
+      }));
+      if(!game.rows.length)history.textContent='Guesses appear here when the ballot closes.';
+    }
+    byId('decoder-ballot').textContent=guessing
+      ? lead?'Leading: '+lead.word+' · '+lead.votes+(lead.votes===1?' vote':' votes'):'Ballot open'
+      : game.streak?'Streak: '+game.streak:'Combination revealed';
+    const clue=byId('decoder-clue');clue.hidden=!guessing||!game.clue;
+    clue.textContent=clue.hidden?'':'Clue: '+game.clue;
+    byId('decoder-command').textContent=guessing?'Type 5 letters · e.g. '+example:game.phase==='completed'?'Game complete':'Next vault incoming';
   }
 
   function render({active,game}) {
-    cabinet.hidden = active !== 'word' || !game || game.phase === 'idle';
-    if (cabinet.hidden) { endsAt = null; return; }
+    surface.hidden = active !== 'word' || !game || game.phase === 'idle';
+    if (surface.hidden) { endsAt = null; return; }
     const {rows,attemptLimit,round,rounds,candidates,score,phase} = game;
     const guessing = phase === 'guessing';
     const lead = candidates[0];
     const runnerUp = candidates[1];
     const used = rows.length;
     const pins=Array.from({length:5},(_,i)=>guessing ? rows.find(row=>row.marks[i]==='exact')?.word[i] || '·' : game.answer?.[i] || '·');
+    const example = examples.find(word => !rows.some(row => row.word === word));
+    endsAt=game.endsAt;tick();
+    if(compact){drawDecoder(game,pins,example);return;}
     const pinKey=round+':'+pins.join('');
     if(pinKey!==lastPins){
       lastPins=pinKey;
@@ -71,8 +110,6 @@
       byId('spindle').setAttribute('aria-label',pins.map(letter=>letter==='·'?'unknown':letter).join(', '));
     }
     cabinet.dataset.lock=guessing?'closed':game.solved?'opened':'sealed';
-    endsAt = game.endsAt;
-    tick();
     byId('puzzle').textContent = 'Vault ' + round + ' / ' + rounds;
     byId('score').textContent = Number(score).toLocaleString('en-GB');
     byId('attempt').textContent = guessing ? 'Try ' + Math.min(used+1,attemptLimit) + ' of ' + attemptLimit : 'Vault ' + (game.solved ? 'opened' : 'sealed');
@@ -83,7 +120,6 @@
       : lead ? lead.votes + (lead.votes === 1 ? ' vote' : ' votes') + (runnerUp ? ' · ' + runnerUp.word + ' has ' + runnerUp.votes : '')
       : 'Send a five-letter word in chat.';
     byId('hint').textContent = guessing && game.clue ? 'Clue: ' + game.clue : '';
-    const example = examples.find(word => !rows.some(row => row.word === word));
     byId('command').textContent = guessing ? 'Type ' + example : phase === 'completed' ? 'Game complete' : 'Next vault incoming';
     byId('instruction').textContent = guessing ? 'Chat’s top word locks in' : round + ' / ' + rounds + ' vaults played';
     cabinet.style.setProperty('--angle', (round * 30 + used * 60) + 'deg');

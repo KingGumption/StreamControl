@@ -24,7 +24,9 @@ function buttons() {
   $('presetGame').disabled=!state || busy;
   document.querySelectorAll('#fields input,#fields select').forEach(input=>input.disabled=!enabled);
   $('takeAir').disabled=!enabled || !game || Boolean(state?.active);
-  $('takeAir').textContent=selection==='quiz'?'Open quiz lobby':game?'Launch '+game.name:'Launch game';
+  $('takeCorner').hidden=!game?.supportsCorner;
+  $('takeCorner').disabled=!game?.supportsCorner||$('takeAir').disabled;
+  $('takeAir').textContent=game?.supportsCorner?'Launch full board':selection==='quiz'?'Open quiz lobby':game?'Launch '+game.name:'Launch game';
   const activeName=state?.catalog.find(item=>item.id===state.active)?.name;
   const hint=game && activeName && state.active!==selection?'Take '+activeName+' off the overlay before launching '+game.name+'.':'';
   $('launchHint').textContent=hint;
@@ -92,12 +94,6 @@ function fields() {
   const id=$('presetGame').value, preset=state.presets[id]||{}, holder=$('fields');
   holder.replaceChildren();
   if(!id)return;
-  if(['word','higher','number','split'].includes(id)){
-    const label=document.createElement('label'),mode=document.createElement('select');
-    label.textContent='On-stream layout';mode.name='layout';
-    mode.add(new Option('Full game board','full'));mode.add(new Option('Gameplay corner','compact'));
-    mode.value=preset.layout||'full';label.append(mode);holder.append(label);
-  }
   if(id==='word'){
     holder.append(field('rounds','Vaults to crack',preset.rounds??3,1,10),
       field('seconds','Seconds per guess vote',preset.seconds??25,10,60));
@@ -172,8 +168,9 @@ function renderLive(){
     return;
   }
   const id=state.active;
+  const placement=state.layout==='compact'?' · Gameplay corner':'';
   if(state.audience){
-    const g=state.audience; $('liveHeading').textContent=g.title;
+    const g=state.audience; $('liveHeading').textContent=g.title+placement;
     const seconds=g.endsAt?Math.max(0,Math.ceil((g.endsAt-Date.now())/1000))+'s remaining':'';
     if(id==='word'){
       const lead=g.candidates?.[0];
@@ -196,7 +193,7 @@ function renderLive(){
   if(deadline) parts.push(Math.max(0,Math.ceil((deadline-Date.now())/1000))+'s remaining');
   if(g.phase==='lobby' && !g.players) parts.push('Waiting for a player to join');
   if(!canControl()) parts.push('View only');
-  $('liveHeading').textContent=state.catalog.find(game=>game.id===id).name;
+  $('liveHeading').textContent=state.catalog.find(game=>game.id===id).name+placement;
   $('status').textContent=parts.join(' · ');
 }
 $('mods').onchange=()=>run(()=>api('moderators/handoff',{enabled:$('mods').checked}));for(const action of ['start','next','stop'])$(action).onclick=()=>{run(()=>api('games/action',{action,game:state.active}),{start:'Quiz started.',next:'Game advanced.',stop:'Game stopped.'}[action]);};
@@ -217,8 +214,12 @@ $('preset').onsubmit=event=>{
   if(event.submitter===$('savePreset')){
     run(()=>api('games/preset',{game,values}),'Default settings saved.');
   }else if(!state.active){
-    const name=state.catalog.find(item=>item.id===game).name;
-    run(()=>api('games/action',{action:'launch',game,values}),game==='quiz'?'Quiz lobby opened.':'Launched '+name+'.');
+    const selected=state.catalog.find(item=>item.id===game);
+    const corner=event.submitter===$('takeCorner');
+    if(corner&&!selected.supportsCorner)return;
+    if(selected.supportsCorner)values.layout=corner?'compact':'full';
+    const message=game==='quiz'?'Quiz lobby opened.':selected.name+' launched'+(corner?' in the gameplay corner':'')+'.';
+    run(()=>api('games/action',{action:'launch',game,values}),message);
   }
 };
 $('theme').onchange=overlays;$('overlayMuted').onchange=overlays;$('overlayVolume').oninput=overlays;

@@ -1,85 +1,89 @@
 (() => {
-  const main=document.querySelector('main');
-  const stages=Object.fromEntries([...main.querySelectorAll('section')].map(stage=>[stage.id,stage]));
-  const byId=id=>document.getElementById(id);
-  const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+  const byId = id => document.getElementById(id);
+  const main = document.querySelector('main');
+  const stages = Object.fromEntries([...main.querySelectorAll('section')].map(section => [section.id,section]));
+  const rank = value => ({1:'A',11:'J',12:'Q',13:'K'})[value] || String(value);
+  const quantity = (value,noun) => value+' '+noun+(value===1?'':'s');
   let game, stage, previousBeat;
-  function tick(){
-    if(main.hidden||!game)return;
-    stage.querySelector('.clock').textContent=game.phase==='question'?Math.max(0,Math.ceil((game.endsAt-Date.now())/1000))+'s':game.phase==='completed'?'Final':'Reveal';
+
+  function tick() {
+    if (!game || main.hidden) return;
+    stage.querySelector('.clock').textContent = game.phase==='question' ? Math.max(0,Math.ceil((game.endsAt-Date.now())/1000))+'s' : game.phase==='completed'?'Final':'Reveal';
   }
-  function restartDeal(){
-    if(reducedMotion.matches)return;
-    stages.higher.classList.remove('deal');
-    void stages.higher.offsetWidth;
-    stages.higher.classList.add('deal');
+
+  function higher(g,reveal) {
+    const history = [...g.cardHistory];
+    if (reveal) history.push(g.card);
+    const ranks = history.slice(-6).map(value => {
+      const item = document.createElement('b');
+      item.textContent = rank(value);
+      return item;
+    });
+    byId('run').replaceChildren(...ranks);
+    byId('rank').textContent = rank(g.card);
+    byId('rank-label').textContent = reveal?'Drawn rank':'Current rank';
+    stages.higher.querySelector('.calls').hidden = reveal;
+    byId('verdict').hidden = !reveal;
+    if (!reveal) return 'Type 1 or 2 in chat';
+    byId('verdict').textContent = rank(g.previousCard)+' → '+rank(g.card)+' · '+(g.result.winner===0?'Higher':'Lower');
+    return quantity(g.result.counts[g.result.winner]||0,'correct call');
   }
-  function rank(value){return ({1:'A',11:'J',12:'Q',13:'K'})[value]||String(value??'—');}
-  function higher(g,reveal,changed){
-    const drawn=byId('draw');
-    byId('held').querySelector('b').textContent=rank(reveal?g.previousCard:g.card);
-    drawn.classList.toggle('back',!reveal);
-    drawn.querySelector('b').textContent=reveal?rank(g.card):'';
-    stages.higher.querySelector('h2').textContent=reveal?(g.result?.winner===0?'Higher wins!':'Lower wins!'):'Call the next card';
-    stages.higher.querySelector('.bets').hidden=reveal;
-    if(changed)restartDeal();
-    const correct=g.result?.counts?.[g.result.winner]||0;
-    return reveal?correct+(correct===1?' correct call':' correct calls'):'Chat: 1 higher · 2 lower';
+
+  function split(g,reveal) {
+    const counts = g.result?.counts || [0,0];
+    const total = counts[0]+counts[1];
+    stages.split.querySelectorAll('.lane').forEach((lane,i) => {
+      lane.querySelector('strong').textContent = g.options[i].name;
+      lane.querySelector('i').style.width = reveal&&total ? counts[i]*100/total+'%' : '0';
+      lane.querySelector('span').textContent = reveal ? quantity(counts[i],'vote') : '';
+      lane.classList.toggle('winner',reveal && g.result.winner===i);
+    });
+    if (!reveal) return 'Type 1 or 2 · smaller side scores';
+    return g.result.winner>=0?'Side '+(g.result.winner+1)+' earns the point':'No minority · no points';
   }
-  function person(){
-    const ns='http://www.w3.org/2000/svg',sprite=document.createElementNS(ns,'svg'),shape=document.createElementNS(ns,'path');
-    sprite.setAttribute('viewBox','0 0 10 16');sprite.setAttribute('aria-hidden','true');
-    shape.setAttribute('d','M3 0h4v1h1v4H7v1H3V5H2V1h1zM2 7h6v1h2v5H8v-3H7v6H5v-4H4v4H2v-6H1v3H0V8h2z');
-    sprite.append(shape);return sprite;
-  }
-  function split(g,reveal,changed){
-    if(changed){
-      stages.split.classList.toggle('reveal',reveal);
-      for(const [i,id] of ['left','right'].entries()){
-        const side=byId(id),crowd=side.querySelector('.crowd');
-        side.querySelector('strong').textContent=g.options[i]?.name||'';
-        side.classList.toggle('win',reveal&&g.result?.winner===i);
-        crowd.replaceChildren();
-        if(reveal){
-          const votes=g.result?.counts?.[i]||0;
-          for(let n=0;n<Math.min(6,votes);n++)crowd.append(person());
-          const count=document.createElement('span');count.className='count';count.textContent=votes+' '+(votes===1?'vote':'votes');crowd.append(count);
-        }else{
-          const label=document.createElement('span');label.className='entry';label.textContent='Type '+(i+1);crowd.append(label);
-        }
-      }
+
+  const matrix = stages.number.querySelector('.matrix');
+  matrix.replaceChildren(...Array.from({length:100},()=>document.createElement('i')));
+  function number(g,reveal) {
+    const {low,high} = g.range;
+    const guesses = new Set(g.result?.guesses);
+    const finished = g.phase==='completed';
+    for (const [index,cell] of [...matrix.children].entries()) {
+      const n = index+1;
+      cell.classList.toggle('available',!finished && n>=low && n<=high);
+      cell.classList.toggle('hit',reveal && guesses.has(n));
+      cell.classList.toggle('target',finished && n===g.revealedNumber);
     }
-    return reveal?(g.result?.winner>=0?'Side '+(g.result.winner+1)+' takes the point':'No minority · no points'):'Join the smaller side';
+    byId('frequency').textContent = finished ? g.revealedNumber : low===high?low:low+'–'+high;
+    byId('scan-label').textContent = finished?'Target located':reveal?'Range updated':'Search range';
+    byId('remaining').textContent = finished ? (g.result.success?'Found by chat':'Out of guesses') : quantity(high-low+1,'possible number')+' left';
+    if (!reveal) return 'Send your number in chat';
+    return finished?'Search complete':guesses.size+(guesses.size===1?' distinct guess':' distinct guesses');
   }
-  function number(g,reveal,changed){
-    const {low,high}=g.range,finished=g.phase==='completed';
-    byId('frequency').textContent=finished?g.revealedNumber:low+'–'+high;
-    byId('unit').textContent=finished?'Target':reveal?'Updated range':'Search range';
-    const range=byId('range');range.style.left=((low-1)/99*100)+'%';range.style.width=((high-low)/99*100)+'%';
-    if(changed){
-      const echoes=(g.result?.guesses||[]).map(value=>{const marker=document.createElement('i');marker.style.left=((value-1)/99*100)+'%';return marker;});
-      byId('echoes').replaceChildren(...echoes);
+
+  const renderers = {higher,split,number};
+  function render(g) {
+    game = g;
+    main.hidden = g.phase==='idle' || !Object.hasOwn(stages,g.id);
+    if (main.hidden) {previousBeat=null; return;}
+    stage = stages[g.id];
+    for (const section of Object.values(stages)) section.hidden = section!==stage;
+    const beat = [g.gameId,g.id,g.round,g.phase].join('/');
+    if (beat!==previousBeat) stage.querySelector('.instruction').textContent = renderers[g.id](g,g.phase!=='question');
+    previousBeat = beat;
+    const leader = g.phase==='completed' && g.leaderboard?.[0];
+    const meta = stage.querySelector('.meta');
+    if (leader?.score>0) {
+      const name = document.createElement('span');
+      name.textContent = leader.username;
+      meta.replaceChildren(name,' · '+quantity(leader.score,'pt'));
+    } else {
+      meta.textContent = 'R'+g.round+'/'+g.rounds+(g.phase==='question'&&g.answered?' · '+g.answered+' in':'');
     }
-    const total=g.result?.guesses?.length||0;
-    return finished?(g.result?.success?'Chat found the signal!':'Search complete'):reveal?total+(total===1?' distinct guess':' distinct guesses'):'Type a number from '+low+' to '+high;
+    tick();
   }
-  const renderers={higher,split,number};
-  function render(g){
-    game=g;
-    main.hidden=g.phase==='idle'||!Object.hasOwn(stages,g.id);
-    if(main.hidden){previousBeat=null;return;}
-    stage=stages[g.id];
-    for(const section of Object.values(stages))section.hidden=section!==stage;
-    const beat=[g.gameId,g.id,g.round,g.phase].join('/');
-    const round='R'+g.round+' / '+g.rounds;
-    stage.querySelector('.meta').textContent=g.phase==='question'&&g.answered?round+' · '+g.answered+' in':round;
-    stage.querySelector('.instruction').textContent=renderers[g.id](g,g.phase!=='question',beat!==previousBeat);
-    const leader=g.phase==='completed'&&g.leaderboard?.[0];
-    if(leader?.score>0)stage.querySelector('.meta').textContent=leader.username+' · '+leader.score+' pts';
-    previousBeat=beat;tick();
-  }
-  const events=new EventSource('/chat-games/events');
-  events.addEventListener('arcade-state',e=>render(JSON.parse(e.data)));
-  events.onerror=()=>{main.hidden=true;previousBeat=null;};
+  const events = new EventSource('/chat-games/events');
+  events.addEventListener('arcade-state', e => render(JSON.parse(e.data)));
+  events.onerror = () => {main.hidden=true; previousBeat=null;};
   setInterval(tick,250);
 })();

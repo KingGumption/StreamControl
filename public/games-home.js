@@ -54,7 +54,7 @@
       if(!Array.isArray(state.catalog))throw Error();
       const sig=JSON.stringify(state.catalog);if(signature!==sig){rebuild(state.catalog);signature=sig;}
       const active=state.catalog.find(g=>g.id===state.active);
-      get('airStatus').textContent=active?active.name+' is on the overlay':'No game on the overlay';
+      get('airStatus').textContent=active?active.name+(state.layout==='compact'?' is in the gameplay corner':' is on the overlay'):'No game on the overlay';
       const writable=state.user?.role==='owner'||state.controlEnabled===true;
       get('libraryHint').textContent=writable?'Choose a game to review its settings. Nothing goes on air until you launch it.':'View game settings and check the current overlay. Your account cannot launch or change games right now.';
       get('activeLink').hidden=!active;

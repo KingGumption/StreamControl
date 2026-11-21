@@ -35,6 +35,22 @@
       </section>
       <footer><strong id="command"></strong><span id="instruction"></span></footer>
     </main>
+    <main class="decoder" hidden aria-label="Word Vault gameplay corner">
+      <header class="decoder-top"><h1>Word Vault</h1><span id="decoder-round"></span><strong id="decoder-score"></strong></header>
+      <div class="decoder-body">
+        <section class="decoder-display">
+          <h2 id="decoder-state"></h2>
+          <div id="decoder-code" aria-label="Known letters"></div>
+          <p id="decoder-ballot"></p>
+        </section>
+        <section class="decoder-log" aria-label="Previous guesses">
+          <h2>Guess history</h2><div id="decoder-history" role="list"></div>
+          <p class="decoder-legend"><b>✓</b> Exact <b>↔</b> Move <b>×</b> Out</p>
+        </section>
+      </div>
+      <div id="decoder-clue" hidden></div>
+      <div class="decoder-strip"><strong id="decoder-command"></strong><b id="decoder-clock"></b></div>
+    </main>
   </div>
   <script src="/assets/word-vault.js"></script>
 </body></html>
